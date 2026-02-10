@@ -1,0 +1,68 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <map>
+using namespace std;
+
+struct ClassEvent {
+    string name;
+    vector<char> days;   // {'M','W','F'}
+    string startTime;    // "11:00 AM"
+    string endTime;      // "11:50 AM"
+    string location;
+};
+
+// Convert "HH:MM AM/PM" → minutes since midnight
+int convertToMinutes(const string& timeStr) {
+    int hour = stoi(timeStr.substr(0, 2));
+    int minute = stoi(timeStr.substr(3, 2));
+    string ampm = timeStr.substr(6, 2);
+
+    if (ampm == "PM" && hour != 12) hour += 12;
+    if (ampm == "AM" && hour == 12) hour = 0;
+
+    return hour * 60 + minute;
+}
+
+// Order of days for sorting
+map<char, int> dayOrder = {
+    {'M', 1}, {'T', 2}, {'W', 3}, {'R', 4}, {'F', 5}
+};
+
+// Compare two classes for sorting
+bool compareEvents(const ClassEvent& a, const ClassEvent& b) {
+    int dayA = dayOrder[a.days[0]];
+    int dayB = dayOrder[b.days[0]];
+
+    if (dayA != dayB)
+        return dayA < dayB;
+
+    int timeA = convertToMinutes(a.startTime);
+    int timeB = convertToMinutes(b.startTime);
+
+    return timeA < timeB;
+}
+
+// Sort the entire schedule
+void sortSchedule(vector<ClassEvent>& schedule) {
+    sort(schedule.begin(), schedule.end(), compareEvents);
+}
+
+int main() {
+    vector<ClassEvent> schedule = {
+        {"Fundamentals of Mathematics", {'T','R'}, "08:00 AM", "09:20 AM", "One Drexel Plaza GL41"},
+        {"General Psychology I", {'M','W','F'}, "11:00 AM", "11:50 AM", "Nesbitt 111"},
+        {"English Composition II", {'T'}, "11:00 AM", "12:50 PM", "Curtis 250"},
+        {"Foundations of AI for Business", {'M','W'}, "12:00 PM", "01:50 PM", "LeBow 209"},
+        {"Career Management", {'M'}, "03:00 PM", "03:50 PM", "3675 Market 1056"}
+    };
+
+    sortSchedule(schedule);
+
+    for (auto& c : schedule) {
+        cout << c.days[0] << "  " << c.startTime << "  " << c.name << endl;
+    }
+
+    return 0;
+}
