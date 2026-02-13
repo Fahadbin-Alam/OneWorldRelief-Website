@@ -2,7 +2,9 @@
 # Student Guide App Backend (MVP)
 # Feature: Clubs + Events + Peer Availability
 # ------------------------------
-
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional
@@ -11,6 +13,11 @@ from datetime import datetime
 # Create the FastAPI application object.
 # This is the "server" that will receive HTTP requests.
 app = FastAPI(title="Drexel Student Success API")
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # ------------------------------
 # 1) DATA MODELS (Pydantic)
