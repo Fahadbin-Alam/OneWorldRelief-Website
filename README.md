@@ -1,16 +1,53 @@
 # Drexel Student Success App
 
-## Backend
+## Project Overview
 
-This project is built using FastAPI.
+The Drexel Student Success App is a student-focused platform designed to improve campus engagement, academic planning, and peer networking.
 
-### Features Implemented
-- Clubs endpoint
-- Club events endpoint
+This sprint focuses on implementing the backend API using FastAPI to support:
+
+- Clubs discovery
+- Club events
 - Peer availability
-- Networking view
+- Networking features
 
-### Run Locally
+---
+
+## User Story Implemented (Sprint Feature)
+
+> As a person that participates in clubs and wants to be involved more,  
+> I would like to know what clubs and which of my peers are available  
+> so I can network and make friends.
+
+This is supported through:
+
+- `/clubs`
+- `/clubs/{club_id}/events`
+- `/availability`
+- `/networking`
+
+---
+
+## Architecture
+
+Backend: FastAPI  
+API Documentation: Swagger UI (`/docs`)  
+Data Models: Pydantic  
+
+The backend currently runs as a local development server.
+
+---
+
+## Features Implemented
+
+- GET `/clubs`
+- GET `/clubs/{club_id}/events`
+- GET `/availability`
+- GET `/networking`
+
+---
+
+## How to Run Locally
 
 ```bash
 cd backend
