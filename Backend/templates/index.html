@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drexel Student Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+        }
+
+        header {
+            background: #07294d;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        a {
+            text-decoration: none;
+            color: #07294d;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Drexel Student Success</h1>
+    <p>Your campus connection platform</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>🏫 View Clubs</h2>
+        <p>Explore campus clubs and organizations.</p>
+        <a href="/clubs">Go to Clubs →</a>
+    </div>
+
+    <div class="card">
+        <h2>📅 Club Events</h2>
+        <p>See upcoming events for each club.</p>
+        <a href="/clubs/1/events">View Events →</a>
+    </div>
+
+    <div class="card">
+        <h2>🕒 Peer Availability</h2>
+        <p>Find classmates who are available to collaborate.</p>
+        <a href="/availability">Check Availability →</a>
+    </div>
+
+    <div class="card">
+        <h2>🤝 Networking</h2>
+        <p>Connect with students who share your interests.</p>
+        <a href="/networking">Start Networking →</a>
+    </div>
+
+</div>
+
+<div class="footer">
+    Built with FastAPI 🚀
+</div>
+
+</body>
+</html>
