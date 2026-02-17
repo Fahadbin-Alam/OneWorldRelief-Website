@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #0066cc;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #004999;
+}
+
+.hidden {
+    display: none;
+}
+
+.error {
+    color: red;
+    font-size: 14px;
+    text-align: center;
+}
+
+.success {
+    color: green;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIGNUP PAGE -->
+<div class="container" id="signupPage">
+    <h2>Create Account</h2>
+
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="number" id="age" placeholder="Age">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+
+    <div id="errorMessage" class="error"></div>
+
+    <button onclick="generateOTP()">Sign Up</button>
+</div>
+
+<!-- OTP PAGE -->
+<div class="container hidden" id="otpPage">
+    <h2>OTP Verification</h2>
+    <p>Enter the OTP sent to your email</p>
+    <input type="text" id="otpInput" placeholder="Enter OTP">
+    <div id="otpError" class="error"></div>
+    <button onclick="verifyOTP()">Verify OTP</button>
+</div>
+
+<!-- SUCCESS PAGE -->
+<div class="container hidden" id="successPage">
+    <h2 class="success">Account Created Successfully ✅</h2>
+</div>
+
+<script>
+
+let generatedOTP = "";
+
+// Email validation
+function isValidEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+}
+
+// Generate OTP
+function generateOTP() {
+
+    const name = document.getElementById("name").value.trim();
+    const age = parseInt(document.getElementById("age").value);
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const errorDiv = document.getElementById("errorMessage");
+
+    errorDiv.textContent = "";
+
+    if (!name || !age || !email || !password) {
+        errorDiv.textContent = "Please fill all fields.";
+        return;
+    }
+
+    if (age < 16) {
+        errorDiv.textContent = "Minimum age of 16 is required.";
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        errorDiv.textContent = "Please enter a valid email address.";
+        return;
+    }
+
+    // Generate random 6-digit OTP
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+    alert("Mock OTP (no email backend yet): " + generatedOTP);
+
+    encryptPassword(password).then(encryptedPassword => {
+        localStorage.setItem("signupData", JSON.stringify({
+            name: name,
+            age: age,
+            email: email,
+            password: encryptedPassword
+        }));
+    });
+
+    document.getElementById("signupPage").classList.add("hidden");
+    document.getElementById("otpPage").classList.remove("hidden");
+}
+
+// Verify OTP
+function verifyOTP() {
+    const userOTP = document.getElementById("otpInput").value;
+    const otpError = document.getElementById("otpError");
+
+    otpError.textContent = "";
+
+    if (userOTP === generatedOTP) {
+        document.getElementById("otpPage").classList.add("hidden");
+        document.getElementById("successPage").classList.remove("hidden");
+    } else {
+        otpError.textContent = "Incorrect OTP. Please try again.";
+    }
+}
+
+// SHA-256 Password Encryption
+async function encryptPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hash));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+</script>
+
+</body>
+</html>
