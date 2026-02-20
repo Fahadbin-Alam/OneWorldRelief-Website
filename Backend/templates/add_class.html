@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Class - Drexel Student Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+        }
+
+        header {
+            background: #07294d;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: bold;
+            color: #07294d;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #d9d9e3;
+            border-radius: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .hint {
+            margin-top: 6px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        button, a.btn {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        button.primary {
+            background: #07294d;
+            color: white;
+        }
+
+        button.primary:hover {
+            opacity: 0.95;
+        }
+
+        a.btn.secondary {
+            background: #e9edf7;
+            color: #07294d;
+        }
+
+        a.btn.secondary:hover {
+            background: #dde4f6;
+        }
+
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message.success {
+            background: #e7f7ee;
+            border: 1px solid #b9ebcd;
+            color: #135a2e;
+        }
+
+        .message.error {
+            background: #fdecec;
+            border: 1px solid #f7b9b9;
+            color: #7b1b1b;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: gray;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Add a Class</h1>
+    <p>Enter your schedule manually</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <form id="classForm">
+            <label for="name">Class Name</label>
+            <input id="name" name="name" type="text" placeholder="e.g., Fundamentals of Mathematics" required />
+
+            <label for="days">Days</label>
+            <input id="days" name="days" type="text" placeholder="e.g., MWF or TR" required />
+            <div class="hint">Use: M, T, W, R, F (R = Thursday). Example: MWF or TR</div>
+
+            <div class="row">
+                <div>
+                    <label for="start_time">Start Time</label>
+                    <input id="start_time" name="start_time" type="text" placeholder="e.g., 08:00 AM" required />
+                    <div class="hint">Format: HH:MM AM/PM (example: 08:00 AM)</div>
+                </div>
+                <div>
+                    <label for="end_time">End Time</label>
+                    <input id="end_time" name="end_time" type="text" placeholder="e.g., 09:20 AM" required />
+                    <div class="hint">Format: HH:MM AM/PM (example: 09:20 AM)</div>
+                </div>
+            </div>
+
+            <label for="location">Location</label>
+            <input id="location" name="location" type="text" placeholder="e.g., One Drexel Plaza GL41" required />
+
+            <div class="btn-row">
+                <button class="primary" type="submit">Save Class</button>
+                <a class="btn secondary" href="/">← Back to Home</a>
+                <a class="btn secondary" href="/docs">API Docs</a>
+            </div>
+
+            <div id="msgSuccess" class="message success"></div>
+            <div id="msgError" class="message error"></div>
+        </form>
+
+        <div class="footer">
+            Built with FastAPI 🚀
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1) Grab the form and message boxes
+    const form = document.getElementById("classForm");
+    const msgSuccess = document.getElementById("msgSuccess");
+    const msgError = document.getElementById("msgError");
+
+    // 2) Helper: show success/error messages
+    function showSuccess(text) {
+        msgError.style.display = "none";
+        msgSuccess.textContent = text;
+        msgSuccess.style.display = "block";
+    }
+
+    function showError(text) {
+        msgSuccess.style.display = "none";
+        msgError.textContent = text;
+        msgError.style.display = "block";
+    }
+
+    // 3) Convert days string like "MWF" or "TR" into array: ["M","W","F"]
+    function parseDays(daysStr) {
+        const allowed = new Set(["M","T","W","R","F"]);
+        const upper = daysStr.toUpperCase().replace(/\s+/g, "");
+        const arr = [];
+        for (const ch of upper) {
+            if (allowed.has(ch) && !arr.includes(ch)) arr.push(ch);
+        }
+        return arr;
+    }
+
+    // 4) Basic time format check: "HH:MM AM" or "H:MM PM"
+    function isValidTime(t) {
+        // examples accepted: "8:00 AM", "08:00 AM", "12:50 PM"
+        const re = /^(\d{1,2}):(\d{2})\s?(AM|PM)$/i;
+        return re.test(t.trim());
+    }
+
+    // 5) When user clicks Save Class, POST to the backend
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value.trim();
+        const daysRaw = document.getElementById("days").value.trim();
+        const start_time = document.getElementById("start_time").value.trim();
+        const end_time = document.getElementById("end_time").value.trim();
+        const location = document.getElementById("location").value.trim();
+
+        // Basic validation
+        const days = parseDays(daysRaw);
+        if (!name) return showError("Please enter a class name.");
+        if (days.length === 0) return showError("Please enter valid days (MWF / TR). Use M,T,W,R,F.");
+        if (!isValidTime(start_time)) return showError("Start time format is invalid. Example: 08:00 AM");
+        if (!isValidTime(end_time)) return showError("End time format is invalid. Example: 09:20 AM");
+        if (!location) return showError("Please enter a location.");
+
+        // This is the JSON we send to your backend.
+        // Your FastAPI POST /classes endpoint should accept this.
+        const payload = {
+            name,
+            days,          // ["M","W","F"]
+            start_time,    // "08:00 AM"
+            end_time,      // "09:20 AM"
+            location
+        };
+
+        try {
+            const res = await fetch("/classes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const text = await res.text();
+                return showError("Failed to save class. Backend response: " + text);
+            }
+
+            const data = await res.json();
+            showSuccess("Saved! Class ID: " + data.id);
+
+            // Optional: clear form after save
+            form.reset();
+
+        } catch (err) {
+            showError("Network error. Is your backend running? Details: " + err);
+        }
+    });
+</script>
+
+</body>
+</html>
