@@ -1,3 +1,25 @@
+# Backend/main.py
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+
+# 1) Find the folder this file lives in (Backend/)
+BASE_DIR = Path(__file__).resolve().parent
+
+# 2) Create ONE FastAPI app (do NOT create it twice)
+app = FastAPI(title="Drexel Student Success API")
+
+# 3) Tell FastAPI where templates live (Backend/templates)
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+# 4) Home page route: when user goes to http://127.0.0.1:8000/
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    # "request" must be passed for Jinja templates to work
+    return templates.TemplateResponse("index.html", {"request": request})
+
 # ------------------------------
 # Student Guide App Backend (MVP)
 # Feature: Clubs + Events + Peer Availability
