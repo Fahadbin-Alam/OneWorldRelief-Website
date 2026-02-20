@@ -20,6 +20,10 @@ def home(request: Request):
     # "request" must be passed for Jinja templates to work
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/add-class", response_class=HTMLResponse)
+def add_class_page(request: Request):
+    return templates.TemplateResponse("add_class.html", {"request": request})
+
 # ------------------------------
 # Student Guide App Backend (MVP)
 # Feature: Clubs + Events + Peer Availability
