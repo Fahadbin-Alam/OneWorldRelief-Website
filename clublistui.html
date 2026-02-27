@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drexel Clubs List</title>
+<style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #f5f5f5; color: #333; overflow-x: hidden; }
+
+    header {
+        background-color: #003366;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    main { padding: 20px; max-width: 1000px; margin: auto; }
+
+    .club-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .club-card {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+    .club-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .club-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #003366; }
+    .club-description { font-size: 14px; color: #555; }
+
+    @media (max-width: 600px) {
+        .club-card { padding: 15px; }
+        .club-name { font-size: 16px; }
+        .club-description { font-size: 13px; }
+    }
+
+    /* Modal / zoom-in style */
+    .modal {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(5px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 100;
+    }
+
+    .modal.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        position: relative;
+        transform: scale(0.8);
+        transition: transform 0.3s;
+    }
+
+    .modal.active .modal-content { transform: scale(1); }
+
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #333;
+    }
+
+    .modal h2 { color: #003366; margin-bottom: 15px; }
+    .modal p { margin-bottom: 10px; font-size: 14px; color: #555; }
+</style>
+</head>
+<body>
+
+<header>Drexel Clubs</header>
+
+<main>
+    <div class="club-list" id="clubList">
+        <!-- Clubs will be dynamically added -->
+    </div>
+</main>
+
+<!-- Modal -->
+<div class="modal" id="clubModal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2 id="modalClubName"></h2>
+        <p id="modalClubDesc"></p>
+        <p><strong>Meeting Time:</strong> <span id="modalClubTime"></span></p>
+        <p><strong>Email:</strong> <span id="modalClubEmail"></span></p>
+        <p><strong>Extra Info:</strong> <span id="modalClubExtra"></span></p>
+    </div>
+</div>
+
+<script>
+const clubs = {
+    "Robotics Club": {
+        description: "Explore robotics and AI, participate in competitions, and collaborate on innovative projects.",
+        meeting: "Tuesdays 5-7 PM, Robotics Lab",
+        email: "robotics@drexel.edu",
+        extra: "Work on projects that compete nationally."
+    },
+    "Photography Society": {
+        description: "Learn photography, attend workshops, and participate in photo walks around campus.",
+        meeting: "Wednesdays 4-6 PM, Art Building Room 202",
+        email: "photo@drexel.edu",
+        extra: "Monthly photo contests and exhibitions."
+    },
+    "Drexel Debate Team": {
+        description: "Enhance your public speaking and critical thinking skills through debate competitions.",
+        meeting: "Mondays 6-8 PM, Student Center 101",
+        email: "debate@drexel.edu",
+        extra: "Participate in intercollegiate tournaments."
+    },
+    "Environmental Action Club": {
+        description: "Promote sustainability on campus with projects, awareness campaigns, and volunteer events.",
+        meeting: "Fridays 3-5 PM, Green Office",
+        email: "enviro@drexel.edu",
+        extra: "Organize campus clean-ups and recycling drives."
+    },
+    "Gaming Guild": {
+        description: "Connect with fellow gamers, organize tournaments, and explore new games together.",
+        meeting: "Thursdays 6-9 PM, Game Room 2",
+        email: "gaming@drexel.edu",
+        extra: "Weekly online and offline competitions."
+    }
+};
+
+const clubListDiv = document.getElementById('clubList');
+
+for (let clubName in clubs) {
+    const clubCard = document.createElement('div');
+    clubCard.className = 'club-card';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'club-name';
+    nameEl.textContent = clubName;
+
+    const descEl = document.createElement('div');
+    descEl.className = 'club-description';
+    descEl.textContent = clubs[clubName].description;
+
+    clubCard.appendChild(nameEl);
+    clubCard.appendChild(descEl);
+    clubListDiv.appendChild(clubCard);
+
+    // Click event for modal
+    clubCard.addEventListener('click', () => {
+        document.getElementById('modalClubName').textContent = clubName;
+        document.getElementById('modalClubDesc').textContent = clubs[clubName].description;
+        document.getElementById('modalClubTime').textContent = clubs[clubName].meeting;
+        document.getElementById('modalClubEmail').textContent = clubs[clubName].email;
+        document.getElementById('modalClubExtra').textContent = clubs[clubName].extra;
+
+        document.getElementById('clubModal').classList.add('active');
+    });
+}
+
+// Close modal
+document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('clubModal').classList.remove('active');
+});
+
+// Close modal when clicking outside content
+document.getElementById('clubModal').addEventListener('click', (e) => {
+    if(e.target === e.currentTarget){
+        e.currentTarget.classList.remove('active');
+    }
+});
+</script>
+
+</body>
+</html>
