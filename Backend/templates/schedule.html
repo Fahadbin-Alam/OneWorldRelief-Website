@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Schedule - Drexel Student Success{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>My Class Schedule</h2>
+    <p>Sorted by day, then by start time.</p>
+  </div>
+
+  <div class="card">
+    {% if classes|length == 0 %}
+      <p>No classes added yet.</p>
+    {% else %}
+      {% for c in classes %}
+        <div class="card" style="box-shadow:none; border:1px solid #eee;">
+          <div class="badge">{{ c.days | join(", ") }}</div>
+          <h3 style="margin:10px 0 6px 0;">{{ c.name }}</h3>
+          <div style="color:#444;">{{ c.start_time }} → {{ c.end_time }}</div>
+          <div style="color:#444;">{{ c.location }}</div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endblock %}
