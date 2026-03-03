@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Events - Drexel Student Success{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>{{ club.name }} Events</h2>
+    <p style="color:#444;">{{ club.description }}</p>
+    <a class="btn" href="/clubs-view">← Back to Clubs</a>
+  </div>
+
+  <div class="card">
+    <h3>Chronological List</h3>
+    {% if events|length == 0 %}
+      <p>No events found for this club.</p>
+    {% else %}
+      {% for e in events %}
+        <div class="card" style="box-shadow:none; border:1px solid #eee;">
+          <h4 style="margin:0 0 6px 0;">{{ e.title }}</h4>
+          <div>{{ e.location }}</div>
+          <div style="color:#555; margin-top:6px;">
+            {{ e.start_time }} → {{ e.end_time }}
+          </div>
+          {% if e.description %}
+            <div style="margin-top:8px; color:#333;">{{ e.description }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endblock %}
