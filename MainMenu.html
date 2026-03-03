@@ -3,889 +3,1355 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Succeed — Prototype</title>
+  <title>Succeed — Drexel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      /* First-draft color style */
-      --bg: #070A12;
-      --panel: rgba(255,255,255,.08);
-      --panel2: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.14);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.68);
-      --shadow: 0 18px 50px rgba(0,0,0,.55);
-      --radius: 18px;
-
-      /* accents from first draft */
-      --accent: #FFD200;
-      --accent2: #00D1FF;
-      --ok: #45FFB1;
-      --danger: #FF4D6D;
-
-      --focus: 0 0 0 3px rgba(255,210,0,.22), 0 0 0 1px rgba(255,210,0,.35);
-
-      --hoverLift: translateY(-2px);
-      --hoverGlow: 0 16px 46px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.10);
-      --hoverBorder: rgba(255,255,255,.20);
-      --hoverRing: 0 0 0 1px rgba(255,210,0,.22), 0 0 22px rgba(0,209,255,.10);
+    /* ── TOKENS ────────────────────────────────────── */
+    :root {
+      --navy:   #07294D;
+      --gold:   #FFC600;
+      --gold2:  #FFD84D;
+      --white:  #FFFFFF;
+      --off:    #F4F6F9;
+      --gray1:  #E8ECF2;
+      --gray2:  #C4CEDB;
+      --gray3:  #8898AA;
+      --dark:   #0A1628;
+      --text:   #0D1F35;
+      --muted:  #5A6B80;
+      --danger: #D93025;
+      --ok:     #1A7F4B;
+      --r:      16px;
+      --shadow: 0 2px 12px rgba(7,41,77,.10), 0 1px 3px rgba(7,41,77,.06);
+      --shadow-lg: 0 8px 32px rgba(7,41,77,.14), 0 2px 8px rgba(7,41,77,.08);
     }
 
-    *{ box-sizing: border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
+    /* ── RESET ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--off);
       color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-      background:
-        radial-gradient(900px 500px at 20% 10%, rgba(255,210,0,.18), transparent 60%),
-        radial-gradient(700px 420px at 85% 30%, rgba(0,209,255,.16), transparent 62%),
-        radial-gradient(900px 540px at 50% 100%, rgba(69,255,177,.08), transparent 60%),
-        linear-gradient(180deg, #050711, #050610 55%, #04040A);
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input { font-family: inherit; }
 
-    /* ---------- Reusable interactive surface ---------- */
-    .surface{
-      position: relative;
-      border-radius: var(--radius);
-      border: 1px solid var(--stroke);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
-      will-change: transform;
+    /* ── SPLASH ────────────────────────────────────── */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+      opacity: 1;
+      transition: opacity 0.4s ease;
     }
-    .surface::before{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      border-radius: calc(var(--radius) + 2px);
-      background: conic-gradient(
-        from 180deg,
-        rgba(255,210,0,.0),
-        rgba(0,209,255,.18),
-        rgba(255,210,0,.20),
-        rgba(69,255,177,.14),
-        rgba(255,210,0,.0)
-      );
+    #splash.hide { opacity: 0; pointer-events: none; }
+    #splash.gone { display: none; }
+
+    .splash-logo {
+      width: 64px; height: 64px; border-radius: 20px;
+      background: var(--gold);
+      display: grid; place-items: center;
+      font-size: 28px;
+      box-shadow: 0 0 0 0 rgba(255,198,0,0.5);
+      animation: pulse-ring 1.6s ease infinite;
       opacity: 0;
-      filter: blur(12px);
-      transition: opacity .18s ease;
-      pointer-events:none;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease 0.1s, transform 0.4s cubic-bezier(.34,1.56,.64,1) 0.1s;
     }
-    .surface:hover{
-      transform: var(--hoverLift);
-      border-color: var(--hoverBorder);
-      box-shadow: var(--hoverGlow);
-    }
-    .surface:hover::before{ opacity: .65; }
-    .surface::after{
-      content:"";
-      position:absolute;
-      inset: 0;
-      border-radius: var(--radius);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
-      pointer-events:none;
-    }
+    .splash-logo.in { opacity: 1; transform: scale(1); }
 
-    .clickable{ cursor: pointer; }
-    .clickable:active{ transform: translateY(0px) scale(.99); }
-
-    /* Ripple */
-    .ripple{
-      position:absolute;
-      border-radius: 999px;
-      transform: translate(-50%,-50%);
-      pointer-events:none;
-      background: radial-gradient(circle, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 60%);
-      width: 10px;
-      height: 10px;
+    .splash-wordmark {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
+      color: var(--white);
       opacity: 0;
-      animation: ripple .55s ease-out forwards;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s;
     }
-    @keyframes ripple{
-      0%{ opacity:.95; width: 0; height: 0; }
-      100%{ opacity:0; width: 420px; height: 420px; }
+    .splash-wordmark span { color: var(--gold); }
+    .splash-wordmark.in { opacity: 1; transform: translateY(0); }
+
+    .splash-sub {
+      font-size: 13px; color: rgba(255,255,255,.45); letter-spacing: 0.04em;
+      opacity: 0;
+      transition: opacity 0.3s ease 0.4s;
+    }
+    .splash-sub.in { opacity: 1; }
+
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(255,198,0,.45); }
+      70%  { box-shadow: 0 0 0 18px rgba(255,198,0,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,198,0,0); }
     }
 
-    /* ---------- Top bar ---------- */
-    .topbar{
-      position: sticky;
-      top:0;
-      z-index: 50;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(6,8,16,.55);
-      backdrop-filter: blur(10px);
-    }
-    .brand{ display:flex; align-items:center; gap: 12px; user-select:none; }
-    .logo{
-      width: 36px; height: 36px; border-radius: 12px;
-      background:
-        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
-        linear-gradient(135deg, rgba(255,210,0,.95), rgba(0,209,255,.85));
-      box-shadow: 0 10px 30px rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.18);
+    /* ── TOPBAR ────────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; height: 58px;
+      box-shadow: 0 1px 0 rgba(255,255,255,.08), var(--shadow);
     }
 
-    .app-logo{
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      object-fit: cover;
-      display:block;
-      box-shadow: 0 10px 30px rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
+    .brand {
+      display: flex; align-items: center; gap: 10px; user-select: none;
     }
-    .brand h1{ margin:0; font-size: 14px; letter-spacing: .5px; font-weight: 700; }
-    .brand p{ margin:0; font-size: 12px; color: var(--muted); }
-
-    .right-actions{ display:flex; align-items:center; gap: 10px; }
-
-    .pill{
-      display:inline-flex; align-items:center; gap: 8px;
-      padding: 9px 12px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text); font-size: 12px;
-      transition: box-shadow .16s ease, border-color .16s ease, transform .16s ease;
+    .brand-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: var(--gold);
+      display: grid; place-items: center; font-size: 16px;
+      flex-shrink: 0;
     }
-    .pill:hover{ border-color: rgba(255,255,255,.20); box-shadow: var(--hoverRing); transform: translateY(-1px); }
-    .pill-dot{
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--ok);
-      box-shadow: 0 0 0 3px rgba(69,255,177,.12);
+    .brand-name {
+      font-size: 16px; font-weight: 700; color: var(--white); letter-spacing: -0.2px;
     }
+    .brand-name span { color: var(--gold); }
 
-    .icon-btn{
-      width: 42px; height: 42px; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      display:inline-grid; place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .16s ease;
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.7); font-size: 12px;
+      transition: opacity .2s;
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ADE80;
+      box-shadow: 0 0 0 3px rgba(74,222,128,.2);
+    }
+    .status-dot.locked { background: var(--gray2); box-shadow: none; }
+
+    .menu-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: grid; place-items: center;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,.15);
+      transition: background .15s, border-color .15s;
       position: relative; overflow: hidden;
     }
-    .icon-btn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.18);
-      box-shadow: var(--hoverRing);
-    }
-    .icon-btn:active{ transform: translateY(0px) scale(.98); }
-    .icon-btn:focus{ outline:none; box-shadow: var(--focus); }
+    .menu-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.25); }
+    .menu-btn:active { transform: scale(.97); }
+    body:not(.authed) .menu-btn { opacity: .4; pointer-events: none; }
+    body:not(.authed) .status-pill { opacity: .5; }
 
-    .burger{ width: 18px; height: 12px; position: relative; }
-    .burger span{
-      position:absolute; left:0;
-      width:100%; height: 2px; border-radius: 999px;
-      background: rgba(255,255,255,.9);
-      transition: transform .18s ease, opacity .18s ease, top .18s ease;
+    .burger-icon { width: 16px; height: 11px; position: relative; }
+    .burger-icon span {
+      position: absolute; left: 0; width: 100%; height: 1.5px;
+      background: currentColor; border-radius: 2px;
+      transition: transform .2s ease, opacity .2s ease, top .2s ease;
     }
-    .burger span:nth-child(1){ top:0; }
-    .burger span:nth-child(2){ top:5px; opacity: .9; }
-    .burger span:nth-child(3){ top:10px; }
-    .menu-open .burger span:nth-child(1){ top:5px; transform: rotate(45deg); }
-    .menu-open .burger span:nth-child(2){ opacity: 0; }
-    .menu-open .burger span:nth-child(3){ top:5px; transform: rotate(-45deg); }
+    .burger-icon span:nth-child(1) { top: 0; }
+    .burger-icon span:nth-child(2) { top: 4.5px; }
+    .burger-icon span:nth-child(3) { top: 9px; }
+    .menu-open .burger-icon span:nth-child(1) { top: 4.5px; transform: rotate(45deg); }
+    .menu-open .burger-icon span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .menu-open .burger-icon span:nth-child(3) { top: 4.5px; transform: rotate(-45deg); }
 
-    /* ---------- Drawer ---------- */
-    .drawer-overlay{
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.55);
-      opacity: 0; pointer-events: none;
-      transition: opacity .18s ease;
-      z-index: 60;
+    /* ── DRAWER ────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(7,41,77,.5);
+      opacity: 0; pointer-events: none; z-index: 200;
+      transition: opacity .2s ease;
     }
-    .drawer{
-      position: fixed; top: 0; right: 0;
-      height: 100%; width: min(360px, 92vw);
-      background: rgba(10,12,22,.72);
-      backdrop-filter: blur(14px);
-      border-left: 1px solid rgba(255,255,255,.12);
+    .drawer-open .overlay { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; height: 100%;
+      width: min(320px, 88vw);
+      background: var(--white);
+      box-shadow: var(--shadow-lg);
+      transform: translateX(100%);
+      transition: transform .22s cubic-bezier(.4,0,.2,1);
+      z-index: 300;
+      display: flex; flex-direction: column;
+    }
+    .drawer-open .drawer { transform: translateX(0); }
+
+    .drawer-head {
+      background: var(--navy);
+      padding: 18px 16px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .drawer-head-info strong { font-size: 14px; font-weight: 600; color: var(--white); }
+    .drawer-head-info p { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 2px; }
+
+    .close-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: grid; place-items: center; color: rgba(255,255,255,.6);
+      font-size: 16px; line-height: 1;
+      border: 1px solid rgba(255,255,255,.15);
+      transition: color .15s, border-color .15s;
+    }
+    .close-btn:hover { color: var(--white); border-color: rgba(255,255,255,.3); }
+
+    .nav { padding: 10px; flex: 1; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--gray3);
+      padding: 10px 8px 6px;
+    }
+
+    .nav-btn {
+      width: 100%; text-align: left;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 10px;
+      border-radius: 10px;
+      color: var(--text); font-size: 13.5px; font-weight: 500;
+      transition: background .13s, color .13s;
+      position: relative; overflow: hidden;
+    }
+    .nav-btn:hover { background: var(--off); }
+    .nav-btn[aria-current="page"] {
+      background: rgba(7,41,77,.07);
+      color: var(--navy); font-weight: 600;
+    }
+    .nav-btn[aria-current="page"] .nav-ico { background: var(--navy); color: var(--gold); }
+
+    .nav-ico {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--gray1);
+      display: grid; place-items: center;
+      font-size: 14px; flex-shrink: 0;
+      transition: background .13s;
+    }
+    .nav-btn-text { display: flex; flex-direction: column; gap: 1px; }
+    .nav-btn-text small { font-size: 11px; color: var(--gray3); font-weight: 400; }
+
+    .drawer-foot {
+      padding: 14px 16px;
+      border-top: 1px solid var(--gray1);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--muted);
+    }
+    .drawer-foot a { color: var(--navy); font-weight: 500; }
+    .drawer-foot a:hover { text-decoration: underline; }
+
+    /* ── MAIN WRAP ─────────────────────────────────── */
+    .wrap { min-height: calc(100dvh - 58px); }
+
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    /* ── CARD ──────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--r);
       box-shadow: var(--shadow);
-      transform: translateX(110%);
-      transition: transform .22s ease;
-      z-index: 70;
-      display:flex; flex-direction: column;
-    }
-    .drawer header{
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      display:flex; align-items: center; justify-content: space-between; gap: 10px;
-    }
-    .drawer header .title{ display:flex; flex-direction: column; }
-    .drawer header .title strong{ font-size: 13px; letter-spacing: .4px; }
-    .drawer header .title span{ font-size: 12px; color: var(--muted); }
-
-    .nav{ padding: 10px; display:flex; flex-direction: column; gap: 8px; }
-    .nav button{
-      position: relative;
-      text-align:left;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 12px;
-      cursor:pointer;
-      display:flex; gap: 10px; align-items: center;
-      transition: transform .14s ease, background .14s ease, border-color .14s ease, box-shadow .16s ease;
       overflow: hidden;
-    }
-    .nav button:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.18);
-      box-shadow: var(--hoverRing);
-    }
-    .nav button:active{ transform: translateY(0px) scale(.99); }
-    .nav button:focus{ outline:none; box-shadow: var(--focus); }
-    .nav button[aria-current="page"]{
-      border-color: rgba(255,210,0,.55);
-      background: linear-gradient(135deg, rgba(255,210,0,.18), rgba(0,209,255,.10));
-      box-shadow: 0 0 0 1px rgba(255,210,0,.22), 0 0 26px rgba(255,210,0,.08);
+      border: 1px solid var(--gray1);
     }
 
-    .ico{
-      width: 28px; height: 28px; border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid; place-items:center;
-      flex: 0 0 auto;
-      font-size: 14px;
-      transition: transform .14s ease, box-shadow .16s ease, border-color .16s ease;
+    /* ── PAGE HEADER ───────────────────────────────── */
+    .page-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--gray1);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
     }
-    .nav button:hover .ico{
-      transform: translateY(-1px) scale(1.03);
-      border-color: rgba(255,255,255,.22);
-      box-shadow: 0 0 18px rgba(0,209,255,.10);
-    }
-
-    .drawer footer{
-      margin-top:auto;
-      padding: 14px 14px 16px;
-      border-top: 1px solid rgba(255,255,255,.10);
-      color: var(--muted);
-      font-size: 12px;
-      display:flex; justify-content: space-between; gap: 12px; align-items:center;
-    }
-    .drawer footer a{
-      color: rgba(255,255,255,.82);
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(255,255,255,.25);
-    }
-    .drawer footer a:hover{ color: rgba(255,255,255,.95); }
-
-    .drawer-open .drawer-overlay{ opacity: 1; pointer-events: auto; }
-    .drawer-open .drawer{ transform: translateX(0); }
-
-    /* ---------- Main ---------- */
-    .wrap{ min-height: calc(100vh - 70px); }
-    main{
-      width: min(1100px, 92vw);
-      margin: 26px auto 40px;
-      display:grid;
-      gap: 18px;
+    .page-header h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; color: var(--navy); }
+    .page-header p { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+    .page-header-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--navy); color: var(--gold);
+      display: grid; place-items: center; font-size: 18px;
+      flex-shrink: 0;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
+    /* ── PAGES ─────────────────────────────────────── */
+    .page { display: none; }
+    .page.active {
+      display: block;
+      animation: pageIn .18s ease;
     }
-    @media (min-width: 920px){
-      .grid{ grid-template-columns: 1.15fr .85fr; align-items: start; }
-    }
-
-    .inner{ padding: 18px; }
-
-    .hero{
-      padding: 22px;
-      background:
-        radial-gradient(800px 240px at 20% 10%, rgba(255,210,0,.14), transparent 60%),
-        radial-gradient(700px 280px at 85% 35%, rgba(0,209,255,.12), transparent 62%),
-        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .hero h2{ margin: 0 0 8px; font-size: 18px; letter-spacing: .2px; }
-    .hero p{ margin: 0; color: var(--muted); line-height: 1.45; font-size: 13px; max-width: 62ch; }
-
-    /* Login */
-    .form{ display:grid; gap: 12px; padding: 18px; }
-    label{ font-size: 12px; color: rgba(255,255,255,.8); display:block; margin-bottom: 6px; }
-    .field{ display:flex; flex-direction: column; gap: 6px; }
-    input{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      outline:none;
-      transition: box-shadow .12s ease, border-color .12s ease, background .12s ease, transform .12s ease;
-    }
-    input:hover{ border-color: rgba(255,255,255,.20); }
-    input:focus{ box-shadow: var(--focus); border-color: rgba(255,210,0,.42); background: rgba(0,0,0,.22); transform: translateY(-1px); }
-
-    .row{ display:flex; justify-content: space-between; align-items:center; gap: 10px; flex-wrap: wrap; }
-    .checkbox{ display:flex; align-items:center; gap: 8px; font-size: 12px; color: var(--muted); user-select:none; }
-    .checkbox input{ width: 16px; height: 16px; }
-
-    .btn{
-      position: relative;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 14px;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .16s ease;
-      font-weight: 600;
-      letter-spacing: .2px;
-      overflow:hidden;
-    }
-    .btn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.18);
-      box-shadow: var(--hoverRing);
-    }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn:focus{ outline:none; box-shadow: var(--focus); }
-
-    .btn-primary{
-      border-color: rgba(255,210,0,.45);
-      background: linear-gradient(135deg, rgba(255,210,0,.26), rgba(0,209,255,.14));
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .hint{ color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .error{
-      color: rgba(255,255,255,.92);
-      background: rgba(255,77,109,.10);
-      border: 1px solid rgba(255,77,109,.28);
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 12px;
-      display:none;
+    /* ── LOGIN ─────────────────────────────────────── */
+    #loginCard { display: block; }
+
+    .login-hero {
+      background: var(--navy);
+      padding: 28px 24px 24px;
+      color: var(--white);
+    }
+    .login-hero h2 {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .login-hero h2 span { color: var(--gold); }
+    .login-hero p { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.5; max-width: 44ch; }
+
+    .login-body { padding: 20px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .03em; text-transform: uppercase; }
+    .field input {
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1.5px solid var(--gray1);
+      background: var(--off);
+      color: var(--text); font-size: 14px;
+      outline: none;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      width: 100%;
     }
 
-    /* Pages */
-    .page{ display:none; animation: fadeIn .18s ease; }
-    .page.active{ display:block; }
-    @keyframes fadeIn{ from{ opacity:.45; transform: translateY(6px);} to{ opacity:1; transform: translateY(0);} }
+    /* Remember me checkbox */
+    #rememberMe { width: 14px; height: 14px; }
 
-    .kpis{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      padding: 18px;
-      background: var(--panel2);
-      border-top: 1px solid rgba(255,255,255,.08);
+    .field input:focus {
+      border-color: var(--navy);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(7,41,77,.08);
     }
-    @media (min-width: 520px){ .kpis{ grid-template-columns: repeat(4, 1fr);} }
 
-    .kpi{
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      transition: transform .14s ease, border-color .14s ease, box-shadow .16s ease;
-      position: relative;
-      overflow:hidden;
+    .login-row { display: flex; gap: 8px; margin-top: 4px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 11px 18px; border-radius: 10px;
+      font-size: 13.5px; font-weight: 600; letter-spacing: .01em;
+      transition: transform .12s, box-shadow .12s, background .12s;
+      position: relative; overflow: hidden; cursor: pointer;
+      border: none;
     }
-    .kpi:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); box-shadow: var(--hoverRing); }
-    .kpi .num{ font-weight: 800; font-size: 16px; letter-spacing: .2px; }
-    .kpi .lab{ font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-    .list{ display:grid; gap: 10px; padding: 18px; }
-
-    .item{
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      display:flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items:flex-start;
-      transition: transform .14s ease, border-color .14s ease, box-shadow .16s ease, background .14s ease;
-      position: relative;
-      overflow:hidden;
+    .btn:active { transform: scale(.98); }
+    .btn-navy {
+      background: var(--navy); color: var(--white);
     }
-    .item:hover{
-      transform: translateY(-1px);
-      border-color: rgba(255,255,255,.22);
-      background: rgba(255,255,255,.075);
-      box-shadow: var(--hoverRing);
+    .btn-navy:hover { background: #0a3566; box-shadow: var(--shadow); }
+    .btn-ghost {
+      background: var(--off); color: var(--navy);
+      border: 1.5px solid var(--gray1);
     }
-    .item:active{ transform: translateY(0px) scale(.995); }
-    .item strong{ font-size: 13px; }
-    .item small{ color: var(--muted); display:block; margin-top: 3px; font-size: 12px; }
+    .btn-ghost:hover { background: var(--gray1); }
+    .btn-gold {
+      background: var(--gold); color: var(--navy);
+      font-weight: 700;
+    }
+    .btn-gold:hover { background: var(--gold2); box-shadow: 0 4px 12px rgba(255,198,0,.3); }
+    .btn-sm { padding: 8px 13px; font-size: 12.5px; }
+    .btn-full { width: 100%; }
 
-    .tag{
-      font-size: 11px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.16);
+    .error-box {
+      display: none;
+      padding: 10px 13px; border-radius: 9px;
+      background: #FFF0EF; border: 1px solid #FCCAC6;
+      color: var(--danger); font-size: 12.5px; margin-bottom: 12px;
+    }
+
+    .hint-text { font-size: 12px; color: var(--gray3); margin-top: 10px; }
+    .hint-text strong { color: var(--muted); }
+
+    .features-strip {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-top: 1px solid var(--gray1);
+    }
+    .feat {
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+      border-right: 1px solid var(--gray1);
+      border-bottom: 1px solid var(--gray1);
+    }
+    .feat:nth-child(even) { border-right: none; }
+    .feat-ico { font-size: 18px; }
+    .feat-label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+    .feat-sub { font-size: 11.5px; color: var(--gray3); }
+
+    /* ── APP CARD ──────────────────────────────────── */
+    #appCard { display: none; }
+
+    /* ── ITEM LIST ─────────────────────────────────── */
+    .list-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--gray1);
+      transition: background .13s;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--off); }
+    .list-item:active { background: var(--gray1); }
+
+    .list-item-ico {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: var(--off); border: 1px solid var(--gray1);
+      display: grid; place-items: center; font-size: 16px;
+      flex-shrink: 0;
+    }
+    .list-item-body { flex: 1; min-width: 0; }
+    .list-item-body strong { font-size: 13.5px; font-weight: 600; display: block; }
+    .list-item-body span { font-size: 12px; color: var(--muted); margin-top: 2px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; letter-spacing: .02em;
       white-space: nowrap;
-      color: rgba(255,255,255,.8);
-      transition: transform .14s ease, border-color .14s ease, box-shadow .16s ease;
     }
-    .item:hover .tag{
-      transform: translateY(-1px);
-      border-color: rgba(255,255,255,.22);
-      box-shadow: 0 0 18px rgba(255,210,0,.08);
+    .badge-blue { background: rgba(7,41,77,.08); color: var(--navy); }
+    .badge-gold { background: rgba(255,198,0,.2); color: #7A5800; }
+    .badge-green { background: rgba(26,127,75,.1); color: var(--ok); }
+    .badge-red   { background: rgba(217,48,37,.08); color: var(--danger); }
+    .badge-gray  { background: var(--gray1); color: var(--muted); }
+
+    /* ── STATS BAR ─────────────────────────────────── */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--gray1);
+    }
+    .stat {
+      padding: 14px 10px; text-align: center;
+      border-right: 1px solid var(--gray1);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 18px; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; }
+    .stat-lab { font-size: 11px; color: var(--gray3); margin-top: 2px; }
+
+    /* ── SECTION ───────────────────────────────────── */
+    .section-body { padding: 16px 18px; }
+    .section-body + .section-body { border-top: 1px solid var(--gray1); padding-top: 14px; }
+
+    /* ── MAP EMBED ─────────────────────────────────── */
+    .map-embed {
+      width: 100%; height: 380px; border: none; display: block;
+      border-top: 1px solid var(--gray1);
     }
 
-    /* Keep link colors neutral (no “HTML blue links”) */
-    a{ color: rgba(255,255,255,.82); }
-    a:visited{ color: rgba(255,255,255,.78); }
-    a:hover{ color: rgba(255,255,255,.95); }
-
-    /* Map container */
-    .map-shell{
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      overflow:hidden;
-      transition: border-color .14s ease, box-shadow .16s ease, transform .14s ease;
+    /* ── EVENTS PAGE ───────────────────────────────── */
+    .search-wrap {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid var(--gray1);
       position: relative;
     }
-    .map-shell:hover{
-      border-color: rgba(255,255,255,.22);
-      box-shadow: var(--hoverRing);
-      transform: translateY(-1px);
+    .search-input {
+      width: 100%; padding: 10px 13px 10px 38px;
+      border-radius: 10px;
+      border: 1.5px solid var(--gray1);
+      background: var(--off);
+      font-size: 13.5px; color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .map-shell iframe{
-      width:100%;
-      height: 520px;
-      border:0;
-      display:block;
-      filter: saturate(1.05) contrast(1.05);
+    .search-input:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(7,41,77,.07); background: var(--white); }
+    .search-icon { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: var(--gray3); font-size: 15px; pointer-events: none; }
+
+    .chips-wrap {
+      padding: 10px 18px 12px;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--gray1);
+    }
+    .chip {
+      padding: 5px 13px; border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      border: 1.5px solid var(--gray1);
+      background: var(--white); color: var(--muted);
+      transition: border-color .13s, background .13s, color .13s;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--navy); color: var(--navy); }
+    .chip.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    .event-card {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--gray1);
+      display: flex; gap: 14px; align-items: flex-start;
+      transition: background .13s;
+    }
+    .event-card:last-child { border-bottom: none; }
+    .event-card:hover { background: var(--off); }
+
+    .event-date-block {
+      width: 42px; flex-shrink: 0; text-align: center;
+      background: var(--navy); border-radius: 9px; padding: 6px 4px;
+      color: var(--white);
+    }
+    .event-date-block .eday { font-size: 18px; font-weight: 700; line-height: 1; }
+    .event-date-block .emon { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--gold); margin-top: 2px; }
+
+    .event-info { flex: 1; min-width: 0; }
+    .event-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .event-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .event-meta-item { display: flex; align-items: center; gap: 3px; }
+
+    .event-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 8px;
+      padding: 5px 11px; border-radius: 7px;
+      background: rgba(7,41,77,.06); color: var(--navy);
+      font-size: 12px; font-weight: 600;
+      border: 1px solid rgba(7,41,77,.12);
+      transition: background .13s;
+    }
+    .event-link:hover { background: rgba(7,41,77,.11); }
+
+    .dragonlink-cta {
+      padding: 18px;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      flex-wrap: wrap;
+    }
+    .dragonlink-cta p { font-size: 13px; color: rgba(255,255,255,.65); max-width: 38ch; line-height: 1.4; }
+    .dragonlink-cta strong { font-size: 14px; color: var(--white); display: block; margin-bottom: 3px; }
+
+    /* ── COURSE PAGE ───────────────────────────────── */
+    .cta-card {
+      padding: 20px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+      border-bottom: 1px solid var(--gray1);
+    }
+    .cta-card h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .cta-card p { font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── RIPPLE ────────────────────────────────────── */
+    .ripple-el {
+      position: absolute; border-radius: 50%;
+      pointer-events: none;
+      background: rgba(7,41,77,.12);
+      transform: translate(-50%, -50%) scale(0);
+      animation: ripple .5s ease-out forwards;
+    }
+    @keyframes ripple {
+      to { transform: translate(-50%, -50%) scale(4); opacity: 0; }
     }
 
-    /* Hide burger before login */
-    body:not(.authed) .menu-toggle,
-    body:not(.authed) .pill {
-      opacity: .55;
-      pointer-events: none;
+    /* ── SCROLLBAR ─────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--gray2); border-radius: 99px; }
+
+    /* ── STUDY PAGE ────────────────────────────────── */
+    .tip-row {
+      display: flex; gap: 10px; padding: 12px 18px;
+      border-bottom: 1px solid var(--gray1); align-items: flex-start;
     }
+    .tip-num {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--navy); color: var(--gold);
+      display: grid; place-items: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .tip-text { font-size: 13px; color: var(--text); line-height: 1.45; }
+    .tip-text strong { display: block; margin-bottom: 2px; font-weight: 600; }
+    .tip-text span { color: var(--muted); font-size: 12px; }
+
+    /* ── RESPONSIVE ────────────────────────────────── */
+    @media (max-width: 480px) {
+      main { padding: 14px 10px 48px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .features-strip { grid-template-columns: 1fr; }
+      .feat { border-right: none !important; }
+    }
+
+    /* ── UTIL ──────────────────────────────────────── */
+    .gold-bar { height: 3px; background: var(--gold); }
+    .text-muted { color: var(--muted); }
+    .mt-4 { margin-top: 4px; }
+    .mt-8 { margin-top: 8px; }
+    .mono { font-family: 'DM Mono', monospace; }
   </style>
 </head>
 
 <body>
-  <div class="topbar" role="banner">
-    <div class="brand" aria-label="Succeed">
-      <img class="app-logo" src="Bold Dragon Head Logo for Mobile App.png" alt="Succeed logo" />
-      <div>
-        <h1>Succeed</h1>
-        <p class="muted">One hub for campus life</p>
-      </div>
-    </div>
 
-    <div class="right-actions">
-      <div class="pill" title="App status">
-        <span class="pill-dot" aria-hidden="true"></span>
-        <span id="statusText">Locked</span>
-      </div>
-
-      <button class="icon-btn menu-toggle" id="menuBtn" aria-label="Open menu" aria-expanded="false">
-        <div class="burger" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </div>
-      </button>
-    </div>
-  </div>
-
-  <div class="drawer-overlay" id="overlay" tabindex="-1" aria-hidden="true"></div>
-
-  <aside class="drawer" id="drawer" aria-label="Navigation drawer">
-    <header>
-      <div class="title">
-        <strong id="drawerTitle">Menu</strong>
-        <span id="drawerSub" class="muted">Login to unlock features</span>
-      </div>
-      <button class="icon-btn" id="closeDrawer" aria-label="Close menu">✕</button>
-    </header>
-
-    <nav class="nav" aria-label="Primary">
-      <button data-page="dashboard" aria-current="page"><span class="ico">🏠</span><span><strong>Dashboard</strong><br/><span class="muted" style="font-size:12px;">Quick overview</span></span></button>
-      <button data-page="bus"><span class="ico">🚌</span><span><strong>Bus Route</strong><br/><span class="muted" style="font-size:12px;">Shuttles + stops</span></span></button>
-      <button data-page="map"><span class="ico">🗺️</span><span><strong>Campus Map</strong><br/><span class="muted" style="font-size:12px;">Buildings + directions</span></span></button>
-      <button data-page="calendar"><span class="ico">📅</span><span><strong>Calendar</strong><br/><span class="muted" style="font-size:12px;">Classes + tasks</span></span></button>
-      <button data-page="assignments"><span class="ico">✅</span><span><strong>Upcoming Assignments</strong><br/><span class="muted" style="font-size:12px;">Deadlines</span></span></button>
-      <button data-page="course"><span class="ico">🎓</span><span><strong>Course Planner &amp; Assistant</strong><br/><span class="muted" style="font-size:12px;">Planner + ratings</span></span></button>
-      <button data-page="events"><span class="ico">🎉</span><span><strong>Events</strong><br/><span class="muted" style="font-size:12px;">What’s happening</span></span></button>
-    </nav>
-
-    <footer>
-      <span class="muted">Succeed • Prototype UI</span>
-      <a href="#" id="logoutLink">Logout</a>
-    </footer>
-  </aside>
-
-  <div class="wrap">
-    <main>
-      <!-- LOGIN -->
-      <section class="surface" id="loginCard" aria-label="Login">
-        <div class="hero">
-          <h2>Make Drexel simpler.</h2>
-          <p>Campus tools in one place: map, food, events, planning, and smart course-fit insights. Login to enter.</p>
-        </div>
-
-        <div class="grid">
-          <div class="surface" style="margin:16px; box-shadow:none; background: rgba(255,255,255,.06);">
-            <div class="inner">
-              <div class="error" id="errorBox" role="alert"></div>
-              <form class="form" id="loginForm" autocomplete="on">
-                <div class="field">
-                  <label for="email">Email</label>
-                  <input id="email" name="email" type="email" placeholder="name@drexel.edu" required />
-                </div>
-                <div class="field">
-                  <label for="pass">Password</label>
-                  <input id="pass" name="pass" type="password" placeholder="••••••••" required />
-                </div>
-
-                <div class="row">
-                  <label class="checkbox"><input type="checkbox" id="remember" />Remember me</label>
-                  <a class="muted" href="#" style="font-size:12px; text-decoration:none; border-bottom:1px dashed rgba(255,255,255,.25);">Forgot password</a>
-                </div>
-
-                <div class="row" style="margin-top:4px;">
-                  <button class="btn btn-primary" type="submit">Login</button>
-                  <button class="btn" type="button" id="demoBtn">Use demo</button>
-                </div>
-
-                <p class="hint">Demo login: <span style="color:rgba(255,255,255,.9);">demo@drexel.edu</span> / <span style="color:rgba(255,255,255,.9);">dragon</span></p>
-              </form>
-            </div>
-          </div>
-
-          <div class="surface" style="margin:16px; box-shadow:none; background: rgba(255,255,255,.06);">
-            <div class="inner">
-              <h3 style="margin:0 0 8px; font-size:14px;">What you get</h3>
-              <p class="muted" style="margin:0 0 14px; font-size:12px; line-height:1.45;">
-                A clean hub for daily Drexel life. Built to reduce stress and make planning feel effortless.
-              </p>
-
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple><div><strong>AI course-fit hints</strong><small>Compare workload, strengths, and schedules.</small></div><span class="tag">Smart</span></div>
-                <div class="item clickable" data-ripple><div><strong>Map + quick directions</strong><small>Find buildings fast, especially week 1.</small></div><span class="tag">Fast</span></div>
-                <div class="item clickable" data-ripple><div><strong>Events + activities</strong><small>Stay connected like DragonLink/Corq.</small></div><span class="tag">Social</span></div>
-                <div class="item clickable" data-ripple><div><strong>Planner & deadlines</strong><small>Calendar + assignments in one view.</small></div><span class="tag">Organized</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="kpis">
-          <div class="kpi clickable" data-ripple><div class="num">1</div><div class="lab">App, one hub</div></div>
-          <div class="kpi clickable" data-ripple><div class="num">5</div><div class="lab">Core tools</div></div>
-          <div class="kpi clickable" data-ripple><div class="num">0</div><div class="lab">Clutter</div></div>
-          <div class="kpi clickable" data-ripple><div class="num">∞</div><div class="lab">Long-term value</div></div>
-        </div>
-      </section>
-
-      <!-- APP -->
-      <section class="surface" id="appCard" style="display:none;" aria-label="App content">
-        <div class="hero">
-          <h2 id="pageTitle">Dashboard</h2>
-          <p id="pageDesc" class="muted">Quick overview of what matters today.</p>
-        </div>
-
-        <div class="inner">
-          <div id="pages">
-            <div class="page active" data-page="dashboard">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple><div><strong>Today’s snapshot</strong><small class="muted">2 classes • 1 assignment due • 1 event tonight</small></div><span class="tag">Live</span></div>
-                <div class="item clickable" data-ripple><div><strong>AI course-fit (example)</strong><small class="muted">“Matches your strengths: hands-on + structured.”</small></div><span class="tag">AI</span></div>
-                <div class="item clickable" data-ripple><div><strong>Food suggestion</strong><small class="muted">Closest open spot: 6 min walk • Budget-friendly</small></div><span class="tag">Food</span></div>
-              </div>
-            </div>
-
-            <div class="page" data-page="bus">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple><div><strong>Shuttle A — Main Loop</strong><small class="muted">Next arrival: 6 min • Dorms → Library → Main Building</small></div><span class="tag">On time</span></div>
-                <div class="item clickable" data-ripple><div><strong>Shuttle B — West</strong><small class="muted">Next arrival: 12 min • Rec Center → Station → Campus</small></div><span class="tag">Updated</span></div>
-              </div>
-            </div>
-
-            <!-- Campus Map with interactive Google embed -->
-            <div class="page" data-page="map">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple>
-                  <div>
-                    <strong>Drexel University Campus</strong>
-                    <small class="muted">Interactive Google Map (pan/zoom). Use the map controls to explore.</small>
-                  </div>
-                  <span class="tag">Live map</span>
-                </div>
-
-                <div class="map-shell" data-ripple title="Interactive Google Maps Embed">
-                  <iframe
-                    loading="lazy"
-                    allowfullscreen
-                    referrerpolicy="no-referrer-when-downgrade"
-                    src="https://www.google.com/maps?q=Drexel%20University,%20Philadelphia&z=16&output=embed">
-                  </iframe>
-                </div>
-              </div>
-            </div>
-
-            <div class="page" data-page="calendar">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple><div><strong>8:00 AM</strong><small class="muted">Class — Room 302</small></div><span class="tag">Class</span></div>
-                <div class="item clickable" data-ripple><div><strong>2:30 PM</strong><small class="muted">Study block — Library</small></div><span class="tag">Focus</span></div>
-                <div class="item clickable" data-ripple><div><strong>7:00 PM</strong><small class="muted">Club event — Center City</small></div><span class="tag">Event</span></div>
-              </div>
-            </div>
-
-            <div class="page" data-page="assignments">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple><div><strong>INFO Lab</strong><small class="muted">Due tonight at 11:59 PM</small></div><span class="tag" style="border-color: rgba(255,77,109,.35);">Due</span></div>
-                <div class="item clickable" data-ripple><div><strong>Writing Draft</strong><small class="muted">Due in 3 days</small></div><span class="tag">Soon</span></div>
-                <div class="item clickable" data-ripple><div><strong>Quiz Review</strong><small class="muted">Due next week</small></div><span class="tag">Planned</span></div>
-              </div>
-            </div>
-
-            <div class="page" data-page="course">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple>
-                  <div>
-                    <strong>Course Planner &amp; Assistant</strong>
-                    <small class="muted">Open the scheduler dashboard and cross-check professor ratings.</small>
-                  </div>
-                  <span class="tag">Planner</span>
-                </div>
-
-                <div class="map-shell" style="padding:22px; text-align:center;" data-ripple>
-                  <div style="font-size:48px; margin-bottom:12px;">🎓</div>
-                  <h3 style="margin:0 0 8px;">Course Planner Dashboard</h3>
-                  <p class="muted" style="max-width:560px; margin:0 auto 18px; line-height:1.45;">
-                    The scheduler is an external dashboard and can’t be embedded inside this app for security reasons.
-                    Use the buttons below to open it in a new tab.
-                  </p>
-
-                  <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
-                    <a class="btn btn-primary"
-                       href="https://scheduler.zohair.dev/d/db64b0ee-89cf-46ab-a3f5-af315d8e1e0f/scheduler-dashboard?orgId=1&from=now-6h&to=now&timezone=browser&var-null_ratings=Yes&var-min_rating=0&var-max_difficulty=5.0&var-min_num_ratings=0&var-course_number_greater_than=0&var-course_number_less_than=1000&var-only_blank_prereqs=Yes&var-allow_null_times=Yes&var-start_time=07:00%20AM&var-end_time=10:00%20PM&var-show_full_courses=No"
-                       target="_blank"
-                       rel="noopener"
-                       style="text-decoration:none; display:inline-block;">
-                      Open Scheduler
-                    </a>
-
-                    <a class="btn"
-                       href="https://www.ratemyprofessors.com"
-                       target="_blank"
-                       rel="noopener"
-                       style="text-decoration:none; display:inline-block;">
-                      Open Rate My Professors
-                    </a>
-                  </div>
-
-                  <div style="margin-top:18px; font-size:13px; opacity:.7;">
-                    Opens in a new tab • Secure external dashboard
-                  </div>
-                </div>
-
-                <p class="hint" style="margin-top:12px;">
-                  Tip: Use the scheduler to compare sections by time, then open Rate My Professors to quickly verify teaching style and workload.
-                </p>
-              </div>
+<!-- ── SPLASH ──────────────────────────────────────── -->
+<div id="splash">
+  <div class="splash-logo" id="splashLogo">🐉</div>
+  <div class="splash-wordmark" id="splashWord">Suc<span>ceed</span></div>
+  <div class="splash-sub" id="splashSub">Your Drexel. Simplified.</div>
 </div>
 
-            <div class="page" data-page="events">
-              <div class="list" style="padding:0;">
-                <div class="item clickable" data-ripple><div><strong>Welcome Week Mixer</strong><small class="muted">Tonight • 6:30 PM • Student Center</small></div><span class="tag">Campus</span></div>
-                <div class="item clickable" data-ripple><div><strong>Career Workshop</strong><small class="muted">Tomorrow • 3:00 PM • Online</small></div><span class="tag">Pro</span></div>
-                <div class="item clickable" data-ripple><div><strong>Game Night</strong><small class="muted">Friday • 8:00 PM • Lounge</small></div><span class="tag">Fun</span></div>
-              </div>
+<!-- ── TOPBAR ───────────────────────────────────────── -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🐉</div>
+    <span class="brand-name">Suc<span>ceed</span></span>
+  </div>
+  <div class="topbar-right">
+    <div class="status-pill">
+      <span class="status-dot locked" id="statusDot"></span>
+      <span id="statusText">Locked</span>
+    </div>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+      <div class="burger-icon"><span></span><span></span><span></span></div>
+    </button>
+  </div>
+</header>
+
+<!-- ── OVERLAY + DRAWER ─────────────────────────────── -->
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="Navigation">
+  <div class="drawer-head">
+    <div class="drawer-head-info">
+      <strong id="drawerTitle">Menu</strong>
+      <p id="drawerSub">Login to unlock tools</p>
+    </div>
+    <button class="close-btn" id="closeBtn">✕</button>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Tools</div>
+    <button class="nav-btn" data-page="dashboard" aria-current="page">
+      <span class="nav-ico">🏠</span>
+      <span class="nav-btn-text"><span>Dashboard</span><small>Quick overview</small></span>
+    </button>
+    <button class="nav-btn" data-page="bus">
+      <span class="nav-ico">🚌</span>
+      <span class="nav-btn-text"><span>Bus Route</span><small>Shuttles + stops</small></span>
+    </button>
+    <button class="nav-btn" data-page="map">
+      <span class="nav-ico">🗺️</span>
+      <span class="nav-btn-text"><span>Campus Map</span><small>Buildings + directions</small></span>
+    </button>
+    <button class="nav-btn" data-page="calendar">
+      <span class="nav-ico">📅</span>
+      <span class="nav-btn-text"><span>Calendar</span><small>Classes + tasks</small></span>
+    </button>
+    <button class="nav-btn" data-page="assignments">
+      <span class="nav-ico">✅</span>
+      <span class="nav-btn-text"><span>Assignments</span><small>Deadlines</small></span>
+    </button>
+    <button class="nav-btn" data-page="course">
+      <span class="nav-ico">🎓</span>
+      <span class="nav-btn-text"><span>Course Planner</span><small>Planner + ratings</small></span>
+    </button>
+    <button class="nav-btn" data-page="study">
+      <span class="nav-ico">🤖</span>
+      <span class="nav-btn-text"><span>AI Study Buddy</span><small>THEA study tools</small></span>
+    </button>
+    <button class="nav-btn" data-page="events">
+      <span class="nav-ico">🐉</span>
+      <span class="nav-btn-text"><span>Events (DragonLink)</span><small>Clubs + activities</small></span>
+    </button>
+  </nav>
+
+  <div class="drawer-foot">
+    <span>Succeed · Prototype</span>
+    <a href="#" id="logoutLink">Log out</a>
+  </div>
+</aside>
+
+<!-- ── WRAP ─────────────────────────────────────────── -->
+<div class="wrap">
+  <main>
+
+    <!-- ══ LOGIN CARD ═══════════════════════════════ -->
+    <div class="card" id="loginCard">
+      <div class="gold-bar"></div>
+      <div class="login-hero">
+        <h2>Make Drexel <span>simpler.</span></h2>
+        <p>One hub for your campus life — map, events, planning, courses, and AI study tools. All in one place.</p>
+      </div>
+
+      <div class="login-body">
+        <div class="error-box" id="errorBox"></div>
+        <form id="loginForm" autocomplete="on">
+          <div class="field">
+            <label for="email">Drexel Email</label>
+            <input id="email" name="email" type="email" placeholder="abc123@drexel.edu" required />
+          </div>
+          <div class="field">
+            <label for="pass">Password</label>
+            <input id="pass" name="pass" type="password" placeholder="••••••••" required />
+          
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; color: var(--gray3); user-select:none;">
+              <input type="checkbox" id="rememberMe" style="accent-color: var(--navy);" />
+              Remember me
+            </label>
+            <a href="#" id="forgotLink" style="font-size:12px; color: var(--gray3); text-decoration:none; border-bottom:1px dashed var(--gray2);">
+              Forgot password
+            </a>
+          </div>
+
+
+          </div>
+
+          <div class="login-row">
+            <button class="btn btn-navy" type="submit" style="flex:1;" id="loginBtn">Log in</button>
+            <button class="btn btn-ghost" type="button" id="demoBtn">Try demo</button>
+          </div>
+
+          <p class="hint-text">Demo credentials: <strong>demo@drexel.edu</strong> / <strong>dragon</strong></p>
+        </form>
+      </div>
+
+      <div class="features-strip">
+        <div class="feat"><span class="feat-ico">🗺️</span><div><div class="feat-label">Campus Map</div><div class="feat-sub">Find buildings fast</div></div></div>
+        <div class="feat"><span class="feat-ico">🎓</span><div><div class="feat-label">Course Planner</div><div class="feat-sub">Schedule + ratings</div></div></div>
+        <div class="feat"><span class="feat-ico">🤖</span><div><div class="feat-label">AI Study Buddy</div><div class="feat-sub">Flashcards + quizzes</div></div></div>
+        <div class="feat"><span class="feat-ico">🐉</span><div><div class="feat-label">DragonLink</div><div class="feat-sub">Events + clubs</div></div></div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-num">1</div><div class="stat-lab">App</div></div>
+        <div class="stat"><div class="stat-num">8</div><div class="stat-lab">Tools</div></div>
+        <div class="stat"><div class="stat-num">0</div><div class="stat-lab">Clutter</div></div>
+        <div class="stat"><div class="stat-num">∞</div><div class="stat-lab">Value</div></div>
+      </div>
+    </div>
+
+    <!-- ══ APP CARD ══════════════════════════════════ -->
+    <div class="card" id="appCard">
+      <div class="gold-bar"></div>
+      <div class="page-header" id="pageHeader">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageDesc">Quick overview of what matters today.</p>
+        </div>
+        <div class="page-header-icon" id="pageIcon">🏠</div>
+      </div>
+
+      <div id="pages">
+
+        <!-- DASHBOARD -->
+        <div class="page active" data-page="dashboard">
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">📸</div>
+            <div class="list-item-body">
+              <strong>Today's snapshot</strong>
+              <span>2 classes · 1 assignment due · 1 event tonight</span>
+            </div>
+            <span class="badge badge-gold">Live</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🤖</div>
+            <div class="list-item-body">
+              <strong>AI course-fit hint</strong>
+              <span>"Matches your strengths: hands-on + structured."</span>
+            </div>
+            <span class="badge badge-blue">AI</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🍜</div>
+            <div class="list-item-body">
+              <strong>Closest food spot</strong>
+              <span>6 min walk · Budget-friendly · Open now</span>
+            </div>
+            <span class="badge badge-green">Near</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🌦️</div>
+            <div class="list-item-body">
+              <strong>Weather: 48°F, Cloudy</strong>
+              <span>Philadelphia · Bring a jacket today</span>
+            </div>
+            <span class="badge badge-gray">Now</span>
+          </div>
+          <div class="stats-bar">
+            <div class="stat"><div class="stat-num" id="kpiName">—</div><div class="stat-lab">Signed in</div></div>
+            <div class="stat"><div class="stat-num">8</div><div class="stat-lab">Tools ready</div></div>
+            <div class="stat"><div class="stat-num">1</div><div class="stat-lab">Clean UI</div></div>
+            <div class="stat"><div class="stat-num">24/7</div><div class="stat-lab">Available</div></div>
+          </div>
+        </div>
+
+        <!-- BUS -->
+        <div class="page" data-page="bus">
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🟢</div>
+            <div class="list-item-body">
+              <strong>Shuttle A — Main Loop</strong>
+              <span>Next: 6 min · Dorms → Library → Main Building</span>
+            </div>
+            <span class="badge badge-green">On time</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🟡</div>
+            <div class="list-item-body">
+              <strong>Shuttle B — West</strong>
+              <span>Next: 12 min · Rec Center → Station → Campus</span>
+            </div>
+            <span class="badge badge-gold">Updated</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🔵</div>
+            <div class="list-item-body">
+              <strong>Shuttle C — North</strong>
+              <span>Next: 18 min · Powelton Ave → 30th St</span>
+            </div>
+            <span class="badge badge-blue">Scheduled</span>
+          </div>
+          <div class="section-body">
+            <a href="https://drexel.edu/facilities/transportation/shuttles/" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">View live schedule ↗</a>
+          </div>
+        </div>
+
+        <!-- MAP -->
+        <div class="page" data-page="map">
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">📍</div>
+            <div class="list-item-body">
+              <strong>Drexel University — Main Campus</strong>
+              <span>Pan and zoom to explore buildings and stops</span>
+            </div>
+            <span class="badge badge-blue">Live</span>
+          </div>
+          <iframe
+            class="map-embed"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=Drexel+University,+Philadelphia&z=16&output=embed">
+          </iframe>
+        </div>
+
+        <!-- CALENDAR -->
+        <div class="page" data-page="calendar">
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🔵</div>
+            <div class="list-item-body">
+              <strong>8:00 AM — Class</strong>
+              <span>Room 302 · Korman Center</span>
+            </div>
+            <span class="badge badge-blue">Class</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">📚</div>
+            <div class="list-item-body">
+              <strong>2:30 PM — Study block</strong>
+              <span>Hagerty Library · 2nd floor quiet zone</span>
+            </div>
+            <span class="badge badge-gray">Focus</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🎉</div>
+            <div class="list-item-body">
+              <strong>7:00 PM — Club event</strong>
+              <span>Creese Student Center · Free food</span>
+            </div>
+            <span class="badge badge-gold">Event</span>
+          </div>
+        </div>
+
+        <!-- ASSIGNMENTS -->
+        <div class="page" data-page="assignments">
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🔴</div>
+            <div class="list-item-body">
+              <strong>INFO Lab 3</strong>
+              <span>Due tonight · 11:59 PM</span>
+            </div>
+            <span class="badge badge-red">Due now</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🟡</div>
+            <div class="list-item-body">
+              <strong>Writing Draft — Essay 2</strong>
+              <span>Due in 3 days</span>
+            </div>
+            <span class="badge badge-gold">Soon</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🟢</div>
+            <div class="list-item-body">
+              <strong>Quiz Review — CS 265</strong>
+              <span>Due next week</span>
+            </div>
+            <span class="badge badge-green">Planned</span>
+          </div>
+          <div class="list-item" data-ripple>
+            <div class="list-item-ico">🟢</div>
+            <div class="list-item-body">
+              <strong>Group Project — Milestone 1</strong>
+              <span>Due in 2 weeks</span>
+            </div>
+            <span class="badge badge-green">Planned</span>
+          </div>
+        </div>
+
+        <!-- COURSE PLANNER -->
+        <div class="page" data-page="course">
+          <div class="cta-card">
+            <div style="font-size:32px;">🎓</div>
+            <h3>Course Planner & Scheduler</h3>
+            <p>Open the external dashboard to compare sections by time slot, then cross-check professor ratings side by side.</p>
+            <div class="btn-row">
+              <a class="btn btn-navy btn-sm" href="https://scheduler.zohair.dev/d/db64b0ee-89cf-46ab-a3f5-af315d8e1e0f/scheduler-dashboard?orgId=1&from=now-6h&to=now&timezone=browser&var-null_ratings=Yes&var-min_rating=0&var-max_difficulty=5.0&var-min_num_ratings=0&var-course_number_greater_than=0&var-course_number_less_than=1000&var-only_blank_prereqs=Yes&var-allow_null_times=Yes&var-start_time=07:00%20AM&var-end_time=10:00%20PM&var-show_full_courses=No" target="_blank" rel="noopener">Open Scheduler ↗</a>
+              <a class="btn btn-ghost btn-sm" href="https://www.ratemyprofessors.com" target="_blank" rel="noopener">Rate My Professors ↗</a>
+            </div>
+            <p style="font-size:12px; color: var(--gray3);">Opens in a new tab · External tool</p>
+          </div>
+          <div class="list-item">
+            <div class="list-item-ico">💡</div>
+            <div class="list-item-body">
+              <strong>Pro tip</strong>
+              <span>Filter by no prerequisites + open sections for easiest scheduling.</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-ico">⭐</div>
+            <div class="list-item-body">
+              <strong>Check ratings first</strong>
+              <span>RateMyProfessors: look for "caring" + "clear" as top tags.</span>
             </div>
           </div>
         </div>
 
-        <div class="kpis">
-          <div class="kpi clickable" data-ripple><div class="num" id="kpiName">Ace</div><div class="lab">Signed in</div></div>
-          <div class="kpi clickable" data-ripple><div class="num">5</div><div class="lab">Tools available</div></div>
-          <div class="kpi clickable" data-ripple><div class="num">1</div><div class="lab">Clean UI</div></div>
-          <div class="kpi clickable" data-ripple><div class="num">24/7</div><div class="lab">Support vibe</div></div>
+        <!-- STUDY -->
+        <div class="page" data-page="study">
+          <div class="cta-card">
+            <div style="font-size:32px;">📚</div>
+            <h3>AI Study Buddy — THEA Study</h3>
+            <p>Upload your notes and instantly generate flashcards, practice quizzes, and study summaries.</p>
+            <div class="btn-row">
+              <a class="btn btn-navy btn-sm" href="https://www.thea.study/" target="_blank" rel="noopener">Open THEA Study ↗</a>
+              <button class="btn btn-ghost btn-sm" id="tipsBtn">Study tips</button>
+            </div>
+            <p style="font-size:12px; color: var(--gray3);">Opens in a new tab · Secure external tool</p>
+          </div>
+          <div class="tip-row">
+            <div class="tip-num">1</div>
+            <div class="tip-text"><strong>Before class</strong><span>Upload slides → generate 10 practice questions.</span></div>
+          </div>
+          <div class="tip-row">
+            <div class="tip-num">2</div>
+            <div class="tip-text"><strong>After lecture</strong><span>Turn notes into flashcards for spaced repetition.</span></div>
+          </div>
+          <div class="tip-row">
+            <div class="tip-num">3</div>
+            <div class="tip-text"><strong>Exam week</strong><span>Create a "study kit" and target your weakest topics first.</span></div>
+          </div>
+          <div class="tip-row" style="border-bottom:none;">
+            <div class="tip-num">4</div>
+            <div class="tip-text"><strong>Session length</strong><span>20–30 min sessions with short breaks beat marathon studying.</span></div>
+          </div>
         </div>
-      </section>
-    </main>
-  </div>
 
-  <script>
-    const body = document.body;
-    const menuBtn = document.getElementById("menuBtn");
-    const overlay = document.getElementById("overlay");
-    const closeDrawer = document.getElementById("closeDrawer");
-    const navButtons = Array.from(document.querySelectorAll(".nav button[data-page]"));
+        <!-- EVENTS (DragonLink) — JS-DRIVEN -->
+        <div class="page" data-page="events">
+          <div class="dragonlink-cta">
+            <div>
+              <strong>Drexel DragonLink</strong>
+              <p>Browse all clubs, org events, and campus activities on DragonLink.</p>
+            </div>
+            <a class="btn btn-gold btn-sm" href="https://dragonlink.drexel.edu/" target="_blank" rel="noopener">Open DragonLink ↗</a>
+          </div>
 
-    const loginCard = document.getElementById("loginCard");
-    const appCard = document.getElementById("appCard");
-    const loginForm = document.getElementById("loginForm");
-    const errorBox = document.getElementById("errorBox");
-    const demoBtn = document.getElementById("demoBtn");
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input class="search-input" id="eventSearch" type="text" placeholder="Search events, clubs, or keywords…" />
+          </div>
 
-    const statusText = document.getElementById("statusText");
-    const drawerSub = document.getElementById("drawerSub");
-    const drawerTitle = document.getElementById("drawerTitle");
+          <div class="chips-wrap" id="eventChips">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="today">Today</button>
+            <button class="chip" data-filter="week">This Week</button>
+            <button class="chip" data-filter="free">Free</button>
+            <button class="chip" data-filter="campus">On Campus</button>
+            <button class="chip" data-filter="online">Online</button>
+          </div>
 
-    const pageTitle = document.getElementById("pageTitle");
-    const pageDesc = document.getElementById("pageDesc");
-    const pagesWrap = document.getElementById("pages");
-    const logoutLink = document.getElementById("logoutLink");
-    const kpiName = document.getElementById("kpiName");
+          <div id="eventsList"></div>
+          <div id="eventsFooter" style="padding:14px 18px; border-top:1px solid var(--gray1); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <span id="eventsCount" style="font-size:12px; color:var(--gray3);"></span>
+            <button id="showMoreBtn" class="btn btn-ghost btn-sm" style="display:none;">Show more events</button>
+          </div>
+        </div>
 
-    const meta = {
-      course: { title: "Course Planner & Assistant", desc: "Open the scheduler and compare sections quickly." },
-      dashboard: { title: "Dashboard", desc: "Quick overview of what matters today." },
-      bus: { title: "Bus Route", desc: "Shuttles, stops, and quick timing." },
-      map: { title: "Campus Map", desc: "Explore Drexel with an interactive map." },
-      calendar: { title: "Calendar", desc: "Your classes, tasks, and plans." },
-      assignments: { title: "Upcoming Assignments", desc: "Deadlines you can actually track." },
-      events: { title: "Events", desc: "Stay connected with campus life." },
-    };
+      </div><!-- /#pages -->
+    </div><!-- /#appCard -->
 
-    function openDrawer(){
-      if (!body.classList.contains("authed")) return;
-      body.classList.add("drawer-open");
-      menuBtn.classList.add("menu-open");
-      menuBtn.setAttribute("aria-expanded", "true");
-      overlay.setAttribute("aria-hidden", "false");
-      closeDrawer.focus();
-    }
-    function closeDrawerFn(){
-      body.classList.remove("drawer-open");
-      menuBtn.classList.remove("menu-open");
-      menuBtn.setAttribute("aria-expanded", "false");
-      overlay.setAttribute("aria-hidden", "true");
-      menuBtn.focus();
-    }
+  </main>
+</div>
 
-    menuBtn.addEventListener("click", () => {
-      if (body.classList.contains("drawer-open")) closeDrawerFn();
-      else openDrawer();
+<script>
+  // ── PAGE META ──────────────────────────────────────
+  const META = {
+    dashboard:   { title: 'Dashboard',              desc: 'Quick overview of what matters today.',                  icon: '🏠' },
+    bus:         { title: 'Bus Route',               desc: 'Shuttles, stops, and live timing.',                     icon: '🚌' },
+    map:         { title: 'Campus Map',              desc: 'Explore Drexel with an interactive map.',               icon: '🗺️' },
+    calendar:    { title: 'Calendar',                desc: 'Your classes, tasks, and plans.',                       icon: '📅' },
+    assignments: { title: 'Upcoming Assignments',    desc: 'Deadlines you can actually track.',                     icon: '✅' },
+    course:      { title: 'Course Planner',          desc: 'Compare sections, check ratings, build your schedule.', icon: '🎓' },
+    study:       { title: 'AI Study Buddy',          desc: 'Flashcards, quizzes, and study kits via THEA Study.',   icon: '🤖' },
+    events:      { title: 'Events (DragonLink)',     desc: 'Find clubs, events, and campus activities.',            icon: '🐉' },
+  };
+
+  // ── ELEMENTS ───────────────────────────────────────
+  const body        = document.body;
+  const menuBtn     = document.getElementById('menuBtn');
+  const overlay     = document.getElementById('overlay');
+  const closeBtn    = document.getElementById('closeBtn');
+  const loginCard   = document.getElementById('loginCard');
+  const appCard     = document.getElementById('appCard');
+  const loginForm   = document.getElementById('loginForm');
+  const errorBox    = document.getElementById('errorBox');
+  const demoBtn     = document.getElementById('demoBtn');
+  const statusText  = document.getElementById('statusText');
+  const statusDot   = document.getElementById('statusDot');
+  const drawerTitle = document.getElementById('drawerTitle');
+  const drawerSub   = document.getElementById('drawerSub');
+  const pageTitle   = document.getElementById('pageTitle');
+  const pageDesc    = document.getElementById('pageDesc');
+  const pageIcon    = document.getElementById('pageIcon');
+  const logoutLink  = document.getElementById('logoutLink');
+  const kpiName     = document.getElementById('kpiName');
+  const navBtns     = Array.from(document.querySelectorAll('.nav-btn[data-page]'));
+  const pagesWrap   = document.getElementById('pages');
+
+  // ── DRAWER ─────────────────────────────────────────
+  function openDrawer() {
+    if (!body.classList.contains('authed')) return;
+    body.classList.add('drawer-open');
+    menuBtn.classList.add('menu-open');
+    menuBtn.setAttribute('aria-expanded', 'true');
+    closeBtn.focus();
+  }
+  function closeDrawer() {
+    body.classList.remove('drawer-open');
+    menuBtn.classList.remove('menu-open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+  menuBtn.addEventListener('click', () => body.classList.contains('drawer-open') ? closeDrawer() : openDrawer());
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  // ── PAGE SWITCHING ─────────────────────────────────
+  function setPage(key) {
+    navBtns.forEach(b => b.setAttribute('aria-current', b.dataset.page === key ? 'page' : 'false'));
+    Array.from(pagesWrap.querySelectorAll('.page')).forEach(p => {
+      p.classList.toggle('active', p.dataset.page === key);
     });
-    closeDrawer.addEventListener("click", closeDrawerFn);
-    overlay.addEventListener("click", closeDrawerFn);
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && body.classList.contains("drawer-open")) closeDrawerFn();
-    });
+    const m = META[key] || {};
+    pageTitle.textContent = m.title || key;
+    pageDesc.textContent  = m.desc  || '';
+    pageIcon.textContent  = m.icon  || '📄';
+    closeDrawer();
+  }
+  navBtns.forEach(b => b.addEventListener('click', () => setPage(b.dataset.page)));
 
-    function setActivePage(key){
-      navButtons.forEach(btn => {
-        const isActive = btn.dataset.page === key;
-        btn.setAttribute("aria-current", isActive ? "page" : "false");
-      });
 
-      Array.from(pagesWrap.querySelectorAll(".page")).forEach(p => {
-        p.classList.toggle("active", p.dataset.page === key);
-      });
+  // ── REMEMBER ME ───────────────────────────────────
+  const REMEMBER_KEY = 'succeed_remember';
+  const EMAIL_KEY    = 'succeed_email';
 
-      pageTitle.textContent = meta[key]?.title || "Page";
-      pageDesc.textContent = meta[key]?.desc || "";
+  function loadRemembered() {
+    const remember = localStorage.getItem(REMEMBER_KEY) === '1';
+    const email = localStorage.getItem(EMAIL_KEY) || '';
+    const cb = document.getElementById('rememberMe');
+    const emailEl = document.getElementById('email');
+    if (cb) cb.checked = remember;
+    if (remember && emailEl && email) emailEl.value = email;
+  }
 
-      closeDrawerFn();
+  function saveRemembered() {
+    const cb = document.getElementById('rememberMe');
+    const emailEl = document.getElementById('email');
+    const remember = !!(cb && cb.checked);
+    if (remember) {
+      localStorage.setItem(REMEMBER_KEY, '1');
+      if (emailEl) localStorage.setItem(EMAIL_KEY, (emailEl.value || '').trim());
+    } else {
+      localStorage.setItem(REMEMBER_KEY, '0');
+      localStorage.removeItem(EMAIL_KEY);
     }
-    navButtons.forEach(btn => btn.addEventListener("click", () => setActivePage(btn.dataset.page)));
+  }
 
-    function showError(msg){
-      errorBox.style.display = "block";
-      errorBox.textContent = msg;
+
+  // ── AUTH ───────────────────────────────────────────
+  function setAuthed(name) {
+    body.classList.add('authed');
+    statusText.textContent = 'Unlocked';
+    statusDot.classList.remove('locked');
+    drawerTitle.textContent = 'Succeed';
+    drawerSub.textContent   = 'Navigate your tools';
+    if (kpiName) kpiName.textContent = name || 'Student';
+    loginCard.style.display = 'none';
+    appCard.style.display   = 'block';
+  }
+
+  loadRemembered();
+
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const pass  = document.getElementById('pass').value;
+
+    // Save remembered email preference
+    saveRemembered();
+
+    if (email === 'demo@drexel.edu' && pass === 'dragon') { setAuthed('Demo'); return; }
+    if (!email.endsWith('@drexel.edu')) {
+      errorBox.textContent = "Use a @drexel.edu email, or click 'Try demo'.";
+      errorBox.style.display = 'block'; return;
     }
-    function clearError(){
-      errorBox.style.display = "none";
-      errorBox.textContent = "";
+    if (pass.length < 4) {
+      errorBox.textContent = "Password too short. Use 'dragon' for demo login.";
+      errorBox.style.display = 'block'; return;
     }
+    const n = email.split('@')[0].slice(0, 12);
+    setAuthed(n.charAt(0).toUpperCase() + n.slice(1));
+  });
 
-    function setAuthed(name){
-      body.classList.add("authed");
-      statusText.textContent = "Unlocked";
-      drawerSub.textContent = "Navigate your tools";
-      drawerTitle.textContent = "Succeed";
-      kpiName.textContent = name || "Student";
+  demoBtn.addEventListener('click', () => {
+    document.getElementById('email').value = 'demo@drexel.edu';
+    document.getElementById('pass').value  = 'dragon';
+    document.getElementById('email').focus();
+  });
 
-      loginCard.style.display = "none";
-      appCard.style.display = "block";
-    }
+  logoutLink.addEventListener('click', e => {
+    e.preventDefault();
+    body.classList.remove('authed');
+    closeDrawer();
+    statusText.textContent = 'Locked';
+    statusDot.classList.add('locked');
+    drawerTitle.textContent = 'Menu';
+    drawerSub.textContent   = 'Login to unlock tools';
+    loginCard.style.display = 'block';
+    appCard.style.display   = 'none';
+    document.getElementById('pass').value = '';
+    // Preserve email if Remember me is enabled
+    saveRemembered();
+    if (localStorage.getItem(REMEMBER_KEY) !== '1') document.getElementById('email').value = '';
+    errorBox.style.display = 'none';
+    document.getElementById('email').focus();
+  });
 
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      clearError();
-
-      const email = document.getElementById("email").value.trim().toLowerCase();
-      const pass = document.getElementById("pass").value;
-
-      if (email === "demo@drexel.edu" && pass === "dragon") {
-        setAuthed("Demo");
-        return;
-      }
-
-      if (!email.endsWith("@drexel.edu")) {
-        showError("Use a Drexel email (ends with @drexel.edu) or click “Use demo”.");
-        return;
-      }
-      if (pass.length < 4) {
-        showError("Password is too short for this demo. Try “dragon” with demo login.");
-        return;
-      }
-
-      const nameGuess = email.split("@")[0].slice(0, 12);
-      setAuthed(nameGuess.charAt(0).toUpperCase() + nameGuess.slice(1));
+  // ── STUDY TIPS ─────────────────────────────────────
+  const tipsBtn = document.getElementById('tipsBtn');
+  if (tipsBtn) {
+    tipsBtn.addEventListener('click', () => {
+      alert('Study Tips:\n\n1. Upload clean notes one topic at a time.\n2. Start with practice questions, then flashcards.\n3. Review wrong answers first — fastest improvement.\n4. Use 20–30 min sessions with short breaks.');
     });
+  }
 
-    demoBtn.addEventListener("click", () => {
-      document.getElementById("email").value = "demo@drexel.edu";
-      document.getElementById("pass").value = "dragon";
-      document.getElementById("email").focus();
+  // ── CHIP FILTERS (visual only for non-events chips) ──
+  document.querySelectorAll('.chips-wrap:not(#eventChips) .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.closest('.chips-wrap').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
     });
+  });
 
-    logoutLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      body.classList.remove("authed");
-      closeDrawerFn();
-      statusText.textContent = "Locked";
-      drawerSub.textContent = "Login to unlock features";
-      drawerTitle.textContent = "Menu";
-      loginCard.style.display = "block";
-      appCard.style.display = "none";
-      document.getElementById("pass").value = "";
-      clearError();
-      document.getElementById("email").focus();
-    });
-
-    //  Ripple effect (fixed)
-    function addRipple(e){
-      const el = e.currentTarget;
+  // ── RIPPLE ─────────────────────────────────────────
+  document.querySelectorAll('[data-ripple]').forEach(el => {
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    el.addEventListener('click', e => {
       const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const r = document.createElement("span");
-      r.className = "ripple";
-      r.style.left = x + "px";
-      r.style.top = y + "px";
+      const size = Math.max(rect.width, rect.height) * 1.4;
+      const r = document.createElement('span');
+      r.className = 'ripple-el';
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left}px;top:${e.clientY - rect.top}px`;
       el.appendChild(r);
-      setTimeout(() => r.remove(), 650);
+      setTimeout(() => r.remove(), 500);
+    });
+  });
+
+  // ── SPLASH ─────────────────────────────────────────
+  const splash     = document.getElementById('splash');
+  const splashLogo = document.getElementById('splashLogo');
+  const splashWord = document.getElementById('splashWord');
+  const splashSub  = document.getElementById('splashSub');
+
+  // Stagger in
+  requestAnimationFrame(() => {
+    splashLogo.classList.add('in');
+    setTimeout(() => splashWord.classList.add('in'), 150);
+    setTimeout(() => splashSub.classList.add('in'), 300);
+  });
+
+  // Fade out after 1.6s
+  setTimeout(() => {
+    splash.classList.add('hide');
+    setTimeout(() => splash.classList.add('gone'), 450);
+  }, 1600);
+
+
+  // ══════════════════════════════════════════════════
+  // EVENTS ENGINE
+  // ══════════════════════════════════════════════════
+
+  const TODAY = new Date();
+  TODAY.setHours(0,0,0,0);
+
+  function daysFromToday(n) {
+    const d = new Date(TODAY);
+    d.setDate(d.getDate() + n);
+    return d;
+  }
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const ALL_EVENTS = [
+    { title: 'Welcome Week Mixer 🎉',             date: daysFromToday(0),  time: '6:30 – 9:00 PM',     where: 'Creese Student Center',        type: ['campus','free'] },
+    { title: 'Dragon Den Open Hours 🐉',           date: daysFromToday(0),  time: '11:00 AM – 1:00 PM', where: 'Student Center, Rm 3A',         type: ['campus','free'] },
+    { title: 'SGA Town Hall Meeting',              date: daysFromToday(0),  time: '4:00 – 5:00 PM',     where: 'Online (Zoom)',                 type: ['online','free'] },
+    { title: 'Career & Internship Workshop 💼',    date: daysFromToday(1),  time: '3:00 – 4:30 PM',     where: 'Online (Zoom)',                 type: ['online','free'] },
+    { title: 'Drexel Photography Club Meet 📷',    date: daysFromToday(1),  time: '5:30 – 7:00 PM',     where: 'URBN Annex, Studio 2',          type: ['campus']        },
+    { title: 'Hackathon Kickoff — DrexelHacks 💻', date: daysFromToday(2),  time: '9:00 AM – 11:00 PM', where: 'Bossone Research Center',       type: ['campus','free'] },
+    { title: 'Yoga & Stretch Session 🧘',          date: daysFromToday(2),  time: '7:00 – 8:00 AM',     where: 'Recreation Center, Studio B',  type: ['campus','free'] },
+    { title: 'Chess Club — Open Play ♟️',          date: daysFromToday(2),  time: '6:00 – 9:00 PM',     where: '3401 Market, Rm 117',          type: ['campus','free'] },
+    { title: 'Entrepreneurship Pitch Night 🚀',    date: daysFromToday(3),  time: '5:00 – 7:00 PM',     where: 'LeBow College of Business',    type: ['campus']        },
+    { title: 'Pre-Med Society Info Session 🩺',    date: daysFromToday(3),  time: '12:00 – 1:00 PM',    where: 'Online (Teams)',                type: ['online','free'] },
+    { title: 'Mindfulness & Wellness Session 🧘',  date: daysFromToday(4),  time: '12:00 – 1:00 PM',    where: 'Recreation Center, Studio B',  type: ['campus','free'] },
+    { title: 'Film Screening: Parasite 🎬',        date: daysFromToday(4),  time: '7:00 – 9:30 PM',     where: 'Mitchell Auditorium',          type: ['campus','free'] },
+    { title: 'International Students Mixer 🌍',    date: daysFromToday(4),  time: '5:00 – 7:00 PM',     where: 'Creese Student Center',        type: ['campus','free'] },
+    { title: 'Dragon Game Night 🎮',               date: daysFromToday(5),  time: '8:00 – 11:00 PM',    where: 'Millennium Hall Lounge, 3F',   type: ['campus','free'] },
+    { title: 'Resume Review Drop-In 📄',           date: daysFromToday(5),  time: '1:00 – 4:00 PM',     where: 'Close Hall, Career Center',    type: ['campus','free'] },
+    { title: 'Cooking Class: Dorm Meals 🍳',       date: daysFromToday(6),  time: '3:00 – 5:00 PM',     where: 'Myers Hall Kitchen',           type: ['campus','free'] },
+    { title: 'Trivia Night — $50 Prize 🧠',        date: daysFromToday(6),  time: '7:30 – 9:30 PM',     where: 'Hans & Gretels, Walnut St',    type: ['campus']        },
+    { title: 'Spring Career Fair 2026 🤝',         date: daysFromToday(8),  time: '10:00 AM – 3:00 PM', where: 'DAC, Main Gym',                type: ['campus']        },
+    { title: 'Mental Health Workshop 💚',          date: daysFromToday(9),  time: '2:00 – 3:30 PM',     where: 'Online (Zoom)',                type: ['online','free'] },
+    { title: 'Drexel Running Club — 5K 🏃',        date: daysFromToday(10), time: '7:00 – 8:30 AM',     where: 'Starting: Korman Quad',        type: ['campus','free'] },
+  ];
+
+  ALL_EVENTS.sort(function(a,b){ return a.date - b.date; });
+
+  var PAGE_SIZE     = 5;
+  var currentFilter = 'all';
+  var currentSearch = '';
+  var visibleCount  = PAGE_SIZE;
+
+  function getFiltered() {
+    var q = currentSearch.toLowerCase();
+    var weekEnd = daysFromToday(7);
+    return ALL_EVENTS.filter(function(ev) {
+      if (currentFilter === 'today'  && ev.date.toDateString() !== TODAY.toDateString()) return false;
+      if (currentFilter === 'week'   && (ev.date < TODAY || ev.date >= weekEnd))          return false;
+      if (currentFilter === 'free'   && ev.type.indexOf('free')   === -1)                 return false;
+      if (currentFilter === 'campus' && ev.type.indexOf('campus') === -1)                 return false;
+      if (currentFilter === 'online' && ev.type.indexOf('online') === -1)                 return false;
+      if (q && ev.title.toLowerCase().indexOf(q) === -1 && ev.where.toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+  }
+
+  function dateParts(d) {
+    var isToday = d.toDateString() === TODAY.toDateString();
+    var isTmrw  = d.toDateString() === daysFromToday(1).toDateString();
+    var label   = '';
+    if (isToday) label = '<span style="font-size:9px;font-weight:700;color:#4ADE80;display:block;letter-spacing:.05em;margin-bottom:1px;">TODAY</span>';
+    if (isTmrw)  label = '<span style="font-size:9px;font-weight:700;color:#FFC600;display:block;letter-spacing:.05em;margin-bottom:1px;">TMRW</span>';
+    return { day: d.getDate(), mon: MONTHS[d.getMonth()], label: label };
+  }
+
+  function badgeHTML(type) {
+    if (type.indexOf('online') !== -1) return '<span class="badge badge-blue"  style="font-size:10px;">Online</span>';
+    if (type.indexOf('free')   !== -1) return '<span class="badge badge-gold"  style="font-size:10px;">Free</span>';
+    return                                    '<span class="badge badge-blue"  style="font-size:10px;">Campus</span>';
+  }
+
+  function addRipple(el) {
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    el.addEventListener('click', function(e) {
+      if (e.target.closest('a')) return;
+      var rect = el.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height) * 1.4;
+      var r = document.createElement('span');
+      r.className = 'ripple-el';
+      r.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + (e.clientX - rect.left) + 'px;top:' + (e.clientY - rect.top) + 'px';
+      el.appendChild(r);
+      setTimeout(function(){ r.remove(); }, 500);
+    });
+  }
+
+  function renderEvents() {
+    var list     = document.getElementById('eventsList');
+    var countEl  = document.getElementById('eventsCount');
+    var moreBtn  = document.getElementById('showMoreBtn');
+    if (!list) return;
+
+    var filtered = getFiltered();
+    var slice    = filtered.slice(0, visibleCount);
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<div style="padding:32px 18px;text-align:center;color:var(--gray3);font-size:13px;">No events match your filters.<br><span style="font-size:12px;">Try clearing the search or selecting All.</span></div>';
+      countEl.textContent  = '';
+      moreBtn.style.display = 'none';
+      return;
     }
 
-    document.querySelectorAll("[data-ripple]").forEach(el => {
-      el.style.position = "relative";
-      el.style.overflow = "hidden";
-      el.addEventListener("pointerdown", addRipple);
-    });
+    var html = '';
+    for (var i = 0; i < slice.length; i++) {
+      var ev   = slice[i];
+      var p    = dateParts(ev.date);
+      var last = (i === slice.length - 1 && filtered.length <= visibleCount) ? 'border-bottom:none;' : '';
+      html += '<div class="event-card" style="' + last + '">';
+      html += '  <div class="event-date-block">';
+      html += '    ' + p.label;
+      html += '    <div class="eday">' + p.day + '</div>';
+      html += '    <div class="emon">' + p.mon + '</div>';
+      html += '  </div>';
+      html += '  <div class="event-info">';
+      html += '    <div class="event-title">' + ev.title + '</div>';
+      html += '    <div class="event-meta">';
+      html += '      <span class="event-meta-item">🕐 ' + ev.time + '</span>';
+      html += '      <span class="event-meta-item">📍 ' + ev.where + '</span>';
+      html += '      ' + badgeHTML(ev.type);
+      html += '    </div>';
+      html += '    <a class="event-link" href="https://dragonlink.drexel.edu/" target="_blank" rel="noopener">View on DragonLink ↗</a>';
+      html += '  </div>';
+      html += '</div>';
+    }
+    list.innerHTML = html;
 
-    navButtons.forEach(btn => btn.setAttribute("aria-current", btn.dataset.page === "dashboard" ? "page" : "false"));
-  </script>
+    list.querySelectorAll('.event-card').forEach(function(el){ addRipple(el); });
+
+    var remaining = filtered.length - visibleCount;
+    var showing   = Math.min(visibleCount, filtered.length);
+    countEl.textContent = 'Showing ' + showing + ' of ' + filtered.length + ' event' + (filtered.length !== 1 ? 's' : '');
+    if (remaining > 0) {
+      var next = Math.min(remaining, PAGE_SIZE);
+      moreBtn.textContent     = 'Show ' + next + ' more event' + (next !== 1 ? 's' : '');
+      moreBtn.style.display   = 'inline-flex';
+    } else {
+      moreBtn.style.display = 'none';
+    }
+  }
+
+  document.getElementById('showMoreBtn').addEventListener('click', function() {
+    visibleCount += PAGE_SIZE;
+    renderEvents();
+  });
+
+  document.getElementById('eventChips').querySelectorAll('.chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.getElementById('eventChips').querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      visibleCount  = PAGE_SIZE;
+      renderEvents();
+    });
+  });
+
+  (function() {
+    var searchInput = document.getElementById('eventSearch');
+    if (!searchInput) return;
+    var debounce;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(debounce);
+      debounce = setTimeout(function() {
+        currentSearch = searchInput.value.trim();
+        visibleCount  = PAGE_SIZE;
+        renderEvents();
+      }, 180);
+    });
+  })();
+
+  renderEvents();
+
+
+
+</script>
+
 </body>
 </html>
