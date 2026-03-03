@@ -1,44 +1,28 @@
-# Backend/main.py
-
-import re
-from pathlib import Path
-from datetime import datetime
-from typing import List, Optional
-
-from fastapi import FastAPI, Request, HTTPException, Query
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from pathlib import Path
 
-# ------------------------------
-# 0) APP + TEMPLATES SETUP
-# ------------------------------
-
-# Find the folder this file lives in (Backend/)
+# -----------------------------
+# Paths
+# -----------------------------
 BASE_DIR = Path(__file__).resolve().parent
 
-# Create ONE FastAPI app (do NOT create it twice)
-app = FastAPI(title="Drexel Student Success API", version="0.1.0")
+# -----------------------------
+# App + Templates + Static
+# -----------------------------
+app = FastAPI(title="Drexel Student Success API")
 
-# Tell FastAPI where templates live (Backend/templates)
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
-# ------------------------------
-# 0B) UI ROUTES (HOMEPAGE + ADD CLASS)
-# ------------------------------
-
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/add-class", response_class=HTMLResponse)
-def add_class_page(request: Request):
-    return templates.TemplateResponse("add_class.html", {"request": request})
-
-# ------------------------------
-# 1) DATA MODELS (Pydantic)
-# ------------------------------
-
+# -----------------------------
+# Data Models
+# -----------------------------
 class Club(BaseModel):
     id: int
     name: str
@@ -53,35 +37,17 @@ class Event(BaseModel):
     location: str
     description: Optional[str] = None
 
-class AvailabilitySlot(BaseModel):
-    start_time: datetime
-    end_time: datetime
-
-class Peer(BaseModel):
+class ClassItem(BaseModel):
     id: int
     name: str
-    year: str
-    interests: List[str]
-    availability: List[AvailabilitySlot]
-
-# ------------------------------
-# 1B) CLASS SCHEDULE MODELS
-# ------------------------------
-
-class ClassCreate(BaseModel):
-    name: str
-    days: List[str]        # ["M","W","F"]
-    start_time: str        # "08:00 AM"
-    end_time: str          # "09:20 AM"
+    days: List[str]          # ["M","W","F"]
+    start_time: str          # "11:00 AM"
+    end_time: str            # "11:50 AM"
     location: str
 
-class ClassOut(ClassCreate):
-    id: int
-
-# ------------------------------
-# 2) FAKE DATABASE (IN MEMORY)
-# ------------------------------
-
+# -----------------------------
+# Fake DB (in-memory)
+# -----------------------------
 CLUBS: List[Club] = [
     Club(id=1, name="Drexel Anime Club", description="Meetups, watch parties, manga talk."),
     Club(id=2, name="InfoSec Club", description="Cybersecurity workshops and CTF practice."),
@@ -108,84 +74,79 @@ EVENTS: List[Event] = [
     ),
 ]
 
-PEERS: List[Peer] = [
-    Peer(
-        id=101,
-        name="Punit",
-        year="Senior",
-        interests=["anime", "ui", "clubs"],
-        availability=[
-            AvailabilitySlot(
-                start_time=datetime(2026, 2, 5, 17, 0),
-                end_time=datetime(2026, 2, 5, 20, 0),
-            )
-        ]
-    ),
-    Peer(
-        id=102,
-        name="Abdullah",
-        year="Junior",
-        interests=["fitness", "design", "networking"],
-        availability=[
-            AvailabilitySlot(
-                start_time=datetime(2026, 2, 5, 19, 0),
-                end_time=datetime(2026, 2, 5, 22, 0),
-            )
-        ]
-    ),
-    Peer(
-        id=103,
-        name="Muhammed",
-        year="Sophomore",
-        interests=["scheduling", "data", "clubs"],
-        availability=[
-            AvailabilitySlot(
-                start_time=datetime(2026, 2, 6, 16, 0),
-                end_time=datetime(2026, 2, 6, 19, 0),
-            )
-        ]
-    ),
+CLASSES: List[ClassItem] = [
+    ClassItem(
+        id=1,
+        name="General Psychology I",
+        days=["M","W","F"],
+        start_time="11:00 AM",
+        end_time="11:50 AM",
+        location="Nesbitt 111"
+    )
 ]
 
-# MVP class storage (in RAM)
-CLASSES: List[ClassOut] = []
-NEXT_CLASS_ID = 1
+# -----------------------------
+# Helpers
+# -----------------------------
+def time_to_minutes(t: str) -> int:
+    # "HH:MM AM/PM"
+    # safe parse even if hour is 1-digit ("8:00 AM") -> normalize first
+    t = t.strip()
+    parts = t.split()
+    hm = parts[0]
+    ampm = parts[1].upper()
+    hour_str, minute_str = hm.split(":")
+    hour = int(hour_str)
+    minute = int(minute_str)
 
-# ------------------------------
-# 3) HELPER FUNCTIONS
-# ------------------------------
+    if ampm == "PM" and hour != 12:
+        hour += 12
+    if ampm == "AM" and hour == 12:
+        hour = 0
+    return hour * 60 + minute
 
-def overlaps(a_start: datetime, a_end: datetime, b_start: datetime, b_end: datetime) -> bool:
-    return a_start < b_end and b_start < a_end
+DAY_ORDER = {"M": 1, "T": 2, "W": 3, "R": 4, "F": 5, "S": 6, "U": 7}
 
-def peer_is_available(peer: Peer, start: datetime, end: datetime) -> bool:
-    for slot in peer.availability:
-        if overlaps(slot.start_time, slot.end_time, start, end):
-            return True
-    return False
+def sort_classes(items: List[ClassItem]) -> List[ClassItem]:
+    # sort by first day then start time
+    return sorted(
+        items,
+        key=lambda c: (DAY_ORDER.get(c.days[0], 99), time_to_minutes(c.start_time), c.name)
+    )
 
-# ------------------------------
-# 3B) VALIDATION HELPERS (CLASSES)
-# ------------------------------
+# -----------------------------
+# HTML PAGES (Clean Rendering)
+# -----------------------------
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    upcoming = sorted(EVENTS, key=lambda e: e.start_time)[:3]
+    return templates.TemplateResponse("index.html", {"request": request, "upcoming": upcoming})
 
-TIME_RE = re.compile(r"^(\d{1,2}):(\d{2})\s?(AM|PM)$", re.IGNORECASE)
+@app.get("/clubs-view", response_class=HTMLResponse)
+def clubs_view(request: Request):
+    return templates.TemplateResponse("clubs.html", {"request": request, "clubs": CLUBS})
 
-def is_valid_time_str(t: str) -> bool:
-    return bool(TIME_RE.match(t.strip()))
+@app.get("/clubs/{club_id}/events-view", response_class=HTMLResponse)
+def events_view(request: Request, club_id: int):
+    if not any(c.id == club_id for c in CLUBS):
+        raise HTTPException(status_code=404, detail="Club not found")
 
-def normalize_days(days: List[str]) -> List[str]:
-    allowed = {"M", "T", "W", "R", "F"}
-    cleaned: List[str] = []
-    for d in days:
-        d = d.strip().upper()
-        if d in allowed and d not in cleaned:
-            cleaned.append(d)
-    return cleaned
+    club = next(c for c in CLUBS if c.id == club_id)
+    club_events = sorted([e for e in EVENTS if e.club_id == club_id], key=lambda e: e.start_time)
 
-# ------------------------------
-# 4) API ENDPOINTS (THE "DOORS")
-# ------------------------------
+    return templates.TemplateResponse(
+        "events.html",
+        {"request": request, "club": club, "events": club_events}
+    )
 
+@app.get("/schedule", response_class=HTMLResponse)
+def schedule_view(request: Request):
+    sorted_items = sort_classes(CLASSES)
+    return templates.TemplateResponse("schedule.html", {"request": request, "classes": sorted_items})
+
+# -----------------------------
+# API (Keep your JSON endpoints too)
+# -----------------------------
 @app.get("/clubs", response_model=List[Club])
 def get_clubs():
     return CLUBS
@@ -195,66 +156,3 @@ def get_events_for_club(club_id: int):
     if not any(c.id == club_id for c in CLUBS):
         raise HTTPException(status_code=404, detail="Club not found")
     return [e for e in EVENTS if e.club_id == club_id]
-
-@app.get("/availability", response_model=List[Peer])
-def get_available_peers(
-    start: datetime = Query(..., description="Start time (ISO format)"),
-    end: datetime = Query(..., description="End time (ISO format)")
-):
-    if start >= end:
-        raise HTTPException(status_code=400, detail="start must be before end")
-    return [p for p in PEERS if peer_is_available(p, start, end)]
-
-@app.get("/networking")
-def networking_view(
-    club_id: int = Query(..., description="Club ID to focus on"),
-    start: datetime = Query(..., description="Networking start time (ISO format)"),
-    end: datetime = Query(..., description="Networking end time (ISO format)")
-):
-    club = next((c for c in CLUBS if c.id == club_id), None)
-    if club is None:
-        raise HTTPException(status_code=404, detail="Club not found")
-
-    club_events = [e for e in EVENTS if e.club_id == club_id]
-    available_peers = [p for p in PEERS if peer_is_available(p, start, end)]
-
-    return {
-        "club": club,
-        "events": club_events,
-        "available_peers": available_peers,
-        "requested_window": {"start": start, "end": end}
-    }
-
-# ------------------------------
-# 4B) CLASS SCHEDULE ENDPOINTS
-# ------------------------------
-
-@app.get("/classes", response_model=List[ClassOut])
-def list_classes():
-    return CLASSES
-
-@app.post("/classes", response_model=ClassOut)
-def create_class(new_class: ClassCreate):
-    global NEXT_CLASS_ID
-
-    days = normalize_days(new_class.days)
-    if len(days) == 0:
-        raise HTTPException(status_code=400, detail="Invalid days. Use M,T,W,R,F.")
-
-    if not is_valid_time_str(new_class.start_time):
-        raise HTTPException(status_code=400, detail="Invalid start_time format. Example: 08:00 AM")
-    if not is_valid_time_str(new_class.end_time):
-        raise HTTPException(status_code=400, detail="Invalid end_time format. Example: 09:20 AM")
-
-    saved = ClassOut(
-        id=NEXT_CLASS_ID,
-        name=new_class.name.strip(),
-        days=days,
-        start_time=new_class.start_time.strip(),
-        end_time=new_class.end_time.strip(),
-        location=new_class.location.strip(),
-    )
-
-    NEXT_CLASS_ID += 1
-    CLASSES.append(saved)
-    return saved
