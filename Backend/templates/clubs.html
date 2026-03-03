@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Clubs - Drexel Student Success{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Clubs</h2>
+    <p>Click a club to view its events.</p>
+  </div>
+
+  <div class="grid">
+    {% for c in clubs %}
+      <div class="card">
+        <h3 style="margin-top:0;">{{ c.name }}</h3>
+        <p style="color:#444;">{{ c.description }}</p>
+        <a class="btn" href="/clubs/{{ c.id }}/events-view">View Events</a>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
