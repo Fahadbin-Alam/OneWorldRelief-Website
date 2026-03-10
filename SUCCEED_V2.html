@@ -512,6 +512,23 @@
     .cta-card p { font-size: 13px; color: var(--muted); line-height: 1.45; }
     .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
+    .scheduler-embed-wrap {
+      width: 100%;
+      height: 680px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--gray1);
+      background: var(--off);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+    .scheduler-embed {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: var(--white);
+    }
+
     /* ── RIPPLE ────────────────────────────────────── */
     .ripple-el {
       position: absolute; border-radius: 50%;
@@ -550,6 +567,7 @@
       .stats-bar { grid-template-columns: repeat(2, 1fr); }
       .features-strip { grid-template-columns: 1fr; }
       .feat { border-right: none !important; }
+      .scheduler-embed-wrap { height: 560px; }
     }
 
     /* ── UTIL ──────────────────────────────────────── */
@@ -863,12 +881,22 @@
           <div class="cta-card">
             <div style="font-size:32px;">🎓</div>
             <h3>Course Planner & Scheduler</h3>
-            <p>Open the external dashboard to compare sections by time slot, then cross-check professor ratings side by side.</p>
+            <p>Compare sections directly inside the app, then cross-check professor ratings side by side.</p>
+
+            <div class="scheduler-embed-wrap">
+              <iframe
+                class="scheduler-embed"
+                src="https://scheduler.zohair.dev/d/db64b0ee-89cf-46ab-a3f5-af315d8e1e0f/scheduler-dashboard?orgId=1&from=now-6h&to=now&timezone=browser&var-null_ratings=Yes&var-min_rating=0&var-max_difficulty=5.0&var-min_num_ratings=0&var-course_number_greater_than=0&var-course_number_less_than=1000&var-only_blank_prereqs=Yes&var-allow_null_times=Yes&var-start_time=07:00%20AM&var-end_time=10:00%20PM&var-show_full_courses=No"
+                title="Course Scheduler"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
+
             <div class="btn-row">
-              <a class="btn btn-navy btn-sm" href="https://scheduler.zohair.dev/d/db64b0ee-89cf-46ab-a3f5-af315d8e1e0f/scheduler-dashboard?orgId=1&from=now-6h&to=now&timezone=browser&var-null_ratings=Yes&var-min_rating=0&var-max_difficulty=5.0&var-min_num_ratings=0&var-course_number_greater_than=0&var-course_number_less_than=1000&var-only_blank_prereqs=Yes&var-allow_null_times=Yes&var-start_time=07:00%20AM&var-end_time=10:00%20PM&var-show_full_courses=No" target="_blank" rel="noopener">Open Scheduler ↗</a>
               <a class="btn btn-ghost btn-sm" href="https://www.ratemyprofessors.com" target="_blank" rel="noopener">Rate My Professors ↗</a>
             </div>
-            <p style="font-size:12px; color: var(--gray3);">Opens in a new tab · External tool</p>
+            <p style="font-size:12px; color: var(--gray3);">Scheduler is embedded below · External dashboard may take a second to load</p>
           </div>
           <div class="list-item">
             <div class="list-item-ico">💡</div>
@@ -1109,19 +1137,16 @@
   const splashWord = document.getElementById('splashWord');
   const splashSub  = document.getElementById('splashSub');
 
-  // Stagger in
   requestAnimationFrame(() => {
     splashLogo.classList.add('in');
     setTimeout(() => splashWord.classList.add('in'), 150);
     setTimeout(() => splashSub.classList.add('in'), 300);
   });
 
-  // Fade out after 1.6s
   setTimeout(() => {
     splash.classList.add('hide');
     setTimeout(() => splash.classList.add('gone'), 450);
   }, 1600);
-
 
   // ══════════════════════════════════════════════════
   // EVENTS ENGINE
@@ -1296,9 +1321,6 @@
   })();
 
   renderEvents();
-
-
-
 </script>
 
 </body>
