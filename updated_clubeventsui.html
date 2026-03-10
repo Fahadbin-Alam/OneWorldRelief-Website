@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Drexel Clubs & Events</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial, sans-serif;
+background:#f5f5f5;
+color:#333;
+transition:filter 0.3s;
+}
+
+header{
+background:#003366;
+color:white;
+padding:25px;
+text-align:center;
+font-size:26px;
+font-weight:bold;
+box-shadow:0 4px 8px rgba(0,0,0,0.1);
+}
+
+nav{
+display:flex;
+justify-content:center;
+background:#004080;
+padding:12px 0;
+box-shadow:0 2px 4px rgba(0,0,0,0.1);
+}
+
+nav button{
+background:none;
+border:none;
+color:white;
+font-weight:bold;
+padding:12px 25px;
+cursor:pointer;
+font-size:16px;
+transition:all 0.3s;
+}
+
+nav button.active,
+nav button:hover{
+background:#ffcc00;
+color:#003366;
+border-radius:10px;
+}
+
+main{
+padding:25px;
+max-width:1200px;
+margin:auto;
+transition:filter 0.3s;
+}
+
+.section{
+display:none;
+opacity:0;
+transform:translateY(20px);
+transition:all 0.4s ease;
+}
+
+.section.active{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+opacity:1;
+transform:translateY(0);
+}
+
+.card{
+background:white;
+border-radius:12px;
+padding:25px;
+box-shadow:0 6px 12px rgba(0,0,0,0.1);
+transition:transform 0.3s, box-shadow 0.3s;
+cursor:pointer;
+}
+
+.card:hover{
+transform:translateY(-8px) scale(1.03);
+box-shadow:0 12px 24px rgba(0,0,0,0.2);
+}
+
+.card-name{
+font-size:19px;
+font-weight:bold;
+margin-bottom:12px;
+color:#003366;
+}
+
+.card-info{
+font-size:15px;
+color:#555;
+margin-bottom:6px;
+line-height:1.4;
+}
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+backdrop-filter:blur(6px);
+display:flex;
+justify-content:center;
+align-items:center;
+opacity:0;
+pointer-events:none;
+transition:opacity 0.3s;
+z-index:100;
+}
+
+.modal.active{
+opacity:1;
+pointer-events:auto;
+}
+
+.modal-content{
+background:white;
+border-radius:15px;
+padding:35px;
+max-width:550px;
+width:90%;
+box-shadow:0 15px 35px rgba(0,0,0,0.3);
+position:relative;
+transform:scale(0.8);
+transition:transform 0.3s;
+}
+
+.modal.active .modal-content{
+transform:scale(1);
+}
+
+.close-btn{
+position:absolute;
+top:15px;
+right:20px;
+font-size:20px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.modal h2{
+color:#003366;
+margin-bottom:18px;
+font-size:22px;
+}
+
+.modal p{
+margin-bottom:12px;
+font-size:15px;
+color:#555;
+line-height:1.5;
+}
+
+body.modal-open main,
+body.modal-open header,
+body.modal-open nav{
+filter:blur(4px) brightness(0.9);
+}
+
+@media(max-width:600px){
+
+.card{
+padding:18px;
+}
+
+.card-name{
+font-size:17px;
+}
+
+.card-info{
+font-size:14px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>Drexel Campus Hub</header>
+
+<nav>
+<button id="clubsBtn" class="active">Clubs</button>
+<button id="eventsBtn">Upcoming Events</button>
+</nav>
+
+<main>
+
+<div id="clubArea" class="section active"></div>
+<div id="eventArea" class="section"></div>
+
+</main>
+
+<div class="modal" id="popup">
+
+<div class="modal-content">
+
+<span class="close-btn" id="closePopup">&times;</span>
+
+<h2 id="popupTitle"></h2>
+<p id="popupDesc"></p>
+<p id="popupLine1"></p>
+<p id="popupLine2"></p>
+
+</div>
+
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+/* ---------- club data ---------- */
+
+const clubList = {
+
+"Robotics Club":{
+desc:"Explore robotics systems and automation.",
+meet:"Tuesday 5-7 PM, Robotics Lab",
+mail:"robotics@drexel.edu",
+extra:"Competitions and collaborative projects."
+},
+
+"Photography Society":{
+desc:"Photography workshops and photo walks.",
+meet:"Wednesday 4-6 PM, Art Building 202",
+mail:"photo@drexel.edu",
+extra:"Monthly contests and exhibitions."
+},
+
+"Debate Team":{
+desc:"Practice speaking and argument skills.",
+meet:"Monday 6-8 PM, Student Center 101",
+mail:"debate@drexel.edu",
+extra:"Inter-college tournaments."
+},
+
+"Environmental Club":{
+desc:"Promoting sustainability on campus.",
+meet:"Friday 3-5 PM, Green Office",
+mail:"enviro@drexel.edu",
+extra:"Cleanup drives and awareness events."
+},
+
+"Gaming Guild":{
+desc:"Gaming community and tournaments.",
+meet:"Thursday 6-9 PM, Game Room",
+mail:"gaming@drexel.edu",
+extra:"Competitive and casual play."
+},
+
+"Dance Crew":{
+desc:"Dance practice and performances.",
+meet:"Wednesday 5-7 PM, Dance Studio",
+mail:"dance@drexel.edu",
+extra:"Campus performances."
+},
+
+"Music Club":{
+desc:"Band practice and music workshops.",
+meet:"Tuesday 6-8 PM, Music Room",
+mail:"music@drexel.edu",
+extra:"Student concerts."
+},
+
+"Chess Club":{
+desc:"Chess practice and competitions.",
+meet:"Monday 4-6 PM, Student Lounge",
+mail:"chess@drexel.edu",
+extra:"Weekly tournaments."
+},
+
+"Coding Club":{
+desc:"Coding challenges and hackathons.",
+meet:"Thursday 5-7 PM, Innovation Lab",
+mail:"coding@drexel.edu",
+extra:"Project collaborations."
+},
+
+"Art Society":{
+desc:"Visual art creation and showcases.",
+meet:"Friday 4-6 PM, Art Gallery",
+mail:"art@drexel.edu",
+extra:"Workshops and exhibitions."
+}
+
+};
+
+/* ---------- event data ---------- */
+
+const eventList = {
+
+"Tech Career Fair":{
+date:"March 10, 2026",
+place:"Expo Hall",
+desc:"Companies recruiting Drexel students.",
+contact:"career@drexel.edu"
+},
+
+"Spring Music Festival":{
+date:"April 15, 2026",
+place:"Main Quad",
+desc:"Live student music performances.",
+contact:"musicfest@drexel.edu"
+},
+
+"Hackathon 2026":{
+date:"April 5-6, 2026",
+place:"Innovation Lab",
+desc:"48 hour coding challenge.",
+contact:"hackathon@drexel.edu"
+},
+
+"Art Exhibition":{
+date:"March 30, 2026",
+place:"Art Gallery",
+desc:"Student artwork showcase.",
+contact:"artdept@drexel.edu"
+},
+
+"Sustainability Workshop":{
+date:"March 25, 2026",
+place:"Green Office",
+desc:"Learn sustainable practices.",
+contact:"enviro@drexel.edu"
+},
+
+"Spring Hackathon":{
+date:"April 20-21, 2026",
+place:"Innovation Lab",
+desc:"Collaborative coding event.",
+contact:"hackathon@drexel.edu"
+},
+
+"Cultural Night":{
+date:"April 12, 2026",
+place:"Student Center Ballroom",
+desc:"Celebrate global cultures.",
+contact:"cultural@drexel.edu"
+},
+
+"Sports Day":{
+date:"March 18, 2026",
+place:"Main Stadium",
+desc:"Campus sports competitions.",
+contact:"sports@drexel.edu"
+},
+
+"Leadership Summit":{
+date:"April 2, 2026",
+place:"Conference Hall",
+desc:"Leadership workshops and talks.",
+contact:"leadership@drexel.edu"
+},
+
+"Entrepreneur Meetup":{
+date:"March 28, 2026",
+place:"Innovation Hub",
+desc:"Startup networking event.",
+contact:"entrepreneur@drexel.edu"
+}
+
+};
+
+/* ---------- references ---------- */
+
+const clubContainer=document.getElementById("clubArea");
+const eventContainer=document.getElementById("eventArea");
+
+const modal=document.getElementById("popup");
+
+function createCards(target,data,isClub){
+
+target.innerHTML="";
+
+Object.keys(data).forEach(function(name){
+
+let item=data[name];
+
+let card=document.createElement("div");
+card.className="card";
+
+if(isClub){
+
+card.innerHTML=
+`<div class="card-name">${name}</div>
+<div class="card-info">${item.desc}</div>`;
+
+}
+
+else{
+
+card.innerHTML=
+`<div class="card-name">${name}</div>
+<div class="card-info">Date: ${item.date}</div>
+<div class="card-info">Location: ${item.place}</div>`;
+
+}
+
+target.appendChild(card);
+
+card.addEventListener("click",function(){
+
+document.getElementById("popupTitle").textContent=name;
+document.getElementById("popupDesc").textContent=item.desc;
+
+if(isClub){
+
+document.getElementById("popupLine1").textContent="Meeting: "+item.meet;
+document.getElementById("popupLine2").textContent="Email: "+item.mail+" | "+item.extra;
+
+}
+
+else{
+
+document.getElementById("popupLine1").textContent="Date: "+item.date;
+document.getElementById("popupLine2").textContent="Location: "+item.place+" | Contact: "+item.contact;
+
+}
+
+document.body.classList.add("modal-open");
+modal.classList.add("active");
+
+});
+
+});
+
+}
+
+/* build cards */
+
+createCards(clubContainer,clubList,true);
+createCards(eventContainer,eventList,false);
+
+/* nav switching */
+
+document.getElementById("clubsBtn").onclick=function(){
+
+this.classList.add("active");
+document.getElementById("eventsBtn").classList.remove("active");
+
+clubContainer.classList.add("active");
+eventContainer.classList.remove("active");
+
+};
+
+document.getElementById("eventsBtn").onclick=function(){
+
+this.classList.add("active");
+document.getElementById("clubsBtn").classList.remove("active");
+
+eventContainer.classList.add("active");
+clubContainer.classList.remove("active");
+
+};
+
+/* close modal */
+
+document.getElementById("closePopup").onclick=function(){
+
+modal.classList.remove("active");
+document.body.classList.remove("modal-open");
+
+};
+
+modal.addEventListener("click",function(e){
+
+if(e.target===modal){
+
+modal.classList.remove("active");
+document.body.classList.remove("modal-open");
+
+}
+
+});
+
+});
+
+</script>
+
+</body>
+</html>
