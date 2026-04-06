@@ -1514,7 +1514,24 @@
 
 
 </script>
+  <script>
+  function addDeadline() {
+    const task = document.getElementById("taskName").value;
+    const course = document.getElementById("courseName").value;
+    const date = document.getElementById("dueDate").value;
+    const priority = document.getElementById("priority").value;
 
+    if (!task || !course || !date) {
+      alert("Fill everything");
+      return;
+    }
+
+    const item = document.createElement("div");
+    item.innerHTML = `<strong>${task}</strong> (${course}) - ${date} [${priority}]`;
+
+    document.getElementById("deadlineList").appendChild(item);
+  }
+  </script>
 </body>
 </html>
 
