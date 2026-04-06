@@ -941,6 +941,25 @@
             </div>
             <span class="badge badge-green">Planned</span>
           </div>
+        <!-- 🔥 DEADLINE TRACKER START -->
+  <div style="margin-top:20px; padding:15px; background:#fff; border-radius:12px;">
+    <h3>Deadline Tracker</h3>
+
+    <input type="text" id="taskName" placeholder="Task Name">
+    <input type="text" id="courseName" placeholder="Course Name">
+    <input type="date" id="dueDate">
+
+    <select id="priority">
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+
+    <button onclick="addDeadline()">Add</button>
+
+    <div id="deadlineList"></div>
+  </div>
+  <!-- 🔥 DEADLINE TRACKER END -->
         </div>
 
         <!-- COURSE PLANNER -->
