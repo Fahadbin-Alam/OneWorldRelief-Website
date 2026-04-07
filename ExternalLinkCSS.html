@@ -1,0 +1,72 @@
+<style>
+/* ── EXTERNAL LINK WARNING  ───────────────── */
+.external-warning-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(7,41,77,.58);
+  backdrop-filter: blur(4px);
+}
+.external-warning-overlay.show{ display: flex; }
+
+.external-warning-card{
+  width: min(420px, 100%);
+  background: var(--white);
+  border: 1px solid var(--gray1);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: extWarnIn .18s ease;
+}
+@keyframes extWarnIn{
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.external-warning-head{
+  padding: 18px 18px 14px;
+  background: var(--navy);
+  color: var(--white);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.external-warning-head strong{
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.external-warning-head p{
+  margin-top: 5px;
+  font-size: 12.5px;
+  color: rgba(255,255,255,.68);
+  line-height: 1.45;
+}
+
+.external-warning-body{ padding: 16px 18px 18px; }
+.external-warning-url{
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--off);
+  border: 1px solid var(--gray1);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+  word-break: break-word;
+  margin-bottom: 14px;
+}
+.external-warning-note{
+  font-size: 12px;
+  color: var(--gray3);
+  margin-bottom: 14px;
+}
+.external-warning-actions{
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+</style>
