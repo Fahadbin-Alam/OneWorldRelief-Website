@@ -601,6 +601,21 @@
     .mt-4 { margin-top: 4px; }
     .mt-8 { margin-top: 8px; }
     .mono { font-family: 'DM Mono', monospace; }
+
+    .favorite-btn {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 4px 8px;
+      margin-left: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .favorite-btn.favorited {
+      background: #ffd84d;
+    }
   </style>
 </head>
 
@@ -1352,30 +1367,36 @@
 
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  const ALL_EVENTS = [
-    { title: 'Welcome Week Mixer 🎉',             date: daysFromToday(0),  time: '6:30 – 9:00 PM',     where: 'Creese Student Center',        type: ['campus','free'] },
-    { title: 'Dragon Den Open Hours 🐉',           date: daysFromToday(0),  time: '11:00 AM – 1:00 PM', where: 'Student Center, Rm 3A',         type: ['campus','free'] },
-    { title: 'SGA Town Hall Meeting',              date: daysFromToday(0),  time: '4:00 – 5:00 PM',     where: 'Online (Zoom)',                 type: ['online','free'] },
-    { title: 'Career & Internship Workshop 💼',    date: daysFromToday(1),  time: '3:00 – 4:30 PM',     where: 'Online (Zoom)',                 type: ['online','free'] },
-    { title: 'Drexel Photography Club Meet 📷',    date: daysFromToday(1),  time: '5:30 – 7:00 PM',     where: 'URBN Annex, Studio 2',          type: ['campus']        },
-    { title: 'Hackathon Kickoff — DrexelHacks 💻', date: daysFromToday(2),  time: '9:00 AM – 11:00 PM', where: 'Bossone Research Center',       type: ['campus','free'] },
-    { title: 'Yoga & Stretch Session 🧘',          date: daysFromToday(2),  time: '7:00 – 8:00 AM',     where: 'Recreation Center, Studio B',  type: ['campus','free'] },
-    { title: 'Chess Club — Open Play ♟️',          date: daysFromToday(2),  time: '6:00 – 9:00 PM',     where: '3401 Market, Rm 117',          type: ['campus','free'] },
-    { title: 'Entrepreneurship Pitch Night 🚀',    date: daysFromToday(3),  time: '5:00 – 7:00 PM',     where: 'LeBow College of Business',    type: ['campus']        },
-    { title: 'Pre-Med Society Info Session 🩺',    date: daysFromToday(3),  time: '12:00 – 1:00 PM',    where: 'Online (Teams)',                type: ['online','free'] },
-    { title: 'Mindfulness & Wellness Session 🧘',  date: daysFromToday(4),  time: '12:00 – 1:00 PM',    where: 'Recreation Center, Studio B',  type: ['campus','free'] },
-    { title: 'Film Screening: Parasite 🎬',        date: daysFromToday(4),  time: '7:00 – 9:30 PM',     where: 'Mitchell Auditorium',          type: ['campus','free'] },
-    { title: 'International Students Mixer 🌍',    date: daysFromToday(4),  time: '5:00 – 7:00 PM',     where: 'Creese Student Center',        type: ['campus','free'] },
-    { title: 'Dragon Game Night 🎮',               date: daysFromToday(5),  time: '8:00 – 11:00 PM',    where: 'Millennium Hall Lounge, 3F',   type: ['campus','free'] },
-    { title: 'Resume Review Drop-In 📄',           date: daysFromToday(5),  time: '1:00 – 4:00 PM',     where: 'Close Hall, Career Center',    type: ['campus','free'] },
-    { title: 'Cooking Class: Dorm Meals 🍳',       date: daysFromToday(6),  time: '3:00 – 5:00 PM',     where: 'Myers Hall Kitchen',           type: ['campus','free'] },
-    { title: 'Trivia Night — $50 Prize 🧠',        date: daysFromToday(6),  time: '7:30 – 9:30 PM',     where: 'Hans & Gretels, Walnut St',    type: ['campus']        },
-    { title: 'Spring Career Fair 2026 🤝',         date: daysFromToday(8),  time: '10:00 AM – 3:00 PM', where: 'DAC, Main Gym',                type: ['campus']        },
-    { title: 'Mental Health Workshop 💚',          date: daysFromToday(9),  time: '2:00 – 3:30 PM',     where: 'Online (Zoom)',                type: ['online','free'] },
-    { title: 'Drexel Running Club — 5K 🏃',        date: daysFromToday(10), time: '7:00 – 8:30 AM',     where: 'Starting: Korman Quad',        type: ['campus','free'] },
-  ];
+  let ALL_EVENTS = [];
+  let ALL_CLUBS = [];
 
-  ALL_EVENTS.sort(function(a,b){ return a.date - b.date; });
+  async function loadData() {
+    try {
+      const [eventsRes, clubsRes] = await Promise.all([
+        fetch('/events'),
+        fetch('/clubs')
+      ]);
+      const events = await eventsRes.json();
+      const clubs = await clubsRes.json();
+      ALL_EVENTS = events.map(ev => ({
+        id: ev.id,
+        title: ev.title,
+        date: new Date(ev.start_time),
+        time: new Date(ev.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ' – ' + new Date(ev.end_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        where: ev.location,
+        type: ['campus']  // default
+      }));
+      ALL_CLUBS = clubs;
+      console.log('Loaded events:', ALL_EVENTS);
+      console.log('Loaded clubs:', ALL_CLUBS);
+      renderEvents();
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  }
+
+  // Call loadData on page load
+  document.addEventListener('DOMContentLoaded', loadData);
 
   var PAGE_SIZE     = 5;
   var currentFilter = 'all';
@@ -1454,7 +1475,7 @@
       html += '    <div class="emon">' + p.mon + '</div>';
       html += '  </div>';
       html += '  <div class="event-info">';
-      html += '    <div class="event-title">' + ev.title + '</div>';
+      html += '    <div class="event-title">' + ev.title + '<button class="favorite-btn" data-item-id="' + ev.id + '" data-item-type="event">☆ Favorite</button></div>';
       html += '    <div class="event-meta">';
       html += '      <span class="event-meta-item">🕐 ' + ev.time + '</span>';
       html += '      <span class="event-meta-item">📍 ' + ev.where + '</span>';
