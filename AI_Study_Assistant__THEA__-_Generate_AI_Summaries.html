@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>THEA - AI Study Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #666;
+      margin-top: 0;
+    }
+
+    .upload-box {
+      margin-top: 25px;
+      padding: 20px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      text-align: center;
+      background: #fafafa;
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 18px;
+      border: none;
+      background: #2d6cdf;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #1f56b8;
+    }
+
+    .output {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      background: #f0f4ff;
+      border-left: 4px solid #2d6cdf;
+    }
+
+    .output h3 {
+      margin-top: 0;
+    }
+
+    .placeholder {
+      color: #777;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>THEA</h1>
+    <p class="subtitle">AI Study Assistant - Generate Smart Summaries</p>
+
+    <div class="upload-box">
+      <p>Upload your notes below and let THEA summarize them for you.</p>
+      <input type="file" id="fileUpload">
+      <br>
+      <button onclick="generateSummary()">Generate Summary</button>
+    </div>
+
+    <div class="output" id="outputBox">
+      <h3>Summary</h3>
+      <p class="placeholder">Your AI-generated summary will appear here...</p>
+    </div>
+  </div>
+
+  <script>
+    function generateSummary() {
+      const output = document.getElementById("outputBox");
+
+      output.innerHTML = `
+        <h3>Summary</h3>
+        <p><strong>Key Points:</strong></p>
+        <ul>
+          <li>Main concepts extracted from the uploaded notes.</li>
+          <li>Important definitions and explanations simplified.</li>
+          <li>Condensed structure for faster revision.</li>
+        </ul>
+        <p><strong>Note:</strong> This is a demo placeholder. AI integration will replace this with real output.</p>
+      `;
+    }
+  </script>
+</body>
+</html>
