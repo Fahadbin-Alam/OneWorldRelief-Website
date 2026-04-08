@@ -49,6 +49,14 @@ class Favorite(BaseModel):
     item_id: int
     item_type: str  # "club" or "event"
 
+class PlannerCourse(BaseModel):
+    id: int
+    name: str
+    days: List[str]
+    start_time: str
+    end_time: str
+    location: str
+
 # -----------------------------
 # Fake DB (in-memory)
 # -----------------------------
@@ -86,10 +94,44 @@ CLASSES: List[ClassItem] = [
         start_time="11:00 AM",
         end_time="11:50 AM",
         location="Nesbitt 111"
-    )
+    ),
+    ClassItem(
+        id=2,
+        name="Data Structures",
+        days=["T","R"],
+        start_time="2:00 PM",
+        end_time="3:30 PM",
+        location="Bossone 303"
+    ),
+    ClassItem(
+        id=3,
+        name="Calculus II",
+        days=["M","W","F"],
+        start_time="1:00 PM",
+        end_time="1:50 PM",
+        location="Curtis 113"
+    ),
+    ClassItem(
+        id=4,
+        name="Web Development",
+        days=["T","R"],
+        start_time="10:00 AM",
+        end_time="11:30 AM",
+        location="Raytheon 204"
+    ),
+    ClassItem(
+        id=5,
+        name="Public Speaking",
+        days=["M","W"],
+        start_time="3:00 PM",
+        end_time="4:30 PM",
+        location="Myers 101"
+    ),
 ]
 
 FAVORITES: List[Favorite] = []
+
+PLANNER_ITEMS: List[PlannerCourse] = []
 
 # -----------------------------
 # Helpers
@@ -188,3 +230,30 @@ def remove_favorite(item_id: int, item_type: str):
     global FAVORITES
     FAVORITES = [f for f in FAVORITES if not (f.item_id == item_id and f.item_type == item_type)]
     return {"message": "Removed from favorites"}
+
+# Planner API
+@app.get("/test")
+def test_endpoint():
+    return {"message": "Test endpoint works"}
+
+@app.get("/planner")
+def get_planner():
+    return PLANNER_ITEMS
+
+@app.post("/planner")
+def add_to_planner(course: PlannerCourse):
+    # Check if course already in planner
+    if any(c.id == course.id for c in PLANNER_ITEMS):
+        return {"message": "Course already in planner"}
+    PLANNER_ITEMS.append(course)
+    return {"message": "Added to planner"}
+
+@app.delete("/planner/{course_id}")
+def remove_from_planner(course_id: int):
+    global PLANNER_ITEMS
+    PLANNER_ITEMS = [c for c in PLANNER_ITEMS if c.id != course_id]
+    return {"message": "Removed from planner"}
+
+@app.get("/courses")
+def get_available_courses():
+    return CLASSES
