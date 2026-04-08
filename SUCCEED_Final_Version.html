@@ -1436,13 +1436,59 @@
   let ALL_COURSES = [];
   let PLANNER_ITEMS = [];
 
+  // ═════ AUTHENTICATION ═════
+  const API_BASE = '';  // Use relative URLs for same-domain requests
+  let authToken = null;
+  let currentUser = null;
+
+  function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    if (!token) return {};
+    return {
+      'Authorization': `Bearer ${token}`
+    };
+  }
+
+  function checkAuth() {
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
+    const userId = localStorage.getItem('user_id');
+    
+    if (!token) {
+      // Not authenticated - redirect to login
+      window.location.href = '/login';
+      return false;
+    }
+    
+    authToken = token;
+    currentUser = { email, userId };
+    
+    // Update drawer with user info
+    const drawerTitle = document.getElementById('drawerTitle');
+    const drawerSub = document.getElementById('drawerSub');
+    if (drawerTitle && drawerSub) {
+      drawerTitle.textContent = email || 'Account';
+      drawerSub.textContent = 'Logged in';
+    }
+    
+    return true;
+  }
+
+  async function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('email');
+    window.location.href = '/login';
+  }
+
   async function loadData() {
     try {
+      const headers = getAuthHeaders();
       const [eventsRes, clubsRes, coursesRes, plannerRes] = await Promise.all([
-        fetch('/events'),
-        fetch('/clubs'),
-        fetch('/courses'),
-        fetch('/planner')
+        fetch(`/events`, { headers }),
+        fetch(`/clubs`, { headers }),
+        fetch(`/courses`, { headers }),
+        fetch(`/planner`, { headers })
       ]);
       const events = await eventsRes.json();
       const clubs = await clubsRes.json();
@@ -1474,11 +1520,15 @@
   // PLANNER FUNCTIONS
   async function addToPlannerUI(course) {
     try {
-      const res = await fetch('/planner', {
+      const headers = getAuthHeaders();
+      const res = await fetch(`${API_URL}/planner`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify(course)
       });
+      if (res.status === 401 || res.status === 403) {
+        return handleLogout();
+      }
       const data = await res.json();
       console.log('Add response:', data);
       // Reload and refresh both sections
@@ -1491,7 +1541,14 @@
 
   async function removeFromPlannerUI(courseId) {
     try {
-      const res = await fetch(`/planner/${courseId}`, { method: 'DELETE' });
+      const headers = getAuthHeaders();
+      const res = await fetch(`${API_URL}/planner/${courseId}`, { 
+        method: 'DELETE',
+        headers
+      });
+      if (res.status === 401 || res.status === 403) {
+        return handleLogout();
+      }
       const data = await res.json();
       console.log('Remove response:', data);
       // Reload and refresh both sections
@@ -1548,7 +1605,20 @@
   }
 
   // Call loadData on page load
-  document.addEventListener('DOMContentLoaded', loadData);
+  document.addEventListener('DOMContentLoaded', function() {
+    if (checkAuth()) {
+      loadData();
+      
+      // Setup logout handler
+      const logoutLink = document.getElementById('logoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          handleLogout();
+        });
+      }
+    }
+  });
 
   var PAGE_SIZE     = 5;
   var currentFilter = 'all';

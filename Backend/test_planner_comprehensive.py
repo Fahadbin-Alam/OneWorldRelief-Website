@@ -12,19 +12,54 @@ This test suite validates the planner API across multiple scenarios:
 
 import requests
 import time
+import uuid
 
 BASE_URL = "http://localhost:8000"
+
+# =====================================================================
+# Authentication Setup
+# =====================================================================
+def get_auth_token():
+    """Register or login a test user and return JWT token"""
+    test_email = f"test_user_{uuid.uuid4().hex[:8]}@example.com"
+    test_password = "testpass123"
+    
+    # Register
+    response = requests.post(f"{BASE_URL}/auth/register", json={
+        "email": test_email,
+        "password": test_password
+    })
+    
+    if response.status_code == 200:
+        data = response.json()
+        return data["access_token"]
+    
+    # If already registered, login
+    response = requests.post(f"{BASE_URL}/auth/login", json={
+        "email": test_email,
+        "password": test_password
+    })
+    
+    if response.status_code == 200:
+        data = response.json()
+        return data["access_token"]
+    
+    raise Exception(f"Failed to authenticate: {response.status_code} {response.text}")
+
+# Authenticate once at module load
+AUTH_TOKEN = get_auth_token()
+AUTH_HEADERS = {"Authorization": f"Bearer {AUTH_TOKEN}"}
 
 # ---------------------------------------------------------------------
 # Helper Functions
 # ---------------------------------------------------------------------
 
 def clear_planner():
-    response = requests.get(f"{BASE_URL}/planner")
+    response = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS)
     if response.status_code != 200:
         return
     for item in response.json():
-        requests.delete(f"{BASE_URL}/planner/{item['id']}")
+        requests.delete(f"{BASE_URL}/planner/{item['id']}", headers=AUTH_HEADERS)
 
 
 def get_available_courses():
@@ -45,7 +80,7 @@ def test_empty_planner():
     Expected: Returns an empty list
     """
     clear_planner()
-    response = requests.get(f"{BASE_URL}/planner")
+    response = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS)
     assert response.status_code == 200
     assert response.json() == []
     print("✓ Test 1 PASSED: Empty planner returns an empty list")
@@ -85,11 +120,11 @@ def test_add_course_to_planner():
     courses = get_available_courses()
     course = courses[0]
 
-    response = requests.post(f"{BASE_URL}/planner", json=course)
+    response = requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
     assert response.status_code == 200
     assert response.json()["message"] == "Added to planner"
 
-    planner = requests.get(f"{BASE_URL}/planner").json()
+    planner = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
     assert any(item["id"] == course["id"] for item in planner)
     print("✓ Test 3 PASSED: Course can be added to planner")
 
@@ -107,9 +142,9 @@ def test_retrieve_planner_items():
     """
     clear_planner()
     course = get_available_courses()[0]
-    requests.post(f"{BASE_URL}/planner", json=course)
+    requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
 
-    response = requests.get(f"{BASE_URL}/planner")
+    response = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS)
     assert response.status_code == 200
     planner = response.json()
     assert len(planner) == 1
@@ -130,12 +165,12 @@ def test_remove_course_from_planner():
     """
     clear_planner()
     course = get_available_courses()[0]
-    requests.post(f"{BASE_URL}/planner", json=course)
+    requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
 
-    response = requests.delete(f"{BASE_URL}/planner/{course['id']}")
+    response = requests.delete(f"{BASE_URL}/planner/{course['id']}", headers=AUTH_HEADERS)
     assert response.status_code == 200
 
-    planner = requests.get(f"{BASE_URL}/planner").json()
+    planner = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
     assert all(item["id"] != course["id"] for item in planner)
     print("✓ Test 5 PASSED: Course removal from planner works")
 
@@ -155,10 +190,10 @@ def test_add_multiple_courses():
     courses = get_available_courses()
     assert len(courses) >= 2
 
-    requests.post(f"{BASE_URL}/planner", json=courses[0])
-    requests.post(f"{BASE_URL}/planner", json=courses[1])
+    requests.post(f"{BASE_URL}/planner", json=courses[0], headers=AUTH_HEADERS)
+    requests.post(f"{BASE_URL}/planner", json=courses[1], headers=AUTH_HEADERS)
 
-    planner = requests.get(f"{BASE_URL}/planner").json()
+    planner = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
     assert any(item["id"] == courses[0]["id"] for item in planner)
     assert any(item["id"] == courses[1]["id"] for item in planner)
     print("✓ Test 6 PASSED: Multiple courses can be added to planner")
@@ -177,10 +212,10 @@ def test_prevent_duplicate_planner_courses():
     """
     clear_planner()
     course = get_available_courses()[0]
-    requests.post(f"{BASE_URL}/planner", json=course)
-    requests.post(f"{BASE_URL}/planner", json=course)
+    requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
+    requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
 
-    planner = requests.get(f"{BASE_URL}/planner").json()
+    planner = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
     matches = [item for item in planner if item["id"] == course["id"]]
     assert len(matches) == 1
     print("✓ Test 7 PASSED: Duplicate planner courses are prevented")
@@ -198,7 +233,7 @@ def test_remove_nonexistent_planner_course():
     Expected: API returns success and planner remains stable
     """
     clear_planner()
-    response = requests.delete(f"{BASE_URL}/planner/9999")
+    response = requests.delete(f"{BASE_URL}/planner/9999", headers=AUTH_HEADERS)
     assert response.status_code == 200
     assert response.json()["message"] == "Removed from planner"
     print("✓ Test 8 PASSED: Non-existent planner delete is handled gracefully")
@@ -217,9 +252,9 @@ def test_planner_api_response_format():
     """
     clear_planner()
     course = get_available_courses()[0]
-    requests.post(f"{BASE_URL}/planner", json=course)
+    requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
 
-    planner = requests.get(f"{BASE_URL}/planner").json()
+    planner = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
     for item in planner:
         assert "id" in item
         assert "name" in item
@@ -243,11 +278,11 @@ def test_planner_persistence():
     """
     clear_planner()
     course = get_available_courses()[0]
-    requests.post(f"{BASE_URL}/planner", json=course)
+    requests.post(f"{BASE_URL}/planner", json=course, headers=AUTH_HEADERS)
 
-    planner1 = requests.get(f"{BASE_URL}/planner").json()
+    planner1 = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
     time.sleep(0.1)
-    planner2 = requests.get(f"{BASE_URL}/planner").json()
+    planner2 = requests.get(f"{BASE_URL}/planner", headers=AUTH_HEADERS).json()
 
     assert any(item["id"] == course["id"] for item in planner1)
     assert any(item["id"] == course["id"] for item in planner2)
