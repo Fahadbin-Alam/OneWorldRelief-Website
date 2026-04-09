@@ -59,7 +59,16 @@ def init_db():
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         UNIQUE (user_id, course_id)
     )""")
-    
+    cursor.execute("""CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )""")
+
     # Create demo account if it doesn't exist
     cursor.execute("SELECT id FROM users WHERE email = ?", ("demo@example.com",))
     if cursor.fetchone() is None:
@@ -67,6 +76,17 @@ def init_db():
         demo_hash = hash_password(demo_password)
         cursor.execute("INSERT INTO users (email, password_hash, plain_password) VALUES (?, ?, ?)",
                       ("demo@example.com", demo_hash, demo_password))
+        demo_id = cursor.lastrowid
+        sample_notifications = [
+            (demo_id, "Welcome to Succeed!", "Your Drexel student guide is ready. Explore tools like the Course Planner and Events."),
+            (demo_id, "Event Reminder", "Anime Club Meetup is coming up at Creese Student Center."),
+            (demo_id, "Course Planner Tip", "Add your courses to the planner to visualize your weekly schedule."),
+            (demo_id, "Assignment Due Soon", "Web Development Lab #3 is due this Friday at 11:59 PM."),
+        ]
+        cursor.executemany(
+            "INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)",
+            sample_notifications
+        )
     
     conn.commit()
     conn.close()
@@ -234,6 +254,31 @@ def remove_user_planner_course(user_id: int, course_id: int):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM user_planner WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+    conn.commit()
+    conn.close()
+
+def get_user_notifications(user_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, title, message, is_read, created_at FROM notifications WHERE user_id = ? ORDER BY created_at DESC",
+        (user_id,)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [{"id": r[0], "title": r[1], "message": r[2], "is_read": bool(r[3]), "created_at": r[4]} for r in rows]
+
+def mark_notification_read(user_id: int, notif_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", (notif_id, user_id))
+    conn.commit()
+    conn.close()
+
+def mark_all_notifications_read(user_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ?", (user_id,))
     conn.commit()
     conn.close()
 
@@ -465,6 +510,21 @@ def remove_from_planner(course_id: int, user: dict = Depends(get_current_user)):
 @app.get("/courses")
 def get_available_courses():
     return CLASSES
+
+# ===== NOTIFICATIONS ENDPOINTS =====
+@app.get("/notifications")
+def get_notifications(user: dict = Depends(get_current_user)):
+    return get_user_notifications(user["user_id"])
+
+@app.post("/notifications/{notif_id}/read")
+def read_notification(notif_id: int, user: dict = Depends(get_current_user)):
+    mark_notification_read(user["user_id"], notif_id)
+    return {"message": "Marked as read"}
+
+@app.post("/notifications/read-all")
+def read_all_notifications(user: dict = Depends(get_current_user)):
+    mark_all_notifications_read(user["user_id"])
+    return {"message": "All notifications marked as read"}
 
 # ===== DEV ENDPOINTS (For Developers to View Registered Users) =====
 @app.get("/dev/users")
