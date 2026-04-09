@@ -616,6 +616,71 @@
     .favorite-btn.favorited {
       background: #ffd84d;
     }
+
+    /* ── PLANNER PAGE ──────────────────────────────── */
+    .course-card {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--gray1);
+      display: flex; gap: 12px; align-items: center;
+      justify-content: space-between;
+    }
+    .course-card:last-child { border-bottom: none; }
+    .course-info {
+      flex: 1; min-width: 0;
+    }
+    .course-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .course-time { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .course-location { font-size: 11px; color: var(--gray3); margin-top: 1px; }
+    .add-btn {
+      padding: 6px 12px;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .13s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .add-btn:hover { background: #ffd84d; }
+    .add-btn.added {
+      background: var(--ok);
+      color: white;
+    }
+    .add-btn.added:hover { background: #157a3e; }
+
+    .planner-empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .planner-item {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--gray1);
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,198,0,.04);
+    }
+    .planner-item:last-child { border-bottom: none; }
+    .planner-item-info strong { font-size: 13.5px; font-weight: 600; }
+    .planner-item-info span { font-size: 12px; color: var(--muted); margin-top: 2px; display: block; }
+    .planner-course-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .planner-course-details { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .planner-course-location { font-size: 11px; color: var(--gray3); margin-top: 1px; }
+    .remove-btn {
+      padding: 4px 8px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .remove-btn:hover { opacity: 0.9; }
   </style>
 </head>
 
@@ -979,29 +1044,28 @@
 
         <!-- COURSE PLANNER -->
         <div class="page" data-page="course">
-          <div class="cta-card">
-            <div style="font-size:32px;">🎓</div>
-            <h3>Course Planner & Scheduler</h3>
-            <p>Open the external dashboard to compare sections by time slot, then cross-check professor ratings side by side.</p>
-            <div class="btn-row">
-              <a class="btn btn-navy btn-sm" href="https://scheduler.zohair.dev/d/db64b0ee-89cf-46ab-a3f5-af315d8e1e0f/scheduler-dashboard?orgId=1&from=now-6h&to=now&timezone=browser&var-null_ratings=Yes&var-min_rating=0&var-max_difficulty=5.0&var-min_num_ratings=0&var-course_number_greater_than=0&var-course_number_less_than=1000&var-only_blank_prereqs=Yes&var-allow_null_times=Yes&var-start_time=07:00%20AM&var-end_time=10:00%20PM&var-show_full_courses=No" target="_blank" rel="noopener">Open Scheduler ↗</a>
-              <a class="btn btn-ghost btn-sm" href="https://www.ratemyprofessors.com" target="_blank" rel="noopener">Rate My Professors ↗</a>
+          <!-- MY PLANNER SECTION -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="page-header">
+              <div>
+                <h2>My Planner</h2>
+                <p id="plannerCount">0 courses added</p>
+              </div>
+              <div class="page-header-icon">📋</div>
             </div>
-            <p style="font-size:12px; color: var(--gray3);">Opens in a new tab · External tool</p>
+            <div id="plannerList"></div>
           </div>
-          <div class="list-item">
-            <div class="list-item-ico">💡</div>
-            <div class="list-item-body">
-              <strong>Pro tip</strong>
-              <span>Filter by no prerequisites + open sections for easiest scheduling.</span>
+
+          <!-- AVAILABLE COURSES SECTION -->
+          <div class="card" style="margin-top: 16px; margin-bottom: 0;">
+            <div class="page-header">
+              <div>
+                <h2>Available Courses</h2>
+                <p>Click "Add" to add a course to your planner</p>
+              </div>
+              <div class="page-header-icon">🎓</div>
             </div>
-          </div>
-          <div class="list-item">
-            <div class="list-item-ico">⭐</div>
-            <div class="list-item-body">
-              <strong>Check ratings first</strong>
-              <span>RateMyProfessors: look for "caring" + "clear" as top tags.</span>
-            </div>
+            <div id="coursesList"></div>
           </div>
         </div>
 
@@ -1369,15 +1433,68 @@
 
   let ALL_EVENTS = [];
   let ALL_CLUBS = [];
+  let ALL_COURSES = [];
+  let PLANNER_ITEMS = [];
+
+  // ═════ AUTHENTICATION ═════
+  const API_BASE = '';  // Use relative URLs for same-domain requests
+  let authToken = null;
+  let currentUser = null;
+
+  function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    if (!token) return {};
+    return {
+      'Authorization': `Bearer ${token}`
+    };
+  }
+
+  function checkAuth() {
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
+    const userId = localStorage.getItem('user_id');
+    
+    if (!token) {
+      // Not authenticated - redirect to login
+      window.location.href = '/login';
+      return false;
+    }
+    
+    authToken = token;
+    currentUser = { email, userId };
+    
+    // Update drawer with user info
+    const drawerTitle = document.getElementById('drawerTitle');
+    const drawerSub = document.getElementById('drawerSub');
+    if (drawerTitle && drawerSub) {
+      drawerTitle.textContent = email || 'Account';
+      drawerSub.textContent = 'Logged in';
+    }
+    
+    return true;
+  }
+
+  async function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('email');
+    window.location.href = '/login';
+  }
 
   async function loadData() {
     try {
-      const [eventsRes, clubsRes] = await Promise.all([
-        fetch('/events'),
-        fetch('/clubs')
+      const headers = getAuthHeaders();
+      const [eventsRes, clubsRes, coursesRes, plannerRes] = await Promise.all([
+        fetch(`/events`, { headers }),
+        fetch(`/clubs`, { headers }),
+        fetch(`/courses`, { headers }),
+        fetch(`/planner`, { headers })
       ]);
       const events = await eventsRes.json();
       const clubs = await clubsRes.json();
+      const courses = await coursesRes.json();
+      const planner = await plannerRes.json();
+      
       ALL_EVENTS = events.map(ev => ({
         id: ev.id,
         title: ev.title,
@@ -1387,16 +1504,121 @@
         type: ['campus']  // default
       }));
       ALL_CLUBS = clubs;
+      ALL_COURSES = courses;
+      PLANNER_ITEMS = planner;
       console.log('Loaded events:', ALL_EVENTS);
       console.log('Loaded clubs:', ALL_CLUBS);
+      console.log('Loaded courses:', ALL_COURSES);
+      console.log('Loaded planner items:', PLANNER_ITEMS);
       renderEvents();
+      renderPlannerPage();
     } catch (error) {
       console.error('Error loading data:', error);
     }
   }
 
+  // PLANNER FUNCTIONS
+  async function addToPlannerUI(course) {
+    try {
+      const headers = getAuthHeaders();
+      const res = await fetch(`${API_URL}/planner`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(course)
+      });
+      if (res.status === 401 || res.status === 403) {
+        return handleLogout();
+      }
+      const data = await res.json();
+      console.log('Add response:', data);
+      // Reload and refresh both sections
+      PLANNER_ITEMS.push(course);
+      renderPlannerPage();
+    } catch (error) {
+      console.error('Error adding to planner:', error);
+    }
+  }
+
+  async function removeFromPlannerUI(courseId) {
+    try {
+      const headers = getAuthHeaders();
+      const res = await fetch(`${API_URL}/planner/${courseId}`, { 
+        method: 'DELETE',
+        headers
+      });
+      if (res.status === 401 || res.status === 403) {
+        return handleLogout();
+      }
+      const data = await res.json();
+      console.log('Remove response:', data);
+      // Reload and refresh both sections
+      PLANNER_ITEMS = PLANNER_ITEMS.filter(c => c.id !== courseId);
+      renderPlannerPage();
+    } catch (error) {
+      console.error('Error removing from planner:', error);
+    }
+  }
+
+  function renderPlannerPage() {
+    const plannerList = document.getElementById('plannerList');
+    const coursesList = document.getElementById('coursesList');
+    const plannerCount = document.getElementById('plannerCount');
+    
+    if (!plannerList || !coursesList) return;
+
+    // Render planner items (My Planner section)
+    if (PLANNER_ITEMS.length === 0) {
+      plannerList.innerHTML = '<div class="planner-empty"><p>No courses added yet. Pick courses below to get started!</p></div>';
+    } else {
+      plannerList.innerHTML = PLANNER_ITEMS.map(course => `
+        <div class="planner-item">
+          <div style="flex: 1;">
+            <div class="planner-course-name">${course.name}</div>
+            <div class="planner-course-details">${course.days.join(', ')} · ${course.start_time} - ${course.end_time}</div>
+            <div class="planner-course-location">📍 ${course.location}</div>
+          </div>
+          <button class="remove-btn" onclick="removeFromPlannerUI(${course.id})">Remove</button>
+        </div>
+      `).join('');
+    }
+
+    plannerCount.textContent = `${PLANNER_ITEMS.length} course${PLANNER_ITEMS.length !== 1 ? 's' : ''} added`;
+
+    // Render available courses (Available Courses section)
+    coursesList.innerHTML = ALL_COURSES.map(course => {
+      const isAdded = PLANNER_ITEMS.some(p => p.id === course.id);
+      return `
+        <div class="course-card">
+          <div class="course-info">
+            <div class="course-name">${course.name}</div>
+            <div class="course-time">${course.days.join(', ')} · ${course.start_time} - ${course.end_time}</div>
+            <div class="course-location">📍 ${course.location}</div>
+          </div>
+          <button class="add-btn ${isAdded ? 'added' : ''}" 
+            onclick="addToPlannerUI(${JSON.stringify(course).replace(/"/g, '&quot;')})"
+            ${isAdded ? 'disabled' : ''}>
+            ${isAdded ? '✓ Added' : 'Add to Planner'}
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
   // Call loadData on page load
-  document.addEventListener('DOMContentLoaded', loadData);
+  document.addEventListener('DOMContentLoaded', function() {
+    if (checkAuth()) {
+      loadData();
+      
+      // Setup logout handler
+      const logoutLink = document.getElementById('logoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          handleLogout();
+        });
+      }
+    }
+  });
 
   var PAGE_SIZE     = 5;
   var currentFilter = 'all';

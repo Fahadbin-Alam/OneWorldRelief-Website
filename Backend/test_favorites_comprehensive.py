@@ -17,8 +17,43 @@ Why these tests matter:
 
 import requests
 import time
+import uuid
 
 BASE_URL = "http://localhost:8000"
+
+# =====================================================================
+# Authentication Setup
+# =====================================================================
+def get_auth_token():
+    """Register or login a test user and return JWT token"""
+    test_email = f"test_user_{uuid.uuid4().hex[:8]}@example.com"
+    test_password = "testpass123"
+    
+    # Register
+    response = requests.post(f"{BASE_URL}/auth/register", json={
+        "email": test_email,
+        "password": test_password
+    })
+    
+    if response.status_code == 200:
+        data = response.json()
+        return data["access_token"]
+    
+    # If already registered, login
+    response = requests.post(f"{BASE_URL}/auth/login", json={
+        "email": test_email,
+        "password": test_password
+    })
+    
+    if response.status_code == 200:
+        data = response.json()
+        return data["access_token"]
+    
+    raise Exception(f"Failed to authenticate: {response.status_code} {response.text}")
+
+# Authenticate once at module load
+AUTH_TOKEN = get_auth_token()
+AUTH_HEADERS = {"Authorization": f"Bearer {AUTH_TOKEN}"}
 
 # =====================================================================
 # Test 1: Basic Add Favorite
@@ -30,7 +65,7 @@ def test_add_single_favorite():
     
     Expected: Returns success message, favorite is stored
     """
-    response = requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"})
+    response = requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"}, headers=AUTH_HEADERS)
     assert response.status_code == 200
     assert response.json() == {"message": "Added to favorites"}
     print("✓ Test 1 PASSED: Can add a single favorite")
@@ -47,13 +82,13 @@ def test_retrieve_favorites():
     Expected: Returns list containing the added favorite
     """
     # Clear by removing first
-    requests.delete(f"{BASE_URL}/favorites/1/event")
+    requests.delete(f"{BASE_URL}/favorites/1/event", headers=AUTH_HEADERS)
     
     # Add a favorite
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"}, headers=AUTH_HEADERS)
     
     # Retrieve
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     assert response.status_code == 200
     favorites = response.json()
     assert len(favorites) >= 1
@@ -72,18 +107,18 @@ def test_remove_favorite():
     Expected: Favorite removed from list
     """
     # Add
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 2, "item_type": "club"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 2, "item_type": "club"}, headers=AUTH_HEADERS)
     
     # Verify it exists
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     assert {"item_id": 2, "item_type": "club"} in response.json()
     
     # Remove
-    response = requests.delete(f"{BASE_URL}/favorites/2/club")
+    response = requests.delete(f"{BASE_URL}/favorites/2/club", headers=AUTH_HEADERS)
     assert response.status_code == 200
     
     # Verify it's gone
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     assert {"item_id": 2, "item_type": "club"} not in response.json()
     print("✓ Test 3 PASSED: Can remove a favorite")
 
@@ -99,16 +134,16 @@ def test_add_multiple_items():
     Expected: All items stored separately with correct types
     """
     # Clean slate
-    requests.delete(f"{BASE_URL}/favorites/1/event")
-    requests.delete(f"{BASE_URL}/favorites/1/club")
-    requests.delete(f"{BASE_URL}/favorites/2/event")
+    requests.delete(f"{BASE_URL}/favorites/1/event", headers=AUTH_HEADERS)
+    requests.delete(f"{BASE_URL}/favorites/1/club", headers=AUTH_HEADERS)
+    requests.delete(f"{BASE_URL}/favorites/2/event", headers=AUTH_HEADERS)
     
     # Add different types
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"})
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "club"})
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 2, "item_type": "event"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"}, headers=AUTH_HEADERS)
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "club"}, headers=AUTH_HEADERS)
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 2, "item_type": "event"}, headers=AUTH_HEADERS)
     
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     favorites = response.json()
     
     assert {"item_id": 1, "item_type": "event"} in favorites
@@ -130,17 +165,17 @@ def test_no_duplicate_favorites():
     Expected: Second add request returns success, but no duplicate in list
     """
     # Clean
-    requests.delete(f"{BASE_URL}/favorites/3/event")
+    requests.delete(f"{BASE_URL}/favorites/3/event", headers=AUTH_HEADERS)
     
     # Add first time
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 3, "item_type": "event"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 3, "item_type": "event"}, headers=AUTH_HEADERS)
     
     # Add again (should not create duplicate)
-    response = requests.post(f"{BASE_URL}/favorites", json={"item_id": 3, "item_type": "event"})
+    response = requests.post(f"{BASE_URL}/favorites", json={"item_id": 3, "item_type": "event"}, headers=AUTH_HEADERS)
     assert response.status_code == 200
     
     # Verify only one exists
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     favorites = response.json()
     duplicates = [f for f in favorites if f["item_id"] == 3 and f["item_type"] == "event"]
     assert len(duplicates) == 1  # Should be exactly 1, not 2
@@ -158,7 +193,7 @@ def test_remove_nonexistent_favorite():
     
     Expected: Returns success (idempotent), doesn't error
     """
-    response = requests.delete(f"{BASE_URL}/favorites/999/nonexistent")
+    response = requests.delete(f"{BASE_URL}/favorites/999/nonexistent", headers=AUTH_HEADERS)
     # Should not crash
     assert response.status_code == 200
     print("✓ Test 6 PASSED: Removing non-existent favorite handled gracefully")
@@ -175,12 +210,12 @@ def test_empty_favorites_list():
     Expected: Returns empty list (not null or error)
     """
     # Remove all
-    requests.delete(f"{BASE_URL}/favorites/1/event")
-    requests.delete(f"{BASE_URL}/favorites/1/club")
-    requests.delete(f"{BASE_URL}/favorites/2/event")
-    requests.delete(f"{BASE_URL}/favorites/3/event")
+    requests.delete(f"{BASE_URL}/favorites/1/event", headers=AUTH_HEADERS)
+    requests.delete(f"{BASE_URL}/favorites/1/club", headers=AUTH_HEADERS)
+    requests.delete(f"{BASE_URL}/favorites/2/event", headers=AUTH_HEADERS)
+    requests.delete(f"{BASE_URL}/favorites/3/event", headers=AUTH_HEADERS)
     
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     assert response.status_code == 200
     assert response.json() == [] or response.json() == None or len(response.json()) == 0
     print("✓ Test 7 PASSED: Empty favorites list handled correctly")
@@ -199,13 +234,13 @@ def test_same_id_different_types():
     Expected: Both items stored separately, removal affects only the correct type
     """
     # Add Event#1 and Club#1
-    requests.delete(f"{BASE_URL}/favorites/1/event")
-    requests.delete(f"{BASE_URL}/favorites/1/club")
+    requests.delete(f"{BASE_URL}/favorites/1/event", headers=AUTH_HEADERS)
+    requests.delete(f"{BASE_URL}/favorites/1/club", headers=AUTH_HEADERS)
     
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"})
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "club"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "event"}, headers=AUTH_HEADERS)
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 1, "item_type": "club"}, headers=AUTH_HEADERS)
     
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     favorites = response.json()
     
     # Both should exist
@@ -213,9 +248,9 @@ def test_same_id_different_types():
     assert {"item_id": 1, "item_type": "club"} in favorites
     
     # Remove only event
-    requests.delete(f"{BASE_URL}/favorites/1/event")
+    requests.delete(f"{BASE_URL}/favorites/1/event", headers=AUTH_HEADERS)
     
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     favorites = response.json()
     
     # Club#1 should still exist
@@ -235,9 +270,9 @@ def test_api_response_format():
     
     Expected: All favorites have required fields
     """
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 5, "item_type": "event"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 5, "item_type": "event"}, headers=AUTH_HEADERS)
     
-    response = requests.get(f"{BASE_URL}/favorites")
+    response = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     favorites = response.json()
     
     # Verify structure
@@ -261,12 +296,12 @@ def test_favorites_persist():
     
     Expected: Favorite remains after "refresh"
     """
-    requests.post(f"{BASE_URL}/favorites", json={"item_id": 10, "item_type": "event"})
+    requests.post(f"{BASE_URL}/favorites", json={"item_id": 10, "item_type": "event"}, headers=AUTH_HEADERS)
     
     # Simulate refresh - make new request
-    response1 = requests.get(f"{BASE_URL}/favorites")
+    response1 = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     time.sleep(0.1)  # Small delay
-    response2 = requests.get(f"{BASE_URL}/favorites")
+    response2 = requests.get(f"{BASE_URL}/favorites", headers=AUTH_HEADERS)
     
     fav1 = response1.json()
     fav2 = response2.json()
