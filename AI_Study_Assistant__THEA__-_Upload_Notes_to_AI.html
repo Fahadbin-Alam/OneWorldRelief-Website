@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Succeed - Upload Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #ffffff, #fef08a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      width: 380px;
+      border-radius: 18px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .logo span {
+      color: #eab308; /* yellow accent */
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .upload-box {
+      border: 2px dashed #60a5fa;
+      border-radius: 14px;
+      padding: 30px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .upload-box:hover {
+      background: #eff6ff;
+    }
+
+    .upload-icon {
+      font-size: 40px;
+    }
+
+    .upload-text {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    input {
+      display: none;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #2563eb, #eab308);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .success { color: green; }
+    .error { color: red; }
+
+    .footer {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="logo">Suc<span>ceed</span> 🐍</div>
+  <div class="subtitle">Upload your notes for AI processing</div>
+
+  <label class="upload-box">
+    <div class="upload-icon">📂</div>
+    <div class="upload-text" id="fileName">Click to upload notes</div>
+    <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
+  </label>
+
+  <button onclick="uploadFile()">Upload Notes</button>
+
+  <div id="message" class="message"></div>
+
+  <div class="footer">Supported: PDF, DOCX, TXT</div>
+</div>
+
+<script>
+  const fileInput = document.getElementById("fileInput");
+  const fileNameDisplay = document.getElementById("fileName");
+  const message = document.getElementById("message");
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length) {
+      fileNameDisplay.textContent = fileInput.files[0].name;
+      message.textContent = "";
+    }
+  });
+
+  function uploadFile() {
+    if (!fileInput.files.length) {
+      message.textContent = "Please select a file first.";
+      message.className = "message error";
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const fileName = file.name.toLowerCase();
+
+    const allowed = [".pdf", ".docx", ".txt"];
+    const valid = allowed.some(ext => fileName.endsWith(ext));
+
+    if (!valid) {
+      message.textContent = "Unsupported file type.";
+      message.className = "message error";
+      return;
+    }
+
+    message.textContent = "Uploading...";
+    message.className = "message";
+
+    setTimeout(() => {
+      message.textContent = "Upload successful!";
+      message.className = "message success";
+    }, 1000);
+  }
+</script>
+
+</body>
+</html>
