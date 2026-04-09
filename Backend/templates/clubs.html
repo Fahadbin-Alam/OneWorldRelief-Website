@@ -9,11 +9,87 @@
 
   <div class="grid">
     {% for c in clubs %}
-      <div class="card">
+      <div class="card" data-club-id="{{ c.id }}">
         <h3 style="margin-top:0;">{{ c.name }}</h3>
         <p style="color:#444;">{{ c.description }}</p>
+        <button class="favorite-btn" data-item-id="{{ c.id }}" data-item-type="club">☆ Favorite</button>
         <a class="btn" href="/clubs/{{ c.id }}/events-view">View Events</a>
       </div>
     {% endfor %}
   </div>
+
+  <script>
+    let favorites = [];
+
+    async function loadFavorites() {
+      try {
+        const response = await fetch('/favorites');
+        if (response.ok) {
+          favorites = await response.json();
+          console.log('Loaded favorites:', favorites);
+          updateFavoriteButtons();
+        } else {
+          console.error('Failed to load favorites:', response.status);
+        }
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      }
+    }
+
+    function updateFavoriteButtons() {
+      document.querySelectorAll('.favorite-btn').forEach(btn => {
+        const itemId = parseInt(btn.dataset.itemId);
+        const itemType = btn.dataset.itemType;
+        const isFavorited = favorites.some(f => f.item_id === itemId && f.item_type === itemType);
+        btn.textContent = isFavorited ? '★ Favorited' : '☆ Favorite';
+        btn.classList.toggle('favorited', isFavorited);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadFavorites);
+
+    document.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('favorite-btn')) {
+        console.log('Favorite button clicked');
+        const btn = e.target;
+        const itemId = parseInt(btn.dataset.itemId);
+        const itemType = btn.dataset.itemType;
+        const isFavorited = favorites.some(f => f.item_id === itemId && f.item_type === itemType);
+        console.log('Item ID:', itemId, 'Type:', itemType, 'Is favorited:', isFavorited);
+
+        if (isFavorited) {
+          // Remove
+          try {
+            const response = await fetch(`/favorites/${itemId}/${itemType}`, { method: 'DELETE' });
+            if (response.ok) {
+              favorites = favorites.filter(f => !(f.item_id === itemId && f.item_type === itemType));
+              console.log('Removed from favorites');
+            } else {
+              console.error('Failed to remove favorite:', response.status);
+            }
+          } catch (error) {
+            console.error('Error removing favorite:', error);
+          }
+        } else {
+          // Add
+          try {
+            const response = await fetch('/favorites', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ item_id: itemId, item_type: itemType })
+            });
+            if (response.ok) {
+              favorites.push({ item_id: itemId, item_type: itemType });
+              console.log('Added to favorites');
+            } else {
+              console.error('Failed to add favorite:', response.status);
+            }
+          } catch (error) {
+            console.error('Error adding favorite:', error);
+          }
+        }
+        updateFavoriteButtons();
+      }
+    });
+  </script>
 {% endblock %}

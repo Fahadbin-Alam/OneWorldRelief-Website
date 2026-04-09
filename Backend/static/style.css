@@ -83,3 +83,18 @@ body {
   padding: 24px 0;
   color: #666;
 }
+
+.grid .card .favorite-btn {
+  background: #ffc600;
+  color: #07294d;
+  border: none;
+  padding: 8px 12px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.grid .card .favorite-btn.favorited {
+  background: #ffd84d;
+}

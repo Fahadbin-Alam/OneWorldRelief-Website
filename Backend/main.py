@@ -45,6 +45,10 @@ class ClassItem(BaseModel):
     end_time: str            # "11:50 AM"
     location: str
 
+class Favorite(BaseModel):
+    item_id: int
+    item_type: str  # "club" or "event"
+
 # -----------------------------
 # Fake DB (in-memory)
 # -----------------------------
@@ -85,6 +89,8 @@ CLASSES: List[ClassItem] = [
     )
 ]
 
+FAVORITES: List[Favorite] = []
+
 # -----------------------------
 # Helpers
 # -----------------------------
@@ -118,13 +124,18 @@ def sort_classes(items: List[ClassItem]) -> List[ClassItem]:
 # HTML PAGES (Clean Rendering)
 # -----------------------------
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    upcoming = sorted(EVENTS, key=lambda e: e.start_time)[:3]
-    return templates.TemplateResponse("index.html", {"request": request, "upcoming": upcoming})
+def home():
+    try:
+        html_path = BASE_DIR.parent / "SUCCEED_Final_Version.html"
+        with open(str(html_path), "r", encoding="utf-8") as f:
+            content = f.read()
+        return content
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1>"
 
 @app.get("/clubs-view", response_class=HTMLResponse)
 def clubs_view(request: Request):
-    return templates.TemplateResponse("clubs.html", {"request": request, "clubs": CLUBS})
+    return templates.TemplateResponse("clubs.html", {"request": request, "clubs": [c.dict() for c in CLUBS]})
 
 @app.get("/clubs/{club_id}/events-view", response_class=HTMLResponse)
 def events_view(request: Request, club_id: int):
@@ -151,8 +162,29 @@ def schedule_view(request: Request):
 def get_clubs():
     return CLUBS
 
+@app.get("/events", response_model=List[Event])
+def get_events():
+    return EVENTS
+
 @app.get("/clubs/{club_id}/events", response_model=List[Event])
 def get_events_for_club(club_id: int):
     if not any(c.id == club_id for c in CLUBS):
         raise HTTPException(status_code=404, detail="Club not found")
     return [e for e in EVENTS if e.club_id == club_id]
+
+# Favorites API
+@app.get("/favorites", response_model=List[Favorite])
+def get_favorites():
+    return FAVORITES
+
+@app.post("/favorites")
+def add_favorite(fav: Favorite):
+    if fav not in FAVORITES:
+        FAVORITES.append(fav)
+    return {"message": "Added to favorites"}
+
+@app.delete("/favorites/{item_id}/{item_type}")
+def remove_favorite(item_id: int, item_type: str):
+    global FAVORITES
+    FAVORITES = [f for f in FAVORITES if not (f.item_id == item_id and f.item_type == item_type)]
+    return {"message": "Removed from favorites"}
