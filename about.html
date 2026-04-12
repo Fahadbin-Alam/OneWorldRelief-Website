@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About | Fahadbin Alam</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fahadbin Alam | Personal Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
     :root {
       --navy: #07294D;
       --gold: #FFC600;
-      --gold2: #FFD84D;
-      --white: #FFFFFF;
-      --off: #F4F6F9;
-      --gray1: #E8ECF2;
-      --gray2: #C4CEDB;
-      --gray3: #8898AA;
-      --text: #0D1F35;
-      --muted: #5A6B80;
-      --shadow: 0 10px 25px rgba(7, 41, 77, 0.10), 0 2px 8px rgba(7, 41, 77, 0.08);
-      --shadow-soft: 0 2px 12px rgba(7, 41, 77, 0.10), 0 1px 3px rgba(7, 41, 77, 0.06);
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --line: #e5e7eb;
+      --soft: #f9fafb;
+      --shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+      --radius: 14px;
+      --maxw: 1080px;
     }
 
     *, *::before, *::after {
@@ -30,238 +28,125 @@
       padding: 0;
     }
 
-    html, body {
-      height: 100%;
-    }
-
     body {
       font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(1200px 500px at 15% -10%, rgba(255, 198, 0, 0.12), transparent 65%),
-        radial-gradient(800px 300px at 90% 15%, rgba(7, 41, 77, 0.12), transparent 65%),
-        var(--off);
-      min-height: 100vh;
-      line-height: 1.55;
+      background: var(--bg);
+      line-height: 1.6;
       overflow-x: hidden;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
+    p, li { color: var(--muted); }
 
-    .site-wrap {
-      max-width: 1080px;
+    .container {
+      max-width: var(--maxw);
       margin: 0 auto;
-      padding: 0 20px 56px;
+      padding: 0 18px 48px;
     }
 
-    .topbar {
+    .header {
       position: sticky;
       top: 0;
-      z-index: 10;
-      background: rgba(7, 41, 77, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      margin-bottom: 22px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      z-index: 20;
     }
 
-    .topbar-inner {
-      max-width: 1080px;
+    .header-inner {
+      max-width: var(--maxw);
       margin: 0 auto;
-      padding: 14px 20px;
+      padding: 14px 18px;
       display: flex;
-      align-items: center;
+      gap: 16px;
       justify-content: space-between;
-      gap: 14px;
+      align-items: center;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--white);
+    .name {
+      font-size: 20px;
       font-weight: 700;
+      color: var(--navy);
       letter-spacing: -0.2px;
-      font-size: 18px;
       white-space: nowrap;
     }
 
-    .brand-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      background: var(--gold);
-      color: var(--navy);
-      font-weight: 700;
-      display: grid;
-      place-items: center;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .brand span {
+    .name span {
       color: var(--gold);
     }
 
-    .top-nav {
-      list-style: none;
+    .nav {
       display: flex;
-      gap: 6px;
-      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: flex-end;
-      min-width: 0;
     }
 
-    .top-nav a {
-      color: var(--white);
-      font-weight: 500;
-      padding: 8px 13px;
+    .nav a {
+      padding: 8px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.2s ease;
+      border: 1px solid var(--line);
       font-size: 14px;
+      color: var(--muted);
+      transition: all 0.2s ease;
     }
 
-    .top-nav a:hover {
-      border-color: var(--gold);
-      color: var(--white);
-      background: rgba(255, 198, 0, 0.14);
-    }
-
-    .top-nav a.active {
-      background: var(--gold);
+    .nav a:hover {
+      border-color: var(--navy);
       color: var(--navy);
-      border-color: var(--gold);
-      font-weight: 600;
+      background: #f3f8ff;
     }
 
     .hero {
-      background: linear-gradient(150deg, #07294D 0%, #0a315b 54%, #083868 100%);
-      border-radius: 20px;
-      color: var(--white);
-      padding: 46px 34px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 340px;
-      height: 340px;
-      border-radius: 50%;
-      right: -130px;
-      bottom: -130px;
-      background: radial-gradient(circle, rgba(255, 216, 77, 0.34) 0%, transparent 72%);
-      pointer-events: none;
+      padding: 40px 0 24px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+      align-items: center;
     }
 
     .hero h1 {
-      font-size: clamp(1.8rem, 2.9vw, 2.6rem);
-      line-height: 1.1;
-      margin-bottom: 8px;
+      font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+      color: var(--navy);
+      margin-bottom: 10px;
+      line-height: 1.15;
     }
 
-    .hero h1 span {
-      color: var(--gold);
+    .hero h1 strong {
+      color: var(--text);
+      display: inline;
     }
 
     .hero p {
-      max-width: 68ch;
-      color: rgba(255, 255, 255, 0.87);
-      font-size: 1rem;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
+      max-width: 65ch;
     }
 
-    .pill {
+    .role {
       display: inline-block;
-      background: rgba(255, 198, 0, 0.18);
-      border: 1px solid rgba(255, 198, 0, 0.55);
-      color: var(--gold2);
+      margin-bottom: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      border: 1px solid var(--line);
       border-radius: 999px;
       padding: 7px 12px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin: 0 0 20px;
-    }
-
-    .panel {
-      background: var(--white);
-      border-radius: 16px;
-      border: 1px solid var(--gray1);
-      box-shadow: var(--shadow-soft);
-      padding: 22px;
-    }
-
-    .panel h2 {
-      font-size: 1.18rem;
-      color: var(--navy);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .panel h2::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--gold);
-      display: inline-block;
-    }
-
-    .panel p,
-    .panel li {
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .panel ul {
-      margin-left: 18px;
-      margin-bottom: 0;
+      background: #f8fafc;
     }
 
     .actions {
       display: flex;
-      gap: 12px;
       flex-wrap: wrap;
-      margin-top: 14px;
+      gap: 10px;
     }
 
     .btn {
-      appearance: none;
-      border: 0;
-      border-radius: 11px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 11px 16px;
+      border-radius: 10px;
+      padding: 10px 14px;
       font-weight: 600;
       font-size: 14px;
-      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
-    }
-
-    .btn-navy {
-      background: var(--navy);
-      color: var(--white);
-    }
-
-    .btn-gold {
-      background: var(--gold);
-      color: var(--navy);
     }
 
     .btn:hover {
@@ -269,172 +154,350 @@
       box-shadow: var(--shadow);
     }
 
-    .btn-navy:hover {
-      background: #0a3566;
+    .btn-secondary {
+      background: var(--navy);
+      color: #fff;
     }
 
-    .btn-gold:hover {
-      background: var(--gold2);
+    .btn-accent {
+      border-color: var(--gold);
+      background: #fff;
+      color: var(--navy);
     }
 
-    .footer {
-      margin-top: 22px;
-      padding: 16px 20px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, rgba(7, 41, 77, 0.08), rgba(7, 41, 77, 0.01));
+    .quick-card {
+      background: #fbfdff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-height: 180px;
+    }
+
+    .quick-card h2 {
+      color: var(--navy);
+      margin-bottom: 10px;
+      font-size: 1.12rem;
+    }
+
+    .quick-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
       color: var(--muted);
-      text-align: center;
-      border: 1px solid var(--gray1);
       font-size: 14px;
     }
 
-    .footer p + p {
-      margin-top: 6px;
+    .section {
+      margin: 20px 0;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section h3 {
+      color: var(--navy);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section h3::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: inline-block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .card h4 {
+      color: var(--navy);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .card .meta {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .card ul {
+      margin-left: 18px;
+    }
+
+    .card li {
+      margin-bottom: 6px;
+      color: #4b5563;
+    }
+
+    .timeline {
+      margin-top: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .item {
+      border-left: 3px solid var(--navy);
+      padding: 0 0 0 12px;
+    }
+
+    .item h5 {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .item small {
+      color: #6b7280;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .tagset {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--navy);
+      font-size: 12px;
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
+    .footer {
+      margin-top: 24px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: #6b7280;
+      font-size: 14px;
     }
 
     .footer a {
       color: var(--navy);
       font-weight: 600;
+      border-bottom: 1px dashed transparent;
     }
 
-    .footer strong {
-      color: var(--navy);
+    .footer a:hover {
+      border-bottom-color: var(--navy);
     }
 
-    @media (max-width: 880px) {
-      .grid {
+    @media (max-width: 940px) {
+      .hero {
         grid-template-columns: 1fr;
       }
 
-      .topbar-inner {
+      .header-inner {
         align-items: flex-start;
       }
     }
 
-    @media (max-width: 720px) {
-      .site-wrap {
-        padding: 0 14px 40px;
+    @media (max-width: 700px) {
+      .container {
+        padding: 0 12px 36px;
       }
 
-      .topbar {
-        margin-bottom: 16px;
+      .grid {
+        grid-template-columns: 1fr;
       }
 
-      .topbar-inner {
-        padding: 12px 14px;
+      .header-inner {
+        gap: 10px;
       }
 
-      .brand {
-        font-size: 16px;
+      .name {
+        font-size: 18px;
       }
 
-      .top-nav {
-        width: 100%;
+      .nav {
         justify-content: flex-start;
       }
 
-      .hero {
-        padding: 30px 18px;
-      }
-    }
-
-    @media (max-width: 420px) {
-      .top-nav a {
+      .nav a {
         width: 100%;
         text-align: center;
-      }
-
-      .hero h1 {
-        font-size: 1.75rem;
       }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="SUCCEED_Final_Version.html">
-        <span class="brand-mark">S</span>
-        <span>Suc<span>ceed</span></span>
-      </a>
-      <nav aria-label="Primary">
-        <ul class="top-nav">
-          <li><a href="SUCCEED_Final_Version.html">Back to App</a></li>
-          <li><a class="active" href="about.html">About</a></li>
-        </ul>
+  <header class="header">
+    <div class="header-inner">
+      <div class="name">Fahadbin <span>Alam</span></div>
+      <nav class="nav" aria-label="Main Navigation">
+        <a href="#about">About</a>
+        <a href="#highlights">Highlights</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
       </nav>
     </div>
   </header>
 
-  <main class="site-wrap">
+  <main class="container">
     <section class="hero">
-      <span class="pill">About the Creator</span>
-      <h1>Hi, I am <span>Fahadbin Alam</span></h1>
-      <p>
-        I build practical digital products to simplify student life. I currently identify as a
-        Developer / Student and focus on creating dependable tools that are easy to use, visually
-        consistent, and useful on both desktop and mobile.
-      </p>
-      <div class="actions">
-        <a class="btn btn-gold" href="https://www.linkedin.com/in/fahadbin-alam-/" target="_blank" rel="noopener">LinkedIn</a>
-        <a class="btn btn-navy" href="#" target="_blank" rel="noopener">Linktree</a>
+      <div>
+        <span class="role">Developer / Student</span>
+        <h1>Hi, I’m <strong>Fahadbin Alam</strong>.</h1>
+        <p>
+          This is my personal space and a clean, white portfolio-style page that I use to present my story,
+          background, and work. It is intentionally simple, responsive, and easy to expand as I grow my personal website.
+        </p>
+        <p>
+          The site is now separate from the Succeed app and designed to stand alone as a reusable base for my professional presence.
+        </p>
+        <div class="actions">
+          <a class="btn btn-secondary" href="https://www.linkedin.com/in/fahadbin-alam-/" target="_blank" rel="noopener">Open LinkedIn</a>
+          <a class="btn btn-accent" href="#" target="_blank" rel="noopener">Linktree</a>
+        </div>
+      </div>
+
+      <aside class="quick-card">
+        <h2>LinkedIn Snapshot</h2>
+        <p>
+          I want this section to directly reflect everything from my LinkedIn profile so it can evolve as a true personal brand
+          home page. Use these sections to mirror your exported profile details.
+        </p>
+        <div class="quick-row">
+          <strong>Profile:</strong>
+          <span>Fahadbin Alam</span>
+        </div>
+        <div class="quick-row">
+          <strong>Role:</strong>
+          <span>Developer / Student</span>
+        </div>
+        <div class="quick-row">
+          <strong>Focus:</strong>
+          <span>Product + student-facing software</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="about">
+      <h3>About</h3>
+      <div class="grid">
+        <article class="card">
+          <h4>Who I am</h4>
+          <p>
+            I’m currently building practical web tools with a focus on clean UX, predictable structure, and simple interactions.
+            I like shipping polished projects fast and keeping the UI readable across desktop and mobile.
+          </p>
+        </article>
+        <article class="card">
+          <h4>What this page is for</h4>
+          <p>
+            This page is structured as a personal homepage foundation. It is clean, modular, and designed to hold
+            real resume and portfolio content long term.
+          </p>
+          <div class="tagset">
+            <span class="tag">Responsive</span>
+            <span class="tag">Professional</span>
+            <span class="tag">Portfolio Ready</span>
+            <span class="tag">Recruiter Friendly</span>
+          </div>
+        </article>
       </div>
     </section>
 
-    <section class="grid" aria-label="About the app">
-      <article class="panel">
-        <h2>About the App</h2>
-        <p>
-          Succeed is a compact student productivity hub that combines planning, logistics, and study support.
-          It centralizes tasks, course schedules, transit routes, events, and AI study tools so students
-          can stay focused on what matters.
-        </p>
-        <p>
-          The interface is intentionally minimal and fast so the app can support real everyday use without
-          visual noise.
-        </p>
-      </article>
+    <section class="section" id="highlights">
+      <h3>Highlights</h3>
+      <div class="grid">
+        <article class="card">
+          <h4>Projects to showcase</h4>
+          <ul>
+            <li>SucCceed student tools app concept and implementation</li>
+            <li>AI study / productivity focused experiments</li>
+            <li>Mobile-first user interfaces and dashboards</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h4>Core strengths</h4>
+          <ul>
+            <li>Front-end styling and layout systems</li>
+            <li>Usability-focused feature design</li>
+            <li>Fast feature iteration and clear documentation</li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-      <article class="panel">
-        <h2>Why I Built This</h2>
-        <p>
-          I built this project to test a simple idea: students do better when tools are simple, fast,
-          and visually predictable. Instead of moving between fragmented systems, one dashboard can reduce
-          friction and create better routines.
-        </p>
-        <ul>
-          <li>Reduce context switching for day-to-day student work</li>
-          <li>Keep useful campus and academic information in one place</li>
-          <li>Provide a clean base for continuous improvement over time</li>
-        </ul>
-      </article>
+    <section class="section" id="experience">
+      <h3>Experience</h3>
+      <div class="timeline">
+        <article class="card item">
+          <h5>Add experience entries from LinkedIn</h5>
+          <small>Position, Company, Date Range</small>
+          <p>
+            Paste your role, achievements, and outcomes directly from your LinkedIn Experience section here.
+          </p>
+        </article>
+        <article class="card item">
+          <h5>Additional roles</h5>
+          <small>Position, Company, Date Range</small>
+          <p>
+            This is a reusable placeholder for all additional jobs or internships from your LinkedIn profile.
+          </p>
+        </article>
+      </div>
+    </section>
 
-      <article class="panel">
-        <h2>Future Vision</h2>
-        <p>
-          This page is intentionally designed to evolve from an app-specific about section into a broader
-          personal homepage. It will grow into a portfolio platform where I can showcase projects,
-          reflections, and experiments while staying aligned with the same professional visual style.
-        </p>
-      </article>
+    <section class="section" id="education">
+      <h3>Education</h3>
+      <div class="timeline">
+        <article class="card item">
+          <h5>Add education from LinkedIn</h5>
+          <small>School, Degree, Year</small>
+          <p>
+            Add your school, program, and academic highlights exactly as they appear on your LinkedIn Education section.
+          </p>
+        </article>
+      </div>
+    </section>
 
-      <article class="panel">
-        <h2>Modular Structure</h2>
+    <section class="section" id="contact">
+      <h3>Contact</h3>
+      <div class="card">
         <p>
-          The sections are reusable and easy to expand:
+          I am available for internships, collaborations, and software projects. Reach me at:
         </p>
-        <ul>
-          <li>Hero / identity block for creator profile</li>
-          <li>Purpose-driven app summary</li>
-          <li>Story and roadmap section</li>
-          <li>Consistent action buttons and footer for personal branding links</li>
-        </ul>
-      </article>
+        <p style="margin-top:8px;">
+          <a href="mailto:">your-email@domain.com</a> ·
+          <a href="https://www.linkedin.com/in/fahadbin-alam-/" target="_blank" rel="noopener">LinkedIn</a> ·
+          <a href="#" target="_blank" rel="noopener">Linktree</a>
+        </p>
+      </div>
     </section>
 
     <footer class="footer">
-      <p><strong>Ready to connect?</strong> You can use the links above to find my profile and growing work.</p>
-      <p>Built with clean, responsive design using navy, gold, and white as the core palette.</p>
+      <p>Portfolio foundation · White and minimal layout · Built for a personal homepage.</p>
+      <p>Last updated: ready for your LinkedIn import and next round of edits.</p>
     </footer>
   </main>
 </body>
