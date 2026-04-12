@@ -1652,7 +1652,7 @@
     
     if (!token) {
       // Not authenticated - redirect to login
-      window.location.href = '/login';
+      window.location.href = 'login.html';
       return false;
     }
     
@@ -1674,7 +1674,7 @@
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('email');
-    window.location.href = '/login';
+    window.location.href = 'login.html';
   }
 
   async function loadData() {
