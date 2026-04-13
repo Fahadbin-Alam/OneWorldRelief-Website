@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Notes</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 80, 200, 0.15);
+      width: 350px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #1e5eff;
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      border: 2px dashed #1e5eff;
+      padding: 15px;
+      width: 100%;
+      border-radius: 10px;
+      background: #f0f6ff;
+      cursor: pointer;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #1e5eff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background: #0047d4;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .loading {
+      color: #1e5eff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>Upload Your Notes</h2>
+
+    <form id="uploadForm">
+      <input 
+        type="file" 
+        id="fileInput" 
+        accept=".pdf,.doc,.docx,.txt"
+        required
+      />
+
+      <button type="submit">Upload</button>
+    </form>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const file = fileInput.files[0];
+
+      if (!file) {
+        status.textContent = "Please select a file.";
+        status.className = "";
+        return;
+      }
+
+      status.textContent = "Uploading...";
+      status.className = "loading";
+
+      setTimeout(() => {
+        status.textContent = "Upload successful!";
+        status.className = "success";
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>
