@@ -1,0 +1,33 @@
+const FOOD_SPOTS = [
+  { name: "Cucina Zapata", type: ["food-truck"] },
+  { name: "Halal Cart near Rec Center", type: ["food-truck", "halal"] },
+  { name: "Burger Truck near Rec Center", type: ["food-truck", "fast-food"] },
+  { name: "Urban Eatery", type: ["dining-hall"] },
+  { name: "Northside Dining Terrace", type: ["dining-hall"] },
+  { name: "Brooklyn Dumpling Shop", type: ["fast-food"] }
+];
+
+function renderFoodCards(filter = "all") {
+  const foodResults = document.getElementById("foodResults");
+
+  const filtered = FOOD_SPOTS.filter(spot =>
+    filter === "all" || spot.type.includes(filter)
+  );
+
+  foodResults.innerHTML = filtered.map(spot => `
+    <div>
+      <strong>${spot.name}</strong>
+      <p>${spot.type.join(", ")}</p>
+    </div>
+  `).join("");
+}
+
+const foodFilterBtns = document.querySelectorAll("[data-food-filter]");
+
+foodFilterBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    renderFoodCards(btn.dataset.foodFilter);
+  });
+});
+
+renderFoodCards("all");
