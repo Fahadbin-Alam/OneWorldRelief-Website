@@ -315,7 +315,7 @@
 
                 showSuccess('login', 'Login successful! Redirecting...');
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = 'SUCCEED_Final_Version.html';
                 }, 1000);
             } catch (error) {
                 showError('login', error.message);
@@ -359,7 +359,7 @@
 
                 showSuccess('signup', 'Account created! Redirecting...');
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = 'SUCCEED_Final_Version.html';
                 }, 1000);
             } catch (error) {
                 showError('signup', error.message);
@@ -395,7 +395,7 @@
 
                 showSuccess('login', 'Demo account loaded! Redirecting...');
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = 'SUCCEED_Final_Version.html';
                 }, 1000);
             } catch (error) {
                 showError('login', error.message);
@@ -412,7 +412,7 @@
         window.addEventListener('load', () => {
             const token = localStorage.getItem('token');
             if (token) {
-                window.location.href = '/';
+                window.location.href = 'SUCCEED_Final_Version.html';
             }
         });
     </script>

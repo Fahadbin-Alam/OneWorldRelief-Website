@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fahadbin Alam | Personal Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy: #07294D;
+      --gold: #FFC600;
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --line: #e5e7eb;
+      --soft: #f9fafb;
+      --shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+      --radius: 14px;
+      --maxw: 1080px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    p, li { color: var(--muted); }
+
+    .container {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 18px 48px;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      z-index: 20;
+    }
+
+    .header-inner {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+    }
+
+    .name span {
+      color: var(--gold);
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .nav a:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+      background: #f3f8ff;
+    }
+
+    .hero {
+      padding: 40px 0 24px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+      color: var(--navy);
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+
+    .hero h1 strong {
+      color: var(--text);
+      display: inline;
+    }
+
+    .hero p {
+      margin-bottom: 16px;
+      max-width: 65ch;
+    }
+
+    .role {
+      display: inline-block;
+      margin-bottom: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: #f8fafc;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .btn-accent {
+      border-color: var(--gold);
+      background: #fff;
+      color: var(--navy);
+    }
+
+    .quick-card {
+      background: #fbfdff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-height: 180px;
+    }
+
+    .quick-card h2 {
+      color: var(--navy);
+      margin-bottom: 10px;
+      font-size: 1.12rem;
+    }
+
+    .quick-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section h3 {
+      color: var(--navy);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section h3::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: inline-block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .card h4 {
+      color: var(--navy);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .card .meta {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .card ul {
+      margin-left: 18px;
+    }
+
+    .card li {
+      margin-bottom: 6px;
+      color: #4b5563;
+    }
+
+    .timeline {
+      margin-top: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .item {
+      border-left: 3px solid var(--navy);
+      padding: 0 0 0 12px;
+    }
+
+    .item h5 {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .item small {
+      color: #6b7280;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .tagset {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--navy);
+      font-size: 12px;
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
+    .footer {
+      margin-top: 24px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: var(--navy);
+      font-weight: 600;
+      border-bottom: 1px dashed transparent;
+    }
+
+    .footer a:hover {
+      border-bottom-color: var(--navy);
+    }
+
+    @media (max-width: 940px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .header-inner {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 0 12px 36px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-inner {
+        gap: 10px;
+      }
+
+      .name {
+        font-size: 18px;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .nav a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="name">Fahadbin <span>Alam</span></div>
+      <nav class="nav" aria-label="Main Navigation">
+        <a href="#about">About</a>
+        <a href="#highlights">Highlights</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="role">Developer / Student</span>
+        <h1>Hi, I’m <strong>Fahadbin Alam</strong>.</h1>
+        <p>
+          This is my personal space and a clean, white portfolio-style page that I use to present my story,
+          background, and work. It is intentionally simple, responsive, and easy to expand as I grow my personal website.
+        </p>
+        <p>
+          The site is now separate from the Succeed app and designed to stand alone as a reusable base for my professional presence.
+        </p>
+        <div class="actions">
+          <a class="btn btn-secondary" href="https://www.linkedin.com/in/fahadbin-alam-/" target="_blank" rel="noopener">Open LinkedIn</a>
+          <a class="btn btn-accent" href="#" target="_blank" rel="noopener">Linktree</a>
+        </div>
+      </div>
+
+      <aside class="quick-card">
+        <h2>LinkedIn Snapshot</h2>
+        <p>
+          I want this section to directly reflect everything from my LinkedIn profile so it can evolve as a true personal brand
+          home page. Use these sections to mirror your exported profile details.
+        </p>
+        <div class="quick-row">
+          <strong>Profile:</strong>
+          <span>Fahadbin Alam</span>
+        </div>
+        <div class="quick-row">
+          <strong>Role:</strong>
+          <span>Developer / Student</span>
+        </div>
+        <div class="quick-row">
+          <strong>Focus:</strong>
+          <span>Product + student-facing software</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="about">
+      <h3>About</h3>
+      <div class="grid">
+        <article class="card">
+          <h4>Who I am</h4>
+          <p>
+            I’m currently building practical web tools with a focus on clean UX, predictable structure, and simple interactions.
+            I like shipping polished projects fast and keeping the UI readable across desktop and mobile.
+          </p>
+        </article>
+        <article class="card">
+          <h4>What this page is for</h4>
+          <p>
+            This page is structured as a personal homepage foundation. It is clean, modular, and designed to hold
+            real resume and portfolio content long term.
+          </p>
+          <div class="tagset">
+            <span class="tag">Responsive</span>
+            <span class="tag">Professional</span>
+            <span class="tag">Portfolio Ready</span>
+            <span class="tag">Recruiter Friendly</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="highlights">
+      <h3>Highlights</h3>
+      <div class="grid">
+        <article class="card">
+          <h4>Projects to showcase</h4>
+          <ul>
+            <li>SucCceed student tools app concept and implementation</li>
+            <li>AI study / productivity focused experiments</li>
+            <li>Mobile-first user interfaces and dashboards</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h4>Core strengths</h4>
+          <ul>
+            <li>Front-end styling and layout systems</li>
+            <li>Usability-focused feature design</li>
+            <li>Fast feature iteration and clear documentation</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="experience">
+      <h3>Experience</h3>
+      <div class="timeline">
+        <article class="card item">
+          <h5>Add experience entries from LinkedIn</h5>
+          <small>Position, Company, Date Range</small>
+          <p>
+            Paste your role, achievements, and outcomes directly from your LinkedIn Experience section here.
+          </p>
+        </article>
+        <article class="card item">
+          <h5>Additional roles</h5>
+          <small>Position, Company, Date Range</small>
+          <p>
+            This is a reusable placeholder for all additional jobs or internships from your LinkedIn profile.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="education">
+      <h3>Education</h3>
+      <div class="timeline">
+        <article class="card item">
+          <h5>Add education from LinkedIn</h5>
+          <small>School, Degree, Year</small>
+          <p>
+            Add your school, program, and academic highlights exactly as they appear on your LinkedIn Education section.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <h3>Contact</h3>
+      <div class="card">
+        <p>
+          I am available for internships, collaborations, and software projects. Reach me at:
+        </p>
+        <p style="margin-top:8px;">
+          <a href="mailto:">your-email@domain.com</a> ·
+          <a href="https://www.linkedin.com/in/fahadbin-alam-/" target="_blank" rel="noopener">LinkedIn</a> ·
+          <a href="#" target="_blank" rel="noopener">Linktree</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Portfolio foundation · White and minimal layout · Built for a personal homepage.</p>
+      <p>Last updated: ready for your LinkedIn import and next round of edits.</p>
+    </footer>
+  </main>
+</body>
+</html>
