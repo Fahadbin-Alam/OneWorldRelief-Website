@@ -1,6 +1,6 @@
 // Author: Fahadbin Alam (fma52), 4/19/26
-// Mod by Codex, 4/19/26
-// From One World Relief donation backend integration, 4/19/26
+// Mod by Codex, 4/23/26
+// From One World Relief donation backend integration and frontend polish, 4/23/26
 (function () {
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || "http://localhost:8000").replace(/\/$/, "");
   const donationForm = document.getElementById("donationForm");
@@ -83,7 +83,11 @@
         false
       );
     } catch (error) {
-      setStatus(error.message || "Donation request failed.", true);
+      const fallbackMessage =
+        window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+          ? "Donation form is live, but the payment backend is not connected yet for this deploy."
+          : "Donation request failed.";
+      setStatus(error.message || fallbackMessage, true);
     } finally {
       donateButton.disabled = false;
       donateButton.textContent = "Complete Donation";
