@@ -1,11 +1,39 @@
 // Author: Fahadbin Alam (fma52), 4/19/26
 // Mod by Codex, 4/23/26
-// From One World Relief donation backend integration and frontend polish, 4/23/26
+// From One World Relief donation backend integration and multi-page project rendering, 4/23/26
 (function () {
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || "http://localhost:8000").replace(/\/$/, "");
   const donationForm = document.getElementById("donationForm");
   const statusEl = document.getElementById("donationStatus");
   const donateButton = donationForm ? donationForm.querySelector(".donate-button") : null;
+  const projectBoard = document.getElementById("projectBoard");
+
+  const renderProjects = () => {
+    if (!projectBoard || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+      return;
+    }
+
+    projectBoard.innerHTML = window.ONE_WORLD_RELIEF_PROJECTS.map((project) => {
+      return `
+        <article class="project-card">
+          <div class="project-meta">
+            <span>${project.category}</span>
+            <span>${project.status}</span>
+          </div>
+          <div>
+            <h3>${project.title}</h3>
+            <p>${project.location}</p>
+          </div>
+          <p>${project.summary}</p>
+          <a class="button button-outline" href="${project.mediaUrl}" target="_blank" rel="noreferrer">
+            ${project.mediaLabel}
+          </a>
+        </article>
+      `;
+    }).join("");
+  };
+
+  renderProjects();
 
   if (!donationForm || !statusEl || !donateButton) {
     return;
