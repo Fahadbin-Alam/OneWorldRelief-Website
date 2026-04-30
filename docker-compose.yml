@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: student-guide-app
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-for-real-use}
+      DB_PATH: ${DB_PATH:-/app/data/app.db}
+    volumes:
+      - student_guide_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  student_guide_data:

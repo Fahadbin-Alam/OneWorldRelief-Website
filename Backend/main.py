@@ -22,13 +22,13 @@ import requests
 from jose import JWTError, jwt
 
 # ===== CONFIG =====
-SECRET_KEY = "your-secret-key-change-in-production"
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production").strip()
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
 
 # ===== PATHS =====
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "app.db"
+DB_PATH = Path(os.getenv("DB_PATH", str(BASE_DIR / "app.db"))).resolve()
 OWR_DIR = BASE_DIR.parent / "one-world-relief"
 
 # ===== ONE WORLD RELIEF CONFIG =====
