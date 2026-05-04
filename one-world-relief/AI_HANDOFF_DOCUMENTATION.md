@@ -403,6 +403,11 @@ Local DNS lookup showed `one-world-relief.org` only returning an SOA record and 
 - Add/verify `www.one-world-relief.org` as a CNAME/custom domain or redirect to the apex.
 - Set Cloudflare env vars to `https://one-world-relief.org` URLs after DNS is active.
 
+Additional DNS check later on May 4, 2026:
+- Nameservers are correctly pointed at Cloudflare: `kevin.ns.cloudflare.com` and `mona.ns.cloudflare.com`.
+- The Cloudflare zone itself is missing the working website records: apex still has no usable A/CNAME/Pages custom-domain target, and `www.one-world-relief.org` returns NXDOMAIN.
+- Because custom receipt email uses `receipts@one-world-relief.org`, the email provider domain verification will also depend on adding the provider's DNS records in this Cloudflare zone.
+
 ### Deploy Steps
 1. Commit changes locally
 2. Push to both Git remotes (GitLab + GitHub)
@@ -460,6 +465,7 @@ Local DNS lookup showed `one-world-relief.org` only returning an SOA record and 
 - GitLab handoff-excluded commit pushed: `8a0b743` to `origin/charity-frontend-redesign`.
 - Cloudflare CLI is installed but not authenticated on this machine (`wrangler.cmd whoami` reports not authenticated), and no Cloudflare API token/account environment variables are set. Direct deploy/DNS updates require `wrangler login` or Cloudflare API credentials.
 - Added custom receipt email requirement and template per user request. Production must configure `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL`; otherwise the webhook records `not_sent_email_not_configured` in the Google Sheet receipt email status column.
+- Receipt email implementation details: Stripe Checkout sets `payment_intent_data[receipt_email]` for Stripe's built-in receipt, and the webhook sends the custom OneWorld Relief template through Resend after `checkout.session.completed`. Real donor email delivery requires a verified sender/domain in Resend plus the Cloudflare env vars.
 
 ### Lower Priority
 1. **Receipt Storage**
