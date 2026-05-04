@@ -32,7 +32,6 @@
       <nav class="main-nav" aria-label="Main navigation">
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
-        <a href="donate.html">Donate</a>
         <a href="contact.html">Contact</a>
       </nav>
       <a class="button button-primary header-cta" href="donate.html">Donate</a>
@@ -50,28 +49,51 @@
           </p>
         </div>
 
-        <form class="quick-donation" id="quickDonationForm" aria-label="Start a donation">
-          <fieldset class="quick-amounts">
-            <legend>Amount</legend>
-            <label><input type="radio" name="quickAmount" value="10" />$10</label>
-            <label><input type="radio" name="quickAmount" value="25" checked />$25</label>
-            <label><input type="radio" name="quickAmount" value="50" />$50</label>
-            <label><input type="radio" name="quickAmount" value="100" />$100</label>
-          </fieldset>
+        <div class="home-action-panel">
+          <form class="quick-donation" id="quickDonationForm" aria-label="Start a donation">
+            <fieldset class="quick-amounts">
+              <legend>Amount</legend>
+              <label><input type="radio" name="quickAmount" value="10" />$10</label>
+              <label><input type="radio" name="quickAmount" value="25" checked />$25</label>
+              <label><input type="radio" name="quickAmount" value="50" />$50</label>
+              <label><input type="radio" name="quickAmount" value="100" />$100</label>
+            </fieldset>
 
-          <label class="quick-category" for="quickCampaign">
-            Donation type
-            <select id="quickCampaign" name="quickCampaign">
-              <option value="General Fund">Regular Donation</option>
-              <option value="Orphan Support">Orphan Support</option>
-              <option value="Wells">Wells</option>
-              <option value="Zakat">Zakat</option>
-              <option value="Feeding">Feeding</option>
-            </select>
-          </label>
+            <label class="quick-custom-amount" for="quickCustomAmount">
+              Custom amount
+              <input id="quickCustomAmount" type="number" min="1" step="1" placeholder="Enter amount in USD" />
+            </label>
 
-          <button class="button button-primary quick-donation-button" type="submit">Start Donation</button>
-        </form>
+            <label class="quick-category" for="quickCampaign">
+              Donation type
+              <select id="quickCampaign" name="quickCampaign">
+                <option value="General Fund">Regular Donation</option>
+                <option value="Orphan Support">Orphan Support</option>
+                <option value="Wells">Wells</option>
+                <option value="Zakat">Zakat</option>
+                <option value="Feeding">Feeding</option>
+              </select>
+            </label>
+
+            <button class="button button-primary quick-donation-button" type="submit">Start Donation</button>
+          </form>
+
+          <aside class="home-stories" aria-label="Current One World Relief stories">
+            <p class="eyebrow">Stories</p>
+            <a href="projects.html" class="story-link">
+              <strong>Orphan Hafiz Studies Support</strong>
+              <span>$600 given for studies.</span>
+            </a>
+            <a href="projects.html" class="story-link">
+              <strong>Village Qurbani Meal Support</strong>
+              <span>$900 helped a village eat.</span>
+            </a>
+            <a href="projects.html" class="story-link">
+              <strong>Food Stand for a Father</strong>
+              <span>$1,000 future livelihood goal.</span>
+            </a>
+          </aside>
+        </div>
       </div>
     </section>
 
@@ -87,12 +109,7 @@
   <footer class="site-footer site-footer-minimal">
     <div class="container footer-bar">
       <p>One World Relief</p>
-      <div class="footer-links">
-        <a href="projects.html">Projects</a>
-        <a href="about.html">About</a>
-        <a href="donate.html">Donate</a>
-        <a href="contact.html">Contact</a>
-      </div>
+      <p class="footer-note">Questions: Oneworldrelief.fma@gmail.com</p>
     </div>
   </footer>
 
