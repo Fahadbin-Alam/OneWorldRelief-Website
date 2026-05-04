@@ -521,7 +521,7 @@ Additional DNS check later on May 4, 2026:
 
 ### Short Term
 1. Add donor dashboard (view donation history)
-2. Implement email confirmation system
+2. Verify Resend domain DNS records so receipt emails have full production deliverability
 3. Add donor newsletter signup
 4. Create admin analytics dashboard
 5. Replace QR asset if the production donation URL changes
@@ -590,6 +590,53 @@ Additional DNS check later on May 4, 2026:
 - [ ] Webhook signatures verified with `OWR_STRIPE_WEBHOOK_SECRET`
 - [ ] Database queries use parameterized statements (if applicable)
 - [ ] Regular security audits scheduled
+
+---
+
+## 14. 2026-05-04 PRODUCTION RECEIPT & DEPLOYMENT STATUS
+
+### Completed Today
+- Cloudflare Pages project `trying` is the active production project for `https://one-world-relief.com`.
+- Rebuilt and deployed Pages Functions into the production deployment so function routes are active, including:
+  - `/charity/thank-you`
+  - `/charity/webhooks/stripe`
+- Verified live thank-you page returns HTTP 200 and contains only the requested message text plus the coin-to-child animation.
+- Verified live Stripe webhook route rejects an invalid signature with HTTP 400, confirming the function route and signature check are active.
+- Updated the existing Stripe webhook endpoint to use `https://one-world-relief.com/charity/webhooks/stripe` because `api.one-world-relief.com` is not live yet.
+- Set the Cloudflare production secret for Resend receipt email delivery.
+- Updated the Cloudflare production Stripe webhook signing secret from Stripe Workbench.
+- Confirmed Cloudflare production secrets now include:
+  - `OWR_CANCEL_URL`
+  - `OWR_GOOGLE_PRIVATE_KEY`
+  - `OWR_PUBLIC_SITE_URL`
+  - `OWR_RECEIPT_FROM_EMAIL`
+  - `OWR_RECEIPT_REPLY_TO`
+  - `OWR_RESEND_API_KEY`
+  - `OWR_STRIPE_SECRET_KEY`
+  - `OWR_STRIPE_WEBHOOK_SECRET`
+  - `OWR_SUCCESS_URL`
+
+### Receipt Behavior Now Expected
+- Stripe Checkout sends the donor email to Stripe as the receipt email.
+- Stripe completion webhooks append donation rows to the Google Sheet.
+- Receipt IDs are date-based and unique, formatted like `R-YYYY-MM-DD-...`.
+- The custom OneWorld Relief receipt email is sent through Resend after a completed Stripe Checkout webhook.
+- Google Sheets records the receipt number, receipt URL, and receipt email status.
+- If the Google Sheets append fails, the webhook returns an error so Stripe retries instead of silently losing the donation.
+
+### Still Blocked / Needs Owner Action
+- `one-world-relief.org`, `www.one-world-relief.org`, and `api.one-world-relief.com` are added to Cloudflare Pages but still show `CNAME record not set`.
+- The current Cloudflare token/session can deploy Pages but cannot edit DNS records. DNS edit permission or manual DNS updates are needed.
+- Required DNS records:
+  - `one-world-relief.org` apex should point to the Pages target `trying-8o0.pages.dev`.
+  - `www.one-world-relief.org` should point to `trying-8o0.pages.dev`.
+  - `api.one-world-relief.com` should point to `trying-8o0.pages.dev` only if the API subdomain is still desired.
+- Resend may also require DNS records for the sending domain before donor receipt emails have full production deliverability.
+
+### Git Sync Note
+- Keep this AI handoff document on GitHub only.
+- Do not push this handoff document to GitLab.
+- Code changes should continue to be mirrored to GitHub and GitLab, with documentation-only handoff commits going to GitHub only.
 
 ---
 
