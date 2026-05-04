@@ -23,7 +23,7 @@ This local machine currently has Python 3.14, which can fail while installing pi
 - `OWR_STRIPE_SECRET_KEY` - your Stripe secret key from the Stripe Dashboard
 - `OWR_STRIPE_WEBHOOK_SECRET` - your Stripe webhook signing secret for `/charity/webhooks/stripe`
 - `OWR_GOOGLE_SHEET_ID` - Google Sheet ID for the donation log
-- `OWR_GOOGLE_SHEET_TAB` - Google Sheet tab name, default `Donations`
+- `OWR_GOOGLE_SHEET_TAB` - Google Sheet tab name, currently `Donations (2026)`
 - `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email shared on the Sheet
 - `OWR_GOOGLE_PRIVATE_KEY` - Google service account private key, stored as a secret
 - `OWR_PAYPAL_CLIENT_ID`
@@ -49,7 +49,7 @@ This local machine currently has Python 3.14, which can fail while installing pi
 The frontend never collects card numbers. Donors are redirected to Stripe-hosted Checkout.
 
 ## Google Sheets donation log setup
-1. Create a tab named `Donations` in the spreadsheet.
+1. Use the tab named `Donations (2026)` in the spreadsheet.
 2. Add these headers in row 1:
    `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL`
 3. In Google Cloud Console, enable the Google Sheets API.
