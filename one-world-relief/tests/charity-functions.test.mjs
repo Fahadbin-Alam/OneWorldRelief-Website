@@ -60,46 +60,20 @@ test("checkout creates Stripe session with receipt email and configured redirect
   }
 });
 
-test("thank-you page renders printable receipt from Stripe session", async () => {
+test("thank-you page renders simple animated donation thanks", async () => {
   const thankYou = await importFunctionModule("functions/charity/thank-you.js");
-  const originalFetch = globalThis.fetch;
+  const response = await thankYou.onRequestGet({
+    request: new Request("https://one-world-relief.org/charity/thank-you?donation_id=don_123&session_id=cs_test_123"),
+    env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+  });
+  const html = await response.text();
 
-  globalThis.fetch = async () => {
-    return new Response(JSON.stringify({
-      id: "cs_test_123",
-      created: 1770000000,
-      amount_total: 100,
-      payment_status: "paid",
-      customer_email: "donor@example.com",
-      metadata: {
-        donation_id: "don_123",
-        donor_name: "Test Donor",
-        donor_email: "donor@example.com",
-        campaign: "General Fund",
-      },
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  };
-
-  try {
-    const response = await thankYou.onRequestGet({
-      request: new Request("https://one-world-relief.org/charity/thank-you?donation_id=don_123&session_id=cs_test_123"),
-      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
-    });
-    const html = await response.text();
-
-    assert.equal(response.status, 200);
-    assert.match(html, /Donation Receipt/);
-    assert.match(html, /EIN: 41-5079927/);
-    assert.match(html, /No goods or services were provided/);
-    assert.match(html, /\$1\.00 USD/);
-    assert.match(html, /Test Donor/);
-    assert.match(html, /R-2026-02-02-/);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
+  assert.equal(response.status, 200);
+  assert.match(html, /Thank you for your Donation/);
+  assert.match(html, /coin-gift/);
+  assert.match(html, /class="child"/);
+  assert.doesNotMatch(html, /Donation Receipt/);
+  assert.doesNotMatch(html, /Receipt ID/);
 });
 
 test("stripe webhook rejects invalid signatures", async () => {
