@@ -53,14 +53,20 @@ const pemToArrayBuffer = (pem) => {
 };
 
 const getGoogleAccessToken = async (env) => {
-  if (!env.OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL || !env.OWR_GOOGLE_PRIVATE_KEY) {
+  const serviceAccount = env.OWR_GOOGLE_SERVICE_ACCOUNT_JSON
+    ? JSON.parse(env.OWR_GOOGLE_SERVICE_ACCOUNT_JSON)
+    : {};
+  const serviceAccountEmail = env.OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL || serviceAccount.client_email;
+  const privateKey = env.OWR_GOOGLE_PRIVATE_KEY || serviceAccount.private_key;
+
+  if (!serviceAccountEmail || !privateKey) {
     throw new Error("Google Sheets credentials are not configured.");
   }
 
   const now = Math.floor(Date.now() / 1000);
   const header = { alg: "RS256", typ: "JWT" };
   const claim = {
-    iss: env.OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    iss: serviceAccountEmail,
     scope: "https://www.googleapis.com/auth/spreadsheets",
     aud: "https://oauth2.googleapis.com/token",
     exp: now + 3600,
@@ -69,7 +75,7 @@ const getGoogleAccessToken = async (env) => {
   const unsignedJwt = `${base64UrlEncode(JSON.stringify(header))}.${base64UrlEncode(JSON.stringify(claim))}`;
   const key = await crypto.subtle.importKey(
     "pkcs8",
-    pemToArrayBuffer(env.OWR_GOOGLE_PRIVATE_KEY),
+    pemToArrayBuffer(privateKey),
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
     ["sign"]
@@ -94,27 +100,44 @@ const getGoogleAccessToken = async (env) => {
   return payload.access_token;
 };
 
+const createReceiptNumber = (session) => {
+  const donationId = session.metadata?.donation_id || session.client_reference_id || session.id || "unknown";
+  const compactId = donationId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10).toUpperCase();
+  const date = new Date((session.created || Date.now() / 1000) * 1000);
+  const stamp = date.toISOString().slice(0, 10).replace(/-/g, "");
+  return `OWR-${stamp}-${compactId}`;
+};
+
+const getAmountUsd = (session) => {
+  return ((session.amount_total || 0) / 100).toFixed(2);
+};
+
 const appendDonationToGoogleSheet = async (env, session) => {
   if (!env.OWR_GOOGLE_SHEET_ID) {
-    return;
+    throw new Error("OWR_GOOGLE_SHEET_ID is not configured.");
   }
 
   const accessToken = await getGoogleAccessToken(env);
   const metadata = session.metadata || {};
+  const receiptNumber = createReceiptNumber(session);
+  const origin = env.OWR_PUBLIC_SITE_URL || env.OWR_SUCCESS_URL?.replace(/\/charity\/thank-you.*$/, "") || "";
+  const receiptUrl = origin ? `${origin.replace(/\/$/, "")}/charity/thank-you?donation_id=${encodeURIComponent(metadata.donation_id || session.client_reference_id || "")}&session_id=${encodeURIComponent(session.id || "")}` : "";
   const row = [
     metadata.donation_id || session.client_reference_id || "",
     new Date((session.created || Date.now() / 1000) * 1000).toISOString(),
     metadata.donor_name || session.customer_details?.name || "",
     metadata.donor_email || session.customer_details?.email || session.customer_email || "",
-    ((session.amount_total || 0) / 100).toFixed(2),
+    getAmountUsd(session),
     metadata.campaign || "General Fund",
     session.id || "",
     session.payment_status || "",
     session.payment_intent || "",
     session.url || "",
+    receiptNumber,
+    receiptUrl,
   ];
   const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
-  const range = encodeURIComponent(`'${tabName}'!A:J`);
+  const range = encodeURIComponent(`'${tabName}'!A:L`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
   const sheetResponse = await fetch(appendUrl, {
@@ -178,6 +201,7 @@ export const onRequestPost = async ({ request, env }) => {
       await appendDonationToGoogleSheet(env, session);
     } catch (error) {
       console.error("One World Relief Google Sheets sync failed", error.message);
+      return text("Google Sheets sync failed; retry webhook later", 500);
     }
   }
 

@@ -4,6 +4,8 @@
 :root {
   --ink: #183447;
   --ink-soft: #628094;
+  --mint: #2f9f89;
+  --gold: #d7a536;
   --paper: #ffffff;
   --sky-50: #f7fcff;
   --sky-100: #eef8ff;
@@ -47,7 +49,7 @@ h3 {
   margin: 0 0 0.65rem;
   line-height: 1.08;
   font-family: "Source Serif 4", Georgia, serif;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 p {
@@ -128,7 +130,7 @@ ul {
   background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
   box-shadow: 0 12px 24px rgba(77, 149, 194, 0.22);
   font-size: 0.82rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
 }
 
 .brand-text {
@@ -143,11 +145,18 @@ ul {
 }
 
 .main-nav a {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
   color: var(--ink-soft);
   transition: color 0.2s ease;
 }
 
 .main-nav a:hover {
+  color: var(--blue-700);
+}
+
+.main-nav a[aria-current="page"] {
   color: var(--blue-700);
 }
 
@@ -161,12 +170,20 @@ ul {
   border: 1px solid transparent;
   border-radius: 999px;
   font-weight: 800;
+  cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .button:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(45, 91, 122, 0.14);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+  box-shadow: none;
 }
 
 .button-primary {
@@ -275,7 +292,7 @@ ul {
   margin-bottom: 0.8rem;
   font-size: 0.79rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--blue-500);
 }
@@ -487,6 +504,175 @@ ul {
   border: 1px solid var(--line);
 }
 
+.share-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(340px, 1fr);
+  align-items: center;
+  gap: 1.25rem;
+  min-height: calc(100svh - 170px);
+}
+
+.share-copy h1 {
+  max-width: 9ch;
+  margin-inline: 0;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+}
+
+.share-copy .lead {
+  margin-inline: 0;
+}
+
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.share-actions-top {
+  margin-top: 1.35rem;
+}
+
+.share-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.66rem 0.9rem;
+  border: 1px solid rgba(47, 159, 137, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.qr-card {
+  position: relative;
+  z-index: 1;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+
+.qr-frame {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  border: 1px solid rgba(24, 52, 71, 0.08);
+  border-radius: 24px;
+  background: #fff;
+}
+
+.qr-frame img {
+  width: min(100%, 420px);
+  aspect-ratio: 1;
+  display: block;
+}
+
+.qr-url {
+  margin: 0.9rem 0 0;
+  color: var(--ink);
+  font-weight: 900;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(9, 27, 39, 0.86);
+}
+
+.qr-modal[hidden] {
+  display: none;
+}
+
+.qr-modal-open {
+  overflow: hidden;
+}
+
+.qr-modal-panel {
+  position: relative;
+  width: min(92vw, 760px);
+  display: grid;
+  place-items: center;
+  gap: 0.9rem;
+  padding: clamp(1rem, 4vw, 2rem);
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+.qr-modal-panel img {
+  width: min(80vmin, 620px);
+  aspect-ratio: 1;
+}
+
+.qr-modal-panel p {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1rem, 3vw, 1.8rem);
+  font-weight: 900;
+  text-align: center;
+}
+
+.qr-modal-panel .eyebrow {
+  color: var(--blue-500);
+  font-size: 0.82rem;
+}
+
+.qr-modal-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  min-height: 42px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--sky-50);
+  font: inherit;
+  font-weight: 900;
+}
+
+.receipt-card {
+  margin-top: 1.4rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
+}
+
+.receipt-card h2 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.receipt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.receipt-grid p {
+  margin: 0;
+  color: var(--ink);
+}
+
+.receipt-fine-print {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
 .nav-card,
 .card,
 .program-card,
@@ -511,7 +697,7 @@ ul {
   margin-bottom: 0.55rem;
   font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--blue-500);
 }
@@ -859,12 +1045,36 @@ ul {
 }
 
 @media (max-width: 980px) {
-  .main-nav {
+  .header-cta {
     display: none;
   }
 
-  .header-cta {
+  .header-wrap {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 0.7rem 0;
+  }
+
+  .main-nav {
+    width: 100%;
+    gap: 0.45rem;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+    scrollbar-width: none;
+  }
+
+  .main-nav::-webkit-scrollbar {
     display: none;
+  }
+
+  .main-nav a {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0.35rem 0.72rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
   }
 
   .quick-links,
@@ -876,7 +1086,8 @@ ul {
   .donation-layout,
   .contact-layout,
   .project-grid,
-  .faq-list {
+  .faq-list,
+  .share-shell {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -901,7 +1112,17 @@ ul {
   }
 
   .header-wrap {
-    min-height: 68px;
+    min-height: 0;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .brand-text {
+    font-size: 0.96rem;
   }
 
   .hero-shell {
@@ -939,8 +1160,34 @@ ul {
   .project-grid,
   .faq-list,
   .hero-proof,
-  .amount-grid {
+  .amount-grid,
+  .receipt-grid,
+  .share-shell {
     grid-template-columns: 1fr;
+  }
+
+  .share-shell {
+    min-height: 0;
+    padding-top: 1rem;
+  }
+
+  .share-copy h1 {
+    max-width: none;
+  }
+
+  .share-actions .button,
+  .share-actions .share-pill {
+    flex: 1 1 100%;
+  }
+
+  .qr-card {
+    padding: 0.85rem;
+    border-radius: 22px;
+  }
+
+  .qr-frame {
+    padding: 0.65rem;
+    border-radius: 18px;
   }
 
   .button {

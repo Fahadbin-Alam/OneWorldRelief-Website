@@ -47,13 +47,18 @@ export const onRequestPost = async ({ request, env }) => {
   const origin = new URL(request.url).origin;
   const donationId = crypto.randomUUID();
   const amountCents = Math.round(amountUsd * 100);
-  const successUrl = body.success_url || `${origin}/charity/thank-you?donation_id=${donationId}&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = body.cancel_url || `${origin}/charity/cancelled?donation_id=${donationId}`;
+  const successBaseUrl = body.success_url || env.OWR_SUCCESS_URL || `${origin}/charity/thank-you`;
+  const cancelBaseUrl = body.cancel_url || env.OWR_CANCEL_URL || `${origin}/charity/cancelled`;
+  const successUrl = new URL(successBaseUrl);
+  successUrl.searchParams.set("donation_id", donationId);
+  successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
+  const cancelUrl = new URL(cancelBaseUrl);
+  cancelUrl.searchParams.set("donation_id", donationId);
 
   const form = new URLSearchParams();
   form.set("mode", "payment");
-  form.set("success_url", successUrl);
-  form.set("cancel_url", cancelUrl);
+  form.set("success_url", successUrl.toString());
+  form.set("cancel_url", cancelUrl.toString());
   form.set("customer_email", donorEmail);
   form.set("client_reference_id", donationId);
   form.set("metadata[donation_id]", donationId);
@@ -66,6 +71,7 @@ export const onRequestPost = async ({ request, env }) => {
   form.set("payment_intent_data[metadata][campaign]", campaign);
   form.set("payment_intent_data[metadata][donor_name]", donorName);
   form.set("payment_intent_data[metadata][donor_email]", donorEmail);
+  form.set("payment_intent_data[receipt_email]", donorEmail);
   form.set("line_items[0][quantity]", "1");
   form.set("line_items[0][price_data][currency]", "usd");
   form.set("line_items[0][price_data][unit_amount]", String(amountCents));

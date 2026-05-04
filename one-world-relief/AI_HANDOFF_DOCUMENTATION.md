@@ -8,7 +8,15 @@
 ## Executive Summary
 This document provides a complete technical reference for the One World Relief non-profit website. It captures current implementation state, design decisions, integrations, and setup procedures so future AI sessions can continue work efficiently without losing context.
 
-**Current Status**: Active Development - Payment integrations complete, UX refinement in progress.
+**Current Status**: Active Development - Stripe payment integration complete, share/QR donation UX refinement in progress.
+
+### Standing User Instructions Logged May 4, 2026
+- Keep this AI handoff document updated during One World Relief work.
+- Do not include this handoff document in GitLab pushes; keep it for GitHub/personal project context only.
+- Keep GitHub, GitLab, and Cloudflare synchronized after changes, while respecting the GitLab exclusion above.
+- Keep One World Relief donation UX to one top-level donation CTA; do not add a second Donate link in the top nav.
+- Receipt delivery and Google Sheets donation dashboard updates are production-critical.
+- The custom `.org` domain must be fixed as soon as DNS/Cloudflare access allows it.
 
 ---
 
@@ -40,7 +48,7 @@ one-world-relief/
 ├── projects.html                   (Project showcase)
 ├── about.html                      (Organization info)
 ├── contact.html                    (Contact form)
-├── share.html                      (Donation sharing page)
+├── share.html                      (Donation sharing + QR presentation page)
 ├── one-world-relief.js             (Main frontend logic)
 ├── one-world-relief.css            (Styling)
 ├── project-data.js                 (Project dataset)
@@ -77,13 +85,15 @@ one-world-relief/
 3. Backend creates Stripe Checkout Session
 4. Donor redirected to Stripe's hosted checkout page
 5. Stripe webhook (`/charity/webhooks/stripe`) catches `checkout.session.completed` event
-6. Donation logged to Google Sheets + Receipt generated
+6. Donation logged to Google Sheets with receipt number and receipt URL
+7. Thank-you page displays a printable donor receipt using the Stripe Checkout Session
 
 #### Configuration Required
 | Variable | Example | Source |
 |----------|---------|--------|
 | `OWR_STRIPE_SECRET_KEY` | `sk_test_abc123...` | Stripe Dashboard → API Keys |
 | `OWR_STRIPE_WEBHOOK_SECRET` | `whsec_abc123...` | Stripe Dashboard → Webhooks |
+| `OWR_PUBLIC_SITE_URL` | `https://one-world-relief.org` | Public production domain |
 | `OWR_SUCCESS_URL` | `https://one-world-relief.org/charity/thank-you` | Self-defined |
 | `OWR_CANCEL_URL` | `https://one-world-relief.org/charity/cancelled` | Self-defined |
 
@@ -121,13 +131,14 @@ stripe listen --forward-to http://localhost:8000/charity/webhooks/stripe
 | `OWR_GOOGLE_SHEET_TAB` | `Donations (2026)` | Tab name in spreadsheet |
 | `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` | `owr-service@project.iam.gserviceaccount.com` | Google Cloud Console |
 | `OWR_GOOGLE_PRIVATE_KEY` | `-----BEGIN PRIVATE KEY-----...` | Service Account JSON |
+| `OWR_GOOGLE_SERVICE_ACCOUNT_JSON` | `{...service account json...}` | Optional Cloudflare secret alternative |
 
 #### Setup Checklist
 - [ ] Create Google Cloud Project
 - [ ] Enable Google Sheets API
 - [ ] Create Service Account with JSON key
 - [ ] Share Google Sheet with service account email (Editor role)
-- [ ] Create header row: `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL`
+- [ ] Create header row: `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL | Receipt Number | Receipt URL`
 - [ ] Store credentials in Cloudflare environment variables
 
 #### Service Account Location
@@ -144,18 +155,22 @@ root/owr-sheets-service-account.json
 **What It Does**: Automatically generates tax receipts for donors
 
 #### How It Works
-1. When Stripe webhook fires `checkout.session.completed`
-2. Receipt created with:
+1. Checkout sets `payment_intent_data[receipt_email]` so Stripe can send an email receipt when receipt emails are enabled in Stripe.
+2. The thank-you route (`/charity/thank-you`) fetches the Checkout Session and displays a printable receipt.
+3. When Stripe webhook fires `checkout.session.completed`, a receipt number and receipt URL are appended to Google Sheets.
+4. Receipt created with:
    - Unique receipt number
    - Donation date and amount
    - Donor name and email
    - Campaign details
    - Tax-deductible statement
-3. Receipt stored in system (database or file)
-4. Can be retrieved via admin API
+5. Receipt is available on the donor thank-you page.
+6. Can later be expanded into admin API storage if D1/admin dashboard is added.
 
 #### Key Function
-`functions/charity/webhooks/stripe.js` - Creates receipt record
+- `functions/charity/donations/checkout.js` - Sets Stripe receipt email and redirect URLs
+- `functions/charity/thank-you.js` - Displays printable receipt
+- `functions/charity/webhooks/stripe.js` - Appends completed donations and receipt metadata to Google Sheets
 
 ---
 
@@ -174,6 +189,7 @@ handleQuickDonation()     // Quick donate button flow
 handleContactSubmit()     // Contact form submission
 nativeShare()             // Browser native share API
 displayQRPresentation()   // QR code modal for sharing
+copyInstagramCaption()    // Copies a ready-to-post donation caption
 ```
 
 #### Data Sources
@@ -331,6 +347,8 @@ OWR_GOOGLE_SHEET_ID           # Google Sheet for donations log
 OWR_GOOGLE_SHEET_TAB          # Sheet tab name
 OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL
 OWR_GOOGLE_PRIVATE_KEY        # (Sensitive - stored as secret)
+OWR_GOOGLE_SERVICE_ACCOUNT_JSON # (Optional alternative to email/private key)
+OWR_PUBLIC_SITE_URL           # Public production URL
 OWR_SUCCESS_URL               # Post-donation success URL
 OWR_CANCEL_URL                # Post-cancellation URL
 OWR_ADMIN_API_KEY             # (Optional) For admin endpoints
@@ -349,6 +367,12 @@ OWR_ADMIN_API_KEY             # (Optional) For admin endpoints
 - **Platform**: Cloudflare Pages
 - **Branch**: `main` (auto-deploys on push)
 - **URL**: https://one-world-relief.org (or current domain)
+
+### Domain Status Checked May 4, 2026
+Local DNS lookup showed `one-world-relief.org` only returning an SOA record and no usable A/CNAME record; `www.one-world-relief.org` did not resolve. The fix must be made in Cloudflare DNS/Pages custom domains:
+- Add/verify `one-world-relief.org` as a Cloudflare Pages custom domain for the active Pages project.
+- Add/verify `www.one-world-relief.org` as a CNAME/custom domain or redirect to the apex.
+- Set Cloudflare env vars to `https://one-world-relief.org` URLs after DNS is active.
 
 ### Deploy Steps
 1. Commit changes locally
@@ -389,6 +413,20 @@ OWR_ADMIN_API_KEY             # (Optional) For admin endpoints
 3. **CORS Configuration**
    - Functions allow `*` origin (open to all)
    - Consider restricting to specific domains in production
+
+4. **Webhook Retries**
+   - Spreadsheet sync failures now return `500` from `/charity/webhooks/stripe` so Stripe retries the event.
+   - If rows are missing, check Stripe webhook delivery logs and Cloudflare Function logs first.
+
+### Fix Log - May 4, 2026
+- Fixed missing donor receipt path by setting Stripe `payment_intent_data[receipt_email]` during Checkout creation.
+- Rebuilt `/charity/thank-you` Cloudflare Function to fetch the Stripe Checkout Session and show a printable receipt.
+- Updated Google Sheets webhook append rows to include receipt number and receipt URL.
+- Changed webhook behavior so Google Sheets failures return `500`, causing Stripe to retry instead of silently accepting a failed dashboard update.
+- Added support for `OWR_GOOGLE_SERVICE_ACCOUNT_JSON` as an alternative Cloudflare secret format.
+- Confirmed `.org` failure is DNS/custom-domain configuration: apex has no usable A/CNAME and `www` does not resolve.
+- Updated old favorites test to authenticate before hitting protected endpoints.
+- Test results after fixes: Node charity function tests `4 passed`; Python backend tests `23 passed`.
 
 ### Lower Priority
 1. **Receipt Storage**
@@ -437,6 +475,7 @@ OWR_ADMIN_API_KEY             # (Optional) For admin endpoints
 2. Implement email confirmation system
 3. Add donor newsletter signup
 4. Create admin analytics dashboard
+5. Replace QR asset if the production donation URL changes
 
 ### Long Term
 1. Multi-currency support

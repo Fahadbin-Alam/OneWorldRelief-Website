@@ -16,6 +16,7 @@ import bcrypt
 import json
 import csv
 import io
+import html
 import hmac
 import hashlib
 import requests
@@ -45,6 +46,7 @@ OWR_STRIPE_WEBHOOK_SECRET = os.getenv("OWR_STRIPE_WEBHOOK_SECRET", "").strip()
 OWR_PAYPAL_CLIENT_ID = os.getenv("OWR_PAYPAL_CLIENT_ID", "").strip()
 OWR_PAYPAL_CLIENT_SECRET = os.getenv("OWR_PAYPAL_CLIENT_SECRET", "").strip()
 OWR_PAYPAL_BASE_URL = os.getenv("OWR_PAYPAL_BASE_URL", "https://api-m.sandbox.paypal.com").strip()
+OWR_PUBLIC_SITE_URL = os.getenv("OWR_PUBLIC_SITE_URL", "").strip()
 OWR_SUCCESS_URL = os.getenv("OWR_SUCCESS_URL", "http://localhost:8000/charity/thank-you").strip()
 OWR_CANCEL_URL = os.getenv("OWR_CANCEL_URL", "http://localhost:8000/charity/cancelled").strip()
 OWR_ADMIN_API_KEY = os.getenv("OWR_ADMIN_API_KEY", "").strip()
@@ -802,18 +804,28 @@ def create_stripe_checkout_session(
             detail="Stripe is not configured. Set OWR_STRIPE_SECRET_KEY.",
         )
 
+    success = requests.PreparedRequest()
+    success.prepare_url(success_url, {"donation_id": donation_id, "session_id": "{CHECKOUT_SESSION_ID}"})
+    cancel = requests.PreparedRequest()
+    cancel.prepare_url(cancel_url, {"donation_id": donation_id})
+
     data = {
         "mode": "payment",
-        "success_url": f"{success_url}?donation_id={donation_id}&session_id={{CHECKOUT_SESSION_ID}}",
-        "cancel_url": f"{cancel_url}?donation_id={donation_id}",
+        "success_url": success.url,
+        "cancel_url": cancel.url,
         "customer_email": donor_email,
         "client_reference_id": str(donation_id),
         "metadata[donation_id]": str(donation_id),
         "metadata[source]": "one-world-relief",
         "metadata[campaign]": campaign or "General Fund",
+        "metadata[donor_name]": donor_name,
+        "metadata[donor_email]": donor_email,
         "payment_intent_data[metadata][donation_id]": str(donation_id),
         "payment_intent_data[metadata][source]": "one-world-relief",
         "payment_intent_data[metadata][campaign]": campaign or "General Fund",
+        "payment_intent_data[metadata][donor_name]": donor_name,
+        "payment_intent_data[metadata][donor_email]": donor_email,
+        "payment_intent_data[receipt_email]": donor_email,
         "line_items[0][quantity]": "1",
         "line_items[0][price_data][currency]": "usd",
         "line_items[0][price_data][product_data][name]": f"One World Relief - {campaign or 'General Fund'}",
@@ -1133,14 +1145,52 @@ def charity_project_data():
 
 
 @app.get("/charity/thank-you", response_class=HTMLResponse)
-def charity_thank_you():
-    return """
-    <html><head><title>One World Relief - Thank You</title></head>
-    <body style="font-family: sans-serif; max-width: 700px; margin: 40px auto; line-height: 1.5;">
-      <h1>Thank you for your donation</h1>
-      <p>Your donation was received. We will issue a receipt and keep a tax-friendly log entry automatically.</p>
-      <p><a href="/charity">Back to One World Relief</a></p>
-    </body></html>
+def charity_thank_you(donation_id: Optional[int] = Query(default=None)):
+    donation = get_charity_donation(donation_id) if donation_id else None
+    receipt = ""
+    if donation:
+        amount = f"${cents_to_usd(donation['amount_cents']):.2f} {donation['currency']}"
+        receipt = f"""
+        <article class="receipt-card">
+          <h2>Donation Receipt</h2>
+          <div class="receipt-grid">
+            <p><strong>Receipt</strong><br>{html.escape(str(donation.get('receipt_number') or 'Pending'))}</p>
+            <p><strong>Donation ID</strong><br>{html.escape(str(donation['id']))}</p>
+            <p><strong>Name</strong><br>{html.escape(str(donation['donor_name']))}</p>
+            <p><strong>Email</strong><br>{html.escape(str(donation['donor_email']))}</p>
+            <p><strong>Amount</strong><br>{html.escape(amount)}</p>
+            <p><strong>Campaign</strong><br>{html.escape(str(donation.get('campaign') or 'General Fund'))}</p>
+            <p><strong>Status</strong><br>{html.escape(str(donation['status']))}</p>
+            <p><strong>Paid At</strong><br>{html.escape(str(donation.get('paid_at') or 'Confirming with payment provider'))}</p>
+          </div>
+          <p class="receipt-fine-print">One World Relief received this donation through the configured payment provider. Save or print this page for your records.</p>
+          <div class="hero-actions">
+            <button class="button button-primary" type="button" onclick="window.print()">Print Receipt</button>
+          </div>
+        </article>
+        """
+
+    return f"""
+    <html>
+      <head>
+        <title>One World Relief - Thank You</title>
+        <link rel="stylesheet" href="/one-world-relief.css" />
+      </head>
+      <body class="site-body">
+        <main class="page-hero">
+          <div class="container page-hero-content">
+            <p class="eyebrow">Thank You</p>
+            <h1>Thank you for your donation</h1>
+            <p class="lead">Your donation was received. A receipt is shown below when the payment confirmation is available.</p>
+            {receipt}
+            <div class="hero-actions">
+              <a class="button button-primary" href="/projects.html">View Projects</a>
+              <a class="button button-outline" href="/charity">Back to One World Relief</a>
+            </div>
+          </div>
+        </main>
+      </body>
+    </html>
     """
 
 

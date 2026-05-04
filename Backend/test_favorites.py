@@ -1,4 +1,21 @@
+import uuid
+
 import requests
+
+
+BASE_URL = "http://localhost:8000"
+
+
+def get_auth_headers():
+    test_email = f"test_user_{uuid.uuid4().hex[:8]}@example.com"
+    test_password = "testpass123"
+    response = requests.post(f"{BASE_URL}/auth/register", json={
+        "email": test_email,
+        "password": test_password,
+    })
+    assert response.status_code == 200
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
 
 # Test case for Favorites feature
 # Acceptance Criteria:
@@ -7,33 +24,49 @@ import requests
 # - UI reflects saved state. (UI test, manual)
 
 def test_add_favorite():
-    # Test adding a favorite
-    response = requests.post('http://localhost:8000/favorites', json={'item_id': 1, 'item_type': 'club'})
+    headers = get_auth_headers()
+    response = requests.post(
+        f"{BASE_URL}/favorites",
+        json={"item_id": 1, "item_type": "club"},
+        headers=headers,
+    )
     assert response.status_code == 200
-    assert response.json() == {'message': 'Added to favorites'}
+    assert response.json() == {"message": "Added to favorites"}
+
 
 def test_get_favorites():
-    # Test getting favorites
-    response = requests.get('http://localhost:8000/favorites')
+    headers = get_auth_headers()
+    requests.post(
+        f"{BASE_URL}/favorites",
+        json={"item_id": 1, "item_type": "club"},
+        headers=headers,
+    )
+
+    response = requests.get(f"{BASE_URL}/favorites", headers=headers)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    # Should contain the added favorite
-    assert any(f['item_id'] == 1 and f['item_type'] == 'club' for f in data)
+    assert any(f["item_id"] == 1 and f["item_type"] == "club" for f in data)
+
 
 def test_remove_favorite():
-    # Test removing a favorite
-    response = requests.delete('http://localhost:8000/favorites/1/club')
+    headers = get_auth_headers()
+    requests.post(
+        f"{BASE_URL}/favorites",
+        json={"item_id": 1, "item_type": "club"},
+        headers=headers,
+    )
+
+    response = requests.delete(f"{BASE_URL}/favorites/1/club", headers=headers)
     assert response.status_code == 200
-    assert response.json() == {'message': 'Removed from favorites'}
+    assert response.json() == {"message": "Removed from favorites"}
 
-    # Verify it's removed
-    response = requests.get('http://localhost:8000/favorites')
+    response = requests.get(f"{BASE_URL}/favorites", headers=headers)
     data = response.json()
-    assert not any(f['item_id'] == 1 and f['item_type'] == 'club' for f in data)
+    assert not any(f["item_id"] == 1 and f["item_type"] == "club" for f in data)
 
-if __name__ == '__main__':
-    # Run tests (assuming server is running on localhost:8000)
+
+if __name__ == "__main__":
     test_add_favorite()
     test_get_favorites()
     test_remove_favorite()

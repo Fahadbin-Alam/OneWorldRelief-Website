@@ -10,6 +10,14 @@
   const donateButton = donationForm ? donationForm.querySelector(".donate-button") : null;
   const projectBoard = document.getElementById("projectBoard");
   const projectStats = document.getElementById("projectStats");
+  const nativeShareButton = document.getElementById("nativeShareButton");
+  const openQrPresentation = document.getElementById("openQrPresentation");
+  const closeQrPresentation = document.getElementById("closeQrPresentation");
+  const qrPresentationModal = document.getElementById("qrPresentationModal");
+  const copyInstagramCaption = document.getElementById("copyInstagramCaption");
+  const DONATION_URL = "https://one-world-relief.org/donate.html";
+  const SHARE_TEXT = "Donate to One World Relief and support direct aid projects.";
+  const INSTAGRAM_CAPTION = `${SHARE_TEXT} ${DONATION_URL}`;
 
   const escapeHtml = (value) => {
     return String(value || "")
@@ -86,6 +94,87 @@
   };
 
   renderProjects();
+
+  const copyText = async (text) => {
+    if (!navigator.clipboard?.writeText) {
+      return false;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_error) {
+      return false;
+    }
+  };
+
+  const temporarilySetText = (element, text, delay = 1800) => {
+    const originalText = element.textContent;
+    element.textContent = text;
+    window.setTimeout(() => {
+      element.textContent = originalText;
+    }, delay);
+  };
+
+  if (nativeShareButton) {
+    nativeShareButton.addEventListener("click", async () => {
+      const shareData = {
+        title: "Donate to One World Relief",
+        text: SHARE_TEXT,
+        url: DONATION_URL,
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (_error) {
+          return;
+        }
+      }
+
+      const copied = await copyText(DONATION_URL);
+      temporarilySetText(nativeShareButton, copied ? "Link Copied" : "Copy Manually");
+    });
+  }
+
+  if (copyInstagramCaption) {
+    copyInstagramCaption.addEventListener("click", async () => {
+      const copied = await copyText(INSTAGRAM_CAPTION);
+      temporarilySetText(copyInstagramCaption, copied ? "Caption Copied" : "Copy Manually");
+    });
+  }
+
+  if (openQrPresentation && closeQrPresentation && qrPresentationModal) {
+    let lastFocusedElement = null;
+
+    const closePresentation = () => {
+      qrPresentationModal.hidden = true;
+      qrPresentationModal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("qr-modal-open");
+      lastFocusedElement?.focus();
+    };
+
+    openQrPresentation.addEventListener("click", () => {
+      lastFocusedElement = document.activeElement;
+      qrPresentationModal.hidden = false;
+      qrPresentationModal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("qr-modal-open");
+      closeQrPresentation.focus();
+    });
+
+    closeQrPresentation.addEventListener("click", closePresentation);
+    qrPresentationModal.addEventListener("click", (event) => {
+      if (event.target === qrPresentationModal) {
+        closePresentation();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !qrPresentationModal.hidden) {
+        closePresentation();
+      }
+    });
+  }
 
   if (quickDonationForm) {
     quickDonationForm.addEventListener("submit", (event) => {
