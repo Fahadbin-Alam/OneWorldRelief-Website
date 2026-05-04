@@ -427,6 +427,9 @@ Local DNS lookup showed `one-world-relief.org` only returning an SOA record and 
 - Confirmed `.org` failure is DNS/custom-domain configuration: apex has no usable A/CNAME and `www` does not resolve.
 - Updated old favorites test to authenticate before hitting protected endpoints.
 - Test results after fixes: Node charity function tests `4 passed`; Python backend tests `23 passed`.
+- GitHub handoff-inclusive commit pushed: `451c1fb` to `oneworld-github/charity-frontend-redesign`.
+- GitLab handoff-excluded commit pushed: `8a0b743` to `origin/charity-frontend-redesign`.
+- Cloudflare CLI is installed but not authenticated on this machine (`wrangler.cmd whoami` reports not authenticated), and no Cloudflare API token/account environment variables are set. Direct deploy/DNS updates require `wrangler login` or Cloudflare API credentials.
 
 ### Lower Priority
 1. **Receipt Storage**
