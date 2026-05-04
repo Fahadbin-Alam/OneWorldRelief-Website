@@ -597,6 +597,7 @@ Additional DNS check later on May 4, 2026:
 
 ### Completed Today
 - Cloudflare Pages project `trying` is the active production project for `https://one-world-relief.com`.
+- Latest production deployment after setting receipt/webhook secrets: `https://883b2b83.trying-8o0.pages.dev`.
 - Rebuilt and deployed Pages Functions into the production deployment so function routes are active, including:
   - `/charity/thank-you`
   - `/charity/webhooks/stripe`
