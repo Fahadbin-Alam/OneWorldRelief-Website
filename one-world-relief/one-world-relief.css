@@ -740,6 +740,53 @@ ul {
   margin-inline: 0;
 }
 
+.donate-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(300px, 0.52fr);
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.donate-share-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 116px;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
+}
+
+.donate-share-copy h2 {
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+
+.donate-share-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.donate-share-qr {
+  display: grid;
+  place-items: center;
+  padding: 0.45rem;
+  border: 1px solid rgba(24, 52, 71, 0.08);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.donate-share-qr img {
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+}
+
+.donate-share-actions {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
 .mission-grid,
 .transparency-grid,
 .program-grid {
@@ -1104,6 +1151,10 @@ ul {
   .hero-donate-first .lead {
     margin-inline: auto;
   }
+
+  .donate-hero-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1169,6 +1220,14 @@ ul {
   .share-shell {
     min-height: 0;
     padding-top: 1rem;
+  }
+
+  .donate-share-card {
+    grid-template-columns: 1fr;
+  }
+
+  .donate-share-qr {
+    width: min(100%, 220px);
   }
 
   .share-copy h1 {

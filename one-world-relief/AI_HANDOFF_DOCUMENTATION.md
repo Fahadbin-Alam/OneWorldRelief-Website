@@ -467,6 +467,8 @@ Additional DNS check later on May 4, 2026:
 - Added custom receipt email requirement and template per user request. Production must configure `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL`; otherwise the webhook records `not_sent_email_not_configured` in the Google Sheet receipt email status column.
 - Receipt email implementation details: Stripe Checkout sets `payment_intent_data[receipt_email]` for Stripe's built-in receipt, and the webhook sends the custom OneWorld Relief template through Resend after `checkout.session.completed`. Real donor email delivery requires a verified sender/domain in Resend plus the Cloudflare env vars.
 - Receipt numbers were changed to be date-based so the spreadsheet, email receipt, and printable receipt all match the donation date format: `R-YYYY-MM-DD-###` or `R-YYYY-MM-DD-<short donation id>`.
+- Donate page top navigation should have only one Donate CTA: the right-side header button. The center nav should include `Projects`, `Share`, `About`, and `Contact`, not another `Donate` item.
+- Added a Share/QR panel directly on `donate.html` so donors can share the donation link without needing a duplicate top-nav Donate link.
 
 ### Lower Priority
 1. **Receipt Storage**

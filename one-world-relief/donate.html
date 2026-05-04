@@ -41,10 +41,27 @@
 
   <main>
     <section class="page-hero reveal">
-      <div class="container page-hero-content">
-        <p class="eyebrow">Donate</p>
-        <h1>Give securely through Stripe.</h1>
-        <p class="lead">Choose a category, enter your donor details, and continue to hosted checkout.</p>
+      <div class="container page-hero-content donate-hero-grid">
+        <div>
+          <p class="eyebrow">Donate</p>
+          <h1>Give securely through Stripe.</h1>
+          <p class="lead">Choose a category, enter your donor details, and continue to hosted checkout.</p>
+        </div>
+
+        <aside class="donate-share-card" aria-label="Share this donation page">
+          <div class="donate-share-copy">
+            <p class="eyebrow">Share</p>
+            <h2>Invite someone to give.</h2>
+            <p>Share the donation link or show the QR code during a conversation or presentation.</p>
+          </div>
+          <div class="donate-share-qr">
+            <img src="assets/one-world-relief-donate-qr.svg" alt="QR code linking to the One World Relief donation page" />
+          </div>
+          <div class="share-actions donate-share-actions">
+            <button class="button button-primary" id="nativeShareButton" type="button">Share Link</button>
+            <a class="button button-outline" href="share.html">Open QR</a>
+          </div>
+        </aside>
       </div>
     </section>
 
