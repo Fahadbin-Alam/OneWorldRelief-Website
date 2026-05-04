@@ -59,9 +59,13 @@ export const onRequestPost = async ({ request, env }) => {
   form.set("metadata[donation_id]", donationId);
   form.set("metadata[source]", "one-world-relief");
   form.set("metadata[campaign]", campaign);
+  form.set("metadata[donor_name]", donorName);
+  form.set("metadata[donor_email]", donorEmail);
   form.set("payment_intent_data[metadata][donation_id]", donationId);
   form.set("payment_intent_data[metadata][source]", "one-world-relief");
   form.set("payment_intent_data[metadata][campaign]", campaign);
+  form.set("payment_intent_data[metadata][donor_name]", donorName);
+  form.set("payment_intent_data[metadata][donor_email]", donorEmail);
   form.set("line_items[0][quantity]", "1");
   form.set("line_items[0][price_data][currency]", "usd");
   form.set("line_items[0][price_data][unit_amount]", String(amountCents));
