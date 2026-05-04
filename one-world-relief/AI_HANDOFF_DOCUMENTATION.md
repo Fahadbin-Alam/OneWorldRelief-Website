@@ -471,6 +471,10 @@ Additional DNS check later on May 4, 2026:
 - Added a Share/QR panel directly on `donate.html` so donors can share the donation link without needing a duplicate top-nav Donate link.
 - Thank-you page should be minimal and celebratory only: one large line, `Thank you for your Donation`, plus a small cartoon-style coin-to-child animation. Do not show receipt details on the thank-you page; receipts are handled by donor email and Google Sheets.
 - Cloudflare deploy check on May 4, 2026: updates are pushed to GitHub/GitLab, but direct Cloudflare upload from this machine is blocked because Wrangler is not authenticated and no `CLOUDFLARE_API_TOKEN` is set. `one-world-relief.org` and `www.one-world-relief.org` still do not resolve publicly, so the custom domain is not live yet.
+- Cloudflare login later succeeded for `oneworldrelief.fma@gmail.com`; deployed current `one-world-relief/` folder to Pages project `trying`.
+- Production deployment is live at `https://one-world-relief.com`, deployment `fbb6e97f-44ec-4cb6-9bed-3bff2d182a0d`, with updated donate/share/thank-you pages verified.
+- Pages custom domains `one-world-relief.org` and `www.one-world-relief.org` are attached to project `trying` but remain pending because Cloudflare reports `CNAME record not set`. The Wrangler OAuth token has Pages write access but DNS record API calls return authentication error, so DNS edit permission or dashboard access is needed to create the missing CNAME/flattened records.
+- Production Cloudflare secrets present: `OWR_STRIPE_SECRET_KEY`, `OWR_STRIPE_WEBHOOK_SECRET`, `OWR_GOOGLE_PRIVATE_KEY`, `OWR_PUBLIC_SITE_URL`, `OWR_SUCCESS_URL`, `OWR_CANCEL_URL`, `OWR_RECEIPT_FROM_EMAIL`, `OWR_RECEIPT_REPLY_TO`. Missing: `OWR_RESEND_API_KEY`, so custom receipt emails still cannot send until this secret is added.
 
 ### Lower Priority
 1. **Receipt Storage**
