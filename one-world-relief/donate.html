@@ -43,8 +43,8 @@
     <section class="page-hero reveal">
       <div class="container page-hero-content">
         <p class="eyebrow">Donate</p>
-        <h1>Choose where your donation goes.</h1>
-        <p class="lead">Support the category that matters most to you.</p>
+        <h1>Give securely through Stripe.</h1>
+        <p class="lead">Choose a category, enter your donor details, and continue to hosted checkout.</p>
       </div>
     </section>
 
@@ -53,27 +53,27 @@
         <article class="donation-card">
           <h3>Regular Donation</h3>
           <p>General giving for where support is needed most.</p>
-          <a class="button button-primary" href="https://buy.stripe.com/YOUR_LINK" target="_blank" rel="noreferrer">Donate</a>
+          <a class="button button-primary" href="donate.html?campaign=General%20Fund#donationForm">Donate</a>
         </article>
         <article class="donation-card">
           <h3>Orphan Support</h3>
           <p>Help fund care, essentials, and educational support for children.</p>
-          <a class="button button-primary" href="https://buy.stripe.com/YOUR_LINK" target="_blank" rel="noreferrer">Donate</a>
+          <a class="button button-primary" href="donate.html?campaign=Orphan%20Support#donationForm">Donate</a>
         </article>
         <article class="donation-card">
           <h3>Wells</h3>
           <p>Support clean water access and well construction projects.</p>
-          <a class="button button-primary" href="https://buy.stripe.com/YOUR_LINK" target="_blank" rel="noreferrer">Donate</a>
+          <a class="button button-primary" href="donate.html?campaign=Wells#donationForm">Donate</a>
         </article>
         <article class="donation-card">
           <h3>Zakat</h3>
           <p>Give zakat through a category that can be tracked and organized clearly.</p>
-          <a class="button button-primary" href="https://buy.stripe.com/YOUR_LINK" target="_blank" rel="noreferrer">Donate</a>
+          <a class="button button-primary" href="donate.html?campaign=Zakat#donationForm">Donate</a>
         </article>
         <article class="donation-card">
           <h3>Feeding</h3>
           <p>Fund meal support, food packs, and emergency feeding campaigns.</p>
-          <a class="button button-primary" href="https://buy.stripe.com/YOUR_LINK" target="_blank" rel="noreferrer">Donate</a>
+          <a class="button button-primary" href="donate.html?campaign=Feeding#donationForm">Donate</a>
         </article>
       </div>
     </section>
@@ -85,7 +85,7 @@
       </div>
       <div class="donation-layout">
         <article class="donation-card">
-          <h3>Choose an Amount</h3>
+          <h3>Donation Details</h3>
           <form id="donationForm">
             <label class="custom-amount" for="donorName">
               Full name
@@ -95,6 +95,17 @@
             <label class="custom-amount" for="donorEmail">
               Email
               <input id="donorEmail" type="email" placeholder="you@example.com" required />
+            </label>
+
+            <label class="custom-amount" for="campaignSelect">
+              Donation type
+              <select id="campaignSelect" required>
+                <option value="General Fund">Regular Donation</option>
+                <option value="Orphan Support">Orphan Support</option>
+                <option value="Wells">Wells</option>
+                <option value="Zakat">Zakat</option>
+                <option value="Feeding">Feeding</option>
+              </select>
             </label>
 
             <fieldset class="amount-grid">
@@ -113,9 +124,9 @@
             <label class="custom-amount" for="paymentMethod">
               Payment method
               <select id="paymentMethod" required>
-                <option value="paypal">PayPal</option>
-                <option value="credit_card">Credit Card</option>
                 <option value="stripe">Stripe</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="paypal">PayPal</option>
               </select>
             </label>
 
@@ -128,7 +139,7 @@
 
             <button class="button button-primary donate-button" type="submit">Complete Donation</button>
             <p class="donation-note">
-              Choose a direct payment link above or use this form if your backend checkout is active.
+              Card payments are handled by Stripe Checkout. One World Relief does not store card numbers.
             </p>
             <p class="donation-status" id="donationStatus" aria-live="polite"></p>
           </form>
@@ -142,6 +153,10 @@
             <li><strong>$50</strong> helps fund part of a relief or feeding campaign.</li>
             <li><strong>$100</strong> contributes toward larger community projects like wells.</li>
           </ul>
+          <div class="secure-note">
+            <strong>Secure checkout</strong>
+            <p>After submitting, donors are redirected to Stripe or PayPal depending on the selected payment method.</p>
+          </div>
         </article>
       </div>
     </section>

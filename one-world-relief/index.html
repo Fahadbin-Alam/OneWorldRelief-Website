@@ -6,10 +6,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>One World Relief | Donate With Purpose</title>
+  <title>One World Relief | Donate</title>
   <meta
     name="description"
-    content="One World Relief is a simple, modern charity site for donations, projects, outreach, and humanitarian support."
+    content="Donate to One World Relief for clean water, orphan support, food campaigns, zakat, and urgent humanitarian support."
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
@@ -41,56 +41,46 @@
 
   <main>
     <section class="hero-shell hero-shell-home reveal">
-      <div class="container hero hero-home">
+      <div class="container hero hero-home hero-donate-first">
         <div class="hero-copy">
           <p class="eyebrow">One World Relief</p>
-          <h1>Give to something real.</h1>
+          <h1>Donate today.</h1>
           <p class="lead">
-            Help fund wells, orphan support, food campaigns, and urgent humanitarian relief.
+            Choose an amount, pick where it should go, and continue to the secure donation form.
           </p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="donate.html">Donate Now</a>
-            <a class="button button-outline" href="projects.html">View Projects</a>
-          </div>
         </div>
-        <div class="hero-proof hero-proof-home">
-          <div>
-            <strong>4,380</strong>
-            <span>children supported</span>
-          </div>
-          <div>
-            <strong>212</strong>
-            <span>wells completed</span>
-          </div>
-          <div>
-            <strong>97%</strong>
-            <span>to direct impact</span>
-          </div>
-        </div>
+
+        <form class="quick-donation" id="quickDonationForm" aria-label="Start a donation">
+          <fieldset class="quick-amounts">
+            <legend>Amount</legend>
+            <label><input type="radio" name="quickAmount" value="10" />$10</label>
+            <label><input type="radio" name="quickAmount" value="25" checked />$25</label>
+            <label><input type="radio" name="quickAmount" value="50" />$50</label>
+            <label><input type="radio" name="quickAmount" value="100" />$100</label>
+          </fieldset>
+
+          <label class="quick-category" for="quickCampaign">
+            Donation type
+            <select id="quickCampaign" name="quickCampaign">
+              <option value="General Fund">Regular Donation</option>
+              <option value="Orphan Support">Orphan Support</option>
+              <option value="Wells">Wells</option>
+              <option value="Zakat">Zakat</option>
+              <option value="Feeding">Feeding</option>
+            </select>
+          </label>
+
+          <button class="button button-primary quick-donation-button" type="submit">Start Donation</button>
+        </form>
       </div>
     </section>
 
-    <section class="container quick-links reveal" aria-label="Main site sections">
-      <a class="nav-card" href="donate.html">
-        <span class="nav-card-label">Donate</span>
-        <strong>Give by category</strong>
-        <p>Regular, orphan, wells, zakat, and feeding.</p>
-      </a>
-      <a class="nav-card" href="projects.html">
-        <span class="nav-card-label">Projects</span>
-        <strong>See the work</strong>
-        <p>Track wells, orphan campaigns, and current relief efforts.</p>
-      </a>
-      <a class="nav-card" href="about.html">
-        <span class="nav-card-label">About</span>
-        <strong>Know the mission</strong>
-        <p>Learn what you do, why it matters, and how you help.</p>
-      </a>
-      <a class="nav-card" href="contact.html">
-        <span class="nav-card-label">Contact</span>
-        <strong>Reach the team</strong>
-        <p>Email, questions, contact details, and FAQ.</p>
-      </a>
+    <section class="container home-trust-row reveal" aria-label="Donation focus areas">
+      <span>Wells</span>
+      <span>Orphan Support</span>
+      <span>Zakat</span>
+      <span>Feeding</span>
+      <span>Emergency Relief</span>
     </section>
   </main>
 
@@ -105,5 +95,7 @@
       </div>
     </div>
   </footer>
+
+  <script src="one-world-relief.js"></script>
 </body>
 </html>
