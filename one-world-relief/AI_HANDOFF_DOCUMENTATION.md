@@ -132,13 +132,16 @@ stripe listen --forward-to http://localhost:8000/charity/webhooks/stripe
 | `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` | `owr-service@project.iam.gserviceaccount.com` | Google Cloud Console |
 | `OWR_GOOGLE_PRIVATE_KEY` | `-----BEGIN PRIVATE KEY-----...` | Service Account JSON |
 | `OWR_GOOGLE_SERVICE_ACCOUNT_JSON` | `{...service account json...}` | Optional Cloudflare secret alternative |
+| `OWR_RESEND_API_KEY` | `re_abc123...` | Resend API key for custom receipt email |
+| `OWR_RECEIPT_FROM_EMAIL` | `OneWorld Relief <receipts@one-world-relief.org>` | Verified sender email |
+| `OWR_RECEIPT_REPLY_TO` | `Oneworldrelief.fma@gmail.com` | Optional receipt reply-to |
 
 #### Setup Checklist
 - [ ] Create Google Cloud Project
 - [ ] Enable Google Sheets API
 - [ ] Create Service Account with JSON key
 - [ ] Share Google Sheet with service account email (Editor role)
-- [ ] Create header row: `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL | Receipt Number | Receipt URL`
+- [ ] Create header row: `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL | Receipt Number | Receipt URL | Receipt Email Status`
 - [ ] Store credentials in Cloudflare environment variables
 
 #### Service Account Location
@@ -156,9 +159,32 @@ root/owr-sheets-service-account.json
 
 #### How It Works
 1. Checkout sets `payment_intent_data[receipt_email]` so Stripe can send an email receipt when receipt emails are enabled in Stripe.
-2. The thank-you route (`/charity/thank-you`) fetches the Checkout Session and displays a printable receipt.
-3. When Stripe webhook fires `checkout.session.completed`, a receipt number and receipt URL are appended to Google Sheets.
-4. Receipt created with:
+2. When Stripe webhook fires `checkout.session.completed`, Cloudflare sends the custom OneWorld Relief plain-text receipt email through Resend when `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL` are configured.
+3. The thank-you route (`/charity/thank-you`) fetches the Checkout Session and displays a printable receipt matching the same template.
+4. The webhook appends receipt number, receipt URL, and receipt email status to Google Sheets.
+5. Receipt template:
+```text
+OneWorld Relief
+EIN: 41-5079927
+
+Donation Receipt
+
+Receipt ID: R-2026-001
+Donor Name: [Name]
+Date: [Date]
+Amount: $[Amount]
+Method: [Stripe / Venmo]
+
+Thank you for your generous contribution to OneWorld Relief, a 501(c)(3) nonprofit organization.
+
+No goods or services were provided in exchange for this contribution.
+
+This donation may be tax-deductible to the extent allowed by law.
+
+Sincerely,
+OneWorld Relief
+```
+6. Receipt created with:
    - Unique receipt number
    - Donation date and amount
    - Donor name and email
@@ -170,7 +196,7 @@ root/owr-sheets-service-account.json
 #### Key Function
 - `functions/charity/donations/checkout.js` - Sets Stripe receipt email and redirect URLs
 - `functions/charity/thank-you.js` - Displays printable receipt
-- `functions/charity/webhooks/stripe.js` - Appends completed donations and receipt metadata to Google Sheets
+- `functions/charity/webhooks/stripe.js` - Sends custom receipt email and appends completed donations and receipt metadata to Google Sheets
 
 ---
 
@@ -348,6 +374,9 @@ OWR_GOOGLE_SHEET_TAB          # Sheet tab name
 OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL
 OWR_GOOGLE_PRIVATE_KEY        # (Sensitive - stored as secret)
 OWR_GOOGLE_SERVICE_ACCOUNT_JSON # (Optional alternative to email/private key)
+OWR_RESEND_API_KEY            # Custom receipt email API key
+OWR_RECEIPT_FROM_EMAIL        # Verified custom receipt sender
+OWR_RECEIPT_REPLY_TO          # Optional receipt reply-to
 OWR_PUBLIC_SITE_URL           # Public production URL
 OWR_SUCCESS_URL               # Post-donation success URL
 OWR_CANCEL_URL                # Post-cancellation URL
@@ -430,6 +459,7 @@ Local DNS lookup showed `one-world-relief.org` only returning an SOA record and 
 - GitHub handoff-inclusive commit pushed: `451c1fb` to `oneworld-github/charity-frontend-redesign`.
 - GitLab handoff-excluded commit pushed: `8a0b743` to `origin/charity-frontend-redesign`.
 - Cloudflare CLI is installed but not authenticated on this machine (`wrangler.cmd whoami` reports not authenticated), and no Cloudflare API token/account environment variables are set. Direct deploy/DNS updates require `wrangler login` or Cloudflare API credentials.
+- Added custom receipt email requirement and template per user request. Production must configure `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL`; otherwise the webhook records `not_sent_email_not_configured` in the Google Sheet receipt email status column.
 
 ### Lower Priority
 1. **Receipt Storage**

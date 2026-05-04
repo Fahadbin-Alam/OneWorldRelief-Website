@@ -13,8 +13,7 @@ const createReceiptNumber = (session, donationId) => {
     .slice(0, 10)
     .toUpperCase();
   const created = session?.created ? new Date(session.created * 1000) : new Date();
-  const stamp = created.toISOString().slice(0, 10).replace(/-/g, "");
-  return `OWR-${stamp}-${compactId}`;
+  return `R-${created.getUTCFullYear()}-${compactId || "000"}`;
 };
 
 const fetchStripeSession = async (env, sessionId) => {
@@ -51,6 +50,7 @@ export const onRequestGet = async ({ request, env }) => {
   const amountUsd = session?.amount_total ? (session.amount_total / 100).toFixed(2) : "";
   const receiptNumber = createReceiptNumber(session, donationId || metadata.donation_id);
   const paidDate = session?.created ? new Date(session.created * 1000).toLocaleDateString("en-US") : "";
+  const method = "Stripe";
 
   return new Response(
     `<!doctype html>
@@ -66,21 +66,23 @@ export const onRequestGet = async ({ request, env }) => {
           <div class="container page-hero-content">
             <p class="eyebrow">Thank You</p>
             <h1>Your donation checkout was completed.</h1>
-            <p class="lead">Thank you for supporting One World Relief. Save or print the receipt below for your records.</p>
+            <p class="lead">Thank you for supporting OneWorld Relief. Save or print the receipt below for your records.</p>
             <article class="receipt-card" aria-label="Donation receipt">
+              <p><strong>OneWorld Relief</strong><br />EIN: 41-5079927</p>
               <h2>Donation Receipt</h2>
               <div class="receipt-grid">
-                <p><strong>Receipt</strong><br />${escapeHtml(receiptNumber)}</p>
-                <p><strong>Donation ID</strong><br />${escapeHtml(donationId || metadata.donation_id)}</p>
-                <p><strong>Name</strong><br />${escapeHtml(donorName || "Donor")}</p>
-                <p><strong>Email</strong><br />${escapeHtml(donorEmail || "Not available")}</p>
-                <p><strong>Amount</strong><br />${amountUsd ? `$${escapeHtml(amountUsd)} USD` : "Confirmed by Stripe"}</p>
-                <p><strong>Campaign</strong><br />${escapeHtml(campaign)}</p>
+                <p><strong>Receipt ID</strong><br />${escapeHtml(receiptNumber)}</p>
+                <p><strong>Donor Name</strong><br />${escapeHtml(donorName || "Donor")}</p>
                 <p><strong>Date</strong><br />${escapeHtml(paidDate || "Confirmed by Stripe")}</p>
-                <p><strong>Payment Status</strong><br />${escapeHtml(session?.payment_status || "complete")}</p>
+                <p><strong>Amount</strong><br />${amountUsd ? `$${escapeHtml(amountUsd)} USD` : "Confirmed by Stripe"}</p>
+                <p><strong>Method</strong><br />${escapeHtml(method)}</p>
+                <p><strong>Email</strong><br />${escapeHtml(donorEmail || "Not available")}</p>
               </div>
               <p class="receipt-fine-print">
-                One World Relief received this donation through Stripe Checkout. A Stripe email receipt may also be sent to the donor email address when Stripe receipts are enabled.
+                Thank you for your generous contribution to OneWorld Relief, a 501(c)(3) nonprofit organization.
+                No goods or services were provided in exchange for this contribution.
+                This donation may be tax-deductible to the extent allowed by law.
+                <br /><br />Sincerely,<br />OneWorld Relief
               </p>
               <div class="hero-actions">
                 <button class="button button-primary" type="button" onclick="window.print()">Print Receipt</button>

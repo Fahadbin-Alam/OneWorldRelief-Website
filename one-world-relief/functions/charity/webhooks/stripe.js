@@ -104,12 +104,82 @@ const createReceiptNumber = (session) => {
   const donationId = session.metadata?.donation_id || session.client_reference_id || session.id || "unknown";
   const compactId = donationId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10).toUpperCase();
   const date = new Date((session.created || Date.now() / 1000) * 1000);
-  const stamp = date.toISOString().slice(0, 10).replace(/-/g, "");
-  return `OWR-${stamp}-${compactId}`;
+  return `R-${date.getUTCFullYear()}-${compactId || "000"}`;
 };
 
 const getAmountUsd = (session) => {
   return ((session.amount_total || 0) / 100).toFixed(2);
+};
+
+const getReceiptDetails = (session) => {
+  const metadata = session.metadata || {};
+  const donorName = metadata.donor_name || session.customer_details?.name || "";
+  const donorEmail = metadata.donor_email || session.customer_details?.email || session.customer_email || "";
+  const paidDate = new Date((session.created || Date.now() / 1000) * 1000);
+  return {
+    receiptNumber: createReceiptNumber(session),
+    donorName,
+    donorEmail,
+    date: paidDate.toLocaleDateString("en-US", { timeZone: "UTC" }),
+    amount: getAmountUsd(session),
+    method: "Stripe",
+  };
+};
+
+const createReceiptText = (receipt) => {
+  return `OneWorld Relief
+EIN: 41-5079927
+
+Donation Receipt
+
+Receipt ID: ${receipt.receiptNumber}
+Donor Name: ${receipt.donorName || "Donor"}
+Date: ${receipt.date}
+Amount: $${receipt.amount}
+Method: ${receipt.method}
+
+Thank you for your generous contribution to OneWorld Relief, a 501(c)(3) nonprofit organization.
+
+No goods or services were provided in exchange for this contribution.
+
+This donation may be tax-deductible to the extent allowed by law.
+
+Sincerely,
+OneWorld Relief`;
+};
+
+const sendReceiptEmail = async (env, session) => {
+  const receipt = getReceiptDetails(session);
+  if (!receipt.donorEmail) {
+    return "not_sent_missing_email";
+  }
+
+  if (!env.OWR_RESEND_API_KEY || !env.OWR_RECEIPT_FROM_EMAIL) {
+    console.error("One World Relief custom receipt email is not configured.");
+    return "not_sent_email_not_configured";
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.OWR_RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: env.OWR_RECEIPT_FROM_EMAIL,
+      to: [receipt.donorEmail],
+      reply_to: env.OWR_RECEIPT_REPLY_TO || env.OWR_RECEIPT_FROM_EMAIL,
+      subject: `OneWorld Relief donation receipt ${receipt.receiptNumber}`,
+      text: createReceiptText(receipt),
+    }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.text();
+    throw new Error(`Receipt email failed: ${payload}`);
+  }
+
+  return "sent";
 };
 
 const appendDonationToGoogleSheet = async (env, session) => {
@@ -119,25 +189,33 @@ const appendDonationToGoogleSheet = async (env, session) => {
 
   const accessToken = await getGoogleAccessToken(env);
   const metadata = session.metadata || {};
-  const receiptNumber = createReceiptNumber(session);
+  const receipt = getReceiptDetails(session);
+  let receiptEmailStatus = "not_attempted";
+  try {
+    receiptEmailStatus = await sendReceiptEmail(env, session);
+  } catch (error) {
+    console.error("One World Relief custom receipt email failed", error.message);
+    receiptEmailStatus = "failed";
+  }
   const origin = env.OWR_PUBLIC_SITE_URL || env.OWR_SUCCESS_URL?.replace(/\/charity\/thank-you.*$/, "") || "";
   const receiptUrl = origin ? `${origin.replace(/\/$/, "")}/charity/thank-you?donation_id=${encodeURIComponent(metadata.donation_id || session.client_reference_id || "")}&session_id=${encodeURIComponent(session.id || "")}` : "";
   const row = [
     metadata.donation_id || session.client_reference_id || "",
     new Date((session.created || Date.now() / 1000) * 1000).toISOString(),
-    metadata.donor_name || session.customer_details?.name || "",
-    metadata.donor_email || session.customer_details?.email || session.customer_email || "",
-    getAmountUsd(session),
+    receipt.donorName,
+    receipt.donorEmail,
+    receipt.amount,
     metadata.campaign || "General Fund",
     session.id || "",
     session.payment_status || "",
     session.payment_intent || "",
     session.url || "",
-    receiptNumber,
+    receipt.receiptNumber,
     receiptUrl,
+    receiptEmailStatus,
   ];
   const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
-  const range = encodeURIComponent(`'${tabName}'!A:L`);
+  const range = encodeURIComponent(`'${tabName}'!A:M`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
   const sheetResponse = await fetch(appendUrl, {

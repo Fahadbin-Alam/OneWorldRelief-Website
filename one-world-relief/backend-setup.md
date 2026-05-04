@@ -28,6 +28,9 @@ This local machine currently has Python 3.14, which can fail while installing pi
 - `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email shared on the Sheet
 - `OWR_GOOGLE_PRIVATE_KEY` - Google service account private key, stored as a secret
 - `OWR_GOOGLE_SERVICE_ACCOUNT_JSON` - optional alternative to separate Google email/private key secrets
+- `OWR_RESEND_API_KEY` - required for custom OneWorld Relief receipt emails
+- `OWR_RECEIPT_FROM_EMAIL` - verified sender, for example `OneWorld Relief <receipts@one-world-relief.org>`
+- `OWR_RECEIPT_REPLY_TO` - optional reply-to address for receipt emails
 - `OWR_PAYPAL_CLIENT_ID`
 - `OWR_PAYPAL_CLIENT_SECRET`
 - `OWR_PAYPAL_BASE_URL` (default sandbox)
@@ -48,19 +51,45 @@ This local machine currently has Python 3.14, which can fail while installing pi
 5. Put the webhook signing secret in `OWR_STRIPE_WEBHOOK_SECRET`.
 6. Set `OWR_SUCCESS_URL` and `OWR_CANCEL_URL` to your real deployed domain before going live.
 7. Checkout sets `payment_intent_data[receipt_email]` so Stripe can send an email receipt when Stripe receipt emails are enabled.
+8. The Stripe webhook sends the custom OneWorld Relief receipt email through Resend when `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL` are configured.
 
 The frontend never collects card numbers. Donors are redirected to Stripe-hosted Checkout.
 
 ## Google Sheets donation log setup
 1. Use the tab named `Donations (2026)` in the spreadsheet.
 2. Add these headers in row 1:
-   `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL | Receipt Number | Receipt URL`
+   `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL | Receipt Number | Receipt URL | Receipt Email Status`
 3. In Google Cloud Console, enable the Google Sheets API.
 4. Create a service account and JSON key.
 5. Share the spreadsheet with the service account email as an editor.
 6. Store the service account email and private key in Cloudflare Pages environment variables.
 
-The Stripe webhook appends completed checkout sessions to Google Sheets. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
+The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
+
+## Custom receipt email template
+The webhook emails this plain-text receipt after `checkout.session.completed`:
+
+```text
+OneWorld Relief
+EIN: 41-5079927
+
+Donation Receipt
+
+Receipt ID: R-2026-001
+Donor Name: [Name]
+Date: [Date]
+Amount: $[Amount]
+Method: [Stripe / Venmo]
+
+Thank you for your generous contribution to OneWorld Relief, a 501(c)(3) nonprofit organization.
+
+No goods or services were provided in exchange for this contribution.
+
+This donation may be tax-deductible to the extent allowed by law.
+
+Sincerely,
+OneWorld Relief
+```
 
 ## Production domain checklist
 `one-world-relief.org` must have DNS records in Cloudflare before donation links, QR codes, and Stripe redirect URLs can work on the custom domain.

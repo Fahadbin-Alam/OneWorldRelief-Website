@@ -593,24 +593,32 @@ def get_charity_donation_by_provider_order(provider_order_id: str) -> Optional[D
 
 
 def make_receipt_number(donation_id: int, paid_at: datetime) -> str:
-    return f"OWR-{paid_at.year}-{donation_id:06d}"
+    return f"R-{paid_at.year}-{donation_id:03d}"
 
 
 def make_receipt_text(donation: Dict[str, Any]) -> str:
     paid_at = donation.get("paid_at") or utc_now_iso()
+    method = donation.get("provider") or donation.get("payment_method") or "Stripe"
     lines = [
-        f"Receipt Number: {donation.get('receipt_number')}",
-        f"Date Paid (UTC): {paid_at}",
-        f"Donor Name: {donation.get('donor_name')}",
-        f"Donor Email: {donation.get('donor_email')}",
-        f"Amount: ${cents_to_usd(donation.get('amount_cents', 0)):.2f} {donation.get('currency', 'USD')}",
-        f"Payment Method: {donation.get('payment_method')}",
-        f"Payment Provider: {donation.get('provider')}",
-        f"Provider Transaction ID: {donation.get('provider_payment_id') or '(pending)'}",
-        f"Campaign: {donation.get('campaign') or 'General Fund'}",
-        f"Tax Year: {donation.get('tax_year') or ''}",
+        "OneWorld Relief",
+        "EIN: 41-5079927",
         "",
-        "Thank you for supporting One World Relief.",
+        "Donation Receipt",
+        "",
+        f"Receipt ID: {donation.get('receipt_number')}",
+        f"Donor Name: {donation.get('donor_name')}",
+        f"Date: {paid_at}",
+        f"Amount: ${cents_to_usd(donation.get('amount_cents', 0)):.2f}",
+        f"Method: {method.title()}",
+        "",
+        "Thank you for your generous contribution to OneWorld Relief, a 501(c)(3) nonprofit organization.",
+        "",
+        "No goods or services were provided in exchange for this contribution.",
+        "",
+        "This donation may be tax-deductible to the extent allowed by law.",
+        "",
+        "Sincerely,",
+        "OneWorld Relief",
     ]
     return "\n".join(lines)
 

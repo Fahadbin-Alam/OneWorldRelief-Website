@@ -92,9 +92,11 @@ test("thank-you page renders printable receipt from Stripe session", async () =>
 
     assert.equal(response.status, 200);
     assert.match(html, /Donation Receipt/);
+    assert.match(html, /EIN: 41-5079927/);
+    assert.match(html, /No goods or services were provided/);
     assert.match(html, /\$1\.00 USD/);
     assert.match(html, /Test Donor/);
-    assert.match(html, /OWR-/);
+    assert.match(html, /R-2026-/);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -150,4 +152,110 @@ test("stripe webhook returns 500 so Stripe retries when Sheets is not configured
   });
 
   assert.equal(response.status, 500);
+});
+
+test("stripe webhook sends custom OneWorld Relief receipt email when configured", async () => {
+  const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
+  const originalFetch = globalThis.fetch;
+  const secret = "whsec_test";
+  const timestamp = "1770000000";
+  const calls = [];
+  const body = JSON.stringify({
+    id: "evt_test",
+    type: "checkout.session.completed",
+    data: {
+      object: {
+        id: "cs_test_123",
+        created: 1770000000,
+        amount_total: 100,
+        payment_status: "paid",
+        customer_email: "donor@example.com",
+        client_reference_id: "don_123",
+        payment_intent: "pi_test_123",
+        metadata: {
+          donation_id: "don_123",
+          donor_name: "Test Donor",
+          donor_email: "donor@example.com",
+          campaign: "General Fund",
+        },
+      },
+    },
+  });
+  const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (String(url).includes("oauth2.googleapis.com")) {
+      return new Response(JSON.stringify({ access_token: "google-token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("api.resend.com")) {
+      return new Response(JSON.stringify({ id: "email_123" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com")) {
+      return new Response(JSON.stringify({ updates: { updatedRows: 1 } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch ${url}`);
+  };
+
+  try {
+    const privateKey = await crypto.subtle.generateKey(
+      {
+        name: "RSASSA-PKCS1-v1_5",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["sign", "verify"]
+    ).then(async (keyPair) => {
+      const exported = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+      const base64 = Buffer.from(exported).toString("base64").match(/.{1,64}/g).join("\n");
+      return `-----BEGIN PRIVATE KEY-----\n${base64}\n-----END PRIVATE KEY-----`;
+    });
+
+    const response = await webhook.onRequestPost({
+      request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+        body,
+      }),
+      env: {
+        OWR_STRIPE_WEBHOOK_SECRET: secret,
+        OWR_GOOGLE_SHEET_ID: "sheet_123",
+        OWR_GOOGLE_SHEET_TAB: "Donations (2026)",
+        OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.iam.gserviceaccount.com",
+        OWR_GOOGLE_PRIVATE_KEY: privateKey,
+        OWR_PUBLIC_SITE_URL: "https://one-world-relief.org",
+        OWR_RESEND_API_KEY: "re_test",
+        OWR_RECEIPT_FROM_EMAIL: "OneWorld Relief <receipts@one-world-relief.org>",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    const emailCall = calls.find((call) => call.url.includes("api.resend.com"));
+    assert.ok(emailCall, "custom receipt email should be sent");
+    const emailPayload = JSON.parse(emailCall.options.body);
+    assert.deepEqual(emailPayload.to, ["donor@example.com"]);
+    assert.match(emailPayload.subject, /OneWorld Relief donation receipt R-2026-/);
+    assert.match(emailPayload.text, /OneWorld Relief\nEIN: 41-5079927/);
+    assert.match(emailPayload.text, /Receipt ID: R-2026-/);
+    assert.match(emailPayload.text, /Donor Name: Test Donor/);
+    assert.match(emailPayload.text, /Amount: \$1\.00/);
+    assert.match(emailPayload.text, /No goods or services were provided/);
+
+    const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com"));
+    const sheetPayload = JSON.parse(sheetCall.options.body);
+    assert.equal(sheetPayload.values[0][12], "sent");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
