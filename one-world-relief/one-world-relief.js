@@ -90,7 +90,10 @@
   if (quickDonationForm) {
     quickDonationForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      const amount = quickDonationForm.querySelector('input[name="quickAmount"]:checked')?.value || "25";
+      const customAmount = Number(document.getElementById("quickCustomAmount")?.value || 0);
+      const amount = customAmount > 0
+        ? String(customAmount)
+        : quickDonationForm.querySelector('input[name="quickAmount"]:checked')?.value || "25";
       const campaign = document.getElementById("quickCampaign")?.value || "General Fund";
       const params = new URLSearchParams({ amount, campaign });
       window.location.href = `donate.html?${params.toString()}#donationForm`;

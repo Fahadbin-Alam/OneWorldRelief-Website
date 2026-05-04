@@ -215,6 +215,11 @@ ul {
   color: var(--ink-soft);
 }
 
+.footer-note {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
 .hero-shell {
   padding: 2.4rem 0 1.2rem;
 }
@@ -246,7 +251,7 @@ ul {
 
 .hero-donate-first {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  grid-template-columns: minmax(0, 0.85fr) minmax(360px, 1.15fr);
   align-items: center;
   gap: 1.5rem;
   padding: 4rem 2rem;
@@ -313,6 +318,14 @@ ul {
   box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
 }
 
+.home-action-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.8fr);
+  gap: 0.9rem;
+}
+
 .quick-amounts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -323,7 +336,8 @@ ul {
 }
 
 .quick-amounts legend,
-.quick-category {
+.quick-category,
+.quick-custom-amount {
   grid-column: 1 / -1;
   font-weight: 800;
 }
@@ -345,7 +359,8 @@ ul {
   gap: 0.42rem;
 }
 
-.quick-category select {
+.quick-category select,
+.quick-custom-amount input {
   width: 100%;
   border: 1px solid rgba(24, 52, 71, 0.12);
   border-radius: 12px;
@@ -355,8 +370,55 @@ ul {
   background: #fff;
 }
 
+.quick-custom-amount {
+  display: grid;
+  gap: 0.42rem;
+}
+
 .quick-donation-button {
   width: 100%;
+}
+
+.home-stories {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
+}
+
+.home-stories .eyebrow {
+  margin-bottom: 0;
+}
+
+.story-link {
+  display: grid;
+  gap: 0.22rem;
+  padding: 0.82rem;
+  border: 1px solid rgba(77, 149, 194, 0.12);
+  border-radius: 14px;
+  background: var(--sky-50);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.story-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(45, 91, 122, 0.1);
+}
+
+.story-link strong {
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.25;
+}
+
+.story-link span {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.35;
 }
 
 .hero-proof {
@@ -806,6 +868,7 @@ ul {
   }
 
   .quick-links,
+  .home-action-panel,
   .mission-grid,
   .transparency-grid,
   .program-grid,
@@ -866,6 +929,7 @@ ul {
   }
 
   .quick-links,
+  .home-action-panel,
   .mission-grid,
   .transparency-grid,
   .program-grid,
