@@ -475,6 +475,7 @@ Additional DNS check later on May 4, 2026:
 - Production deployment is live at `https://one-world-relief.com`, deployment `fbb6e97f-44ec-4cb6-9bed-3bff2d182a0d`, with updated donate/share/thank-you pages verified.
 - Pages custom domains `one-world-relief.org` and `www.one-world-relief.org` are attached to project `trying` but remain pending because Cloudflare reports `CNAME record not set`. The Wrangler OAuth token has Pages write access but DNS record API calls return authentication error, so DNS edit permission or dashboard access is needed to create the missing CNAME/flattened records.
 - Production Cloudflare secrets present: `OWR_STRIPE_SECRET_KEY`, `OWR_STRIPE_WEBHOOK_SECRET`, `OWR_GOOGLE_PRIVATE_KEY`, `OWR_PUBLIC_SITE_URL`, `OWR_SUCCESS_URL`, `OWR_CANCEL_URL`, `OWR_RECEIPT_FROM_EMAIL`, `OWR_RECEIPT_REPLY_TO`. Missing: `OWR_RESEND_API_KEY`, so custom receipt emails still cannot send until this secret is added.
+- Setup assist action: opened Cloudflare DNS records, Cloudflare Pages custom domains, Resend Domains, Resend API Keys, and Stripe Webhooks in the browser. Exact remaining manual items are DNS records for `.org`/`www`, Resend domain verification/API key, `OWR_RESEND_API_KEY` Pages secret, and Stripe webhook URL pointed at the live `.com` domain until `.org` is active.
 
 ### Lower Priority
 1. **Receipt Storage**
