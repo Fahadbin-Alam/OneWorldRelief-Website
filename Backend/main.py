@@ -593,7 +593,7 @@ def get_charity_donation_by_provider_order(provider_order_id: str) -> Optional[D
 
 
 def make_receipt_number(donation_id: int, paid_at: datetime) -> str:
-    return f"R-{paid_at.year}-{donation_id:03d}"
+    return f"R-{paid_at.date().isoformat()}-{donation_id:03d}"
 
 
 def make_receipt_text(donation: Dict[str, Any]) -> str:

@@ -96,7 +96,7 @@ test("thank-you page renders printable receipt from Stripe session", async () =>
     assert.match(html, /No goods or services were provided/);
     assert.match(html, /\$1\.00 USD/);
     assert.match(html, /Test Donor/);
-    assert.match(html, /R-2026-/);
+    assert.match(html, /R-2026-02-02-/);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -245,9 +245,9 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.ok(emailCall, "custom receipt email should be sent");
     const emailPayload = JSON.parse(emailCall.options.body);
     assert.deepEqual(emailPayload.to, ["donor@example.com"]);
-    assert.match(emailPayload.subject, /OneWorld Relief donation receipt R-2026-/);
+    assert.match(emailPayload.subject, /OneWorld Relief donation receipt R-2026-02-02-/);
     assert.match(emailPayload.text, /OneWorld Relief\nEIN: 41-5079927/);
-    assert.match(emailPayload.text, /Receipt ID: R-2026-/);
+    assert.match(emailPayload.text, /Receipt ID: R-2026-02-02-/);
     assert.match(emailPayload.text, /Donor Name: Test Donor/);
     assert.match(emailPayload.text, /Amount: \$1\.00/);
     assert.match(emailPayload.text, /No goods or services were provided/);

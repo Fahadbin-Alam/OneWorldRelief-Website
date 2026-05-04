@@ -13,7 +13,8 @@ const createReceiptNumber = (session, donationId) => {
     .slice(0, 10)
     .toUpperCase();
   const created = session?.created ? new Date(session.created * 1000) : new Date();
-  return `R-${created.getUTCFullYear()}-${compactId || "000"}`;
+  const dateStamp = created.toISOString().slice(0, 10);
+  return `R-${dateStamp}-${compactId || "000"}`;
 };
 
 const fetchStripeSession = async (env, sessionId) => {

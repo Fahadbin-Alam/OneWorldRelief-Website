@@ -104,7 +104,8 @@ const createReceiptNumber = (session) => {
   const donationId = session.metadata?.donation_id || session.client_reference_id || session.id || "unknown";
   const compactId = donationId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10).toUpperCase();
   const date = new Date((session.created || Date.now() / 1000) * 1000);
-  return `R-${date.getUTCFullYear()}-${compactId || "000"}`;
+  const dateStamp = date.toISOString().slice(0, 10);
+  return `R-${dateStamp}-${compactId || "000"}`;
 };
 
 const getAmountUsd = (session) => {

@@ -169,7 +169,7 @@ EIN: 41-5079927
 
 Donation Receipt
 
-Receipt ID: R-2026-001
+Receipt ID: R-2026-05-04-001
 Donor Name: [Name]
 Date: [Date]
 Amount: $[Amount]
@@ -466,6 +466,7 @@ Additional DNS check later on May 4, 2026:
 - Cloudflare CLI is installed but not authenticated on this machine (`wrangler.cmd whoami` reports not authenticated), and no Cloudflare API token/account environment variables are set. Direct deploy/DNS updates require `wrangler login` or Cloudflare API credentials.
 - Added custom receipt email requirement and template per user request. Production must configure `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL`; otherwise the webhook records `not_sent_email_not_configured` in the Google Sheet receipt email status column.
 - Receipt email implementation details: Stripe Checkout sets `payment_intent_data[receipt_email]` for Stripe's built-in receipt, and the webhook sends the custom OneWorld Relief template through Resend after `checkout.session.completed`. Real donor email delivery requires a verified sender/domain in Resend plus the Cloudflare env vars.
+- Receipt numbers were changed to be date-based so the spreadsheet, email receipt, and printable receipt all match the donation date format: `R-YYYY-MM-DD-###` or `R-YYYY-MM-DD-<short donation id>`.
 
 ### Lower Priority
 1. **Receipt Storage**

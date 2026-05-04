@@ -75,7 +75,7 @@ EIN: 41-5079927
 
 Donation Receipt
 
-Receipt ID: R-2026-001
+Receipt ID: R-2026-05-04-001
 Donor Name: [Name]
 Date: [Date]
 Amount: $[Amount]
