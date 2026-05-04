@@ -629,6 +629,7 @@ Additional DNS check later on May 4, 2026:
 - `one-world-relief.org`, `www.one-world-relief.org`, and `api.one-world-relief.com` are added to Cloudflare Pages but still show `CNAME record not set`.
 - The current Cloudflare token/session can deploy Pages but cannot edit DNS records. DNS edit permission or manual DNS updates are needed.
 - On 2026-05-04, opened the Cloudflare dashboard and API Tokens page so a DNS-edit token or account permission can be created.
+- A provided Cloudflare token could read both zones, but DNS record create/update calls returned an authentication error. A token with `Zone:DNS:Edit` and `Zone:Zone:Read` for both zones is still needed, or records must be added manually in the dashboard.
 - Required DNS records:
   - `one-world-relief.org` apex should point to the Pages target `trying-8o0.pages.dev`.
   - `www.one-world-relief.org` should point to `trying-8o0.pages.dev`.
