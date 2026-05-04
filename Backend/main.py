@@ -856,13 +856,21 @@ def verify_stripe_signature(raw_body: bytes, stripe_signature: str) -> bool:
 
     timestamp = ts_values[0]
     signed_payload = f"{timestamp}.{raw_body.decode('utf-8')}"
-    expected_sig = hmac.new(
-        OWR_STRIPE_WEBHOOK_SECRET.encode("utf-8"),
-        signed_payload.encode("utf-8"),
-        hashlib.sha256,
-    ).hexdigest()
+    webhook_secrets = [
+        secret.strip()
+        for secret in OWR_STRIPE_WEBHOOK_SECRET.split(",")
+        if secret.strip()
+    ]
+    for webhook_secret in webhook_secrets:
+        expected_sig = hmac.new(
+            webhook_secret.encode("utf-8"),
+            signed_payload.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        if any(hmac.compare_digest(expected_sig, candidate) for candidate in sig_values):
+            return True
 
-    return any(hmac.compare_digest(expected_sig, candidate) for candidate in sig_values)
+    return False
 
 
 def to_donation_list_item(row: Dict[str, Any]) -> DonationListItem:
