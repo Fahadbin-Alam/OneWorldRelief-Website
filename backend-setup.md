@@ -22,6 +22,10 @@ This local machine currently has Python 3.14, which can fail while installing pi
 ## Required env vars (payment providers)
 - `OWR_STRIPE_SECRET_KEY` - your Stripe secret key from the Stripe Dashboard
 - `OWR_STRIPE_WEBHOOK_SECRET` - your Stripe webhook signing secret for `/charity/webhooks/stripe`
+- `OWR_GOOGLE_SHEET_ID` - Google Sheet ID for the donation log
+- `OWR_GOOGLE_SHEET_TAB` - Google Sheet tab name, default `Donations`
+- `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email shared on the Sheet
+- `OWR_GOOGLE_PRIVATE_KEY` - Google service account private key, stored as a secret
 - `OWR_PAYPAL_CLIENT_ID`
 - `OWR_PAYPAL_CLIENT_SECRET`
 - `OWR_PAYPAL_BASE_URL` (default sandbox)
@@ -43,6 +47,17 @@ This local machine currently has Python 3.14, which can fail while installing pi
 6. Set `OWR_SUCCESS_URL` and `OWR_CANCEL_URL` to your real deployed domain before going live.
 
 The frontend never collects card numbers. Donors are redirected to Stripe-hosted Checkout.
+
+## Google Sheets donation log setup
+1. Create a tab named `Donations` in the spreadsheet.
+2. Add these headers in row 1:
+   `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL`
+3. In Google Cloud Console, enable the Google Sheets API.
+4. Create a service account and JSON key.
+5. Share the spreadsheet with the service account email as an editor.
+6. Store the service account email and private key in Cloudflare Pages environment variables.
+
+The Stripe webhook appends completed checkout sessions to Google Sheets. If Sheets has an outage or credentials are missing, the webhook still returns success to Stripe and logs the sync error.
 
 ## API endpoints added
 - `POST /charity/donations/checkout`
