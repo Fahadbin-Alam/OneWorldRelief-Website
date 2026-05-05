@@ -699,6 +699,22 @@ Additional DNS check later on May 4, 2026:
 - Verified all three Stripe donation rows now show `Receipt Email: sent` in Notes.
 - Read the sheet back after repair and confirmed rows 4-6 are aligned with no data spilling past column H.
 
+### 2026-05-05 Live Donation Validation
+- Checked production after another live donation.
+- New donation appeared in `Donations (2026)` row 7.
+- Row 7 is aligned correctly in columns A:H only, with no data spilling into I:W.
+- Donation details verified:
+  - Amount: `$1`
+  - Method: `Stripe`
+  - Purpose/Fund: `General Fund`
+  - Receipt ID uses the date-based format.
+  - Notes include Stripe status, session ID, payment intent, receipt email status, and receipt URL.
+- Receipt email status for the new row is `sent`.
+- Production domains and webhook checks remain healthy:
+  - Main and `.org` domains return HTTP 200.
+  - Thank-you pages include the upgraded story animation.
+  - Webhook routes reject invalid Stripe signatures with HTTP 400.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
