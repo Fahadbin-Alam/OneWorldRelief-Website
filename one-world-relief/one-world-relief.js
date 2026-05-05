@@ -15,7 +15,7 @@
   const closeQrPresentation = document.getElementById("closeQrPresentation");
   const qrPresentationModal = document.getElementById("qrPresentationModal");
   const copyInstagramCaption = document.getElementById("copyInstagramCaption");
-  const DONATION_URL = "https://one-world-relief.org/donate.html";
+  const DONATION_URL = "https://one-world-relief.com/donate";
   const SHARE_TEXT = "Donate to One World Relief and support direct aid projects.";
   const INSTAGRAM_CAPTION = `${SHARE_TEXT} ${DONATION_URL}`;
 

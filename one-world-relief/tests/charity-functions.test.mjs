@@ -193,6 +193,20 @@ test("thank-you page renders polished animated donation thanks", async () => {
   assert.doesNotMatch(html, /Receipt ID/);
 });
 
+test("share QR points donors to the working donation domain", async () => {
+  const [shareHtml, siteJs, qrSvg] = await Promise.all([
+    readFile("share.html", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("assets/one-world-relief-donate-qr.svg", "utf8"),
+  ]);
+
+  assert.match(shareHtml, /one-world-relief\.com\/donate/);
+  assert.match(siteJs, /https:\/\/one-world-relief\.com\/donate/);
+  assert.match(qrSvg, /stroke="#183447"/);
+  assert.doesNotMatch(shareHtml, /one-world-relief\.org\/donate/);
+  assert.doesNotMatch(siteJs, /one-world-relief\.org\/donate/);
+});
+
 test("stripe webhook rejects invalid signatures", async () => {
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const response = await webhook.onRequestPost({
