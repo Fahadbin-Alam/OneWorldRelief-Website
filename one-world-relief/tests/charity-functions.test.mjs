@@ -173,7 +173,7 @@ test("checkout redirects Venmo only when a Venmo URL is configured", async () =>
   assert.match(redirect.searchParams.get("note"), /One World Relief - Wells/);
 });
 
-test("thank-you page renders cinematic animated donation thanks", async () => {
+test("thank-you page renders polished animated donation thanks", async () => {
   const thankYou = await importFunctionModule("functions/charity/thank-you.js");
   const response = await thankYou.onRequestGet({
     request: new Request("https://one-world-relief.org/charity/thank-you?donation_id=don_123&session_id=cs_test_123"),
@@ -183,11 +183,12 @@ test("thank-you page renders cinematic animated donation thanks", async () => {
 
   assert.equal(response.status, 200);
   assert.match(html, /Thank you for your Donation/);
-  assert.match(html, /coin-gift/);
-  assert.match(html, /story-scene/);
-  assert.match(html, /smile-change/);
-  assert.match(html, /tear-dry/);
-  assert.match(html, /class="person child"/);
+  assert.match(html, /success-field/);
+  assert.match(html, /success-orbit/);
+  assert.match(html, /success-mark/);
+  assert.doesNotMatch(html, /coin-gift/);
+  assert.doesNotMatch(html, /story-scene/);
+  assert.doesNotMatch(html, /class="person child"/);
   assert.doesNotMatch(html, /Donation Receipt/);
   assert.doesNotMatch(html, /Receipt ID/);
 });
