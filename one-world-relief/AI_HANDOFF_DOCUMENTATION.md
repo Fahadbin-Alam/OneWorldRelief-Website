@@ -715,6 +715,34 @@ Additional DNS check later on May 4, 2026:
   - Thank-you pages include the upgraded story animation.
   - Webhook routes reject invalid Stripe signatures with HTTP 400.
 
+### 2026-05-05 Flowy Donation Page & Wallet Payments
+- Redesigned the donation page to feel more fluid and less static:
+  - Larger emotional hero: `Move relief where it is needed.`
+  - Animated current/ribbon background treatment.
+  - Flowing fund cards and checkout section.
+  - Payment option rail for Apple Pay, Cash App Pay, Card, and Venmo.
+  - Donation form order now moves more naturally from fund/amount to donor details and payment.
+- Added production Cloudflare Function support for:
+  - Apple Pay through Stripe Checkout card wallets.
+  - Cash App Pay through Stripe Checkout with card fallback.
+  - Venmo external redirect when `OWR_VENMO_URL` or `OWR_PAYPAL_VENMO_URL` is configured.
+- Added matching local FastAPI backend support for the same payment method names.
+- Registered Stripe payment method domains for:
+  - `one-world-relief.com`
+  - `one-world-relief.org`
+  - `www.one-world-relief.org`
+- Updated tests for Apple Pay, Cash App Pay, and Venmo redirect behavior.
+- Code commit pushed to both remotes:
+  - GitHub: `e4a46b1 feat: add flowy donation experience and wallet payments`
+  - GitLab: `5393222 feat: add flowy donation experience and wallet payments`
+- Cloudflare production deployment: `https://d175ca46.trying-8o0.pages.dev`.
+- Verification:
+  - `https://one-world-relief.com/donate` returns HTTP 200 and contains the new flow content plus Apple Pay, Cash App Pay, and Venmo UI.
+  - Stripe webhook route still rejects invalid signatures with HTTP 400.
+  - Function tests: `node --test tests/charity-functions.test.mjs` passed, 8 tests.
+  - Backend tests: `python -m pytest Backend` passed, 23 tests.
+- Remaining item: provide the real OneWorld Relief Venmo URL/handle, then set `OWR_VENMO_URL` in Cloudflare Pages secrets to activate Venmo redirects.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
