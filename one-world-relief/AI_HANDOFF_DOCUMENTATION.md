@@ -768,6 +768,32 @@ Additional DNS check later on May 4, 2026:
   - Stripe webhook invalid-signature check still returns HTTP 400.
 - Function tests passed: `node --test tests/charity-functions.test.mjs`, 8 tests.
 
+### 2026-05-05 Google Drive Case Upload
+- User asked to access the cases placed in Google Drive and upload them to the website.
+- Google Drive folder checked:
+  - Parent folder: `Cases`
+  - Case folder: `Case 001 - Orphan 600$`
+  - Case folder URL: `https://drive.google.com/drive/folders/1eJt-SkxtEJltYpB8GuKNOz6gV0aTb3-4`
+- Case 001 folder contents found:
+  - `IMG-20260505-WA0004.jpg`
+  - `IMG-20260505-WA0006.jpg`
+  - `VID-20260505-WA0003.mp4`
+  - `VID-20260505-WA0005.mp4`
+- Added local website media:
+  - `one-world-relief/assets/projects/case-001/orphan-support-001-main.jpg`
+  - `one-world-relief/assets/projects/case-001/orphan-support-001-proof.jpg`
+- Updated `one-world-relief/project-data.js` so the first project card is now the real `Case 001: Hafiz Student Support` case.
+- The card now uses the local Case 001 image and links to the Google Drive case folder for the videos and supporting proof.
+- Updated `one-world-relief/assets/projects/README.md` with the current case media structure.
+- Verification:
+  - Local images downloaded correctly and render as JPEGs.
+  - Function tests passed: `node --test tests/charity-functions.test.mjs`, 8 tests.
+  - Backend tests passed when run by file in the project venv:
+    - `Backend/test_favorites.py`, 3 tests
+    - `Backend/test_favorites_comprehensive.py`, 10 tests
+    - `Backend/test_planner_comprehensive.py`, 10 tests
+  - Full backend command through the venv did not return before timeout, but the same 23 backend tests passed when split by file.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
