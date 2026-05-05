@@ -743,6 +743,31 @@ Additional DNS check later on May 4, 2026:
   - Backend tests: `python -m pytest Backend` passed, 23 tests.
 - Remaining item: provide the real OneWorld Relief Venmo URL/handle, then set `OWR_VENMO_URL` in Cloudflare Pages secrets to activate Venmo redirects.
 
+### 2026-05-05 Thank-You Animation Replacement
+- Removed the cartoon sad-child/coin animation from `/charity/thank-you`.
+- Replaced it with a polished abstract success animation:
+  - rotating success orbit
+  - light sweep
+  - pulsing rings
+  - animated check mark
+- Kept the only visible page copy as `Thank you for your Donation`.
+- Added more motion to the donation page:
+  - floating payment chips
+  - drifting light elements
+  - staggered flowing donation cards
+  - pulsing form step markers
+- Code pushed to both remotes:
+  - GitHub: `d4f1606 fix: replace thank you cartoon with polished success animation`
+  - GitLab: `a2539b8 fix: replace thank you cartoon with polished success animation`
+- Deployed to Cloudflare Pages production: `https://4a9ddc08.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/charity/thank-you` returns HTTP 200.
+  - New success animation is present.
+  - Old cartoon markers (`story-scene`, `coin-gift`, `person child`) are absent.
+  - `https://one-world-relief.com/donate` still returns HTTP 200 with flow UI and payment options.
+  - Stripe webhook invalid-signature check still returns HTTP 400.
+- Function tests passed: `node --test tests/charity-functions.test.mjs`, 8 tests.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
