@@ -681,6 +681,24 @@ Additional DNS check later on May 4, 2026:
   - `python -m pytest Backend`: 23 passed.
 - Existing bad spreadsheet rows still need manual/API cleanup. The local environment does not expose the Google Sheet ID or service account credentials, and there is no Google Sheets connector available in this session. To clean existing rows in-place, provide the Sheet URL/ID and grant connector/API access, or paste/export the affected rows.
 
+### 2026-05-05 Spreadsheet Repair Completed
+- Located the production spreadsheet from Chrome history: `OneWorldRelief_SUPER_TRACKER_DASHBOARD`.
+- Used the local OneWorld Relief Google Sheets service account file to access the `Donations (2026)` tab.
+- Repaired the three misaligned Stripe donation rows that had spilled across A:M and K:W.
+- Normalized rows 4-6 into the correct A:H layout:
+  - Donation ID
+  - Date
+  - Donor Name
+  - Amount ($)
+  - Purpose/Fund
+  - Method
+  - Receipt ID
+  - Notes
+- Cleared stray data in columns I:W for those repaired rows.
+- Resent the two older failed donor receipt emails through Resend.
+- Verified all three Stripe donation rows now show `Receipt Email: sent` in Notes.
+- Read the sheet back after repair and confirmed rows 4-6 are aligned with no data spilling past column H.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
