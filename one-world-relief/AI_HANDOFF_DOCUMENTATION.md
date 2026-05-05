@@ -641,7 +641,7 @@ Additional DNS check later on May 4, 2026:
 - On 2026-05-04, opened Resend Domains and API Keys pages for the owner. A Resend API check returned HTTP 401, so the owner should either show the domain verification records in the Resend dashboard or create a fresh valid Resend API key.
 - On 2026-05-05, a new Resend API key worked. Created the `one-world-relief.com` domain in Resend, added its DKIM/SPF DNS records to Cloudflare, triggered verification, and updated the Cloudflare Pages `OWR_RESEND_API_KEY` secret.
 - Latest production deployment after updating the Resend key: `https://023244c2.trying-8o0.pages.dev`.
-- Resend domain status was `pending` immediately after DNS was added. Recheck later; DNS verification can take time.
+- Resend domain status is now `verified`.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
