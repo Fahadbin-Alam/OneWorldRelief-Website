@@ -3,18 +3,18 @@
 // From One World Relief project content board data, 4/23/26
 window.ONE_WORLD_RELIEF_PROJECTS = [
   {
-    title: "Orphan Hafiz Studies Support",
+    title: "Case 001: Hafiz Student Support",
     category: "Orphan Support",
     status: "Completed",
-    location: "Recipient privacy protected",
-    date: "Project 001",
+    location: "Bangladesh",
+    date: "Case 001",
     amountRaised: "$600",
-    impact: "Study support for an orphan pursuing Hafiz education",
-    summary: "One World Relief provided $600 to help support an orphan girl's studies as she continues her Hafiz education.",
-    update: "Photos, videos, and proof of support can be added here once they are ready and safe to share publicly.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "Photos/video coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    impact: "Financial support for a young Hafiz student after the loss of his father",
+    summary: "One World Relief provided $600 in direct support for a young orphan continuing his Hafiz studies. The case documentation includes field photos and video proof from the delivery.",
+    update: "Case media was added from the One World Relief Google Drive case folder on May 5, 2026.",
+    thumbnailUrl: "assets/projects/case-001/orphan-support-001-main.jpg",
+    mediaLabel: "View case folder",
+    mediaUrl: "https://drive.google.com/drive/folders/1eJt-SkxtEJltYpB8GuKNOz6gV0aTb3-4",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
   },
   {

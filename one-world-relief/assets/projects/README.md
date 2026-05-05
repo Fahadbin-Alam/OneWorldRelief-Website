@@ -6,6 +6,9 @@ Recommended structure:
 
 ```text
 assets/projects/
+  case-001/
+    orphan-support-001-main.jpg
+    orphan-support-001-proof.jpg
   wells/
     village-well-thumbnail.jpg
     village-well-complete-01.jpg
@@ -18,3 +21,9 @@ assets/projects/
 Keep images compressed before adding them to Git. A good target is under 500 KB per image for thumbnails and under 1.5 MB for larger project photos.
 
 For videos, the easiest option is usually to upload the video to YouTube as unlisted, then paste the YouTube link into `project-data.js` as `mediaUrl`.
+
+Current case media:
+
+- `case-001/orphan-support-001-main.jpg` is used as the public project card image.
+- `case-001/orphan-support-001-proof.jpg` is stored as supporting proof media.
+- Case 001 videos remain in the Google Drive folder linked from `project-data.js`.
