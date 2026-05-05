@@ -643,6 +643,18 @@ Additional DNS check later on May 4, 2026:
 - Latest production deployment after updating the Resend key: `https://023244c2.trying-8o0.pages.dev`.
 - Resend domain status is now `verified`.
 
+### 2026-05-05 Health Check
+- Verified `https://one-world-relief.com`, `https://one-world-relief.org`, and `https://www.one-world-relief.org` return HTTP 200 with expected site content.
+- Verified thank-you pages on the main and API domains return HTTP 200 and include the requested animation.
+- Verified Stripe webhook routes on `one-world-relief.com` and `api.one-world-relief.com` reject invalid signatures with HTTP 400.
+- Verified Resend domain `one-world-relief.com` remains `verified`.
+- Verified Cloudflare production secrets include the Stripe, Google Sheets, URL, and Resend receipt email settings.
+- Verified donate page has the share feature and QR asset, and no duplicate center-nav Donate link.
+- Automated tests passed:
+  - `node --test tests/charity-functions.test.mjs` from `one-world-relief`: 5 passed.
+  - `python -m pytest Backend`: 23 passed.
+- Remaining real-world validation: make one small live Stripe donation and confirm the Google Sheet row plus donor receipt email.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
