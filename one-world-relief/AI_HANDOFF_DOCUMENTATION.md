@@ -803,6 +803,17 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/assets/projects/case-001/orphan-support-001-main.jpg` returns HTTP 200 with `image/jpeg`.
   - `one-world-relief.org` and `www.one-world-relief.org` are still attached to the Cloudflare Pages project, but DNS resolution failed from the local machine during this check. Next step if the user still cannot open `.org`: verify registrar nameservers/DNS delegation for the `.org` domain.
 
+### 2026-05-05 QR Share Focus
+- User asked to focus on the QR code.
+- Regenerated `one-world-relief/assets/one-world-relief-donate-qr.svg`.
+- QR now points to the working donation URL: `https://one-world-relief.com/donate`.
+- Updated Share page links/copy from the unresolved `.org` donation URL to the working `.com` donation URL.
+- Added a `Download QR` button on `share.html` so the QR can be used in flyers, slides, and presentations.
+- Improved QR card styling and presentation modal styling.
+- Updated the native share/Instagram caption URL in `one-world-relief.js` to `https://one-world-relief.com/donate`.
+- Added a regression test confirming the share page and JS use the working donation domain and do not point donation sharing to `.org`.
+- Test result: `node --test tests/charity-functions.test.mjs` passed, 9 tests.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
