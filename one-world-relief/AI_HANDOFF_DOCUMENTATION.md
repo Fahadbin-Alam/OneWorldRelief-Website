@@ -655,6 +655,32 @@ Additional DNS check later on May 4, 2026:
   - `python -m pytest Backend`: 23 passed.
 - Remaining real-world validation: make one small live Stripe donation and confirm the Google Sheet row plus donor receipt email.
 
+### 2026-05-05 Animation & Spreadsheet Alignment Fix
+- Upgraded `/charity/thank-you` from the simple coin cartoon to a more cinematic CSS animation: dim/rainy scene, sad child, donation coin motion, brightening scene, tear fading, heart glow, and smile transition.
+- Kept the thank-you page minimal with only `Thank you for your Donation` as visible text; no receipt details appear on the page.
+- Fixed Stripe webhook Google Sheets append shape to match the actual spreadsheet headers in columns A:H:
+  - A `Donation ID`
+  - B `Date`
+  - C `Donor Name`
+  - D `Amount ($)`
+  - E `Purpose/Fund`
+  - F `Method`
+  - G `Receipt ID`
+  - H `Notes`
+- Notes now compactly hold Stripe status, session ID, payment intent, receipt email status, and receipt URL instead of spilling those fields into extra columns.
+- Updated `backend-setup.md` and `tests/charity-functions.test.mjs` for the A:H sheet contract.
+- Code commit pushed to both GitHub and GitLab:
+  - GitHub: `59f2ce1 fix: align donation sheet and improve thank you animation`
+  - GitLab: `373f455 fix: align donation sheet and improve thank you animation`
+- Deployed to Cloudflare Pages production: `https://a7c8ba98.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/charity/thank-you` returns HTTP 200 and includes the new story animation.
+  - `https://api.one-world-relief.com/charity/webhooks/stripe` rejects invalid signatures with HTTP 400.
+- Tests passed after the change:
+  - `node --test tests/charity-functions.test.mjs`: 5 passed.
+  - `python -m pytest Backend`: 23 passed.
+- Existing bad spreadsheet rows still need manual/API cleanup. The local environment does not expose the Google Sheet ID or service account credentials, and there is no Google Sheets connector available in this session. To clean existing rows in-place, provide the Sheet URL/ID and grant connector/API access, or paste/export the affected rows.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
