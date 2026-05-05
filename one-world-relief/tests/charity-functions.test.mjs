@@ -60,6 +60,119 @@ test("checkout creates Stripe session with receipt email and configured redirect
   }
 });
 
+test("checkout supports Apple Pay through Stripe card wallets", async () => {
+  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
+  const originalFetch = globalThis.fetch;
+  let stripeBody = "";
+
+  globalThis.fetch = async (_url, options) => {
+    stripeBody = String(options.body);
+    return new Response(JSON.stringify({ url: "https://checkout.stripe.test/apple-pay" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await checkout.onRequestPost({
+      request: new Request("https://pages.example/charity/donations/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          donor_name: "Apple Donor",
+          donor_email: "apple@example.com",
+          amount_usd: 5,
+          payment_method: "apple_pay",
+          campaign: "Orphan Support",
+        }),
+      }),
+      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+    });
+    const form = new URLSearchParams(stripeBody);
+
+    assert.equal(response.status, 200);
+    assert.equal(form.get("payment_method_types[0]"), "card");
+    assert.equal(form.get("payment_intent_data[receipt_email]"), "apple@example.com");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("checkout supports Cash App Pay through Stripe Checkout", async () => {
+  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
+  const originalFetch = globalThis.fetch;
+  let stripeBody = "";
+
+  globalThis.fetch = async (_url, options) => {
+    stripeBody = String(options.body);
+    return new Response(JSON.stringify({ url: "https://checkout.stripe.test/cash-app" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await checkout.onRequestPost({
+      request: new Request("https://pages.example/charity/donations/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          donor_name: "Cash Donor",
+          donor_email: "cash@example.com",
+          amount_usd: 5,
+          payment_method: "cash_app",
+          campaign: "Feeding",
+        }),
+      }),
+      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+    });
+    const form = new URLSearchParams(stripeBody);
+
+    assert.equal(response.status, 200);
+    assert.equal(form.get("payment_method_types[0]"), "cashapp");
+    assert.equal(form.get("payment_method_types[1]"), "card");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("checkout redirects Venmo only when a Venmo URL is configured", async () => {
+  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
+  const requestBody = {
+    donor_name: "Venmo Donor",
+    donor_email: "venmo@example.com",
+    amount_usd: 7,
+    payment_method: "venmo",
+    campaign: "Wells",
+  };
+
+  const missingResponse = await checkout.onRequestPost({
+    request: new Request("https://pages.example/charity/donations/checkout", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+    }),
+    env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+  });
+  assert.equal(missingResponse.status, 503);
+
+  const configuredResponse = await checkout.onRequestPost({
+    request: new Request("https://pages.example/charity/donations/checkout", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+    }),
+    env: {
+      OWR_STRIPE_SECRET_KEY: "sk_test_mock",
+      OWR_VENMO_URL: "https://account.venmo.com/u/oneworldrelief",
+    },
+  });
+  const payload = await configuredResponse.json();
+  const redirect = new URL(payload.redirect_url);
+
+  assert.equal(configuredResponse.status, 200);
+  assert.equal(payload.provider, "venmo");
+  assert.equal(redirect.hostname, "account.venmo.com");
+  assert.equal(redirect.searchParams.get("amount"), "7.00");
+  assert.match(redirect.searchParams.get("note"), /One World Relief - Wells/);
+});
+
 test("thank-you page renders cinematic animated donation thanks", async () => {
   const thankYou = await importFunctionModule("functions/charity/thank-you.js");
   const response = await thankYou.onRequestGet({

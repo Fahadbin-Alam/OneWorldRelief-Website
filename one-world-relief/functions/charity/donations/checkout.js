@@ -29,7 +29,7 @@ export const onRequestPost = async ({ request, env }) => {
   const donorName = String(body.donor_name || "").trim();
   const donorEmail = String(body.donor_email || "").trim();
   const amountUsd = Number(body.amount_usd || 0);
-  const paymentMethod = String(body.payment_method || "stripe").trim().toLowerCase();
+  const paymentMethod = String(body.payment_method || "stripe").trim().toLowerCase().replace(/-/g, "_");
   const campaign = String(body.campaign || "General Fund").trim() || "General Fund";
 
   if (donorName.length < 2 || !donorEmail.includes("@")) {
@@ -40,8 +40,28 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Donation amount must be greater than zero." }, 400);
   }
 
-  if (!["stripe", "credit_card", "card"].includes(paymentMethod)) {
-    return json({ detail: "Live PayPal checkout is not configured yet. Please use Stripe." }, 400);
+  const stripeMethods = ["stripe", "credit_card", "card", "apple_pay", "cash_app", "cashapp"];
+  if (paymentMethod === "venmo") {
+    const venmoUrl = env.OWR_VENMO_URL || env.OWR_PAYPAL_VENMO_URL;
+    if (!venmoUrl) {
+      return json({ detail: "Venmo giving is not configured yet. Please use Apple Pay, card, or Cash App Pay." }, 503);
+    }
+
+    const redirectUrl = new URL(venmoUrl);
+    redirectUrl.searchParams.set("txn", "pay");
+    redirectUrl.searchParams.set("note", `One World Relief - ${campaign}`);
+    redirectUrl.searchParams.set("amount", amountUsd.toFixed(2));
+    return json({
+      donation_id: crypto.randomUUID(),
+      provider: "venmo",
+      status: "external_redirect",
+      redirect_url: redirectUrl.toString(),
+      message: "Redirect donor to Venmo. Add this payment manually to the donation sheet after confirming it clears.",
+    });
+  }
+
+  if (!stripeMethods.includes(paymentMethod)) {
+    return json({ detail: "Please use Apple Pay, Cash App Pay, card, or Venmo." }, 400);
   }
 
   const origin = new URL(request.url).origin;
@@ -57,6 +77,12 @@ export const onRequestPost = async ({ request, env }) => {
 
   const form = new URLSearchParams();
   form.set("mode", "payment");
+  if (paymentMethod === "apple_pay") {
+    form.set("payment_method_types[0]", "card");
+  } else if (paymentMethod === "cash_app" || paymentMethod === "cashapp") {
+    form.set("payment_method_types[0]", "cashapp");
+    form.set("payment_method_types[1]", "card");
+  }
   form.set("success_url", successUrl.toString());
   form.set("cancel_url", cancelUrl.toString());
   form.set("customer_email", donorEmail);

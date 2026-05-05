@@ -49,6 +49,7 @@ OWR_PUBLIC_SITE_URL = os.getenv("OWR_PUBLIC_SITE_URL", "").strip()
 OWR_SUCCESS_URL = os.getenv("OWR_SUCCESS_URL", "http://localhost:8000/charity/thank-you").strip()
 OWR_CANCEL_URL = os.getenv("OWR_CANCEL_URL", "http://localhost:8000/charity/cancelled").strip()
 OWR_ADMIN_API_KEY = os.getenv("OWR_ADMIN_API_KEY", "").strip()
+OWR_VENMO_URL = os.getenv("OWR_VENMO_URL", "").strip()
 
 # ===== PASSWORD HASHING (Needed before DB init) =====
 def hash_password(password: str) -> str:
@@ -242,7 +243,7 @@ class DonationCheckoutRequest(BaseModel):
     donor_email: EmailStr
     amount_usd: float = Field(gt=0)
     payment_method: str = Field(
-        description="Supported values: paypal, credit_card, card, stripe"
+        description="Supported values: apple_pay, cash_app, venmo, paypal, credit_card, card, stripe"
     )
     campaign: Optional[str] = Field(default="General Fund", max_length=120)
     note: Optional[str] = Field(default=None, max_length=500)
@@ -428,20 +429,22 @@ def utc_now_iso() -> str:
 
 
 def normalize_payment_method(raw_method: str) -> str:
-    method = raw_method.strip().lower()
-    if method in {"credit_card", "card", "stripe"}:
+    method = raw_method.strip().lower().replace("-", "_")
+    if method in {"credit_card", "card", "stripe", "apple_pay", "cash_app", "cashapp", "venmo"}:
         return method
     if method == "paypal":
         return method
     raise HTTPException(
         status_code=400,
-        detail="payment_method must be one of: paypal, credit_card, card, stripe",
+        detail="payment_method must be one of: apple_pay, cash_app, venmo, paypal, credit_card, card, stripe",
     )
 
 
 def payment_provider_from_method(method: str) -> str:
     if method == "paypal":
         return "paypal"
+    if method == "venmo":
+        return "venmo"
     return "stripe"
 
 
@@ -804,6 +807,7 @@ def create_stripe_checkout_session(
     campaign: Optional[str],
     success_url: str,
     cancel_url: str,
+    payment_method: str = "stripe",
 ) -> Dict[str, Any]:
     if not OWR_STRIPE_SECRET_KEY:
         raise HTTPException(
@@ -839,6 +843,11 @@ def create_stripe_checkout_session(
         "line_items[0][price_data][product_data][description]": f"Donation from {donor_name}",
         "line_items[0][price_data][unit_amount]": str(amount_cents),
     }
+    if payment_method == "apple_pay":
+        data["payment_method_types[0]"] = "card"
+    elif payment_method in {"cash_app", "cashapp"}:
+        data["payment_method_types[0]"] = "cashapp"
+        data["payment_method_types[1]"] = "card"
 
     response = requests.post(
         "https://api.stripe.com/v1/checkout/sessions",
@@ -1362,6 +1371,34 @@ def create_charity_checkout(req: DonationCheckoutRequest):
                 message="Redirect donor to PayPal approval URL",
             )
 
+        if provider == "venmo":
+            if not OWR_VENMO_URL:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Venmo giving is not configured. Set OWR_VENMO_URL.",
+                )
+            venmo = requests.PreparedRequest()
+            venmo.prepare_url(
+                OWR_VENMO_URL,
+                {
+                    "txn": "pay",
+                    "note": f"One World Relief - {req.campaign or 'General Fund'}",
+                    "amount": f"{cents_to_usd(amount_cents):.2f}",
+                },
+            )
+            add_charity_audit_log(
+                donation_id,
+                "venmo_redirect_created",
+                {"redirect_url": venmo.url},
+            )
+            return DonationCheckoutResponse(
+                donation_id=donation_id,
+                provider="venmo",
+                status="external_redirect",
+                redirect_url=venmo.url,
+                message="Redirect donor to Venmo and manually confirm the cleared payment.",
+            )
+
         stripe_session = create_stripe_checkout_session(
             donation_id=donation_id,
             amount_cents=amount_cents,
@@ -1370,6 +1407,7 @@ def create_charity_checkout(req: DonationCheckoutRequest):
             campaign=req.campaign,
             success_url=success_url,
             cancel_url=cancel_url,
+            payment_method=payment_method,
         )
         set_charity_donation_provider_order(donation_id, stripe_session["session_id"])
         add_charity_audit_log(

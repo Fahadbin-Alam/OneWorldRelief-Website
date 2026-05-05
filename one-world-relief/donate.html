@@ -40,12 +40,23 @@
   </header>
 
   <main>
-    <section class="page-hero reveal">
+    <section class="page-hero donate-flow-hero reveal">
+      <div class="flow-ribbon" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
       <div class="container page-hero-content donate-hero-grid">
-        <div>
+        <div class="donate-hero-copy">
           <p class="eyebrow">Donate</p>
-          <h1>Give securely through Stripe.</h1>
-          <p class="lead">Choose a category, enter your donor details, and continue to hosted checkout.</p>
+          <h1>Move relief where it is needed.</h1>
+          <p class="lead">Choose a fund, give securely, and receive a tax-ready OneWorld Relief receipt by email.</p>
+          <div class="payment-rail" aria-label="Fast payment options">
+            <span>Apple Pay</span>
+            <span>Cash App Pay</span>
+            <span>Card</span>
+            <span>Venmo</span>
+          </div>
         </div>
 
         <aside class="donate-share-card" aria-label="Share this donation page">
@@ -65,8 +76,13 @@
       </div>
     </section>
 
-    <section class="container section reveal">
-      <div class="donation-categories">
+    <section class="flow-section flow-section-funds reveal">
+      <div class="container">
+        <div class="section-heading flow-heading">
+          <p class="eyebrow">Choose a Current</p>
+          <h2>Every fund has a clear place to go.</h2>
+        </div>
+      <div class="donation-categories flow-cards">
         <article class="donation-card">
           <h3>Regular Donation</h3>
           <p>General giving for where support is needed most.</p>
@@ -93,27 +109,24 @@
           <a class="button button-primary" href="donate.html?campaign=Feeding#donationForm">Donate</a>
         </article>
       </div>
+      </div>
     </section>
 
-    <section class="container section reveal">
+    <section class="flow-section flow-section-checkout reveal">
+      <div class="container">
       <div class="section-heading">
         <p class="eyebrow">Direct Giving</p>
-        <h2>Donation form</h2>
+        <h2>A smoother way to give.</h2>
       </div>
       <div class="donation-layout">
-        <article class="donation-card">
+        <article class="donation-card donation-form-card">
+          <div class="form-current" aria-hidden="true">
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+          </div>
           <h3>Donation Details</h3>
           <form id="donationForm">
-            <label class="custom-amount" for="donorName">
-              Full name
-              <input id="donorName" type="text" placeholder="Your full name" required />
-            </label>
-
-            <label class="custom-amount" for="donorEmail">
-              Email
-              <input id="donorEmail" type="email" placeholder="you@example.com" required />
-            </label>
-
             <label class="custom-amount" for="campaignSelect">
               Donation type
               <select id="campaignSelect" required>
@@ -133,6 +146,18 @@
               <label><input type="radio" name="amount" value="100" />$100</label>
             </fieldset>
 
+            <div class="donor-grid">
+              <label class="custom-amount" for="donorName">
+                Full name
+                <input id="donorName" type="text" placeholder="Your full name" required />
+              </label>
+
+              <label class="custom-amount" for="donorEmail">
+                Email
+                <input id="donorEmail" type="email" placeholder="you@example.com" required />
+              </label>
+            </div>
+
             <label class="custom-amount" for="customDonation">
               Custom amount
               <input id="customDonation" type="number" min="1" step="1" placeholder="Enter amount in USD" />
@@ -141,22 +166,25 @@
             <label class="custom-amount" for="paymentMethod">
               Payment method
               <select id="paymentMethod" required>
-                <option value="stripe">Stripe</option>
+                <option value="apple_pay">Apple Pay</option>
+                <option value="cash_app">Cash App Pay</option>
                 <option value="credit_card">Credit Card</option>
-                <option value="paypal">PayPal</option>
+                <option value="stripe">Stripe Checkout</option>
+                <option value="venmo">Venmo</option>
               </select>
             </label>
 
             <div class="payments" aria-label="Supported payment methods">
+              <span>Apple Pay</span>
+              <span>Cash App Pay</span>
               <span>Visa</span>
               <span>Mastercard</span>
-              <span>PayPal</span>
-              <span>Stripe</span>
+              <span>Venmo</span>
             </div>
 
             <button class="button button-primary donate-button" type="submit">Complete Donation</button>
             <p class="donation-note">
-              Card payments are handled by Stripe Checkout. One World Relief does not store card numbers.
+              Apple Pay, Cash App Pay, and card payments are handled through secure checkout. Venmo opens separately when configured.
             </p>
             <p class="donation-status" id="donationStatus" aria-live="polite"></p>
           </form>
@@ -175,6 +203,7 @@
             <p>After submitting, donors are redirected to Stripe or PayPal depending on the selected payment method.</p>
           </div>
         </article>
+      </div>
       </div>
     </section>
   </main>

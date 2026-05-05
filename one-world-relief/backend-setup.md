@@ -31,6 +31,7 @@ This local machine currently has Python 3.14, which can fail while installing pi
 - `OWR_RESEND_API_KEY` - required for custom OneWorld Relief receipt emails
 - `OWR_RECEIPT_FROM_EMAIL` - verified sender, for example `OneWorld Relief <receipts@one-world-relief.org>`
 - `OWR_RECEIPT_REPLY_TO` - optional reply-to address for receipt emails
+- `OWR_VENMO_URL` - optional Venmo profile/payment URL for external Venmo donations
 - `OWR_PAYPAL_CLIENT_ID`
 - `OWR_PAYPAL_CLIENT_SECRET`
 - `OWR_PAYPAL_BASE_URL` (default sandbox)
@@ -51,7 +52,10 @@ This local machine currently has Python 3.14, which can fail while installing pi
 5. Put the webhook signing secret in `OWR_STRIPE_WEBHOOK_SECRET`.
 6. Set `OWR_SUCCESS_URL` and `OWR_CANCEL_URL` to your real deployed domain before going live.
 7. Checkout sets `payment_intent_data[receipt_email]` so Stripe can send an email receipt when Stripe receipt emails are enabled.
-8. The Stripe webhook sends the custom OneWorld Relief receipt email through Resend when `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL` are configured.
+8. Apple Pay is handled through Stripe Checkout card wallets when the donor/browser is eligible.
+9. Cash App Pay is requested through Stripe Checkout with card fallback.
+10. Venmo redirects externally when `OWR_VENMO_URL` is configured; manually confirm and record Venmo gifts in the sheet.
+11. The Stripe webhook sends the custom OneWorld Relief receipt email through Resend when `OWR_RESEND_API_KEY` and `OWR_RECEIPT_FROM_EMAIL` are configured.
 
 The frontend never collects card numbers. Donors are redirected to Stripe-hosted Checkout.
 

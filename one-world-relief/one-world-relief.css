@@ -43,6 +43,21 @@ body {
   overflow-x: hidden;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: auto -12vw 10vh -12vw;
+  height: 42vh;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(110deg, transparent 8%, rgba(77, 149, 194, 0.12) 18%, transparent 34%),
+    linear-gradient(118deg, transparent 28%, rgba(47, 159, 137, 0.1) 42%, transparent 60%),
+    linear-gradient(124deg, transparent 50%, rgba(215, 165, 54, 0.1) 64%, transparent 82%);
+  transform: rotate(-5deg);
+  animation: page-current 16s ease-in-out infinite alternate;
+}
+
 h1,
 h2,
 h3 {
@@ -726,6 +741,63 @@ ul {
   padding: 2.2rem 0 0.5rem;
 }
 
+.donate-flow-hero {
+  position: relative;
+  min-height: min(760px, calc(100svh - 74px));
+  display: grid;
+  align-items: center;
+  padding: clamp(2.4rem, 7vw, 5.5rem) 0 clamp(1.2rem, 4vw, 3rem);
+  overflow: hidden;
+}
+
+.donate-flow-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 76% 20%, rgba(255, 255, 255, 0.96) 0 110px, transparent 112px),
+    linear-gradient(180deg, rgba(238, 248, 255, 0.82), rgba(255, 255, 255, 0.18));
+  pointer-events: none;
+}
+
+.flow-ribbon {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.flow-ribbon span {
+  position: absolute;
+  left: -14vw;
+  width: 128vw;
+  height: 140px;
+  border-radius: 999px;
+  opacity: 0.48;
+  filter: blur(1px);
+  transform: rotate(-10deg);
+  animation: ribbon-flow 18s ease-in-out infinite alternate;
+}
+
+.flow-ribbon span:nth-child(1) {
+  top: 22%;
+  background: linear-gradient(90deg, transparent, rgba(77, 149, 194, 0.28), rgba(255, 255, 255, 0.18), transparent);
+}
+
+.flow-ribbon span:nth-child(2) {
+  top: 46%;
+  height: 104px;
+  background: linear-gradient(90deg, transparent, rgba(47, 159, 137, 0.22), rgba(215, 165, 54, 0.14), transparent);
+  animation-delay: -4s;
+}
+
+.flow-ribbon span:nth-child(3) {
+  top: 68%;
+  height: 90px;
+  background: linear-gradient(90deg, transparent, rgba(190, 225, 246, 0.34), rgba(77, 149, 194, 0.16), transparent);
+  animation-delay: -8s;
+}
+
 .page-hero-content {
   padding: 0.5rem 0;
 }
@@ -741,10 +813,47 @@ ul {
 }
 
 .donate-hero-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(300px, 0.52fr);
   align-items: center;
-  gap: 1.1rem;
+  gap: clamp(1.2rem, 4vw, 3rem);
+}
+
+.donate-hero-copy {
+  max-width: 660px;
+}
+
+.donate-hero-copy h1 {
+  max-width: 9ch;
+  font-size: clamp(3rem, 8vw, 6.6rem);
+}
+
+.donate-hero-copy .lead {
+  max-width: 38ch;
+  font-size: clamp(1.02rem, 2vw, 1.28rem);
+}
+
+.payment-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.35rem;
+}
+
+.payment-rail span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid rgba(24, 52, 71, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--blue-700);
+  font-size: 0.9rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(45, 91, 122, 0.08);
 }
 
 .donate-share-card {
@@ -755,8 +864,9 @@ ul {
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24px 60px rgba(45, 91, 122, 0.14);
+  backdrop-filter: blur(16px);
 }
 
 .donate-share-copy h2 {
@@ -785,6 +895,98 @@ ul {
 .donate-share-actions {
   grid-column: 1 / -1;
   margin-top: 0;
+}
+
+.flow-section {
+  position: relative;
+  padding: clamp(2rem, 6vw, 5rem) 0;
+}
+
+.flow-section::before {
+  content: "";
+  position: absolute;
+  inset: 12% 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(77, 149, 194, 0.26), transparent);
+}
+
+.flow-heading {
+  max-width: 720px;
+}
+
+.flow-heading h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  max-width: 14ch;
+}
+
+.flow-cards .donation-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 230px;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.flow-cards .donation-card::before {
+  content: "";
+  position: absolute;
+  inset: auto -30% -72px;
+  height: 118px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(77, 149, 194, 0.16), rgba(47, 159, 137, 0.14), rgba(215, 165, 54, 0.12));
+  transition: transform 0.28s ease;
+}
+
+.flow-cards .donation-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(77, 149, 194, 0.24);
+  box-shadow: 0 24px 54px rgba(45, 91, 122, 0.14);
+}
+
+.flow-cards .donation-card:hover::before {
+  transform: translateY(-18px);
+}
+
+.flow-section-checkout {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(238, 248, 255, 0.74)),
+    radial-gradient(circle at 86% 20%, rgba(215, 165, 54, 0.1), transparent 30%);
+}
+
+.donation-form-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.donation-form-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 7px;
+  background: linear-gradient(180deg, var(--blue-500), var(--mint), var(--gold));
+}
+
+.form-current {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 0.8rem;
+}
+
+.form-current span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.donor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
 }
 
 .mission-grid,
@@ -1067,7 +1269,7 @@ ul {
 }
 
 .reveal {
-  animation: rise-in 0.7s ease both;
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes rise-in {
@@ -1081,12 +1283,35 @@ ul {
   }
 }
 
+@keyframes page-current {
+  from {
+    transform: translateX(-3vw) rotate(-5deg);
+  }
+  to {
+    transform: translateX(3vw) rotate(-3deg);
+  }
+}
+
+@keyframes ribbon-flow {
+  from {
+    transform: translateX(-4vw) rotate(-10deg);
+  }
+  to {
+    transform: translateX(4vw) rotate(-7deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
   .reveal {
+    animation: none;
+  }
+
+  body::before,
+  .flow-ribbon span {
     animation: none;
   }
 }
@@ -1153,6 +1378,10 @@ ul {
   }
 
   .donate-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donor-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1224,6 +1453,14 @@ ul {
 
   .donate-share-card {
     grid-template-columns: 1fr;
+  }
+
+  .donate-flow-hero {
+    min-height: 0;
+  }
+
+  .flow-ribbon span {
+    height: 82px;
   }
 
   .donate-share-qr {
