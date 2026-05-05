@@ -625,16 +625,19 @@ Additional DNS check later on May 4, 2026:
 - Google Sheets records the receipt number, receipt URL, and receipt email status.
 - If the Google Sheets append fails, the webhook returns an error so Stripe retries instead of silently losing the donation.
 
-### Still Blocked / Needs Owner Action
-- `one-world-relief.org`, `www.one-world-relief.org`, and `api.one-world-relief.com` are added to Cloudflare Pages but still show `CNAME record not set`.
-- The current Cloudflare token/session can deploy Pages but cannot edit DNS records. DNS edit permission or manual DNS updates are needed.
-- On 2026-05-04, opened the Cloudflare dashboard and API Tokens page so a DNS-edit token or account permission can be created.
-- A provided Cloudflare token could read both zones, but DNS record create/update calls returned an authentication error. A token with `Zone:DNS:Edit` and `Zone:Zone:Read` for both zones is still needed, or records must be added manually in the dashboard.
-- Required DNS records:
-  - `one-world-relief.org` apex should point to the Pages target `trying-8o0.pages.dev`.
-  - `www.one-world-relief.org` should point to `trying-8o0.pages.dev`.
-  - `api.one-world-relief.com` should point to `trying-8o0.pages.dev` only if the API subdomain is still desired.
-- Resend may also require DNS records for the sending domain before donor receipt emails have full production deliverability.
+### DNS & Domain Status
+- `one-world-relief.org`, `www.one-world-relief.org`, and `api.one-world-relief.com` are added to Cloudflare Pages and active.
+- DNS records were created/updated on 2026-05-04:
+  - `one-world-relief.org` CNAME -> `trying-8o0.pages.dev`
+  - `www.one-world-relief.org` CNAME -> `trying-8o0.pages.dev`
+  - `api.one-world-relief.com` CNAME -> `trying-8o0.pages.dev`
+- These records are set to DNS-only. Proxied CNAMEs returned Cloudflare 522 errors; DNS-only resolved the issue.
+- Verified live URLs return HTTP 200 with expected OneWorld Relief content:
+  - `https://one-world-relief.org`
+  - `https://www.one-world-relief.org`
+  - `https://api.one-world-relief.com/charity/thank-you`
+- Verified `https://api.one-world-relief.com/charity/webhooks/stripe` rejects an invalid Stripe signature with HTTP 400.
+- Remaining item: Resend may require DNS records for the sending domain before donor receipt emails have full production deliverability.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
