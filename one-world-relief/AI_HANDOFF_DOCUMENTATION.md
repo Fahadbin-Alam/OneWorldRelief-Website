@@ -793,6 +793,15 @@ Additional DNS check later on May 4, 2026:
     - `Backend/test_favorites_comprehensive.py`, 10 tests
     - `Backend/test_planner_comprehensive.py`, 10 tests
   - Full backend command through the venv did not return before timeout, but the same 23 backend tests passed when split by file.
+- Code sync:
+  - GitHub code commit: `f17a1d9 feat: add drive case one to projects`
+  - GitLab code commit: `8820113 feat: add drive case one to projects`
+  - GitHub-only handoff commit: `e3ac1df docs: log drive case upload`
+- Cloudflare production deployment: `https://8029704c.trying-8o0.pages.dev`.
+- Live verification after deployment:
+  - `https://one-world-relief.com/project-data.js` contains `Case 001: Hafiz Student Support`.
+  - `https://one-world-relief.com/assets/projects/case-001/orphan-support-001-main.jpg` returns HTTP 200 with `image/jpeg`.
+  - `one-world-relief.org` and `www.one-world-relief.org` are still attached to the Cloudflare Pages project, but DNS resolution failed from the local machine during this check. Next step if the user still cannot open `.org`: verify registrar nameservers/DNS delegation for the `.org` domain.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
