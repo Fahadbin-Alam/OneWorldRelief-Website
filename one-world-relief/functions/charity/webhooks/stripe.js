@@ -200,23 +200,25 @@ const appendDonationToGoogleSheet = async (env, session) => {
   }
   const origin = env.OWR_PUBLIC_SITE_URL || env.OWR_SUCCESS_URL?.replace(/\/charity\/thank-you.*$/, "") || "";
   const receiptUrl = origin ? `${origin.replace(/\/$/, "")}/charity/thank-you?donation_id=${encodeURIComponent(metadata.donation_id || session.client_reference_id || "")}&session_id=${encodeURIComponent(session.id || "")}` : "";
+  const notes = [
+    session.payment_status ? `Status: ${session.payment_status}` : "",
+    session.id ? `Stripe Session: ${session.id}` : "",
+    session.payment_intent ? `Payment Intent: ${session.payment_intent}` : "",
+    receiptEmailStatus ? `Receipt Email: ${receiptEmailStatus}` : "",
+    receiptUrl ? `Receipt URL: ${receiptUrl}` : "",
+  ].filter(Boolean).join(" | ");
   const row = [
     metadata.donation_id || session.client_reference_id || "",
-    new Date((session.created || Date.now() / 1000) * 1000).toISOString(),
+    new Date((session.created || Date.now() / 1000) * 1000).toLocaleDateString("en-US", { timeZone: "UTC" }),
     receipt.donorName,
-    receipt.donorEmail,
-    receipt.amount,
+    Number(receipt.amount),
     metadata.campaign || "General Fund",
-    session.id || "",
-    session.payment_status || "",
-    session.payment_intent || "",
-    session.url || "",
+    "Stripe",
     receipt.receiptNumber,
-    receiptUrl,
-    receiptEmailStatus,
+    notes,
   ];
   const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
-  const range = encodeURIComponent(`'${tabName}'!A:M`);
+  const range = encodeURIComponent(`'${tabName}'!A:H`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
   const sheetResponse = await fetch(appendUrl, {

@@ -58,13 +58,13 @@ The frontend never collects card numbers. Donors are redirected to Stripe-hosted
 ## Google Sheets donation log setup
 1. Use the tab named `Donations (2026)` in the spreadsheet.
 2. Add these headers in row 1:
-   `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL | Receipt Number | Receipt URL | Receipt Email Status`
+   `Donation ID | Date | Donor Name | Amount ($) | Purpose/Fund | Method | Receipt ID | Notes`
 3. In Google Cloud Console, enable the Google Sheets API.
 4. Create a service account and JSON key.
 5. Share the spreadsheet with the service account email as an editor.
 6. Store the service account email and private key in Cloudflare Pages environment variables.
 
-The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
+The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets in columns A:H. Session ID, payment status, payment intent, receipt URL, and receipt email status are stored together in the Notes column so the dashboard layout stays aligned. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
 
 ## Custom receipt email template
 The webhook emails this plain-text receipt after `checkout.session.completed`:

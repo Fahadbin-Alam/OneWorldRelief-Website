@@ -60,7 +60,7 @@ test("checkout creates Stripe session with receipt email and configured redirect
   }
 });
 
-test("thank-you page renders simple animated donation thanks", async () => {
+test("thank-you page renders cinematic animated donation thanks", async () => {
   const thankYou = await importFunctionModule("functions/charity/thank-you.js");
   const response = await thankYou.onRequestGet({
     request: new Request("https://one-world-relief.org/charity/thank-you?donation_id=don_123&session_id=cs_test_123"),
@@ -71,7 +71,10 @@ test("thank-you page renders simple animated donation thanks", async () => {
   assert.equal(response.status, 200);
   assert.match(html, /Thank you for your Donation/);
   assert.match(html, /coin-gift/);
-  assert.match(html, /class="child"/);
+  assert.match(html, /story-scene/);
+  assert.match(html, /smile-change/);
+  assert.match(html, /tear-dry/);
+  assert.match(html, /class="person child"/);
   assert.doesNotMatch(html, /Donation Receipt/);
   assert.doesNotMatch(html, /Receipt ID/);
 });
@@ -227,8 +230,19 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(emailPayload.text, /No goods or services were provided/);
 
     const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com"));
+    assert.match(sheetCall.url, /A%3AH/);
     const sheetPayload = JSON.parse(sheetCall.options.body);
-    assert.equal(sheetPayload.values[0][12], "sent");
+    assert.deepEqual(sheetPayload.values[0].slice(0, 7), [
+      "don_123",
+      "2/2/2026",
+      "Test Donor",
+      1,
+      "General Fund",
+      "Stripe",
+      "R-2026-02-02-DON123",
+    ]);
+    assert.match(sheetPayload.values[0][7], /Receipt Email: sent/);
+    assert.match(sheetPayload.values[0][7], /Payment Intent: pi_test_123/);
   } finally {
     globalThis.fetch = originalFetch;
   }
