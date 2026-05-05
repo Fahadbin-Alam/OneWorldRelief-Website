@@ -638,6 +638,7 @@ Additional DNS check later on May 4, 2026:
   - `https://api.one-world-relief.com/charity/thank-you`
 - Verified `https://api.one-world-relief.com/charity/webhooks/stripe` rejects an invalid Stripe signature with HTTP 400.
 - Remaining item: Resend may require DNS records for the sending domain before donor receipt emails have full production deliverability.
+- On 2026-05-04, opened Resend Domains and API Keys pages for the owner. A Resend API check returned HTTP 401, so the owner should either show the domain verification records in the Resend dashboard or create a fresh valid Resend API key.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
