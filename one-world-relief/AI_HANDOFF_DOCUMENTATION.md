@@ -814,6 +814,37 @@ Additional DNS check later on May 4, 2026:
 - Added a regression test confirming the share page and JS use the working donation domain and do not point donation sharing to `.org`.
 - Test result: `node --test tests/charity-functions.test.mjs` passed, 9 tests.
 
+### 2026-05-05 Local Project Detail Pages
+- User clarified that donors should not have to look inside Google Drive folders.
+- Changed the project board so every project card opens a local One World Relief HTML detail page instead of Drive/YouTube placeholders.
+- Added new local pages:
+  - `one-world-relief/projects/case-001.html`
+  - `one-world-relief/projects/village-qurbani-meal-support.html`
+  - `one-world-relief/projects/two-year-orphan-education-support.html`
+  - `one-world-relief/projects/food-stand-for-a-father.html`
+- Added Case 001 videos from the Drive source into local website assets:
+  - `one-world-relief/assets/projects/case-001/orphan-support-001-video-1.mp4`
+  - `one-world-relief/assets/projects/case-001/orphan-support-001-video-2.mp4`
+- Case 001 now has a donor-facing page with:
+  - local main photo
+  - local proof photo
+  - two embedded MP4 field videos
+  - amount/status/location/category fact cards
+  - privacy-safe case overview
+  - delivery/proof timeline
+  - donation CTA back to Orphan Support
+- Added responsive styling for local project detail pages.
+- Updated project card behavior so local project links open in the same tab, while external links still open safely in a new tab.
+- Added a regression test to make sure `project-data.js` does not point project card media to Google Drive or YouTube placeholders.
+- Decision note:
+  - The Drive folder named `Random cases` contains multiple videos, but they do not yet have donor-safe project names/descriptions or exact case mapping.
+  - Do not publish those random videos as if they belong to a specific project until they are matched to a case and approved for public donor view.
+- Test results:
+  - `node --test tests/charity-functions.test.mjs`: 10 tests passed.
+  - `Backend/test_favorites.py`: 3 tests passed.
+  - `Backend/test_favorites_comprehensive.py`: 10 tests passed.
+  - `Backend/test_planner_comprehensive.py`: 10 tests passed.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
