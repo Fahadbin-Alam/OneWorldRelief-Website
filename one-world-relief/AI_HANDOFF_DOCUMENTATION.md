@@ -872,6 +872,14 @@ Additional DNS check later on May 4, 2026:
 - Installed/used temporary `ffmpeg-static` tooling outside the repo and compressed `orphan-support-001-primary.mp4` to about 5 MB.
 - No custom poster frame was generated; the page uses the video itself as primary media with uncropped `object-fit: contain`.
 - Test result: `node --test tests/charity-functions.test.mjs` passed, 10 tests.
+- Code sync:
+  - GitHub code commits: `743ad54 feat: add primary case one video`, `0c56f23 fix: compress primary case video for deploy`
+  - GitLab code commits: `d2b70a2 feat: add primary case one video`, `9b37063 fix: compress primary case video for deploy`
+  - GitHub-only handoff commits: `34a1a06 docs: log primary case video`, `99a9fa7 docs: log compressed primary video`
+- Cloudflare production deployment after compression: `https://b9a045f0.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/projects/case-001` returns HTTP 200 and references `orphan-support-001-primary.mp4`.
+  - `https://one-world-relief.com/assets/projects/case-001/orphan-support-001-primary.mp4` returns HTTP 200 with `video/mp4` and `Content-Length: 5017376`.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
