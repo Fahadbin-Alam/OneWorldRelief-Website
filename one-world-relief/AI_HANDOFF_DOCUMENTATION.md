@@ -858,6 +858,19 @@ Additional DNS check later on May 4, 2026:
     - `/projects/food-stand-for-a-father`
   - Case 001 local videos return HTTP 200 with `video/mp4`.
 
+### 2026-05-05 Case 001 Primary Video
+- User provided an additional local video:
+  - `C:\Users\fahad\Videos\Case 1 - Orphan 600\WhatsApp Video 2026-05-05 at 7.23.31 AM.mp4`
+- Added it to the site as:
+  - `one-world-relief/assets/projects/case-001/orphan-support-001-primary.mp4`
+- Updated `one-world-relief/projects/case-001.html` so this video is now the primary hero media and the first proof item.
+- Improved the Case 001 video presentation:
+  - hero video uses the real MP4 instead of a static image
+  - primary proof video spans the full proof grid
+  - video object-fit is `contain` so the frame is not cropped
+- `ffmpeg` was not installed locally, so no custom poster frame was generated.
+- Test result: `node --test tests/charity-functions.test.mjs` passed, 10 tests.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
