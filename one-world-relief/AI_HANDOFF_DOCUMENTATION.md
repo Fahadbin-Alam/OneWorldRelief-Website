@@ -868,7 +868,9 @@ Additional DNS check later on May 4, 2026:
   - hero video uses the real MP4 instead of a static image
   - primary proof video spans the full proof grid
   - video object-fit is `contain` so the frame is not cropped
-- `ffmpeg` was not installed locally, so no custom poster frame was generated.
+- Direct Cloudflare deploy first failed because Pages only supports files up to 25 MiB and the source MP4 was 26.4 MiB.
+- Installed/used temporary `ffmpeg-static` tooling outside the repo and compressed `orphan-support-001-primary.mp4` to about 5 MB.
+- No custom poster frame was generated; the page uses the video itself as primary media with uncropped `object-fit: contain`.
 - Test result: `node --test tests/charity-functions.test.mjs` passed, 10 tests.
 
 ### Git Sync Note
