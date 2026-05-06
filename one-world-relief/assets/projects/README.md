@@ -22,8 +22,10 @@ Keep images compressed before adding them to Git. A good target is under 500 KB 
 
 For videos, the easiest option is usually to upload the video to YouTube as unlisted, then paste the YouTube link into `project-data.js` as `mediaUrl`.
 
+For project detail pages, local media is preferred so donors stay on the One World Relief website. Put the files in the relevant project folder, then embed them from the matching page in `one-world-relief/projects/`.
+
 Current case media:
 
 - `case-001/orphan-support-001-main.jpg` is used as the public project card image.
 - `case-001/orphan-support-001-proof.jpg` is stored as supporting proof media.
-- Case 001 videos remain in the Google Drive folder linked from `project-data.js`.
+- `case-001/orphan-support-001-video-1.mp4` and `case-001/orphan-support-001-video-2.mp4` are embedded on `projects/case-001.html`.

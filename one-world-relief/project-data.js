@@ -11,10 +11,10 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     amountRaised: "$600",
     impact: "Financial support for a young Hafiz student after the loss of his father",
     summary: "One World Relief provided $600 in direct support for a young orphan continuing his Hafiz studies. The case documentation includes field photos and video proof from the delivery.",
-    update: "Case media was added from the One World Relief Google Drive case folder on May 5, 2026.",
+    update: "Case media was organized into a donor-facing detail page on May 5, 2026.",
     thumbnailUrl: "assets/projects/case-001/orphan-support-001-main.jpg",
-    mediaLabel: "View case folder",
-    mediaUrl: "https://drive.google.com/drive/folders/1eJt-SkxtEJltYpB8GuKNOz6gV0aTb3-4",
+    mediaLabel: "View case",
+    mediaUrl: "projects/case-001.html",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
   },
   {
@@ -26,10 +26,10 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     amountRaised: "$900",
     impact: "Qurbani meat shared with a village community",
     summary: "One World Relief funded a $900 Qurbani project so families in a village could receive food and share in the meal.",
-    update: "Add Qurbani photos, distribution clips, and any receipt/proof photos here once the media is ready.",
+    update: "Project details are now kept on a local One World Relief page. Distribution photos and clips can be added there when ready.",
     thumbnailUrl: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "Photos/video coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaLabel: "View project",
+    mediaUrl: "projects/village-qurbani-meal-support.html",
     donationUrl: "donate.html?campaign=Feeding#donationForm"
   },
   {
@@ -41,10 +41,10 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     amountRaised: "$200 goal",
     impact: "Two years of support for an orphan girl's education",
     summary: "A planned project to support an orphan girl for two years with a $200 fundraising goal.",
-    update: "When this project begins, updates can show the support plan, progress, and safe donor-facing proof.",
+    update: "The project page explains the plan, donor goal, and proof items needed before the campaign opens.",
     thumbnailUrl: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "Project details coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaLabel: "View project",
+    mediaUrl: "projects/two-year-orphan-education-support.html",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
   },
   {
@@ -56,10 +56,10 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     amountRaised: "$1,000 goal",
     impact: "Help a poor man feed his family through a small food stand",
     summary: "A planned livelihood project to provide a food stand so a father can earn income and feed his family.",
-    update: "Once funding starts, this page can show the stand setup, receipts, progress photos, and follow-up updates.",
+    update: "The project page outlines the livelihood goal, proof needed, and donor-facing updates to add once funding starts.",
     thumbnailUrl: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "Project details coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaLabel: "View project",
+    mediaUrl: "projects/food-stand-for-a-father.html",
     donationUrl: "donate.html?campaign=General%20Fund#donationForm"
   }
 ];

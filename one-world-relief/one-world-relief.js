@@ -32,6 +32,8 @@
     return `${count} ${count === 1 ? "project" : "projects"}`;
   };
 
+  const isExternalUrl = (url) => /^https?:\/\//i.test(String(url || ""));
+
   const renderProjects = () => {
     if (!projectBoard || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
       return;
@@ -61,12 +63,14 @@
       const update = escapeHtml(project.update);
       const mediaLabel = escapeHtml(project.mediaLabel || "View update");
       const thumbnailUrl = escapeHtml(project.thumbnailUrl);
-      const mediaUrl = escapeHtml(project.mediaUrl || "#");
+      const rawMediaUrl = project.mediaUrl || "#";
+      const mediaUrl = escapeHtml(rawMediaUrl);
+      const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
       const donationUrl = escapeHtml(project.donationUrl || "donate.html#donationForm");
 
       return `
         <article class="project-card">
-          <a class="project-media" href="${mediaUrl}" target="_blank" rel="noreferrer" aria-label="${mediaLabel} for ${title}">
+          <a class="project-media" href="${mediaUrl}"${mediaLinkAttrs} aria-label="${mediaLabel} for ${title}">
             <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
             <span>${mediaLabel}</span>
           </a>
@@ -86,7 +90,7 @@
           <p class="project-update">${update}</p>
           <div class="project-actions">
             <a class="button button-primary" href="${donationUrl}">Donate</a>
-            <a class="button button-outline" href="${mediaUrl}" target="_blank" rel="noreferrer">${mediaLabel}</a>
+            <a class="button button-outline" href="${mediaUrl}"${mediaLinkAttrs}>${mediaLabel}</a>
           </div>
         </article>
       `;
