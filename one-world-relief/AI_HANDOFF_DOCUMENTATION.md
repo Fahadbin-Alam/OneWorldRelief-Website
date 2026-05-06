@@ -844,6 +844,19 @@ Additional DNS check later on May 4, 2026:
   - `Backend/test_favorites.py`: 3 tests passed.
   - `Backend/test_favorites_comprehensive.py`: 10 tests passed.
   - `Backend/test_planner_comprehensive.py`: 10 tests passed.
+- Code sync:
+  - GitHub code commit: `ef8c19c feat: add local project detail pages`
+  - GitLab code commit: `5348bad feat: add local project detail pages`
+  - GitHub-only handoff commit before deploy: `6a7d815 docs: log local project pages`
+- Cloudflare production deployment: `https://4e5f10f3.trying-8o0.pages.dev`.
+- Live verification after deployment:
+  - `https://one-world-relief.com/projects` returns HTTP 200.
+  - `https://one-world-relief.com/projects/case-001` returns HTTP 200 and contains Case 001 local media references.
+  - Other local project detail pages return HTTP 200:
+    - `/projects/village-qurbani-meal-support`
+    - `/projects/two-year-orphan-education-support`
+    - `/projects/food-stand-for-a-father`
+  - Case 001 local videos return HTTP 200 with `video/mp4`.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
