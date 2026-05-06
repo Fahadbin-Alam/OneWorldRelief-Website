@@ -28,4 +28,4 @@ Current case media:
 
 - `case-001/orphan-support-001-main.jpg` is used as the public project card image.
 - `case-001/orphan-support-001-proof.jpg` is stored as supporting proof media.
-- `case-001/orphan-support-001-video-1.mp4` and `case-001/orphan-support-001-video-2.mp4` are embedded on `projects/case-001.html`.
+- `case-001/orphan-support-001-primary.mp4`, `case-001/orphan-support-001-video-1.mp4`, and `case-001/orphan-support-001-video-2.mp4` are embedded on `projects/case-001.html`.

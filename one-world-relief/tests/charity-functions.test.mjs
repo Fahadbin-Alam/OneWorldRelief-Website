@@ -225,6 +225,7 @@ test("project cards open local detail pages with embedded case media", async () 
 
   assert.match(casePage, /orphan-support-001-video-1\.mp4/);
   assert.match(casePage, /orphan-support-001-video-2\.mp4/);
+  assert.match(casePage, /orphan-support-001-primary\.mp4/);
   assert.match(casePage, /orphan-support-001-main\.jpg/);
   assert.match(casePage, /orphan-support-001-proof\.jpg/);
   assert.match(qurbaniPage, /Village Qurbani meal support/);

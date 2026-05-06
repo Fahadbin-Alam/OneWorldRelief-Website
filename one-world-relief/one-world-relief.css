@@ -1376,8 +1376,20 @@ ul {
   object-fit: cover;
 }
 
+.project-detail-feature video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  object-fit: contain;
+}
+
 .project-detail-feature {
   aspect-ratio: 4 / 3;
+}
+
+.project-detail-video-feature {
+  background: var(--ink);
 }
 
 .project-detail-feature figcaption,
@@ -1451,6 +1463,15 @@ ul {
 
 .proof-card-large {
   grid-row: span 2;
+}
+
+.proof-card-featured {
+  grid-column: 1 / -1;
+}
+
+.proof-card-featured video {
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
 }
 
 .video-proof video {
