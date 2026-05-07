@@ -881,6 +881,38 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/projects/case-001` returns HTTP 200 and references `orphan-support-001-primary.mp4`.
   - `https://one-world-relief.com/assets/projects/case-001/orphan-support-001-primary.mp4` returns HTTP 200 with `video/mp4` and `Content-Length: 5017376`.
 
+### 2026-05-07 Flowing Motion Homepage Update
+- User asked again to make the site more flowy/animated, using `https://theoceancleanup.com/` as motion/layout inspiration.
+- Updated homepage hero:
+  - changed headline to `Direct aid, moving fast.`
+  - added layered animated current lines behind the donation hero
+  - reduced hero height so the next section feels connected instead of hidden far below the fold
+- Added new homepage `Project Flow` section:
+  - explains the path from giving to tracking to proof
+  - embeds the local Case 001 primary video as the visual anchor
+  - adds quick route links to Donate, Projects, and Case 001
+  - adds impact stats for amount delivered, case completion, and archived videos
+- Added site-wide motion system in `one-world-relief.js`:
+  - IntersectionObserver reveal animations for `.reveal` sections
+  - subtle scroll-drift for `[data-flow-layer]` media
+  - reduced-motion support and no-JS fallback so content does not stay hidden
+- Updated CSS:
+  - flowing diagonal current bands across the page
+  - animated homepage current lines
+  - responsive flow section and motion-safe styles
+  - mobile overflow checked
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 10 tests passed.
+  - Local browser smoke check via Chrome/Playwright:
+    - homepage loads with headline `Direct aid, moving fast.`
+    - flow section appears after scrolling
+    - Case 001 video source is present
+    - mobile viewport has no horizontal overflow
+- Code sync:
+  - GitHub code commit: `b774282 feat: add flowing homepage motion`
+  - Local GitLab sync commit created: `b354ed2 feat: add flowing homepage motion`
+  - GitLab remote push failed with HTTP Basic authentication denied. The GitLab credential/token needs to be refreshed before pushing `gitlab-charity-sync`.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
