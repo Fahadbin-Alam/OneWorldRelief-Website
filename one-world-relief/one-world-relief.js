@@ -2,6 +2,8 @@
 // Mod by Codex, 4/23/26
 // From One World Relief donation backend integration and multi-page project rendering, 4/23/26
 (function () {
+  document.documentElement.classList.add("motion-ready");
+
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || window.location.origin).replace(/\/$/, "");
   const donationForm = document.getElementById("donationForm");
   const quickDonationForm = document.getElementById("quickDonationForm");
@@ -18,6 +20,8 @@
   const DONATION_URL = "https://one-world-relief.com/donate";
   const SHARE_TEXT = "Donate to One World Relief and support direct aid projects.";
   const INSTAGRAM_CAPTION = `${SHARE_TEXT} ${DONATION_URL}`;
+  const revealItems = Array.from(document.querySelectorAll(".reveal"));
+  const flowLayers = Array.from(document.querySelectorAll("[data-flow-layer]"));
 
   const escapeHtml = (value) => {
     return String(value || "")
@@ -33,6 +37,61 @@
   };
 
   const isExternalUrl = (url) => /^https?:\/\//i.test(String(url || ""));
+
+  const setupReveals = () => {
+    if (!revealItems.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      revealItems.forEach((item) => item.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.16 });
+
+    revealItems.forEach((item, index) => {
+      item.style.setProperty("--reveal-delay", `${Math.min(index * 70, 280)}ms`);
+      observer.observe(item);
+    });
+  };
+
+  const setupFlowLayers = () => {
+    if (!flowLayers.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    let ticking = false;
+    const update = () => {
+      flowLayers.forEach((layer) => {
+        const strength = Number(layer.dataset.flowLayer || 0.06);
+        const rect = layer.getBoundingClientRect();
+        const viewportCenter = window.innerHeight / 2;
+        const layerCenter = rect.top + rect.height / 2;
+        const offset = (viewportCenter - layerCenter) * strength;
+        layer.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+      });
+      ticking = false;
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+  };
 
   const renderProjects = () => {
     if (!projectBoard || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
@@ -97,6 +156,8 @@
     }).join("");
   };
 
+  setupReveals();
+  setupFlowLayers();
   renderProjects();
 
   const copyText = async (text) => {
