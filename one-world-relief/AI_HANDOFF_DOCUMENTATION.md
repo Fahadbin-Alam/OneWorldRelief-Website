@@ -912,6 +912,12 @@ Additional DNS check later on May 4, 2026:
   - GitHub code commit: `b774282 feat: add flowing homepage motion`
   - Local GitLab sync commit created: `b354ed2 feat: add flowing homepage motion`
   - GitLab remote push failed with HTTP Basic authentication denied. The GitLab credential/token needs to be refreshed before pushing `gitlab-charity-sync`.
+- GitHub-only handoff commit before deploy: `4d07d97 docs: log flowing homepage motion`.
+- Cloudflare production deployment: `https://48e9ab95.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/` returns HTTP 200 and contains `Direct aid, moving fast`.
+  - `https://one-world-relief.com/one-world-relief.css` returns HTTP 200 and contains the flow/current styling.
+  - `https://one-world-relief.com/one-world-relief.js` returns HTTP 200 and contains the scroll reveal logic.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
