@@ -1176,11 +1176,18 @@ Additional DNS check later on May 4, 2026:
   - No broken images.
   - Project stats rendered `4 projects`, `2 completed`, `2 active`.
   - First row project card action buttons remained aligned.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org` URLs.
+- Code sync:
+  - GitHub code commit: `0aec5b8 feat: add ongoing charity cases`
+  - Local GitLab sync commit created: `0a9f02f feat: add ongoing charity cases`
+  - GitHub-only handoff commit: `aed78b4 docs: log ongoing cases`
+- Cloudflare production deployment:
+  - `https://300c3297.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/project-data.js` includes Case 003, Case 004, ongoing status, and both placeholder SVG paths.
+  - `https://one-world-relief.org/projects/case-003` returns HTTP 200.
+  - `https://one-world-relief.org/projects/case-004` returns HTTP 200.
+  - `https://one-world-relief.org/assets/projects/case-003/orphan-education-003-placeholder.svg` returns HTTP 200 with `image/svg+xml`.
+  - `https://one-world-relief.org/assets/projects/case-004/korbani-village-004-placeholder.svg` returns HTTP 200 with `image/svg+xml`.
 
 ---
 
