@@ -1139,6 +1139,15 @@ Additional DNS check later on May 4, 2026:
   - No broken images.
 - Test result:
   - `node --test tests/charity-functions.test.mjs`: 12 tests passed.
+- Code sync:
+  - GitHub code commit: `fee07f0 fix: align project card actions`
+  - Local GitLab sync commit created: `e4471dd fix: align project card actions`
+  - GitHub-only handoff commit: `4a821de docs: log project card alignment`
+- Cloudflare production deployment:
+  - `https://6d04ef95.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/one-world-relief.css` contains the project card grid row alignment and action pinning rules.
+  - `https://one-world-relief.org/project-data.js` still publishes Case 001 and Case 002 and does not include the removed placeholder project title.
 
 ---
 
