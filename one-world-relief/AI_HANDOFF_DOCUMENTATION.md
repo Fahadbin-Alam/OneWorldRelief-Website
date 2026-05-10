@@ -936,6 +936,12 @@ Additional DNS check later on May 4, 2026:
   - GitHub code commit: `a08eb91 fix: publish only case one project`
   - Local GitLab sync commit created: `1fe1ef6 fix: publish only case one project`
   - GitLab remote push still failed with HTTP Basic authentication denied; refresh GitLab credential/token before pushing `gitlab-charity-sync`.
+- GitHub-only handoff commit before deploy: `cf1b3fa docs: log public case cleanup`.
+- Cloudflare production deployment: `https://5e641a17.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/about` returns HTTP 200 and contains `Available upon request`.
+  - `https://one-world-relief.com/project-data.js` returns HTTP 200, contains Case 001, and does not contain the removed extra public cases.
+  - `https://one-world-relief.com/` returns HTTP 200, contains Case 001 story content, and does not contain the removed extra public cases.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
