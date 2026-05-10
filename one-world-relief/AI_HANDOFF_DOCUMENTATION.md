@@ -919,6 +919,24 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/one-world-relief.css` returns HTTP 200 and contains the flow/current styling.
   - `https://one-world-relief.com/one-world-relief.js` returns HTTP 200 and contains the scroll reveal logic.
 
+### 2026-05-10 Public Contact and Case Cleanup
+- User clarified the official address is a home address and agreed not to publish it publicly.
+- Updated `one-world-relief/about.html`:
+  - Added public contact card with `Oneworldrelief.fma@gmail.com`.
+  - Added `Mailing Address: Available upon request.`
+  - Added donor questions guidance pointing people to the contact page.
+- User asked to get rid of random cases except Case 001.
+- Updated public project data:
+  - `one-world-relief/project-data.js` now publishes only `Case 001: Hafiz Student Support`.
+  - Removed public project-board entries for Qurbani, orphan education future project, and food stand future project.
+- Updated homepage story panel so it only links to Case 001.
+- Updated regression test so the project board must remain Case 001 only and not republish the removed extra project cards.
+- Test result: `node --test tests/charity-functions.test.mjs` passed, 10 tests.
+- Code sync:
+  - GitHub code commit: `a08eb91 fix: publish only case one project`
+  - Local GitLab sync commit created: `1fe1ef6 fix: publish only case one project`
+  - GitLab remote push still failed with HTTP Basic authentication denied; refresh GitLab credential/token before pushing `gitlab-charity-sync`.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
