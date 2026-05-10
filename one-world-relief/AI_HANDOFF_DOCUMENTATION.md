@@ -980,6 +980,12 @@ Additional DNS check later on May 4, 2026:
   - GitHub code commit: `4a616c9 fix: improve case one project thumbnail`
   - Local GitLab sync commit created: `fb86d99 fix: improve case one project thumbnail`
   - GitLab remote push was not attempted in this step because the saved GitLab credential/token is still known-bad.
+- GitHub-only handoff commit before deploy: `46f381b docs: log case thumbnail framing`.
+- Cloudflare production deployment: `https://005cefaa.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/project-data.js` returns HTTP 200 and uses `orphan-support-001-thumbnail.jpg`.
+  - `https://one-world-relief.com/assets/projects/case-001/orphan-support-001-thumbnail.jpg` returns HTTP 200 with `image/jpeg`.
+  - `https://one-world-relief.com/one-world-relief.css` returns HTTP 200 and contains the `4 / 3` project-card media framing plus `object-position: center 34%`.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
