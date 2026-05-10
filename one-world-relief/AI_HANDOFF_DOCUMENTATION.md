@@ -987,6 +987,22 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/assets/projects/case-001/orphan-support-001-thumbnail.jpg` returns HTTP 200 with `image/jpeg`.
   - `https://one-world-relief.com/one-world-relief.css` returns HTTP 200 and contains the `4 / 3` project-card media framing plus `object-position: center 34%`.
 
+### 2026-05-10 Browser Favicon / URL Legitimacy
+- User asked whether the site should have an icon like Google/Facebook in the browser tab and URL area.
+- Added a favicon using the existing OWR brand mark rather than waiting for a full logo.
+- New asset:
+  - `one-world-relief/favicon.svg`
+- Added favicon links to all public HTML pages and local project pages:
+  - root pages use `favicon.svg`
+  - project detail pages use `../favicon.svg`
+- Added a regression test confirming the homepage, Case 001 page, and favicon asset are present.
+- Test result: `node --test tests/charity-functions.test.mjs` passed, 11 tests.
+- Note: This is enough for browser-tab legitimacy now. A full custom nonprofit logo can still be designed later for social graphics, receipts, flyers, and the header.
+- Code sync:
+  - GitHub code commit: `b9b6f8a feat: add one world relief favicon`
+  - Local GitLab sync commit created: `db834fb feat: add one world relief favicon`
+  - GitLab remote push was not attempted because the saved GitLab credential/token is still known-bad.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
