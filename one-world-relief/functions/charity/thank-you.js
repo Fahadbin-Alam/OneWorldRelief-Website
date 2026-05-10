@@ -14,156 +14,154 @@ export const onRequestGet = async () => {
             place-items: center;
             overflow: hidden;
             background:
-              radial-gradient(circle at 50% 42%, rgba(77, 149, 194, 0.18), transparent 30%),
-              linear-gradient(180deg, #f7fcff 0%, #eaf6fc 100%);
+              radial-gradient(circle at 50% 28%, rgba(47, 159, 137, 0.16), transparent 28%),
+              radial-gradient(circle at 50% 70%, rgba(77, 149, 194, 0.14), transparent 34%),
+              linear-gradient(180deg, #f9fdff 0%, #e9f6fb 100%);
           }
 
           .thank-you-stage {
             position: relative;
-            width: min(1100px, calc(100vw - 2rem));
-            min-height: min(760px, calc(100vh - 2rem));
+            width: min(1000px, calc(100vw - 2rem));
+            min-height: min(720px, calc(100vh - 2rem));
             display: grid;
+            gap: clamp(2rem, 6vw, 4rem);
             place-items: center;
             text-align: center;
             isolation: isolate;
           }
 
-          .success-field {
-            position: absolute;
-            inset: 0;
+          .success-card {
+            position: relative;
             display: grid;
+            gap: clamp(1.8rem, 4vw, 3.2rem);
             place-items: center;
-            pointer-events: none;
+            padding: clamp(2rem, 6vw, 4.8rem);
+          }
+
+          .success-card::before {
+            content: "";
+            position: absolute;
+            inset: 14% 2% 6%;
             z-index: -1;
-          }
-
-          .success-orbit {
-            position: absolute;
-            width: min(72vmin, 620px);
-            aspect-ratio: 1;
-            border-radius: 50%;
-            border: 1px solid rgba(77, 149, 194, 0.2);
+            border-radius: 48px;
             background:
-              radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 26%, rgba(77, 149, 194, 0.12) 27% 28%, transparent 29%),
-              conic-gradient(from 90deg, transparent, rgba(77, 149, 194, 0.28), transparent, rgba(47, 159, 137, 0.22), transparent);
-            box-shadow:
-              0 30px 90px rgba(45, 91, 122, 0.16),
-              inset 0 0 80px rgba(255, 255, 255, 0.86);
-            animation: success-orbit 8s linear infinite;
+              linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.34)),
+              radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.86), transparent 54%);
+            box-shadow: 0 34px 120px rgba(45, 91, 122, 0.16);
           }
 
-          .success-orbit::before,
-          .success-orbit::after {
-            content: "";
-            position: absolute;
-            inset: 12%;
-            border-radius: 50%;
-            border: 1px solid rgba(215, 165, 54, 0.18);
-            animation: success-pulse 3.6s ease-in-out infinite;
-          }
-
-          .success-orbit::after {
-            inset: 24%;
-            border-color: rgba(47, 159, 137, 0.22);
-            animation-delay: 0.55s;
-          }
-
-          .success-mark {
-            position: absolute;
-            width: min(24vmin, 170px);
+          .check-wrap {
+            position: relative;
+            width: min(36vmin, 260px);
             aspect-ratio: 1;
             display: grid;
             place-items: center;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.82);
+            background:
+              radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.86) 54%, rgba(233, 247, 251, 0.9)),
+              #fff;
+            border: 1px solid rgba(24, 52, 71, 0.08);
             box-shadow:
-              0 24px 70px rgba(45, 91, 122, 0.18),
-              inset 0 0 0 1px rgba(24, 52, 71, 0.08);
-            animation: mark-enter 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+              0 28px 80px rgba(45, 91, 122, 0.18),
+              inset 0 0 0 12px rgba(47, 159, 137, 0.07);
+            animation: badge-enter 900ms cubic-bezier(0.2, 1, 0.32, 1) both;
           }
 
-          .success-mark::before {
+          .check-wrap::before,
+          .check-wrap::after {
             content: "";
-            width: 46%;
-            height: 26%;
-            border-left: 10px solid #2f9f89;
-            border-bottom: 10px solid #2f9f89;
-            transform: rotate(-45deg) translate(4%, -8%);
-            border-radius: 0 0 0 8px;
-            animation: check-draw 1.35s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+            position: absolute;
+            inset: -18px;
+            border-radius: 50%;
+            border: 2px solid rgba(47, 159, 137, 0.18);
+            animation: ring-breathe 2.8s ease-in-out infinite;
           }
 
-          .light-sweep {
-            position: absolute;
-            width: 120vw;
-            height: 42vh;
-            border-radius: 999px;
-            background: linear-gradient(90deg, transparent 16%, rgba(255, 255, 255, 0.72), rgba(215, 165, 54, 0.18), transparent 82%);
-            transform: rotate(-11deg) translateX(-45vw);
-            animation: sweep 4.8s ease-in-out infinite;
+          .check-wrap::after {
+            inset: -38px;
+            border-color: rgba(77, 149, 194, 0.14);
+            animation-delay: 0.35s;
+          }
+
+          .check-icon {
+            width: 58%;
+            height: 58%;
+            overflow: visible;
+          }
+
+          .check-icon circle {
+            fill: none;
+            stroke: rgba(47, 159, 137, 0.16);
+            stroke-width: 7;
+          }
+
+          .check-icon path {
+            fill: none;
+            stroke: #2f9f89;
+            stroke-width: 11;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 96;
+            stroke-dashoffset: 96;
+            animation: draw-check 720ms cubic-bezier(0.2, 1, 0.32, 1) 420ms forwards;
           }
 
           .thank-you-stage h1 {
-            max-width: 11ch;
+            max-width: 12ch;
             margin: 0;
             color: var(--ink);
-            font-size: clamp(4.4rem, 13vw, 10rem);
-            line-height: 0.88;
+            font-size: clamp(4rem, 12vw, 9.5rem);
+            line-height: 0.92;
             text-wrap: balance;
             animation: title-arrive 1.05s cubic-bezier(0.22, 1, 0.36, 1) both;
           }
 
-          @keyframes success-orbit {
-            to { transform: rotate(360deg); }
+          @keyframes badge-enter {
+            0% { opacity: 0; transform: translateY(22px) scale(0.72); }
+            58% { opacity: 1; transform: translateY(0) scale(1.06); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
           }
 
-          @keyframes success-pulse {
-            0%, 100% { transform: scale(0.94); opacity: 0.48; }
-            50% { transform: scale(1.08); opacity: 1; }
+          @keyframes ring-breathe {
+            0%, 100% { transform: scale(0.98); opacity: 0.58; }
+            50% { transform: scale(1.05); opacity: 1; }
           }
 
-          @keyframes mark-enter {
-            from { opacity: 0; transform: translateY(24px) scale(0.72); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-          }
-
-          @keyframes check-draw {
-            from { clip-path: inset(100% 0 0 0); opacity: 0; }
-            to { clip-path: inset(0 0 0 0); opacity: 1; }
-          }
-
-          @keyframes sweep {
-            0%, 18% { transform: rotate(-11deg) translateX(-58vw); opacity: 0; }
-            42%, 62% { opacity: 1; }
-            100% { transform: rotate(-11deg) translateX(58vw); opacity: 0; }
+          @keyframes draw-check {
+            to { stroke-dashoffset: 0; }
           }
 
           @keyframes title-arrive {
-            from { opacity: 0; transform: translateY(24px); filter: blur(10px); }
+            from { opacity: 0; transform: translateY(18px); filter: blur(8px); }
             to { opacity: 1; transform: translateY(0); filter: blur(0); }
           }
 
           @media (prefers-reduced-motion: reduce) {
-            .success-orbit,
-            .success-orbit::before,
-            .success-orbit::after,
-            .success-mark,
-            .success-mark::before,
-            .light-sweep,
+            .check-wrap,
+            .check-wrap::before,
+            .check-wrap::after,
+            .check-icon path,
             .thank-you-stage h1 {
               animation: none;
+            }
+
+            .check-icon path {
+              stroke-dashoffset: 0;
             }
           }
         </style>
       </head>
       <body class="site-body">
         <main class="thank-you-stage" aria-label="Thank you donation confirmation">
-          <div class="success-field" aria-hidden="true">
-            <div class="light-sweep"></div>
-            <div class="success-orbit"></div>
-            <div class="success-mark"></div>
+          <div class="success-card">
+            <div class="check-wrap" aria-hidden="true">
+              <svg class="check-icon" viewBox="0 0 120 120" focusable="false">
+                <circle cx="60" cy="60" r="48"></circle>
+                <path d="M35 62 L52 78 L86 42"></path>
+              </svg>
+            </div>
+            <h1>Thank you for your Donation</h1>
           </div>
-          <h1>Thank you for your Donation</h1>
         </main>
       </body>
     </html>`,

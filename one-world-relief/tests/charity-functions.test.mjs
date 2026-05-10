@@ -183,12 +183,13 @@ test("thank-you page renders polished animated donation thanks", async () => {
 
   assert.equal(response.status, 200);
   assert.match(html, /Thank you for your Donation/);
-  assert.match(html, /success-field/);
-  assert.match(html, /success-orbit/);
-  assert.match(html, /success-mark/);
+  assert.match(html, /success-card/);
+  assert.match(html, /check-wrap/);
+  assert.match(html, /draw-check/);
   assert.doesNotMatch(html, /coin-gift/);
   assert.doesNotMatch(html, /story-scene/);
   assert.doesNotMatch(html, /class="person child"/);
+  assert.doesNotMatch(html, /success-orbit/);
   assert.doesNotMatch(html, /Donation Receipt/);
   assert.doesNotMatch(html, /Receipt ID/);
 });
