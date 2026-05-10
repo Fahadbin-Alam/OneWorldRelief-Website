@@ -1002,6 +1002,12 @@ Additional DNS check later on May 4, 2026:
   - GitHub code commit: `b9b6f8a feat: add one world relief favicon`
   - Local GitLab sync commit created: `db834fb feat: add one world relief favicon`
   - GitLab remote push was not attempted because the saved GitLab credential/token is still known-bad.
+- GitHub-only handoff commit before deploy: `ea8ac5b docs: log favicon addition`.
+- Cloudflare production deployment: `https://42b795cc.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/` returns HTTP 200 and references `favicon.svg`.
+  - `https://one-world-relief.com/favicon.svg` returns HTTP 200 with `image/svg+xml` and contains the OWR mark.
+  - `https://one-world-relief.com/projects/case-001` returns HTTP 200 and references the favicon.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
