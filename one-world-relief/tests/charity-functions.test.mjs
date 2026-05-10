@@ -207,6 +207,19 @@ test("share QR points donors to the working donation domain", async () => {
   assert.doesNotMatch(siteJs, /one-world-relief\.org\/donate/);
 });
 
+test("pages include the One World Relief favicon", async () => {
+  const [homeHtml, projectHtml, faviconSvg] = await Promise.all([
+    readFile("index.html", "utf8"),
+    readFile("projects/case-001.html", "utf8"),
+    readFile("favicon.svg", "utf8"),
+  ]);
+
+  assert.match(homeHtml, /<link rel="icon" href="favicon\.svg" type="image\/svg\+xml" \/>/);
+  assert.match(projectHtml, /<link rel="icon" href="\.\.\/favicon\.svg" type="image\/svg\+xml" \/>/);
+  assert.match(faviconSvg, /One World Relief/);
+  assert.match(faviconSvg, /OWR/);
+});
+
 test("project cards only publish Case 001 with embedded case media", async () => {
   const [projectData, casePage] = await Promise.all([
     readFile("project-data.js", "utf8"),
