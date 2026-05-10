@@ -957,6 +957,12 @@ Additional DNS check later on May 4, 2026:
   - GitHub code commit: `def40b1 fix: use story title for case one`
   - Local GitLab sync commit created: `485144d fix: use story title for case one`
   - GitLab remote push did not complete; previous GitLab credential/token issue still needs to be fixed before pushing `gitlab-charity-sync`.
+- GitHub-only handoff commit before deploy: `86a9743 docs: log case story title`.
+- Cloudflare production deployment: `https://0e2b80cf.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.com/project-data.js` returns HTTP 200 with `Keeping a Hafiz Student in School`, still includes `Case 001`, and no longer contains `Case 001: Hafiz Student Support`.
+  - `https://one-world-relief.com/projects/case-001` returns HTTP 200 with the story title, includes `Case ID`, and no longer contains the old public title.
+  - `https://one-world-relief.com/` returns HTTP 200 with the story title and no longer contains `Orphan Hafiz Studies Support`.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
