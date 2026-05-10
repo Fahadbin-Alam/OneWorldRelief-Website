@@ -221,6 +221,7 @@ test("project cards only publish Case 001 with embedded case media", async () =>
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
   assert.doesNotMatch(projectData, /title: "Case 001:/);
   assert.match(projectData, /Keeping a Hafiz Student in School/);
+  assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
 
   assert.match(casePage, /Keeping a Hafiz student in school/);
   assert.match(casePage, /Case ID/);
