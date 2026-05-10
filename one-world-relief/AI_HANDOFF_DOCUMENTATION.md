@@ -1019,6 +1019,9 @@ Additional DNS check later on May 4, 2026:
   - existing `one-world-relief/assets/projects`
 - No local Case 002 folder/media was found.
 - Next step: reconnect/sign in to Google Drive in Codex, then list the `Cases` folder and import Case 002 into local website assets and a new donor-facing project page.
+- Standing user preference:
+  - Whenever Google Drive access is needed and the token is expired or missing, bring it up immediately so the user can sign in/reconnect and provide the token/access again.
+  - Do not wait until the end of the task to mention Google Drive auth problems.
 
 ### 2026-05-10 Switch Public Domain to .org Only
 - User asked to stop using `.com` publicly and keep only `.org`.
