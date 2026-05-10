@@ -1009,6 +1009,17 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/favicon.svg` returns HTTP 200 with `image/svg+xml` and contains the OWR mark.
   - `https://one-world-relief.com/projects/case-001` returns HTTP 200 and references the favicon.
 
+### 2026-05-10 Case 002 Drive Access Blocker
+- User asked to add Case 002 from Google Drive.
+- Attempted to list the known Google Drive `Cases` folder through the Google Drive connector.
+- Google Drive connector returned `401 token_expired` with message: `Provided authentication token is expired. Please try signing in again.`
+- Checked local likely locations:
+  - `C:\Users\fahad\Videos`
+  - `C:\Users\fahad\Downloads`
+  - existing `one-world-relief/assets/projects`
+- No local Case 002 folder/media was found.
+- Next step: reconnect/sign in to Google Drive in Codex, then list the `Cases` folder and import Case 002 into local website assets and a new donor-facing project page.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
