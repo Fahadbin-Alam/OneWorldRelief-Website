@@ -943,6 +943,21 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/project-data.js` returns HTTP 200, contains Case 001, and does not contain the removed extra public cases.
   - `https://one-world-relief.com/` returns HTTP 200, contains Case 001 story content, and does not contain the removed extra public cases.
 
+### 2026-05-10 Story Title Pattern
+- User asked to remove `Case 001` from the main public title and use a catchier story title, while keeping the case number somewhere as a reference.
+- Updated public story title to `Keeping a Hafiz Student in School`.
+- Kept `Case 001` as metadata:
+  - Project card date/reference still shows `Case 001`.
+  - Case detail page eyebrow shows `Orphan Support · Case 001`.
+  - Case detail page fact grid includes `Case ID: Case 001`.
+- Updated homepage current-case story title to match the new public title.
+- Updated regression tests to make sure the public project title does not start with `Case 001:`.
+- Test result: `node --test tests/charity-functions.test.mjs` passed, 10 tests.
+- Code sync:
+  - GitHub code commit: `def40b1 fix: use story title for case one`
+  - Local GitLab sync commit created: `485144d fix: use story title for case one`
+  - GitLab remote push did not complete; previous GitLab credential/token issue still needs to be fixed before pushing `gitlab-charity-sync`.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
