@@ -219,7 +219,12 @@ test("project cards only publish Case 001 with embedded case media", async () =>
   assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
   assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
+  assert.doesNotMatch(projectData, /title: "Case 001:/);
+  assert.match(projectData, /Keeping a Hafiz Student in School/);
 
+  assert.match(casePage, /Keeping a Hafiz student in school/);
+  assert.match(casePage, /Case ID/);
+  assert.match(casePage, /Case 001/);
   assert.match(casePage, /orphan-support-001-video-1\.mp4/);
   assert.match(casePage, /orphan-support-001-video-2\.mp4/);
   assert.match(casePage, /orphan-support-001-primary\.mp4/);
