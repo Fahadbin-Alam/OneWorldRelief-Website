@@ -193,18 +193,29 @@ test("thank-you page renders polished animated donation thanks", async () => {
   assert.doesNotMatch(html, /Receipt ID/);
 });
 
-test("share QR points donors to the working donation domain", async () => {
+test("share QR points donors to the .org donation domain", async () => {
   const [shareHtml, siteJs, qrSvg] = await Promise.all([
     readFile("share.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
     readFile("assets/one-world-relief-donate-qr.svg", "utf8"),
   ]);
 
-  assert.match(shareHtml, /one-world-relief\.com\/donate/);
-  assert.match(siteJs, /https:\/\/one-world-relief\.com\/donate/);
+  assert.match(shareHtml, /one-world-relief\.org\/donate/);
+  assert.match(siteJs, /https:\/\/one-world-relief\.org\/donate/);
   assert.match(qrSvg, /stroke="#183447"/);
-  assert.doesNotMatch(shareHtml, /one-world-relief\.org\/donate/);
-  assert.doesNotMatch(siteJs, /one-world-relief\.org\/donate/);
+  assert.doesNotMatch(shareHtml, /one-world-relief\.com\/donate/);
+  assert.doesNotMatch(siteJs, /one-world-relief\.com\/donate/);
+});
+
+test(".com host redirects to .org", async () => {
+  const middleware = await importFunctionModule("functions/_middleware.js");
+  const response = await middleware.onRequest({
+    request: new Request("https://one-world-relief.com/donate?amount=25"),
+    next: async () => new Response("next"),
+  });
+
+  assert.equal(response.status, 301);
+  assert.equal(response.headers.get("location"), "https://one-world-relief.org/donate?amount=25");
 });
 
 test("pages include the One World Relief favicon", async () => {
