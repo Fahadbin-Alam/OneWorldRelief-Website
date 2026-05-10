@@ -1106,11 +1106,19 @@ Additional DNS check later on May 4, 2026:
   - Local preview root, `projects.html`, and `projects/case-002.html` returned HTTP 200.
   - Projects page rendered 2 cards: Case 001 and Case 002.
   - Case 002 page rendered 4 proof cards, 2 videos, and no broken images.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org` URLs for Case 002 and assets.
+- Code sync:
+  - GitHub code commit: `3e997cc feat: add one world relief case 002`
+  - Local GitLab sync commit created: `9a13964 feat: add one world relief case 002`
+  - GitLab remote push was attempted once and hung on credentials; stuck git processes were stopped. Local GitLab commit remains ready to push when credentials/token work.
+  - GitHub-only handoff commit before deploy: `9abaddb docs: log case 002 import`
+- Cloudflare production deployment:
+  - `https://d0008533.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/projects/case-002` returns HTTP 200 with Case 002 title and video reference.
+  - `https://one-world-relief.org/assets/projects/case-002/livelihood-support-002-thumbnail.jpg` returns HTTP 200 with `image/jpeg`.
+  - `https://one-world-relief.org/assets/projects/case-002/livelihood-support-002-primary.mp4` returns HTTP 200 with `video/mp4`.
+  - `https://one-world-relief.org/project-data.js` returns HTTP 200, includes Case 001 and Case 002, does not include the removed placeholder project titles, Google Drive links, or `.com`.
+  - `https://one-world-relief.com/projects/case-002` returns HTTP 301 to `https://one-world-relief.org/projects/case-002`.
 
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
