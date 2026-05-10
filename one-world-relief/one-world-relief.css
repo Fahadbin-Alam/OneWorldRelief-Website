@@ -1439,8 +1439,10 @@ ul {
 
 .project-card {
   display: grid;
+  grid-template-rows: auto auto auto minmax(5.2rem, auto) auto minmax(3.4rem, auto) auto;
   gap: 0.85rem;
-  align-content: start;
+  align-content: stretch;
+  height: 100%;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -1529,6 +1531,8 @@ ul {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.65rem;
+  align-self: end;
+  margin-top: auto;
   padding: 0 1.2rem 1.2rem;
 }
 
