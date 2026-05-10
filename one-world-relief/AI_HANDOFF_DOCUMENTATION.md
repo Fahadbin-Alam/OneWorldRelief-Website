@@ -1208,11 +1208,17 @@ Additional DNS check later on May 4, 2026:
   - Local render showed the check badge and title centered and visible.
   - No `.success-orbit` element.
   - No `Donation Receipt` or `Receipt ID` text on the page.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org` thank-you page.
+- Code sync:
+  - GitHub code commit: `b38ddd8 fix: simplify donation thank you animation`
+  - Local GitLab sync commit created: `947cd3d fix: simplify donation thank you animation`
+  - GitHub-only handoff commit: `8e53f30 docs: log thank you animation update`
+- Cloudflare production deployment:
+  - `https://2a8f313b.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/charity/thank-you` contains `Thank you for your Donation`.
+  - Live page contains `success-card`, `check-wrap`, and `draw-check`.
+  - Live page does not contain the old `success-orbit`.
+  - Live page does not contain `Donation Receipt` or `Receipt ID`.
 
 ---
 
