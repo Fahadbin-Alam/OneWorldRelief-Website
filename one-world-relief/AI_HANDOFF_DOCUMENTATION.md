@@ -1125,6 +1125,21 @@ Additional DNS check later on May 4, 2026:
 - Do not push this handoff document to GitLab.
 - Code changes should continue to be mirrored to GitHub and GitLab, with documentation-only handoff commits going to GitHub only.
 
+### 2026-05-10 Project Card Button Alignment
+- User reported the Project page cards were not oriented/symmetrical because the `Donate` and `View story` buttons did not line up between projects.
+- Updated `one-world-relief/one-world-relief.css`:
+  - `project-card` now uses fixed grid row tracks for media, metadata, title, summary, impact, update, and actions.
+  - `project-card` now stretches to full grid height.
+  - `project-actions` is pinned to the bottom with `align-self: end` and `margin-top: auto`.
+- Browser verification on local preview:
+  - `projects.html` rendered two project cards.
+  - Both cards had equal height.
+  - Both action areas started at the same pixel (`actionsTop: 1470`).
+  - `Donate` and `View story` button positions matched exactly across both cards.
+  - No broken images.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 12 tests passed.
+
 ---
 
 **End of AI Handoff Documentation**
