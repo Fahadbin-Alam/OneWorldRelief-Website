@@ -1063,6 +1063,55 @@ Additional DNS check later on May 4, 2026:
   - Local GitLab sync commit created: `d72f38f fix: use org domain for public site`
   - GitLab remote push was not attempted because the saved GitLab credential/token is still known-bad.
 
+### 2026-05-10 Case 002 Local Import
+- User downloaded the Case 002 ZIP locally after Google Drive connector auth stayed expired.
+- Local source ZIP:
+  - `C:\Users\fahad\Downloads\Case 002 - 600 for a man business-20260510T225336Z-3-001.zip`
+- Extracted source folder used:
+  - `C:\Users\fahad\AppData\Local\Temp\owr-case-002\Case 002 - 600 for a man business`
+- Case 002 public title:
+  - `A Fresh Start for a Father's Business`
+- Case 002 public metadata:
+  - Case ID: `Case 002`
+  - Category: `Livelihood Support`
+  - Amount delivered: `$600`
+  - Status: `Completed`
+  - Location: `Bangladesh`
+- Public assets added:
+  - `one-world-relief/assets/projects/case-002/livelihood-support-002-main.jpg`
+  - `one-world-relief/assets/projects/case-002/livelihood-support-002-proof.jpg`
+  - `one-world-relief/assets/projects/case-002/livelihood-support-002-thumbnail.jpg`
+  - `one-world-relief/assets/projects/case-002/livelihood-support-002-video-poster.jpg`
+  - `one-world-relief/assets/projects/case-002/livelihood-support-002-primary.mp4`
+- Public page added:
+  - `one-world-relief/projects/case-002.html`
+- Public board updated:
+  - `one-world-relief/project-data.js` now publishes Case 001 and Case 002.
+  - Homepage story panel now lists both cases.
+  - Homepage proof flow now points at Case 002 media.
+- Privacy decision:
+  - Case package contained identity/address documents.
+  - Do not publish NID/passport/address documents publicly.
+  - Public page uses privacy-safe story copy and only photo/video proof.
+- Removed old random placeholder project pages so public deploy does not keep unused case pages:
+  - `one-world-relief/projects/village-qurbani-meal-support.html`
+  - `one-world-relief/projects/two-year-orphan-education-support.html`
+  - `one-world-relief/projects/food-stand-for-a-father.html`
+- Test results:
+  - `node --test tests/charity-functions.test.mjs`: 12 tests passed.
+  - `Backend/test_favorites.py`: 3 tests passed.
+  - `Backend/test_favorites_comprehensive.py`: 10 tests passed.
+  - `Backend/test_planner_comprehensive.py`: 10 tests passed.
+- Browser verification:
+  - Local preview root, `projects.html`, and `projects/case-002.html` returned HTTP 200.
+  - Projects page rendered 2 cards: Case 001 and Case 002.
+  - Case 002 page rendered 4 proof cards, 2 videos, and no broken images.
+- Deployment/code sync pending at the time of this entry:
+  - Commit code to GitHub.
+  - Create local GitLab sync commit without this handoff document.
+  - Deploy Cloudflare Pages production.
+  - Verify live `.org` URLs for Case 002 and assets.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
