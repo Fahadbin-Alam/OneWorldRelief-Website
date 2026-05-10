@@ -964,6 +964,23 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.com/projects/case-001` returns HTTP 200 with the story title, includes `Case ID`, and no longer contains the old public title.
   - `https://one-world-relief.com/` returns HTTP 200 with the story title and no longer contains `Orphan Hafiz Studies Support`.
 
+### 2026-05-10 Case 001 Thumbnail Framing
+- User noted the Case 001 project thumbnail looked off from the project/card point of view.
+- Generated a dedicated thumbnail from the primary Case 001 video:
+  - `one-world-relief/assets/projects/case-001/orphan-support-001-thumbnail.jpg`
+- Updated `one-world-relief/project-data.js` to use the dedicated thumbnail instead of the original field photo.
+- Updated project-card media framing:
+  - changed card media aspect ratio from `16 / 10` to `4 / 3`
+  - added `object-position: center 34%` so the face is centered better in the card crop
+- Updated the project media README and regression test to expect the dedicated thumbnail.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs` passed, 10 tests.
+  - Local Chrome/Playwright screenshot confirmed the project card uses `orphan-support-001-thumbnail.jpg` and frames the face clearly.
+- Code sync:
+  - GitHub code commit: `4a616c9 fix: improve case one project thumbnail`
+  - Local GitLab sync commit created: `fb86d99 fix: improve case one project thumbnail`
+  - GitLab remote push was not attempted in this step because the saved GitLab credential/token is still known-bad.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
