@@ -1020,6 +1020,46 @@ Additional DNS check later on May 4, 2026:
 - No local Case 002 folder/media was found.
 - Next step: reconnect/sign in to Google Drive in Codex, then list the `Cases` folder and import Case 002 into local website assets and a new donor-facing project page.
 
+### 2026-05-10 Switch Public Domain to .org Only
+- User asked to stop using `.com` publicly and keep only `.org`.
+- Verified before changes:
+  - `one-world-relief.org` resolves with Cloudflare A/AAAA records.
+  - `www.one-world-relief.org` CNAMEs to `trying-8o0.pages.dev`.
+  - `https://one-world-relief.org/` returns HTTP 200.
+  - `https://www.one-world-relief.org/` returns HTTP 200.
+  - `https://one-world-relief.com/` still returned HTTP 200 before this change.
+- Updated public donation/share URLs from `.com` to `.org`:
+  - `one-world-relief/share.html`
+  - `one-world-relief/one-world-relief.js`
+  - regenerated `one-world-relief/assets/one-world-relief-donate-qr.svg` for `https://one-world-relief.org/donate`
+- Added Cloudflare Pages middleware:
+  - `one-world-relief/functions/_middleware.js`
+  - Redirects `one-world-relief.com` and `www.one-world-relief.com` to the same path on `one-world-relief.org` with HTTP 301.
+- Updated Cloudflare Pages production secrets:
+  - `OWR_PUBLIC_SITE_URL=https://one-world-relief.org`
+  - `OWR_SUCCESS_URL=https://one-world-relief.org/charity/thank-you`
+  - `OWR_CANCEL_URL=https://one-world-relief.org/charity/cancelled`
+- Test results:
+  - `node --test tests/charity-functions.test.mjs`: 12 tests passed.
+  - `Backend/test_favorites.py`: 3 tests passed.
+  - `Backend/test_favorites_comprehensive.py`: 10 tests passed.
+  - `Backend/test_planner_comprehensive.py`: 10 tests passed.
+- Stripe note:
+  - The available Stripe connector in this session does not expose webhook endpoint editing.
+  - The site redirect protects old `.com` traffic, but Stripe Dashboard webhook endpoint should be manually updated to `https://one-world-relief.org/charity/webhooks/stripe` if it still shows `.com`.
+- Cloudflare production deployment: `https://bfd8af4f.trying-8o0.pages.dev`.
+- Live verification:
+  - `https://one-world-relief.org/` returns HTTP 200 and does not contain `.com`.
+  - `https://www.one-world-relief.org/` returns HTTP 200.
+  - `https://one-world-relief.org/share` returns HTTP 200 and contains `.org` share text, not `.com`.
+  - `https://one-world-relief.org/assets/one-world-relief-donate-qr.svg` returns HTTP 200 with `image/svg+xml`.
+  - `https://one-world-relief.com/` returns HTTP 301 to `https://one-world-relief.org/`.
+  - `https://one-world-relief.com/donate` returns HTTP 301 to `https://one-world-relief.org/donate`.
+- Code sync:
+  - GitHub code commit: `eb84235 fix: use org domain for public site`
+  - Local GitLab sync commit created: `d72f38f fix: use org domain for public site`
+  - GitLab remote push was not attempted because the saved GitLab credential/token is still known-bad.
+
 ### Git Sync Note
 - Keep this AI handoff document on GitHub only.
 - Do not push this handoff document to GitLab.
