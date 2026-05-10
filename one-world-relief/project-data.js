@@ -16,5 +16,20 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     mediaLabel: "View story",
     mediaUrl: "projects/case-001.html",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
+  },
+  {
+    title: "A Fresh Start for a Father's Business",
+    category: "Livelihood Support",
+    status: "Completed",
+    location: "Bangladesh",
+    date: "Case 002",
+    amountRaised: "$600",
+    impact: "Direct livelihood support for a father rebuilding a small vegetable business",
+    summary: "One World Relief provided $600 in financial support so a father of two could restart his vegetable business and support food, education, and daily needs for his family.",
+    update: "Case media was organized into a donor-facing detail page on May 10, 2026.",
+    thumbnailUrl: "assets/projects/case-002/livelihood-support-002-thumbnail.jpg",
+    mediaLabel: "View story",
+    mediaUrl: "projects/case-002.html",
+    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
   }
 ];

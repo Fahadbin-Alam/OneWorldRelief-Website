@@ -231,21 +231,26 @@ test("pages include the One World Relief favicon", async () => {
   assert.match(faviconSvg, /OWR/);
 });
 
-test("project cards only publish Case 001 with embedded case media", async () => {
-  const [projectData, casePage] = await Promise.all([
+test("project cards publish approved cases with embedded local media", async () => {
+  const [projectData, casePage, caseTwoPage] = await Promise.all([
     readFile("project-data.js", "utf8"),
     readFile("projects/case-001.html", "utf8"),
+    readFile("projects/case-002.html", "utf8"),
   ]);
 
   assert.doesNotMatch(projectData, /drive\.google\.com/);
   assert.doesNotMatch(projectData, /youtube\.com/);
   assert.match(projectData, /projects\/case-001\.html/);
+  assert.match(projectData, /projects\/case-002\.html/);
   assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
   assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
   assert.doesNotMatch(projectData, /title: "Case 001:/);
+  assert.doesNotMatch(projectData, /title: "Case 002:/);
   assert.match(projectData, /Keeping a Hafiz Student in School/);
+  assert.match(projectData, /A Fresh Start for a Father's Business/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
+  assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
 
   assert.match(casePage, /Keeping a Hafiz student in school/);
   assert.match(casePage, /Case ID/);
@@ -255,6 +260,17 @@ test("project cards only publish Case 001 with embedded case media", async () =>
   assert.match(casePage, /orphan-support-001-primary\.mp4/);
   assert.match(casePage, /orphan-support-001-main\.jpg/);
   assert.match(casePage, /orphan-support-001-proof\.jpg/);
+
+  assert.match(caseTwoPage, /A fresh start for a father's business/);
+  assert.match(caseTwoPage, /Case ID/);
+  assert.match(caseTwoPage, /Case 002/);
+  assert.match(caseTwoPage, /livelihood-support-002-primary\.mp4/);
+  assert.match(caseTwoPage, /livelihood-support-002-main\.jpg/);
+  assert.match(caseTwoPage, /livelihood-support-002-proof\.jpg/);
+  assert.match(caseTwoPage, /livelihood-support-002-thumbnail\.jpg/);
+  assert.match(caseTwoPage, /Personal identity documents and home address details are kept off the public website/);
+  assert.doesNotMatch(caseTwoPage, /NID No/);
+  assert.doesNotMatch(caseTwoPage, /Middle Patenga/);
 });
 
 test("stripe webhook rejects invalid signatures", async () => {
