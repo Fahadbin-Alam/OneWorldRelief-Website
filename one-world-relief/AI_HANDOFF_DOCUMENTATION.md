@@ -1149,6 +1149,39 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.org/one-world-relief.css` contains the project card grid row alignment and action pinning rules.
   - `https://one-world-relief.org/project-data.js` still publishes Case 001 and Case 002 and does not include the removed placeholder project title.
 
+### 2026-05-10 Add Ongoing Cases 003 and 004
+- User asked to add:
+  - Case 003 as ongoing orphan boy education support.
+  - Case 004 as ongoing Korbani village feeding support.
+- Added Case 003 public project:
+  - Title: `Keeping an Orphan Boy in School`
+  - Status: `Ongoing`
+  - Category: `Orphan Support`
+  - Page: `one-world-relief/projects/case-003.html`
+  - Placeholder media: `one-world-relief/assets/projects/case-003/orphan-education-003-placeholder.svg`
+- Added Case 004 public project:
+  - Title: `Korbani Meals for a Village`
+  - Status: `Ongoing`
+  - Category: `Feeding`
+  - Page: `one-world-relief/projects/case-004.html`
+  - Placeholder media: `one-world-relief/assets/projects/case-004/korbani-village-004-placeholder.svg`
+- Updated `one-world-relief/project-data.js`:
+  - Publishes Case 001 and Case 002 as completed.
+  - Publishes Case 003 and Case 004 as ongoing.
+  - Project stats now render as 4 projects, 2 completed, 2 active.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 12 tests passed.
+- Browser verification:
+  - Local `projects.html`, `projects/case-003.html`, and `projects/case-004.html` returned HTTP 200.
+  - No broken images.
+  - Project stats rendered `4 projects`, `2 completed`, `2 active`.
+  - First row project card action buttons remained aligned.
+- Deployment/code sync pending at the time of this entry:
+  - Commit code to GitHub.
+  - Create local GitLab sync commit without this handoff document.
+  - Deploy Cloudflare Pages production.
+  - Verify live `.org` URLs.
+
 ---
 
 **End of AI Handoff Documentation**
