@@ -207,30 +207,24 @@ test("share QR points donors to the working donation domain", async () => {
   assert.doesNotMatch(siteJs, /one-world-relief\.org\/donate/);
 });
 
-test("project cards open local detail pages with embedded case media", async () => {
-  const [projectData, casePage, qurbaniPage, educationPage, foodStandPage] = await Promise.all([
+test("project cards only publish Case 001 with embedded case media", async () => {
+  const [projectData, casePage] = await Promise.all([
     readFile("project-data.js", "utf8"),
     readFile("projects/case-001.html", "utf8"),
-    readFile("projects/village-qurbani-meal-support.html", "utf8"),
-    readFile("projects/two-year-orphan-education-support.html", "utf8"),
-    readFile("projects/food-stand-for-a-father.html", "utf8"),
   ]);
 
   assert.doesNotMatch(projectData, /drive\.google\.com/);
   assert.doesNotMatch(projectData, /youtube\.com/);
   assert.match(projectData, /projects\/case-001\.html/);
-  assert.match(projectData, /projects\/village-qurbani-meal-support\.html/);
-  assert.match(projectData, /projects\/two-year-orphan-education-support\.html/);
-  assert.match(projectData, /projects\/food-stand-for-a-father\.html/);
+  assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
+  assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
+  assert.doesNotMatch(projectData, /Food Stand for a Father/);
 
   assert.match(casePage, /orphan-support-001-video-1\.mp4/);
   assert.match(casePage, /orphan-support-001-video-2\.mp4/);
   assert.match(casePage, /orphan-support-001-primary\.mp4/);
   assert.match(casePage, /orphan-support-001-main\.jpg/);
   assert.match(casePage, /orphan-support-001-proof\.jpg/);
-  assert.match(qurbaniPage, /Village Qurbani meal support/);
-  assert.match(educationPage, /Two years of education support/);
-  assert.match(foodStandPage, /small food stand/);
 });
 
 test("stripe webhook rejects invalid signatures", async () => {

@@ -16,50 +16,5 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     mediaLabel: "View case",
     mediaUrl: "projects/case-001.html",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
-  },
-  {
-    title: "Village Qurbani Meal Support",
-    category: "Feeding",
-    status: "Completed",
-    location: "Village community",
-    date: "Project 002",
-    amountRaised: "$900",
-    impact: "Qurbani meat shared with a village community",
-    summary: "One World Relief funded a $900 Qurbani project so families in a village could receive food and share in the meal.",
-    update: "Project details are now kept on a local One World Relief page. Distribution photos and clips can be added there when ready.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "View project",
-    mediaUrl: "projects/village-qurbani-meal-support.html",
-    donationUrl: "donate.html?campaign=Feeding#donationForm"
-  },
-  {
-    title: "Two-Year Orphan Education Support",
-    category: "Future Project",
-    status: "Planned",
-    location: "Recipient privacy protected",
-    date: "Future project",
-    amountRaised: "$200 goal",
-    impact: "Two years of support for an orphan girl's education",
-    summary: "A planned project to support an orphan girl for two years with a $200 fundraising goal.",
-    update: "The project page explains the plan, donor goal, and proof items needed before the campaign opens.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "View project",
-    mediaUrl: "projects/two-year-orphan-education-support.html",
-    donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
-  },
-  {
-    title: "Food Stand for a Father",
-    category: "Future Project",
-    status: "Planned",
-    location: "Family privacy protected",
-    date: "Future project",
-    amountRaised: "$1,000 goal",
-    impact: "Help a poor man feed his family through a small food stand",
-    summary: "A planned livelihood project to provide a food stand so a father can earn income and feed his family.",
-    update: "The project page outlines the livelihood goal, proof needed, and donor-facing updates to add once funding starts.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1200&q=80",
-    mediaLabel: "View project",
-    mediaUrl: "projects/food-stand-for-a-father.html",
-    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
   }
 ];
