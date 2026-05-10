@@ -31,5 +31,35 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     mediaLabel: "View story",
     mediaUrl: "projects/case-002.html",
     donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+  },
+  {
+    title: "Keeping an Orphan Boy in School",
+    category: "Orphan Support",
+    status: "Ongoing",
+    location: "Bangladesh",
+    date: "Case 003",
+    amountRaised: "In progress",
+    impact: "Education support being organized for an orphan boy",
+    summary: "Case 003 is an active orphan education case. One World Relief is preparing support for a boy's school needs, with photos and proof media to be added after delivery.",
+    update: "Case opened on May 10, 2026. Media and delivery proof are pending.",
+    thumbnailUrl: "assets/projects/case-003/orphan-education-003-placeholder.svg",
+    mediaLabel: "View case",
+    mediaUrl: "projects/case-003.html",
+    donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
+  },
+  {
+    title: "Korbani Meals for a Village",
+    category: "Feeding",
+    status: "Ongoing",
+    location: "Bangladesh",
+    date: "Case 004",
+    amountRaised: "In progress",
+    impact: "Village feeding support being organized for Korbani",
+    summary: "Case 004 is an active Korbani feeding case. One World Relief is organizing village meal support, with images and proof media to be added once available.",
+    update: "Case opened on May 10, 2026. Media and delivery proof are pending.",
+    thumbnailUrl: "assets/projects/case-004/korbani-village-004-placeholder.svg",
+    mediaLabel: "View case",
+    mediaUrl: "projects/case-004.html",
+    donationUrl: "donate.html?campaign=Feeding#donationForm"
   }
 ];

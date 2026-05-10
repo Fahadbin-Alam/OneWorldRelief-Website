@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Case 003 orphan education placeholder</title>
+  <desc id="desc">A simple One World Relief placeholder for an ongoing orphan education case.</desc>
+  <rect width="1200" height="900" fill="#eaf6fb"/>
+  <path d="M0 650 C210 560 365 725 570 610 C780 492 900 560 1200 430 L1200 900 L0 900 Z" fill="#cfe8f3"/>
+  <path d="M0 724 C250 652 412 780 615 674 C810 572 960 640 1200 520 L1200 900 L0 900 Z" fill="#b8dcea"/>
+  <circle cx="360" cy="330" r="82" fill="#f7c59f"/>
+  <path d="M250 670 C258 515 300 438 360 438 C420 438 462 515 470 670 Z" fill="#347ca8"/>
+  <rect x="515" y="368" width="280" height="210" rx="22" fill="#ffffff" stroke="#183447" stroke-width="10"/>
+  <path d="M562 424 H748 M562 482 H748 M562 540 H682" stroke="#4e95bd" stroke-width="18" stroke-linecap="round"/>
+  <path d="M248 328 C262 250 312 208 372 220 C425 232 460 275 464 334" fill="none" stroke="#183447" stroke-width="18" stroke-linecap="round"/>
+  <text x="84" y="114" fill="#183447" font-family="Arial, sans-serif" font-size="54" font-weight="700">Case 003</text>
+  <text x="84" y="174" fill="#4f7287" font-family="Arial, sans-serif" font-size="34" font-weight="700">Orphan education support</text>
+  <text x="84" y="820" fill="#183447" font-family="Arial, sans-serif" font-size="42" font-weight="700">Media coming soon</text>
+</svg>

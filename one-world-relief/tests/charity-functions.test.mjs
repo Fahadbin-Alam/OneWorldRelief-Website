@@ -232,25 +232,35 @@ test("pages include the One World Relief favicon", async () => {
 });
 
 test("project cards publish approved cases with embedded local media", async () => {
-  const [projectData, casePage, caseTwoPage] = await Promise.all([
+  const [projectData, casePage, caseTwoPage, caseThreePage, caseFourPage] = await Promise.all([
     readFile("project-data.js", "utf8"),
     readFile("projects/case-001.html", "utf8"),
     readFile("projects/case-002.html", "utf8"),
+    readFile("projects/case-003.html", "utf8"),
+    readFile("projects/case-004.html", "utf8"),
   ]);
 
   assert.doesNotMatch(projectData, /drive\.google\.com/);
   assert.doesNotMatch(projectData, /youtube\.com/);
   assert.match(projectData, /projects\/case-001\.html/);
   assert.match(projectData, /projects\/case-002\.html/);
+  assert.match(projectData, /projects\/case-003\.html/);
+  assert.match(projectData, /projects\/case-004\.html/);
   assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
   assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
   assert.doesNotMatch(projectData, /title: "Case 001:/);
   assert.doesNotMatch(projectData, /title: "Case 002:/);
+  assert.doesNotMatch(projectData, /title: "Case 003:/);
+  assert.doesNotMatch(projectData, /title: "Case 004:/);
   assert.match(projectData, /Keeping a Hafiz Student in School/);
   assert.match(projectData, /A Fresh Start for a Father's Business/);
+  assert.match(projectData, /Keeping an Orphan Boy in School/);
+  assert.match(projectData, /Korbani Meals for a Village/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
   assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
+  assert.match(projectData, /orphan-education-003-placeholder\.svg/);
+  assert.match(projectData, /korbani-village-004-placeholder\.svg/);
 
   assert.match(casePage, /Keeping a Hafiz student in school/);
   assert.match(casePage, /Case ID/);
@@ -271,6 +281,16 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(caseTwoPage, /Personal identity documents and home address details are kept off the public website/);
   assert.doesNotMatch(caseTwoPage, /NID No/);
   assert.doesNotMatch(caseTwoPage, /Middle Patenga/);
+
+  assert.match(caseThreePage, /Keeping an orphan boy in school/);
+  assert.match(caseThreePage, /Case 003/);
+  assert.match(caseThreePage, /Ongoing/);
+  assert.match(caseThreePage, /Media coming soon/);
+
+  assert.match(caseFourPage, /Korbani meals for a village/);
+  assert.match(caseFourPage, /Case 004/);
+  assert.match(caseFourPage, /Ongoing/);
+  assert.match(caseFourPage, /Media coming soon/);
 });
 
 test("stripe webhook rejects invalid signatures", async () => {
