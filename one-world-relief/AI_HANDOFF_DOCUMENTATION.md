@@ -1506,6 +1506,36 @@ Additional DNS check later on May 4, 2026:
   - Live JavaScript contains `renderHomeCaseLanes()`, completed case filtering, goal case filtering, and calls the renderer.
   - Live CSS contains `.home-case-lanes`, `.home-case-lane`, and `.story-empty`.
 
+### 2026-05-11 Replace Internal Proof Section With Faith Reminder Video
+- User disliked the public-facing `From donation to proof, keep the story moving` section and said it felt weird for visitors.
+- User asked for that area to become a background video section with scrolling Quran/Hadith reminders about supporting orphans and building wells.
+- Verified source references before adding text:
+  - Quran 2:215 from Quran.com.
+  - Sahih al-Bukhari 6005 from Sunnah.com.
+  - Quran 76:8 from Quran.com.
+  - Sunan Abi Dawud 1681 from Sunnah.com.
+- Updated `one-world-relief/index.html`:
+  - Removed the visible `Project Flow` section content.
+  - Added `faith-video-section` with looping muted background video.
+  - Added continuously scrolling quote cards for Quran 2:215, Sahih al-Bukhari 6005, Quran 76:8, and Sunan Abi Dawud 1681.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added full-bleed video background styling.
+  - Added dark readable overlay.
+  - Added `faith-quote-track` and `faith-quote-scroll` animation.
+  - Added reduced-motion fallback that hides the video and makes the quote track manually scrollable.
+- Updated tests to assert the old internal section text is gone and the faith/video section is present.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 16 tests passed.
+- Code sync:
+  - GitHub code commit: `e499ac9 feat: add faith reminder video section`
+  - Local GitLab sync commit created: `0565dba feat: add faith reminder video section`
+- Cloudflare production deployment:
+  - `https://532e07ee.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/` no longer contains `Project Flow` or `From donation to proof`.
+  - Live homepage contains `faith-video-section`, `faith-video-bg`, Quran 2:215, Sahih al-Bukhari 6005, Quran 76:8, and Sunan Abi Dawud 1681.
+  - Live CSS contains `.faith-video-section`, `.faith-quote-track`, `@keyframes faith-quote-scroll`, and reduced-motion video fallback.
+
 ---
 
 **End of AI Handoff Documentation**
