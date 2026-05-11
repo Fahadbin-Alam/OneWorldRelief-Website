@@ -1184,7 +1184,6 @@ ul {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
   min-height: 42px;
   padding: 0.66rem 0.9rem;
   border: 1px solid rgba(47, 159, 137, 0.18);
@@ -1195,36 +1194,6 @@ ul {
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.share-pill:hover,
-.share-actions .button:hover {
-  transform: translateY(-2px);
-  border-color: rgba(77, 149, 194, 0.24);
-  box-shadow: 0 12px 28px rgba(45, 91, 122, 0.12);
-}
-
-.share-icon {
-  flex: 0 0 auto;
-  display: inline-grid;
-  place-items: center;
-  width: 1.55rem;
-  height: 1.55rem;
-  border-radius: 999px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
-  font-family: "Manrope", "Segoe UI", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.share-actions .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
 }
 
 .qr-card {
