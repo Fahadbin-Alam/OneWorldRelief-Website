@@ -14,6 +14,8 @@
   const projectBoard = document.getElementById("projectBoard");
   const projectStats = document.getElementById("projectStats");
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
+  const homeCompletedCases = document.getElementById("homeCompletedCases");
+  const homeGoalCases = document.getElementById("homeGoalCases");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
   const closeQrPresentation = document.getElementById("closeQrPresentation");
@@ -334,11 +336,54 @@
     homeCaseFlowTrack.setAttribute("aria-live", "off");
   };
 
+  const renderHomeCaseLanes = () => {
+    if ((!homeCompletedCases && !homeGoalCases) || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+      return;
+    }
+
+    const renderLaneItems = (projects, fallbackText) => {
+      if (!projects.length) {
+        return `<p class="story-empty">${escapeHtml(fallbackText)}</p>`;
+      }
+
+      return projects.map((project) => {
+        const title = escapeHtml(project.title);
+        const amountRaised = escapeHtml(project.amountRaised);
+        const impact = escapeHtml(project.impact);
+        const rawMediaUrl = project.mediaUrl || "projects.html";
+        const mediaUrl = escapeHtml(rawMediaUrl);
+        const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
+
+        return `
+          <a href="${mediaUrl}" class="story-link" ${mediaLinkAttrs}>
+            <strong>${title}</strong>
+            <span>${amountRaised} / ${impact}</span>
+          </a>
+        `;
+      }).join("");
+    };
+
+    const completedProjects = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
+      return String(project.status || "").toLowerCase().includes("completed");
+    });
+    const goalProjects = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
+      return !String(project.status || "").toLowerCase().includes("completed");
+    });
+
+    if (homeCompletedCases) {
+      homeCompletedCases.innerHTML = renderLaneItems(completedProjects, "Completed case updates will appear here.");
+    }
+    if (homeGoalCases) {
+      homeGoalCases.innerHTML = renderLaneItems(goalProjects, "New goals will appear here.");
+    }
+  };
+
   setupReveals();
   setupScrollProgress();
   setupFlowLayers();
   renderProjects();
   renderHomeCaseFlow();
+  renderHomeCaseLanes();
   setupPointerMotion();
   setupAnimatedNumbers();
 
