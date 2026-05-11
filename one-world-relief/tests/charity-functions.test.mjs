@@ -335,9 +335,15 @@ test("contact page has the updated flowing contact layout", async () => {
   assert.match(contactHtml, /contact-method-card/);
   assert.match(contactHtml, /contact-message-card/);
   assert.match(contactHtml, /Questions about donations, receipts, projects, or partnerships/);
+  assert.match(contactHtml, /We are here to help/);
+  assert.match(contactHtml, /Send us a note/);
+  assert.doesNotMatch(contactHtml, /Send a note and we will follow up/);
   assert.match(siteCss, /\.contact-flow-section/);
+  assert.match(siteCss, /\.contact-intro/);
   assert.match(siteCss, /\.contact-method-card/);
   assert.match(siteCss, /\.contact-message-card/);
+  assert.match(siteCss, /contact-methods h2[\s\S]*font-family: "Manrope"/);
+  assert.match(siteCss, /contact-message-card h2[\s\S]*font-family: "Manrope"/);
   assert.match(siteJs, /contact-message-card/);
 });
 

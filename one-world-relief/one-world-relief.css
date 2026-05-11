@@ -1768,7 +1768,7 @@ ul {
 
 .contact-flow-section {
   position: relative;
-  padding: clamp(2.2rem, 7vw, 5.5rem) 0;
+  padding: clamp(2rem, 6vw, 4.5rem) 0;
   overflow: hidden;
 }
 
@@ -1789,20 +1789,31 @@ ul {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1.08fr);
-  gap: clamp(1rem, 4vw, 2.4rem);
+  grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1fr);
+  gap: clamp(1rem, 4vw, 2rem);
   align-items: start;
 }
 
 .contact-methods h2 {
-  max-width: 11ch;
-  font-size: clamp(2.2rem, 5vw, 4.6rem);
+  max-width: 18ch;
+  margin-bottom: 0.55rem;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.contact-intro {
+  max-width: 42ch;
+  margin-bottom: 1.2rem;
+  color: var(--ink-soft);
+  font-size: 1rem;
 }
 
 .contact-method-list {
   display: grid;
-  gap: 0.75rem;
-  margin-top: 1.2rem;
+  gap: 0.65rem;
+  margin-top: 1rem;
 }
 
 .contact-method-card,
@@ -1810,19 +1821,18 @@ ul {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(77, 149, 194, 0.14);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 20px 48px rgba(45, 91, 122, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 36px rgba(45, 91, 122, 0.08);
 }
 
 .contact-method-card {
   display: grid;
   gap: 0.18rem;
-  padding: 1rem;
+  padding: 0.9rem 1rem;
   transition: transform 0.24s ease, box-shadow 0.24s ease;
 }
 
-.contact-method-card::before,
 .contact-message-card::before {
   content: "";
   position: absolute;
@@ -1834,8 +1844,8 @@ ul {
 }
 
 .contact-method-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 26px 56px rgba(45, 91, 122, 0.14);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(45, 91, 122, 0.12);
 }
 
 .contact-method-card span,
@@ -1848,26 +1858,30 @@ ul {
 
 .contact-method-card span {
   color: var(--blue-500);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .contact-method-card strong {
   overflow-wrap: anywhere;
+  font-size: 1rem;
 }
 
 .contact-message-card {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  padding: 1.15rem;
+  padding: clamp(1rem, 3vw, 1.45rem);
   transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transform-style: preserve-3d;
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .contact-message-card h2 {
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  margin-bottom: 0.35rem;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+  font-weight: 900;
 }
 
 .amount-grid {
@@ -2007,7 +2021,7 @@ ul {
 .contact-form label {
   display: grid;
   gap: 0.42rem;
-  margin-top: 0.95rem;
+  margin-top: 0.8rem;
   font-weight: 700;
 }
 
@@ -2018,7 +2032,7 @@ ul {
   width: 100%;
   border: 1px solid rgba(24, 52, 71, 0.12);
   border-radius: 12px;
-  padding: 0.76rem 0.8rem;
+  padding: 0.72rem 0.82rem;
   font: inherit;
   color: var(--ink);
   background: #fff;
