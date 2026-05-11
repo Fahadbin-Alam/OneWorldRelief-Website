@@ -1270,11 +1270,18 @@ Additional DNS check later on May 4, 2026:
   - Added a regression test confirming the About page includes 501(c)(3), EIN, tax language, and does not expose a known private address string.
 - Test result:
   - `node --test tests/charity-functions.test.mjs`: 13 tests passed.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org/about`.
+- Code sync:
+  - GitHub code commit: `58fefd2 feat: add nonprofit status to about page`
+  - Local GitLab sync commit created: `875ea73 feat: add nonprofit status to about page`
+  - GitHub-only handoff commit: `bb4fbed docs: log nonprofit about update`
+- Cloudflare production deployment:
+  - `https://76fc4bca.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/about` contains `501(c)(3) nonprofit organization`.
+  - Live About page contains `41-5079927`.
+  - Live About page contains `tax-deductible to the extent allowed by law`.
+  - Live About page still says mailing address is `Available upon request`.
+  - Live About page does not contain the known private address string.
 
 ---
 
