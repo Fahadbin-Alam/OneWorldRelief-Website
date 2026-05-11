@@ -1652,6 +1652,28 @@ Additional DNS check later on May 4, 2026:
   - Live projects page no longer contains the removed `<section class="page-hero reveal">`.
   - Live projects page still contains the `Categories` section and `#projectBoard`.
 
+### 2026-05-11 Restore Simple Share Buttons
+- User asked to revert the QR/share action buttons shown on the Share page because the new icon badges looked wrong.
+- Updated `one-world-relief/share.html`:
+  - Removed inline `.share-icon` spans from Facebook, X, Instagram Caption, WhatsApp, Enlarge QR, Share, Download QR, and Text Link actions.
+  - Restored the QR action buttons to simple text-only buttons.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Removed `.share-icon` badge styling.
+  - Removed the icon-specific share button gap/inline-flex overrides and added hover effects tied to the icon pass.
+- Updated tests:
+  - Share test now asserts `.share-icon` markup is absent while the `.org` share links and QR controls still exist.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Code sync:
+  - GitHub code commit: `2a27900 fix: restore simple share buttons`
+  - Local GitLab sync commit created: `cd277f6 fix: restore simple share buttons`
+- Cloudflare production deployment:
+  - `https://a2175297.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/share` no longer contains `.share-icon` markup.
+  - Live CSS no longer contains `.share-icon` styling.
+  - Live Share page has text-only `Enlarge QR` and `Download QR` actions and still points to `one-world-relief.org/donate`.
+
 ---
 
 **End of AI Handoff Documentation**
