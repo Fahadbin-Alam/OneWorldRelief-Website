@@ -216,6 +216,7 @@ test("donation page opens custom amount only when selected", async () => {
   ]);
 
   assert.match(donateHtml, /name="amount" value="custom"/);
+  assert.match(donateHtml, /Custom Amount/);
   assert.match(donateHtml, /id="customDonationPanel" hidden/);
   assert.match(donateHtml, /inputmode="numeric"/);
   assert.match(siteJs, /syncCustomAmountPanel/);
@@ -252,24 +253,47 @@ test("pages include the One World Relief favicon", async () => {
   assert.match(faviconSvg, /OWR/);
 });
 
-test("home page renders an animated case photo flow from project data", async () => {
+test("home page renders a continuous completed-case photo flow from project data", async () => {
   const [homeHtml, siteJs, siteCss] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
   ]);
 
-  assert.match(homeHtml, /Cases in Motion/);
+  assert.doesNotMatch(homeHtml, /See the work as it moves/);
+  assert.match(homeHtml, /Completed One World Relief cases/);
   assert.match(homeHtml, /id="homeCaseFlowTrack"/);
   assert.match(homeHtml, /<script src="project-data\.js"><\/script>/);
+  assert.match(homeHtml, /name="quickAmount" value="custom"/);
+  assert.match(homeHtml, /id="quickCustomPanel" hidden/);
   assert.match(siteJs, /homeCaseFlowTrack/);
   assert.match(siteJs, /renderHomeCaseFlow/);
-  assert.match(siteJs, /\[\.\.\.projects, \.\.\.projects\]/);
+  assert.match(siteJs, /includes\("completed"\)/);
+  assert.match(siteJs, /\[\.\.\.projects, \.\.\.projects, \.\.\.projects, \.\.\.projects\]/);
+  assert.match(siteJs, /syncQuickCustomPanel/);
   assert.match(siteJs, /case-flow-card/);
   assert.match(siteCss, /\.home-case-flow/);
   assert.match(siteCss, /\.case-flow-track/);
   assert.match(siteCss, /@keyframes case-river/);
   assert.match(siteCss, /@keyframes case-shine/);
+  assert.doesNotMatch(siteCss, /case-flow-shell:hover \.case-flow-track/);
+});
+
+test("contact page has the updated flowing contact layout", async () => {
+  const [contactHtml, siteJs, siteCss] = await Promise.all([
+    readFile("contact.html", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+
+  assert.match(contactHtml, /contact-flow-section/);
+  assert.match(contactHtml, /contact-method-card/);
+  assert.match(contactHtml, /contact-message-card/);
+  assert.match(contactHtml, /Questions about donations, receipts, projects, or partnerships/);
+  assert.match(siteCss, /\.contact-flow-section/);
+  assert.match(siteCss, /\.contact-method-card/);
+  assert.match(siteCss, /\.contact-message-card/);
+  assert.match(siteJs, /contact-message-card/);
 });
 
 test("about page shows nonprofit status and EIN without a public home address", async () => {
