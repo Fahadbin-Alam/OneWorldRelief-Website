@@ -1696,6 +1696,42 @@ Additional DNS check later on May 4, 2026:
   - Live About page no longer contains `Owned by Fahadbin Alam`.
   - Live CSS contains `.official-panel` and `.official-details`.
 
+### 2026-05-11 Visual Review: Contact Layout and Reveal Timing
+- User called out that the Contact page was visually not good enough, mis-oriented, and that the email button looked bad.
+- Performed a local visual screenshot pass using Playwright on desktop and mobile for:
+  - Home, Donate, Projects, Share, About, Contact.
+- Issues found:
+  - Contact page had a separate top hero that pushed the form too low; the submit button sat awkwardly near the decorative bottom band.
+  - Mobile Projects had a blank gap after categories because reveal animations triggered too late.
+- Updated `one-world-relief/contact.html`:
+  - Removed the separate `page-hero contact-hero`.
+  - Made Contact a single two-column section with `Reach One World Relief.` on the left and the form on the right.
+  - Renamed the form submit button from `Email Us` to `Send Email` and added `contact-submit`.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Contact section now uses `min-height: calc(100svh - 74px)` and centers the grid in the viewport.
+  - Improved contact column proportions, heading scale, form spacing, textarea height, and submit button shape/alignment.
+  - Softened the contact form decorative bottom band so it does not fight the button.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Reveal observer now uses `rootMargin: "0px 0px 22% 0px"` and lower threshold so below-the-fold sections appear earlier.
+- Updated tests:
+  - Contact test now verifies `Reach One World Relief`, `Send Email`, `.contact-submit`, centered viewport height, and earlier reveal timing.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Visual verification:
+  - Desktop Contact screenshot now shows the full contact info and full message card with the `Send Email` button visible and aligned.
+  - Mobile Contact screenshot stacks cleanly with readable contact cards and form.
+  - Mobile Projects screenshot now shows `Impact Board`, stats, and the first case card instead of a blank gap.
+- Code sync:
+  - GitHub code commit: `a622036 fix: tighten contact layout and reveal timing`
+  - Local GitLab sync commit created: `1112857 fix: tighten contact layout and reveal timing`
+- Cloudflare production deployment:
+  - `https://ba49b3fa.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/contact` contains the single contact layout, `contact-submit`, and `Send Email`.
+  - Live Contact page no longer contains the removed `page-hero contact-hero`.
+  - Live JS contains the earlier reveal `rootMargin: "0px 0px 22% 0px"`.
+  - `https://one-world-relief.org/projects` still contains `Latest work and current campaigns` and `#projectBoard`.
+
 ---
 
 **End of AI Handoff Documentation**
