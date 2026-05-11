@@ -2216,6 +2216,14 @@ ul {
   margin-top: 1rem;
 }
 
+.project-filter-section {
+  padding: clamp(1.2rem, 3vw, 2rem) 0 0.25rem;
+}
+
+.project-filter-row {
+  margin: 0;
+}
+
 .payments span,
 .category-row span,
 .project-meta span {

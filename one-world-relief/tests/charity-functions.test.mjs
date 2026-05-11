@@ -472,8 +472,10 @@ test("projects page opens directly into project content", async () => {
   const projectsHtml = await readFile("projects.html", "utf8");
 
   assert.doesNotMatch(projectsHtml, /See where donations go/);
+  assert.doesNotMatch(projectsHtml, /Clear giving categories/);
   assert.doesNotMatch(projectsHtml, /<section class="page-hero reveal">/);
-  assert.match(projectsHtml, /<p class="eyebrow">Categories<\/p>/);
+  assert.match(projectsHtml, /project-filter-section/);
+  assert.match(projectsHtml, /aria-label="Project filters"/);
   assert.match(projectsHtml, /id="projectBoard"/);
 });
 
