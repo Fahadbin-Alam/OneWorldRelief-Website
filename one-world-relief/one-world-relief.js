@@ -388,6 +388,30 @@
     return;
   }
 
+  const customDonationPanel = document.getElementById("customDonationPanel");
+  const customDonationInput = document.getElementById("customDonation");
+  const customDonationRadio = donationForm.querySelector('input[name="amount"][value="custom"]');
+
+  const syncCustomAmountPanel = ({ focus = false, clear = false } = {}) => {
+    const selected = donationForm.querySelector('input[name="amount"]:checked');
+    const isCustomAmount = selected?.value === "custom";
+
+    if (!customDonationPanel || !customDonationInput) {
+      return;
+    }
+
+    customDonationPanel.hidden = !isCustomAmount;
+    customDonationInput.required = isCustomAmount;
+
+    if (!isCustomAmount && clear) {
+      customDonationInput.value = "";
+    }
+
+    if (isCustomAmount && focus) {
+      requestAnimationFrame(() => customDonationInput.focus());
+    }
+  };
+
   const applyDonationParams = () => {
     const params = new URLSearchParams(window.location.search);
     const amount = params.get("amount");
@@ -398,10 +422,15 @@
       const amountRadio = donationForm.querySelector(`input[name="amount"][value="${amount}"]`);
       if (amountRadio) {
         amountRadio.checked = true;
+        if (customDonationInput) {
+          customDonationInput.value = "";
+        }
       } else {
-        const customInput = document.getElementById("customDonation");
-        if (customInput) {
-          customInput.value = amount;
+        if (customDonationRadio) {
+          customDonationRadio.checked = true;
+        }
+        if (customDonationInput) {
+          customDonationInput.value = amount;
         }
       }
     }
@@ -412,9 +441,29 @@
         campaignSelect.value = campaign;
       }
     }
+
+    syncCustomAmountPanel();
   };
 
   applyDonationParams();
+
+  donationForm.querySelectorAll('input[name="amount"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      syncCustomAmountPanel({
+        focus: radio.value === "custom",
+        clear: radio.value !== "custom",
+      });
+    });
+  });
+
+  if (customDonationInput && customDonationRadio) {
+    customDonationInput.addEventListener("input", () => {
+      if (customDonationInput.value && !customDonationRadio.checked) {
+        customDonationRadio.checked = true;
+        syncCustomAmountPanel();
+      }
+    });
+  }
 
   const setStatus = (message, isError) => {
     statusEl.textContent = message;
@@ -422,12 +471,10 @@
   };
 
   const getDonationAmount = () => {
-    const customInput = document.getElementById("customDonation");
-    const customValue = customInput ? Number(customInput.value) : 0;
-    if (customValue > 0) {
-      return customValue;
-    }
     const selected = donationForm.querySelector('input[name="amount"]:checked');
+    if (selected?.value === "custom") {
+      return customDonationInput ? Number(customDonationInput.value) : 0;
+    }
     return selected ? Number(selected.value) : 0;
   };
 

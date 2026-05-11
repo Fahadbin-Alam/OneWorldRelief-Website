@@ -145,7 +145,18 @@
               <label><input type="radio" name="amount" value="25" />$25</label>
               <label><input type="radio" name="amount" value="50" />$50</label>
               <label><input type="radio" name="amount" value="100" />$100</label>
+              <label class="custom-amount-choice"><input type="radio" name="amount" value="custom" />Custom</label>
             </fieldset>
+
+            <div class="custom-donation-panel" id="customDonationPanel" hidden>
+              <label class="custom-amount custom-donation-field" for="customDonation">
+                Custom amount
+                <span class="custom-donation-input-wrap">
+                  <span aria-hidden="true">$</span>
+                  <input id="customDonation" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter amount" />
+                </span>
+              </label>
+            </div>
 
             <div class="donor-grid">
               <label class="custom-amount" for="donorName">
@@ -158,11 +169,6 @@
                 <input id="donorEmail" type="email" placeholder="you@example.com" required />
               </label>
             </div>
-
-            <label class="custom-amount" for="customDonation">
-              Custom amount
-              <input id="customDonation" type="number" min="1" step="1" placeholder="Enter amount in USD" />
-            </label>
 
             <label class="custom-amount" for="paymentMethod">
               Payment method

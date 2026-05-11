@@ -208,6 +208,26 @@ test("share QR points donors to the .org donation domain", async () => {
   assert.doesNotMatch(siteJs, /one-world-relief\.com\/donate/);
 });
 
+test("donation page opens custom amount only when selected", async () => {
+  const [donateHtml, siteJs, siteCss] = await Promise.all([
+    readFile("donate.html", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+
+  assert.match(donateHtml, /name="amount" value="custom"/);
+  assert.match(donateHtml, /id="customDonationPanel" hidden/);
+  assert.match(donateHtml, /inputmode="numeric"/);
+  assert.match(siteJs, /syncCustomAmountPanel/);
+  assert.match(siteJs, /selected\?\.value === "custom"/);
+  assert.match(siteJs, /customDonationPanel\.hidden = !isCustomAmount/);
+  assert.match(siteJs, /radio\.value !== "custom"/);
+  assert.match(siteCss, /\.custom-donation-panel/);
+  assert.match(siteCss, /@keyframes custom-panel-open/);
+  assert.match(siteCss, /@keyframes panel-current/);
+  assert.match(siteCss, /\.amount-grid label:has\(input:checked\)/);
+});
+
 test(".com host redirects to .org", async () => {
   const middleware = await importFunctionModule("functions/_middleware.js");
   const response = await middleware.onRequest({

@@ -1387,7 +1387,7 @@ ul {
   padding: 0;
   border: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.7rem;
 }
 
@@ -1397,14 +1397,122 @@ ul {
 }
 
 .amount-grid label {
+  position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
-  padding: 0.72rem 0.8rem;
+  min-height: 56px;
+  padding: 0.8rem;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--sky-50);
-  font-weight: 700;
+  color: var(--blue-700);
+  font-weight: 900;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, color 0.22s ease;
+}
+
+.amount-grid label::before {
+  content: "";
+  position: absolute;
+  inset: auto 18% -42px;
+  height: 56px;
+  border-radius: 999px;
+  background: rgba(77, 149, 194, 0.18);
+  transition: transform 0.24s ease;
+}
+
+.amount-grid label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(45, 91, 122, 0.12);
+}
+
+.amount-grid label:has(input:checked) {
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
+  box-shadow: 0 18px 38px rgba(45, 91, 122, 0.18);
+}
+
+.amount-grid label:has(input:checked)::before {
+  transform: translateY(-18px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.amount-grid label > * {
+  position: relative;
+  z-index: 1;
+}
+
+.amount-grid input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.custom-amount-choice {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(238, 248, 255, 0.96)),
+    var(--sky-100);
+}
+
+.custom-donation-panel {
+  position: relative;
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+  border: 1px solid rgba(77, 149, 194, 0.16);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(238, 248, 255, 0.92)),
+    var(--paper);
+  box-shadow: 0 18px 42px rgba(45, 91, 122, 0.1);
+  overflow: hidden;
+  animation: custom-panel-open 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.custom-donation-panel::before {
+  content: "";
+  position: absolute;
+  inset: auto -18% -68px;
+  height: 112px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(47, 159, 137, 0.12), rgba(77, 149, 194, 0.16), rgba(215, 165, 54, 0.1));
+  animation: panel-current 5s ease-in-out infinite alternate;
+}
+
+.custom-donation-panel[hidden] {
+  display: none;
+}
+
+.custom-donation-field {
+  position: relative;
+  z-index: 1;
+}
+
+.custom-donation-input-wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.custom-donation-input-wrap > span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--mint), var(--blue-500));
+  font-weight: 900;
+  box-shadow: 0 12px 24px rgba(47, 159, 137, 0.2);
+}
+
+.custom-donation-input-wrap input {
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .custom-amount,
@@ -2011,6 +2119,26 @@ ul {
   }
 }
 
+@keyframes custom-panel-open {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes panel-current {
+  from {
+    transform: translateX(-3vw);
+  }
+  to {
+    transform: translateX(3vw);
+  }
+}
+
 @keyframes ribbon-drift {
   from {
     transform: translateX(-4vw) rotate(-6deg);
@@ -2092,6 +2220,8 @@ ul {
   .flow-ribbon::after,
   .payment-rail span,
   .form-current span,
+  .custom-donation-panel,
+  .custom-donation-panel::before,
   .project-timeline::before,
   .timeline-step-active span {
     animation: none;
@@ -2178,6 +2308,10 @@ ul {
 
   .donate-hero-grid {
     grid-template-columns: 1fr;
+  }
+
+  .amount-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .donor-grid {
