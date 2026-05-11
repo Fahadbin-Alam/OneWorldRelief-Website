@@ -1477,6 +1477,35 @@ Additional DNS check later on May 4, 2026:
   - Live JS no longer applies pointer tilt to `.case-flow-card`.
   - Live JS includes `requestAnimationFrame()` throttling and `cancelAnimationFrame(pointerFrame)` for pointer tilt.
 
+### 2026-05-11 Homepage Worked-On vs Goals Case Lanes
+- User asked for the homepage case area to show cases One World Relief already worked on on the left, and cases being worked toward as goals on the right.
+- Updated `one-world-relief/index.html`:
+  - Replaced the hardcoded `Current Cases` list with two dynamic lanes:
+    - `Worked On`
+    - `Goals`
+  - Added `#homeCompletedCases` and `#homeGoalCases` containers.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Added `renderHomeCaseLanes()`.
+  - Completed cases are filtered into `Worked On`.
+  - Non-completed/ongoing cases are filtered into `Goals`.
+  - Both lanes render from `window.ONE_WORLD_RELIEF_PROJECTS` so future cases stay in sync with the project data.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Adjusted the hero action panel to give the case lane area more room.
+  - Added `.home-case-lanes`, `.home-case-lane`, and empty-state styling.
+  - Preserved mobile responsiveness by stacking lanes on small screens.
+- Updated tests to cover the two lane containers and the completed/goal filters.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 16 tests passed.
+- Code sync:
+  - GitHub code commit: `0b82dff feat: split homepage cases into worked and goals`
+  - Local GitLab sync commit created: `ff9e90e feat: split homepage cases into worked and goals`
+- Cloudflare production deployment:
+  - `https://fb3ff504.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/` contains `Worked On`, `Goals`, `homeCompletedCases`, and `homeGoalCases`.
+  - Live JavaScript contains `renderHomeCaseLanes()`, completed case filtering, goal case filtering, and calls the renderer.
+  - Live CSS contains `.home-case-lanes`, `.home-case-lane`, and `.story-empty`.
+
 ---
 
 **End of AI Handoff Documentation**
