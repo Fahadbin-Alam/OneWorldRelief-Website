@@ -232,6 +232,17 @@ test("pages include the One World Relief favicon", async () => {
   assert.match(faviconSvg, /OWR/);
 });
 
+test("about page shows nonprofit status and EIN without a public home address", async () => {
+  const aboutHtml = await readFile("about.html", "utf8");
+
+  assert.match(aboutHtml, /501\(c\)\(3\) nonprofit organization/);
+  assert.match(aboutHtml, /EIN/);
+  assert.match(aboutHtml, /41-5079927/);
+  assert.match(aboutHtml, /tax-deductible to the extent allowed by law/);
+  assert.match(aboutHtml, /Available upon request/);
+  assert.doesNotMatch(aboutHtml, /Middle Patenga/);
+});
+
 test("project cards publish approved cases with embedded local media", async () => {
   const [projectData, casePage, caseTwoPage, caseThreePage, caseFourPage] = await Promise.all([
     readFile("project-data.js", "utf8"),
