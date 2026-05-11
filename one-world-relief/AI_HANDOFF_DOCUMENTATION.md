@@ -1732,6 +1732,50 @@ Additional DNS check later on May 4, 2026:
   - Live JS contains the earlier reveal `rootMargin: "0px 0px 22% 0px"`.
   - `https://one-world-relief.org/projects` still contains `Latest work and current campaigns` and `#projectBoard`.
 
+### 2026-05-11 Donation Page Flow Inspired by LaunchGood Review
+- User asked to look at `launchgood.com`, especially its donation page, and adapt useful ideas.
+- Research note:
+  - Direct automated screenshots of LaunchGood were blocked by Cloudflare verification.
+  - Adapted the broadly useful donation-platform patterns without copying LaunchGood branding: put the donation form first, make amount choices clearer, keep Stripe Checkout as the secure payment surface, and collect optional donor context.
+- Updated `one-world-relief/donate.html`:
+  - Moved the real `#donationForm` into the top donation hero so donors can start giving immediately.
+  - Changed the form heading to `Give in under a minute.` with a visible `USD` pill.
+  - Changed quick amounts into impact-style choices: `$10 Basic support`, `$25 Essentials`, `$50 Food aid`, `$100 Project help`, and `Custom Your amount`.
+  - Added optional `Note for One World Relief` textarea.
+  - Added `Keep my name anonymous in public updates` checkbox.
+  - Changed submit copy to `Continue to Secure Checkout`.
+  - Moved the QR/share card below the fund cards under `After You Give`.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added featured donation form styling, donation-form heading, amount impact label styling, donor options, and checkbox styling.
+  - Adjusted hero grid proportions so the donation form is prominent but still balanced with the page headline.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Sends `donor_note` and `anonymous_public` with checkout requests.
+  - Restores the correct `Continue to Secure Checkout` label after checkout errors.
+- Updated `one-world-relief/functions/charity/donations/checkout.js`:
+  - Accepts `donor_note` and `anonymous_public`.
+  - Adds both fields to Stripe Session metadata and PaymentIntent metadata.
+- Updated `one-world-relief/functions/charity/webhooks/stripe.js`:
+  - Adds anonymous-public status and donor note into the spreadsheet Notes column.
+- Updated tests:
+  - Checkout test verifies donor note and anonymous-public metadata are passed to Stripe.
+  - Donate page test verifies the new top form, impact labels, donor options, and CSS hooks.
+  - Webhook test verifies donor note and anonymous-public status land in spreadsheet notes.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Visual verification:
+  - Generated local desktop and mobile Donate screenshots.
+  - Desktop Donate shows the secure form in the first viewport beside the donation headline.
+  - Mobile Donate shows the headline, payment methods, and donation form starting in the first viewport.
+- Code sync:
+  - GitHub code commit: `8724764 feat: improve donation page flow`
+  - Local GitLab sync commit created: `9479e4f feat: improve donation page flow`
+- Cloudflare production deployment:
+  - `https://8d04809e.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/donate` contains `donation-form-card-featured`, `Continue to Secure Checkout`, impact amount labels, `donorNote`, and `anonymousDonation`.
+  - Live JS sends `donor_note` and `anonymous_public`.
+  - Live CSS contains `.donation-form-card-featured` and `.donor-options`.
+
 ---
 
 **End of AI Handoff Documentation**
