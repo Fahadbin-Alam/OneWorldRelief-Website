@@ -1450,6 +1450,33 @@ Additional DNS check later on May 4, 2026:
   - Live CSS no longer pauses the case reel on hover and includes quick custom panel/contact flow styles.
   - `https://one-world-relief.org/contact` contains the new contact flow section, contact method cards, and polished message card.
 
+### 2026-05-11 Homepage Motion Performance Pass
+- User reported the site felt a little laggy and asked to check and make it smooth.
+- Main likely source was the homepage case reel, which had a continuous track animation plus per-card float animation, animated shine overlays, blur reveal filters, hover image filters, pointer tilt on moving cards, and CSS `mask-image`.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Replaced `mask-image` edge fading on the case reel with lightweight gradient pseudo-elements.
+  - Changed the case reel to a single `translate3d()` track animation with `will-change: transform`.
+  - Removed per-card infinite float animation.
+  - Removed case shine animation/keyframes.
+  - Removed blur/filter reveal from case cards.
+  - Reduced card shadow intensity.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Removed `.case-flow-card` from pointer tilt targets because those cards are already in a moving reel.
+  - Throttled remaining pointer tilt work with `requestAnimationFrame()` and cancels pending frames on pointer leave.
+- Updated tests to assert the optimized motion path stays in place.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 16 tests passed.
+- Code sync:
+  - GitHub code commit: `98c2cce perf: smooth homepage motion effects`
+  - Local GitLab sync commit created: `b13fc00 perf: smooth homepage motion effects`
+- Cloudflare production deployment:
+  - `https://05650f0c.trying-8o0.pages.dev`
+- Live verification:
+  - Live CSS uses `translate3d(calc(-50% - 0.5rem), 0, 0)` and `will-change: transform` for the reel track.
+  - Live CSS no longer contains `case-shine`, `mask-image`, `case-card-float`, or `filter: blur(10px)` for the case cards.
+  - Live JS no longer applies pointer tilt to `.case-flow-card`.
+  - Live JS includes `requestAnimationFrame()` throttling and `cancelAnimationFrame(pointerFrame)` for pointer tilt.
+
 ---
 
 **End of AI Handoff Documentation**
