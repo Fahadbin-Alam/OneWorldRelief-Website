@@ -13,6 +13,7 @@
   const donateButton = donationForm ? donationForm.querySelector(".donate-button") : null;
   const projectBoard = document.getElementById("projectBoard");
   const projectStats = document.getElementById("projectStats");
+  const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
   const closeQrPresentation = document.getElementById("closeQrPresentation");
@@ -131,7 +132,7 @@
     }
 
     const targets = Array.from(document.querySelectorAll(
-      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .donation-form-card"
+      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .donation-form-card, .case-flow-card"
     ));
 
     targets.forEach((target) => {
@@ -271,10 +272,46 @@
     }).join("");
   };
 
+  const renderHomeCaseFlow = () => {
+    if (!homeCaseFlowTrack || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+      return;
+    }
+
+    const projects = window.ONE_WORLD_RELIEF_PROJECTS;
+    const repeatedProjects = [...projects, ...projects];
+
+    homeCaseFlowTrack.innerHTML = repeatedProjects.map((project, index) => {
+      const title = escapeHtml(project.title);
+      const category = escapeHtml(project.category);
+      const status = escapeHtml(project.status);
+      const date = escapeHtml(project.date);
+      const amountRaised = escapeHtml(project.amountRaised);
+      const thumbnailUrl = escapeHtml(project.thumbnailUrl);
+      const rawMediaUrl = project.mediaUrl || "projects.html";
+      const mediaUrl = escapeHtml(rawMediaUrl);
+      const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
+
+      return `
+        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs} aria-label="Open ${title}" style="--case-delay: ${index * 120}ms">
+          <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
+          <span class="case-flow-shine" aria-hidden="true"></span>
+          <span class="case-flow-copy">
+            <span>${date} &middot; ${status}</span>
+            <strong>${title}</strong>
+            <small>${category} / ${amountRaised}</small>
+          </span>
+        </a>
+      `;
+    }).join("");
+
+    homeCaseFlowTrack.setAttribute("aria-live", "off");
+  };
+
   setupReveals();
   setupScrollProgress();
   setupFlowLayers();
   renderProjects();
+  renderHomeCaseFlow();
   setupPointerMotion();
   setupAnimatedNumbers();
 

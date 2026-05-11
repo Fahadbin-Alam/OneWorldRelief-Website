@@ -252,6 +252,26 @@ test("pages include the One World Relief favicon", async () => {
   assert.match(faviconSvg, /OWR/);
 });
 
+test("home page renders an animated case photo flow from project data", async () => {
+  const [homeHtml, siteJs, siteCss] = await Promise.all([
+    readFile("index.html", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+
+  assert.match(homeHtml, /Cases in Motion/);
+  assert.match(homeHtml, /id="homeCaseFlowTrack"/);
+  assert.match(homeHtml, /<script src="project-data\.js"><\/script>/);
+  assert.match(siteJs, /homeCaseFlowTrack/);
+  assert.match(siteJs, /renderHomeCaseFlow/);
+  assert.match(siteJs, /\[\.\.\.projects, \.\.\.projects\]/);
+  assert.match(siteJs, /case-flow-card/);
+  assert.match(siteCss, /\.home-case-flow/);
+  assert.match(siteCss, /\.case-flow-track/);
+  assert.match(siteCss, /@keyframes case-river/);
+  assert.match(siteCss, /@keyframes case-shine/);
+});
+
 test("about page shows nonprofit status and EIN without a public home address", async () => {
   const aboutHtml = await readFile("about.html", "utf8");
 
