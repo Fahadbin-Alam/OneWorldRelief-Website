@@ -1585,6 +1585,30 @@ Additional DNS check later on May 4, 2026:
   - Live CSS contains `.share-icon`, `.share-pill:hover`, and share button icon layout styles.
   - Live QR SVG returns HTTP 200 and contains the expected SVG/styling.
 
+### 2026-05-11 Contact Page Typography Polish
+- User said the contact section font/layout looked out of place and weird.
+- Updated `one-world-relief/contact.html`:
+  - Changed the large left heading from `Send a note and we will follow up.` to `We are here to help.`
+  - Added a concise intro line explaining donations, receipts, project updates, and partnerships.
+  - Changed form title from `Send a Message` to `Send us a note` with a small `Message` eyebrow.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Switched contact section headings from the oversized serif display style to Manrope sans-serif.
+  - Reduced heading size and widened max line length for a calmer layout.
+  - Tightened contact card spacing, reduced shadows, and softened card radius.
+  - Tightened form label/input spacing.
+- Updated tests to assert the new contact copy and typography rules are present and old wording is gone.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Code sync:
+  - GitHub code commit: `5d636de style: polish contact page typography`
+  - Local GitLab sync commit created: `36c2a5a style: polish contact page typography`
+- Cloudflare production deployment:
+  - `https://9265ad9e.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/contact` contains `We are here to help`, the new intro sentence, and `Send us a note`.
+  - Live contact page no longer contains `Send a note and we will follow up`.
+  - Live CSS contains `.contact-intro`, Manrope heading rules for the contact methods and message card headings, and the tighter contact card shadow.
+
 ---
 
 **End of AI Handoff Documentation**
