@@ -1220,6 +1220,37 @@ Additional DNS check later on May 4, 2026:
   - Live page does not contain the old `success-orbit`.
   - Live page does not contain `Donation Receipt` or `Receipt ID`.
 
+### 2026-05-10 Add Glowing Case Timelines
+- User asked to add an animated timeline to each case page so donors can understand each story and see updates when they click a case.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Upgraded `.project-timeline` into a glowing animated timeline.
+  - Added a glowing connector line with `timeline-glow`.
+  - Added animated active nodes with `timeline-node-pulse`.
+  - Added timestamp pills inside timeline cards.
+  - Added pending-state styling with `.timeline-step-pending`.
+  - Added reduced-motion handling for the new timeline animations.
+- Updated completed case pages:
+  - `one-world-relief/projects/case-001.html`
+  - `one-world-relief/projects/case-002.html`
+  - Both now show reviewed, delivered, and proof-live timeline steps.
+- Updated ongoing case pages:
+  - `one-world-relief/projects/case-003.html`
+  - `one-world-relief/projects/case-004.html`
+  - Both now show a 3-step timeline with the first step active and future updates/proof pending.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 12 tests passed.
+- Browser verification:
+  - Case 001, Case 002, Case 003, and Case 004 pages returned HTTP 200 locally.
+  - Each page rendered a visible `.project-timeline`.
+  - Each page had 3 timeline steps.
+  - Ongoing cases had 1 active step and 2 pending steps.
+  - No broken images.
+- Deployment/code sync pending at the time of this entry:
+  - Commit code to GitHub.
+  - Create local GitLab sync commit without this handoff document.
+  - Deploy Cloudflare Pages production.
+  - Verify live `.org` timelines.
+
 ---
 
 **End of AI Handoff Documentation**
