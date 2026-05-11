@@ -202,10 +202,29 @@ test("share QR points donors to the .org donation domain", async () => {
   ]);
 
   assert.match(shareHtml, /one-world-relief\.org\/donate/);
+  assert.match(shareHtml, /facebook\.com\/sharer\/sharer\.php\?u=https%3A%2F%2Fone-world-relief\.org%2Fdonate/);
+  assert.match(shareHtml, /twitter\.com\/intent\/tweet\?url=https%3A%2F%2Fone-world-relief\.org%2Fdonate/);
+  assert.match(shareHtml, /wa\.me\/\?text=Donate%20to%20One%20World%20Relief%3A%20https%3A%2F%2Fone-world-relief\.org%2Fdonate/);
+  assert.match(shareHtml, /sms:\?body=Donate%20to%20One%20World%20Relief%3A%20https%3A%2F%2Fone-world-relief\.org%2Fdonate/);
+  assert.match(shareHtml, /href="assets\/one-world-relief-donate-qr\.svg" download/);
+  assert.match(shareHtml, /id="copyInstagramCaption"/);
+  assert.match(shareHtml, /id="nativeShareButton"/);
+  assert.match(shareHtml, /id="openQrPresentation"/);
+  assert.match(shareHtml, /class="share-icon"/);
   assert.match(siteJs, /https:\/\/one-world-relief\.org\/donate/);
+  assert.match(siteJs, /navigator\.share/);
+  assert.match(siteJs, /copyInstagramCaption/);
   assert.match(qrSvg, /stroke="#183447"/);
   assert.doesNotMatch(shareHtml, /one-world-relief\.com\/donate/);
   assert.doesNotMatch(siteJs, /one-world-relief\.com\/donate/);
+});
+
+test("share page styles icon buttons for clear sharing actions", async () => {
+  const siteCss = await readFile("one-world-relief.css", "utf8");
+
+  assert.match(siteCss, /\.share-icon/);
+  assert.match(siteCss, /\.share-pill:hover/);
+  assert.match(siteCss, /\.share-actions \.button/);
 });
 
 test("donation page opens custom amount only when selected", async () => {
