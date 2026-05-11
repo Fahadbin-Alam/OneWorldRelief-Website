@@ -532,8 +532,6 @@ ul {
 .home-stories {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  --glow-x: 50%;
-  --glow-y: 50%;
   position: relative;
   display: grid;
   align-content: start;
@@ -751,8 +749,6 @@ ul {
 .flow-impact-media {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  --glow-x: 50%;
-  --glow-y: 50%;
   position: relative;
   display: grid;
   gap: 0.8rem;
@@ -1304,8 +1300,6 @@ ul {
 .donation-form-card {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  --glow-x: 50%;
-  --glow-y: 50%;
   position: relative;
   overflow: hidden;
   box-shadow: 0 30px 70px rgba(45, 91, 122, 0.13);
@@ -1520,8 +1514,6 @@ ul {
 .project-card {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  --glow-x: 50%;
-  --glow-y: 50%;
   position: relative;
   display: grid;
   grid-template-rows: auto auto auto minmax(5.2rem, auto) auto minmax(3.4rem, auto) auto;
@@ -1538,34 +1530,9 @@ ul {
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
-.project-card::before,
-.proof-card::before,
-.project-detail-feature::before,
-.flow-impact-media::before,
-.home-stories::before,
-.donation-form-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(255, 255, 255, 0.58), transparent 34%);
-  transition: opacity 0.22s ease;
-}
-
 .project-card:hover {
   border-color: rgba(77, 149, 194, 0.24);
   box-shadow: 0 24px 60px rgba(45, 91, 122, 0.14);
-}
-
-.project-card:hover::before,
-.proof-card:hover::before,
-.project-detail-feature:hover::before,
-.flow-impact-media:hover::before,
-.home-stories:hover::before,
-.donation-form-card:hover::after {
-  opacity: 1;
 }
 
 .project-card > * {
@@ -1696,8 +1663,6 @@ ul {
 .proof-card {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  --glow-x: 50%;
-  --glow-y: 50%;
   position: relative;
   margin: 0;
   overflow: hidden;

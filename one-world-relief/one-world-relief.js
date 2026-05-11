@@ -146,15 +146,11 @@
 
         target.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
         target.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
-        target.style.setProperty("--glow-x", `${(x * 100).toFixed(1)}%`);
-        target.style.setProperty("--glow-y", `${(y * 100).toFixed(1)}%`);
       });
 
       target.addEventListener("pointerleave", () => {
         target.style.setProperty("--tilt-x", "0deg");
         target.style.setProperty("--tilt-y", "0deg");
-        target.style.setProperty("--glow-x", "50%");
-        target.style.setProperty("--glow-y", "50%");
       });
     });
   };
