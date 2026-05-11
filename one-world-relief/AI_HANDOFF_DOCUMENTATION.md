@@ -1325,6 +1325,29 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.org/one-world-relief.js` contains scroll progress, pointer motion, animated numbers, and reveal variant setup.
   - `https://one-world-relief.org/`, `/projects`, and `/donate` return HTTP 200.
 
+### 2026-05-10 Remove Cursor Glow Effect
+- User said they did not like the glowy cursor effect.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Removed pointer-driven `--glow-x` and `--glow-y` updates.
+  - Kept subtle pointer tilt motion.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Removed `--glow-x` / `--glow-y` variables.
+  - Removed radial cursor-follow overlay pseudo-elements from motion surfaces.
+  - Kept non-cursor animations such as scroll progress, reveal motion, timelines, and subtle tilt.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 13 tests passed.
+- Browser verification:
+  - Local `projects.html` returned HTTP 200.
+  - No broken images.
+  - Project card tilt still works.
+  - Project card no longer sets glow variables.
+  - Project card `::before` glow overlay is gone.
+- Deployment/code sync pending at the time of this entry:
+  - Commit code to GitHub.
+  - Create local GitLab sync commit without this handoff document.
+  - Deploy Cloudflare Pages production.
+  - Verify live `.org` assets no longer contain cursor glow.
+
 ---
 
 **End of AI Handoff Documentation**
