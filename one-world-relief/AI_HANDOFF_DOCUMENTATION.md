@@ -1536,6 +1536,32 @@ Additional DNS check later on May 4, 2026:
   - Live homepage contains `faith-video-section`, `faith-video-bg`, Quran 2:215, Sahih al-Bukhari 6005, Quran 76:8, and Sunan Abi Dawud 1681.
   - Live CSS contains `.faith-video-section`, `.faith-quote-track`, `@keyframes faith-quote-scroll`, and reduced-motion video fallback.
 
+### 2026-05-11 Replace Ongoing Case Placeholder Art With Current Case Banner
+- User disliked the fake placeholder illustration on Case 003 and asked to remove it and show `Current Case` with the case number over a banner instead.
+- Updated `one-world-relief/project-data.js`:
+  - Case 003 and Case 004 now use `thumbnailType: "banner"` instead of placeholder SVG thumbnails.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Project cards now render a `.project-media-banner` for banner thumbnail cases.
+  - Banner displays `Current Case` and the case number from the case ID.
+- Updated `one-world-relief/projects/case-003.html` and `one-world-relief/projects/case-004.html`:
+  - Removed placeholder SVG images.
+  - Added `.current-case-banner` with `Current Case` and `003` / `004`.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added reusable `.project-media-banner` and `.current-case-banner` styles.
+  - Banner includes abstract background bands and large case number.
+- Updated tests to ensure placeholder SVG references are gone from data/pages and banner styles/rendering are present.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 16 tests passed.
+- Code sync:
+  - GitHub code commit: `edbd942 feat: replace ongoing case placeholders with banners`
+  - Local GitLab sync commit created: `e9d3499 feat: replace ongoing case placeholders with banners`
+- Cloudflare production deployment:
+  - `https://b6d972e9.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/project-data.js` has `thumbnailType: "banner"` for ongoing cases and no longer references the Case 003/004 placeholder SVG filenames.
+  - `https://one-world-relief.org/projects/case-003` and `/projects/case-004` contain `current-case-banner` and `Current Case`, and no longer reference the placeholder SVGs.
+  - Live CSS/JS contain `.project-media-banner`, `.current-case-banner`, and `Current Case` rendering support.
+
 ---
 
 **End of AI Handoff Documentation**
