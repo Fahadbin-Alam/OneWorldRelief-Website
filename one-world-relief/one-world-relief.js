@@ -5,6 +5,7 @@
   document.documentElement.classList.add("motion-ready");
 
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || window.location.origin).replace(/\/$/, "");
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const donationForm = document.getElementById("donationForm");
   const quickDonationForm = document.getElementById("quickDonationForm");
   const contactForm = document.getElementById("contactForm");
@@ -59,12 +60,43 @@
 
     revealItems.forEach((item, index) => {
       item.style.setProperty("--reveal-delay", `${Math.min(index * 70, 280)}ms`);
+      item.dataset.revealVariant = item.dataset.revealVariant || ["rise", "slide-left", "slide-right", "scale"][index % 4];
       observer.observe(item);
     });
   };
 
+  const setupScrollProgress = () => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    const progress = document.createElement("span");
+    progress.className = "scroll-progress";
+    progress.setAttribute("aria-hidden", "true");
+    document.body.appendChild(progress);
+
+    let ticking = false;
+    const update = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const value = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      progress.style.transform = `scaleX(${Math.min(Math.max(value, 0), 1).toFixed(4)})`;
+      ticking = false;
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+  };
+
   const setupFlowLayers = () => {
-    if (!flowLayers.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!flowLayers.length || prefersReducedMotion) {
       return;
     }
 
@@ -91,6 +123,93 @@
     update();
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
+  };
+
+  const setupPointerMotion = () => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    const targets = Array.from(document.querySelectorAll(
+      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .donation-form-card"
+    ));
+
+    targets.forEach((target) => {
+      target.classList.add("motion-surface");
+
+      target.addEventListener("pointermove", (event) => {
+        const rect = target.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const tiltX = (0.5 - y) * 8;
+        const tiltY = (x - 0.5) * 8;
+
+        target.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
+        target.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+        target.style.setProperty("--glow-x", `${(x * 100).toFixed(1)}%`);
+        target.style.setProperty("--glow-y", `${(y * 100).toFixed(1)}%`);
+      });
+
+      target.addEventListener("pointerleave", () => {
+        target.style.setProperty("--tilt-x", "0deg");
+        target.style.setProperty("--tilt-y", "0deg");
+        target.style.setProperty("--glow-x", "50%");
+        target.style.setProperty("--glow-y", "50%");
+      });
+    });
+  };
+
+  const setupAnimatedNumbers = () => {
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      return;
+    }
+
+    const numberItems = Array.from(document.querySelectorAll(".flow-impact-stats strong, #projectStats span"));
+
+    const animateNumber = (element) => {
+      if (element.dataset.counted === "true") {
+        return;
+      }
+
+      const original = element.textContent || "";
+      const match = original.match(/^([^0-9]*)([0-9,]+)(.*)$/);
+      if (!match) {
+        return;
+      }
+
+      element.dataset.counted = "true";
+      const prefix = match[1];
+      const target = Number(match[2].replace(/,/g, ""));
+      const suffix = match[3];
+      const duration = 900;
+      const start = performance.now();
+
+      const tick = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = Math.round(target * eased).toLocaleString();
+        element.textContent = `${prefix}${value}${suffix}`;
+
+        if (progress < 1) {
+          window.requestAnimationFrame(tick);
+        } else {
+          element.textContent = original;
+        }
+      };
+
+      window.requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateNumber(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.7 });
+
+    numberItems.forEach((item) => observer.observe(item));
   };
 
   const renderProjects = () => {
@@ -157,8 +276,11 @@
   };
 
   setupReveals();
+  setupScrollProgress();
   setupFlowLayers();
   renderProjects();
+  setupPointerMotion();
+  setupAnimatedNumbers();
 
   const copyText = async (text) => {
     if (!navigator.clipboard?.writeText) {

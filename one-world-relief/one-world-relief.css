@@ -31,6 +31,20 @@ html {
   scroll-behavior: smooth;
 }
 
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100%;
+  height: 4px;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--mint), var(--blue-500), var(--gold));
+  box-shadow: 0 0 20px rgba(77, 149, 194, 0.42);
+}
+
 body {
   margin: 0;
   font-family: "Manrope", "Segoe UI", sans-serif;
@@ -55,7 +69,7 @@ body::before {
     linear-gradient(118deg, transparent 28%, rgba(47, 159, 137, 0.1) 42%, transparent 60%),
     linear-gradient(124deg, transparent 50%, rgba(215, 165, 54, 0.1) 64%, transparent 82%);
   transform: rotate(-5deg);
-  animation: page-current 16s ease-in-out infinite alternate;
+  animation: page-current 16s ease-in-out infinite alternate, current-shimmer 9s ease-in-out infinite;
 }
 
 body::after {
@@ -70,7 +84,7 @@ body::after {
     linear-gradient(106deg, transparent 0 18%, rgba(77, 149, 194, 0.18) 18% 19%, transparent 19% 36%, rgba(47, 159, 137, 0.15) 36% 37%, transparent 37% 100%),
     linear-gradient(112deg, transparent 0 48%, rgba(215, 165, 54, 0.13) 48% 49%, transparent 49% 72%, rgba(77, 149, 194, 0.16) 72% 73%, transparent 73% 100%);
   transform: rotate(-8deg);
-  animation: long-current 22s ease-in-out infinite alternate;
+  animation: long-current 22s ease-in-out infinite alternate, current-shimmer 12s ease-in-out infinite reverse;
 }
 
 h1,
@@ -191,6 +205,8 @@ ul {
 }
 
 .button {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -204,9 +220,24 @@ ul {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+.button::after {
+  content: "";
+  position: absolute;
+  inset: -80% auto -80% -45%;
+  width: 34%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.48), transparent);
+  transform: translateX(-160%) rotate(16deg);
+  transition: transform 0.55s ease;
+}
+
 .button:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(45, 91, 122, 0.14);
+}
+
+.button:hover::after {
+  transform: translateX(520%) rotate(16deg);
 }
 
 .button:disabled {
@@ -280,6 +311,10 @@ ul {
   overflow: hidden;
 }
 
+.hero-shell-home .hero {
+  animation: section-float 8s ease-in-out infinite;
+}
+
 .hero > * {
   position: relative;
   z-index: 1;
@@ -294,6 +329,24 @@ ul {
   height: 220px;
   border-radius: 999px;
   background: radial-gradient(circle, rgba(190, 225, 246, 0.65), transparent 72%);
+}
+
+.hero::after,
+.page-hero::after,
+.flow-impact-section::after,
+.project-detail-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -12% 8% -12%;
+  height: 34%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  background:
+    linear-gradient(100deg, transparent 0 18%, rgba(255, 255, 255, 0.5) 18% 19%, transparent 19% 46%, rgba(77, 149, 194, 0.22) 46% 47%, transparent 47%),
+    linear-gradient(108deg, transparent 0 38%, rgba(47, 159, 137, 0.2) 38% 39%, transparent 39% 70%, rgba(215, 165, 54, 0.16) 70% 71%, transparent 71%);
+  transform: rotate(-5deg);
+  animation: ribbon-drift 14s ease-in-out infinite alternate;
 }
 
 .home-current-scene {
@@ -477,6 +530,11 @@ ul {
 }
 
 .home-stories {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 50%;
+  position: relative;
   display: grid;
   align-content: start;
   gap: 0.75rem;
@@ -485,6 +543,14 @@ ul {
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.home-stories > * {
+  position: relative;
+  z-index: 1;
 }
 
 .home-stories .eyebrow {
@@ -683,6 +749,10 @@ ul {
 }
 
 .flow-impact-media {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 50%;
   position: relative;
   display: grid;
   gap: 0.8rem;
@@ -692,6 +762,9 @@ ul {
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 28px 80px rgba(45, 91, 122, 0.16);
   will-change: transform;
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .flow-impact-media video {
@@ -1229,9 +1302,16 @@ ul {
 }
 
 .donation-form-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 50%;
   position: relative;
   overflow: hidden;
   box-shadow: 0 30px 70px rgba(45, 91, 122, 0.13);
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .donation-form-card::before {
@@ -1438,6 +1518,11 @@ ul {
 }
 
 .project-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 50%;
+  position: relative;
   display: grid;
   grid-template-rows: auto auto auto minmax(5.2rem, auto) auto minmax(3.4rem, auto) auto;
   gap: 0.85rem;
@@ -1448,6 +1533,44 @@ ul {
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 14px 30px rgba(45, 91, 122, 0.08);
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.project-card::before,
+.proof-card::before,
+.project-detail-feature::before,
+.flow-impact-media::before,
+.home-stories::before,
+.donation-form-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(255, 255, 255, 0.58), transparent 34%);
+  transition: opacity 0.22s ease;
+}
+
+.project-card:hover {
+  border-color: rgba(77, 149, 194, 0.24);
+  box-shadow: 0 24px 60px rgba(45, 91, 122, 0.14);
+}
+
+.project-card:hover::before,
+.proof-card:hover::before,
+.project-detail-feature:hover::before,
+.flow-impact-media:hover::before,
+.home-stories:hover::before,
+.donation-form-card:hover::after {
+  opacity: 1;
+}
+
+.project-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .project-media {
@@ -1571,12 +1694,20 @@ ul {
 
 .project-detail-feature,
 .proof-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 50%;
+  position: relative;
   margin: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--shadow);
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
 .project-detail-feature img,
@@ -1840,15 +1971,30 @@ ul {
 
 .motion-ready .reveal {
   opacity: 0;
-  transform: translateY(34px);
+  transform: translateY(44px);
   transition:
-    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+    opacity 1s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+    transform 1s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+    filter 1s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+  filter: blur(8px);
+}
+
+.motion-ready .reveal[data-reveal-variant="slide-left"] {
+  transform: translateX(-48px);
+}
+
+.motion-ready .reveal[data-reveal-variant="slide-right"] {
+  transform: translateX(48px);
+}
+
+.motion-ready .reveal[data-reveal-variant="scale"] {
+  transform: translateY(28px) scale(0.96);
 }
 
 .motion-ready .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
 }
 
 @keyframes rise-in {
@@ -1871,6 +2017,17 @@ ul {
   }
 }
 
+@keyframes current-shimmer {
+  0%, 100% {
+    opacity: 0.42;
+    filter: saturate(0.95);
+  }
+  50% {
+    opacity: 0.74;
+    filter: saturate(1.2);
+  }
+}
+
 @keyframes long-current {
   from {
     transform: translateX(-4vw) rotate(-8deg);
@@ -1886,6 +2043,24 @@ ul {
   }
   to {
     transform: translateX(4vw) rotate(-8deg);
+  }
+}
+
+@keyframes ribbon-drift {
+  from {
+    transform: translateX(-4vw) rotate(-6deg);
+  }
+  to {
+    transform: translateX(4vw) rotate(-3deg);
+  }
+}
+
+@keyframes section-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
   }
 }
 
@@ -1940,6 +2115,11 @@ ul {
 
   body::before,
   body::after,
+  .hero-shell-home .hero,
+  .hero::after,
+  .page-hero::after,
+  .flow-impact-section::after,
+  .project-detail-hero::after,
   .current-lines span,
   .flow-impact-section::before,
   .flow-ribbon span,
@@ -1950,6 +2130,19 @@ ul {
   .project-timeline::before,
   .timeline-step-active span {
     animation: none;
+  }
+
+  .scroll-progress {
+    display: none;
+  }
+
+  .project-card,
+  .proof-card,
+  .project-detail-feature,
+  .flow-impact-media,
+  .home-stories,
+  .donation-form-card {
+    transform: none;
   }
 }
 
