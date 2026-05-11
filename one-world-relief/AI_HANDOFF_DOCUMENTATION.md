@@ -1633,6 +1633,25 @@ Additional DNS check later on May 4, 2026:
   - Live CSS uses the corrected two-column hero grid `minmax(0, 0.95fr) minmax(340px, 420px)`.
   - Live CSS caps the quick donation card at `max-width: 420px` and gives quick amount buttons `min-height: 58px`.
 
+### 2026-05-11 Remove Redundant Projects Page Hero
+- User asked to remove the Projects page intro hero because visitors already know they clicked Projects.
+- Updated `one-world-relief/projects.html`:
+  - Removed the `page-hero` section with `Projects` / `See where donations go.` / explanatory copy.
+  - Projects page now opens directly into categories and the project board.
+- Updated tests:
+  - Added coverage that `projects.html` no longer contains the old hero or `See where donations go`, and still contains categories plus `#projectBoard`.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
+- Code sync:
+  - GitHub code commit: `4b48ea5 fix: remove redundant projects hero`
+  - Local GitLab sync commit created: `0782a3d fix: remove redundant projects hero`
+- Cloudflare production deployment:
+  - `https://08f8699f.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/projects` no longer contains `See where donations go`.
+  - Live projects page no longer contains the removed `<section class="page-hero reveal">`.
+  - Live projects page still contains the `Categories` section and `#projectBoard`.
+
 ---
 
 **End of AI Handoff Documentation**
