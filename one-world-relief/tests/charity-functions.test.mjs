@@ -271,12 +271,17 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteJs, /includes\("completed"\)/);
   assert.match(siteJs, /\[\.\.\.projects, \.\.\.projects, \.\.\.projects, \.\.\.projects\]/);
   assert.match(siteJs, /syncQuickCustomPanel/);
+  assert.match(siteJs, /cancelAnimationFrame\(pointerFrame\)/);
   assert.match(siteJs, /case-flow-card/);
   assert.match(siteCss, /\.home-case-flow/);
   assert.match(siteCss, /\.case-flow-track/);
   assert.match(siteCss, /@keyframes case-river/);
-  assert.match(siteCss, /@keyframes case-shine/);
+  assert.match(siteCss, /will-change: transform/);
+  assert.match(siteCss, /translate3d\(calc\(-50% - 0\.5rem\), 0, 0\)/);
   assert.doesNotMatch(siteCss, /case-flow-shell:hover \.case-flow-track/);
+  assert.doesNotMatch(siteCss, /@keyframes case-shine/);
+  assert.doesNotMatch(siteJs, /case-flow-shine/);
+  assert.doesNotMatch(siteJs, /case-flow-card, \\.contact-message-card/);
 });
 
 test("contact page has the updated flowing contact layout", async () => {

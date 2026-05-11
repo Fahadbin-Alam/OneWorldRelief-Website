@@ -132,24 +132,44 @@
     }
 
     const targets = Array.from(document.querySelectorAll(
-      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .donation-form-card, .case-flow-card, .contact-message-card"
+      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .donation-form-card, .contact-message-card"
     ));
 
     targets.forEach((target) => {
       target.classList.add("motion-surface");
+      let pointerFrame = 0;
+      let latestPointerEvent = null;
 
       target.addEventListener("pointermove", (event) => {
-        const rect = target.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width;
-        const y = (event.clientY - rect.top) / rect.height;
-        const tiltX = (0.5 - y) * 8;
-        const tiltY = (x - 0.5) * 8;
+        latestPointerEvent = event;
+        if (pointerFrame) {
+          return;
+        }
 
-        target.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
-        target.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+        pointerFrame = window.requestAnimationFrame(() => {
+          if (!latestPointerEvent) {
+            pointerFrame = 0;
+            return;
+          }
+
+          const rect = target.getBoundingClientRect();
+          const x = (latestPointerEvent.clientX - rect.left) / rect.width;
+          const y = (latestPointerEvent.clientY - rect.top) / rect.height;
+          const tiltX = (0.5 - y) * 8;
+          const tiltY = (x - 0.5) * 8;
+
+          target.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
+          target.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+          pointerFrame = 0;
+        });
       });
 
       target.addEventListener("pointerleave", () => {
+        latestPointerEvent = null;
+        if (pointerFrame) {
+          window.cancelAnimationFrame(pointerFrame);
+          pointerFrame = 0;
+        }
         target.style.setProperty("--tilt-x", "0deg");
         target.style.setProperty("--tilt-y", "0deg");
       });
@@ -302,7 +322,6 @@
       return `
         <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs} aria-label="Open ${title}" style="--case-delay: ${index * 120}ms">
           <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
-          <span class="case-flow-shine" aria-hidden="true"></span>
           <span class="case-flow-copy">
             <span>${date} &middot; ${status}</span>
             <strong>${title}</strong>

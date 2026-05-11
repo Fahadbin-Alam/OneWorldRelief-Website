@@ -782,7 +782,27 @@ ul {
   z-index: 1;
   width: 100%;
   overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.case-flow-shell::before,
+.case-flow-shell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: min(9vw, 120px);
+  pointer-events: none;
+}
+
+.case-flow-shell::before {
+  left: 0;
+  background: linear-gradient(90deg, #f6fbff, rgba(246, 251, 255, 0));
+}
+
+.case-flow-shell::after {
+  right: 0;
+  background: linear-gradient(270deg, #f6fbff, rgba(246, 251, 255, 0));
 }
 
 .case-flow-track {
@@ -790,12 +810,12 @@ ul {
   width: max-content;
   gap: 1rem;
   padding: 0.5rem max(1rem, calc((100vw - var(--max-width)) / 2)) 1.2rem;
-  animation: case-river 34s linear infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: case-river 42s linear infinite;
 }
 
 .case-flow-card {
-  --tilt-x: 0deg;
-  --tilt-y: 0deg;
   position: relative;
   flex: 0 0 clamp(240px, 26vw, 360px);
   min-height: 410px;
@@ -805,13 +825,10 @@ ul {
   overflow: hidden;
   border: 1px solid rgba(24, 52, 71, 0.12);
   background: var(--ink);
-  box-shadow: 0 22px 58px rgba(45, 91, 122, 0.16);
-  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  transform-style: preserve-3d;
+  box-shadow: 0 14px 34px rgba(45, 91, 122, 0.13);
+  contain: layout paint;
   opacity: 0;
-  animation:
-    case-card-in 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--case-delay, 0ms) forwards,
-    case-card-float 7s ease-in-out calc(var(--case-delay, 0ms) * -1) infinite;
+  animation: case-card-in 520ms cubic-bezier(0.22, 1, 0.36, 1) var(--case-delay, 0ms) forwards;
 }
 
 .case-flow-card:nth-child(even) {
@@ -825,7 +842,7 @@ ul {
   height: 100%;
   object-fit: cover;
   transform: scale(1.04);
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .case-flow-card::after {
@@ -837,18 +854,8 @@ ul {
     linear-gradient(120deg, rgba(77, 149, 194, 0.14), transparent 48%);
 }
 
-.case-flow-shine {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(105deg, transparent 0 36%, rgba(255, 255, 255, 0.28) 45%, transparent 54% 100%);
-  transform: translateX(-120%);
-  animation: case-shine 6.8s ease-in-out infinite;
-}
-
 .case-flow-card:hover img {
-  transform: scale(1.11);
-  filter: saturate(1.08) contrast(1.02);
+  transform: scale(1.08);
 }
 
 .case-flow-copy {
@@ -2456,39 +2463,19 @@ ul {
 
 @keyframes case-river {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateX(calc(-50% - 0.5rem));
+    transform: translate3d(calc(-50% - 0.5rem), 0, 0);
   }
 }
 
 @keyframes case-card-in {
   from {
     opacity: 0;
-    filter: blur(10px);
   }
   to {
     opacity: 1;
-    filter: blur(0);
-  }
-}
-
-@keyframes case-card-float {
-  0%, 100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -10px;
-  }
-}
-
-@keyframes case-shine {
-  0%, 42% {
-    transform: translateX(-120%);
-  }
-  62%, 100% {
-    transform: translateX(120%);
   }
 }
 
@@ -2587,7 +2574,6 @@ ul {
   .home-case-flow::before,
   .case-flow-track,
   .case-flow-card,
-  .case-flow-shine,
   .contact-flow-section::before,
   .contact-method-card::before,
   .contact-message-card::before,
@@ -2632,13 +2618,15 @@ ul {
 
   .case-flow-shell {
     overflow-x: auto;
-    mask-image: none;
+  }
+
+  .case-flow-shell::before,
+  .case-flow-shell::after {
+    display: none;
   }
 
   .case-flow-card {
     opacity: 1;
-    filter: none;
-    translate: none;
   }
 }
 
