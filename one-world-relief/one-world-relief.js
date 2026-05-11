@@ -260,15 +260,25 @@
       const update = escapeHtml(project.update);
       const mediaLabel = escapeHtml(project.mediaLabel || "View update");
       const thumbnailUrl = escapeHtml(project.thumbnailUrl);
+      const caseNumber = escapeHtml(String(date).replace(/^Case\s*/i, "") || date);
+      const hasBannerThumbnail = project.thumbnailType === "banner" || !project.thumbnailUrl;
       const rawMediaUrl = project.mediaUrl || "#";
       const mediaUrl = escapeHtml(rawMediaUrl);
       const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
       const donationUrl = escapeHtml(project.donationUrl || "donate.html#donationForm");
+      const mediaMarkup = hasBannerThumbnail
+        ? `
+          <span class="project-media-banner" aria-hidden="true">
+            <span>Current Case</span>
+            <strong>${caseNumber}</strong>
+          </span>
+        `
+        : `<img src="${thumbnailUrl}" alt="${title}" loading="lazy" />`;
 
       return `
         <article class="project-card">
           <a class="project-media" href="${mediaUrl}"${mediaLinkAttrs} aria-label="${mediaLabel} for ${title}">
-            <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
+            ${mediaMarkup}
             <span>${mediaLabel}</span>
           </a>
           <div class="project-meta">

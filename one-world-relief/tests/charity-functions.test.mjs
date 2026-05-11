@@ -334,8 +334,10 @@ test("about page shows nonprofit status and EIN without a public home address", 
 });
 
 test("project cards publish approved cases with embedded local media", async () => {
-  const [projectData, casePage, caseTwoPage, caseThreePage, caseFourPage] = await Promise.all([
+  const [projectData, siteJs, siteCss, casePage, caseTwoPage, caseThreePage, caseFourPage] = await Promise.all([
     readFile("project-data.js", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
     readFile("projects/case-001.html", "utf8"),
     readFile("projects/case-002.html", "utf8"),
     readFile("projects/case-003.html", "utf8"),
@@ -361,8 +363,11 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /Korbani Meals for a Village/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
   assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
-  assert.match(projectData, /orphan-education-003-placeholder\.svg/);
-  assert.match(projectData, /korbani-village-004-placeholder\.svg/);
+  assert.match(projectData, /thumbnailType: "banner"/);
+  assert.doesNotMatch(projectData, /orphan-education-003-placeholder\.svg/);
+  assert.doesNotMatch(projectData, /korbani-village-004-placeholder\.svg/);
+  assert.match(siteJs, /project-media-banner/);
+  assert.match(siteCss, /\.current-case-banner/);
 
   assert.match(casePage, /Keeping a Hafiz student in school/);
   assert.match(casePage, /Case ID/);
@@ -390,16 +395,22 @@ test("project cards publish approved cases with embedded local media", async () 
 
   assert.match(caseThreePage, /Keeping an orphan boy in school/);
   assert.match(caseThreePage, /Case 003/);
+  assert.match(caseThreePage, /Current Case/);
+  assert.match(caseThreePage, /current-case-banner/);
   assert.match(caseThreePage, /Ongoing/);
   assert.match(caseThreePage, /Media coming soon/);
+  assert.doesNotMatch(caseThreePage, /orphan-education-003-placeholder\.svg/);
   assert.match(caseThreePage, /project-timeline/);
   assert.match(caseThreePage, /timeline-step-active/);
   assert.match(caseThreePage, /timeline-step-pending/);
 
   assert.match(caseFourPage, /Korbani meals for a village/);
   assert.match(caseFourPage, /Case 004/);
+  assert.match(caseFourPage, /Current Case/);
+  assert.match(caseFourPage, /current-case-banner/);
   assert.match(caseFourPage, /Ongoing/);
   assert.match(caseFourPage, /Media coming soon/);
+  assert.doesNotMatch(caseFourPage, /korbani-village-004-placeholder\.svg/);
   assert.match(caseFourPage, /project-timeline/);
   assert.match(caseFourPage, /timeline-step-active/);
   assert.match(caseFourPage, /timeline-step-pending/);

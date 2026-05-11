@@ -2125,7 +2125,69 @@ ul {
   transform: scale(1.03);
 }
 
-.project-media span {
+.project-media-banner,
+.current-case-banner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  color: var(--blue-700);
+  background:
+    linear-gradient(135deg, rgba(238, 248, 255, 0.94), rgba(217, 239, 255, 0.82)),
+    var(--sky-200);
+}
+
+.project-media-banner::before,
+.current-case-banner::before {
+  content: "";
+  position: absolute;
+  inset: 12% -18%;
+  background:
+    linear-gradient(104deg, transparent 0 22%, rgba(77, 149, 194, 0.15) 22% 24%, transparent 24% 52%, rgba(47, 159, 137, 0.12) 52% 54%, transparent 54%),
+    linear-gradient(112deg, transparent 0 60%, rgba(215, 165, 54, 0.12) 60% 62%, transparent 62%);
+  transform: rotate(-8deg);
+}
+
+.project-media-banner::after,
+.current-case-banner::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% 0;
+  height: 38%;
+  background: linear-gradient(90deg, rgba(77, 149, 194, 0.22), rgba(47, 159, 137, 0.16), rgba(215, 165, 54, 0.12));
+  clip-path: polygon(0 34%, 100% 0, 100% 100%, 0 100%);
+}
+
+.project-media-banner span,
+.current-case-banner span,
+.project-media-banner strong,
+.current-case-banner strong {
+  position: relative;
+  z-index: 1;
+}
+
+.project-media-banner span,
+.current-case-banner span {
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--blue-500);
+}
+
+.project-media-banner strong,
+.current-case-banner strong {
+  margin-top: 0.2rem;
+  font-family: var(--serif);
+  color: var(--ink);
+  font-size: clamp(4rem, 10vw, 7.5rem);
+  line-height: 0.88;
+}
+
+.project-media > span:not(.project-media-banner) {
   position: absolute;
   left: 0.8rem;
   bottom: 0.8rem;
@@ -2258,6 +2320,15 @@ ul {
 
 .project-detail-feature {
   aspect-ratio: 4 / 3;
+}
+
+.project-current-banner {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.project-current-banner .current-case-banner {
+  min-height: 0;
 }
 
 .project-detail-video-feature {
