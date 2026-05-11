@@ -445,6 +445,15 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(caseFourPage, /timeline-step-pending/);
 });
 
+test("projects page opens directly into project content", async () => {
+  const projectsHtml = await readFile("projects.html", "utf8");
+
+  assert.doesNotMatch(projectsHtml, /See where donations go/);
+  assert.doesNotMatch(projectsHtml, /<section class="page-hero reveal">/);
+  assert.match(projectsHtml, /<p class="eyebrow">Categories<\/p>/);
+  assert.match(projectsHtml, /id="projectBoard"/);
+});
+
 test("stripe webhook rejects invalid signatures", async () => {
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const response = await webhook.onRequestPost({
