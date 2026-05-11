@@ -296,8 +296,10 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /id="quickCustomPanel" hidden/);
   assert.match(homeHtml, /Worked On/);
   assert.match(homeHtml, /Goals/);
+  assert.match(homeHtml, /home-case-panel-section/);
   assert.match(homeHtml, /id="homeCompletedCases"/);
   assert.match(homeHtml, /id="homeGoalCases"/);
+  assert.match(homeHtml, /<form class="quick-donation" id="quickDonationForm"[\s\S]*<\/form>\s*<\/div>\s*<\/div>\s*<\/section>\s*<section class="container home-case-panel-section/);
   assert.match(siteJs, /homeCaseFlowTrack/);
   assert.match(siteJs, /renderHomeCaseFlow/);
   assert.match(siteJs, /renderHomeCaseLanes/);
@@ -311,6 +313,8 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteJs, /case-flow-card/);
   assert.match(siteCss, /\.home-case-flow/);
   assert.match(siteCss, /\.home-case-lanes/);
+  assert.match(siteCss, /\.home-case-panel-section/);
+  assert.match(siteCss, /grid-template-columns: minmax\(0, 0\.95fr\) minmax\(340px, 420px\)/);
   assert.match(siteCss, /\.faith-video-section/);
   assert.match(siteCss, /\.faith-quote-track/);
   assert.match(siteCss, /@keyframes faith-quote-scroll/);
