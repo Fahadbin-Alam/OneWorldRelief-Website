@@ -1798,14 +1798,12 @@ ul {
   gap: 1rem;
 }
 
-.contact-hero {
-  position: relative;
-  overflow: hidden;
-}
-
 .contact-flow-section {
   position: relative;
-  padding: clamp(2rem, 6vw, 4.5rem) 0;
+  min-height: calc(100svh - 74px);
+  display: grid;
+  align-items: center;
+  padding: clamp(2.2rem, 6vw, 4.5rem) 0;
   overflow: hidden;
 }
 
@@ -1826,17 +1824,18 @@ ul {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1fr);
-  gap: clamp(1rem, 4vw, 2rem);
+  grid-template-columns: minmax(300px, 0.72fr) minmax(420px, 1fr);
+  gap: clamp(1.25rem, 4vw, 2.6rem);
   align-items: start;
 }
 
-.contact-methods h2 {
-  max-width: 18ch;
-  margin-bottom: 0.55rem;
+.contact-methods h1 {
+  max-width: 13ch;
+  margin-bottom: 0.72rem;
   font-family: "Manrope", "Segoe UI", sans-serif;
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(2.5rem, 5vw, 4.7rem);
   font-weight: 900;
+  line-height: 0.98;
   letter-spacing: 0;
 }
 
@@ -1873,11 +1872,12 @@ ul {
 .contact-message-card::before {
   content: "";
   position: absolute;
-  inset: auto -18% -64px;
-  height: 104px;
+  inset: auto -16% -82px;
+  height: 126px;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(77, 149, 194, 0.14), rgba(47, 159, 137, 0.12), rgba(215, 165, 54, 0.1));
+  background: linear-gradient(90deg, rgba(77, 149, 194, 0.1), rgba(47, 159, 137, 0.08), rgba(215, 165, 54, 0.08));
   animation: panel-current 6s ease-in-out infinite alternate;
+  opacity: 0.8;
 }
 
 .contact-method-card:hover {
@@ -1908,7 +1908,7 @@ ul {
 .contact-message-card {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  padding: clamp(1rem, 3vw, 1.45rem);
+  padding: clamp(1.15rem, 3vw, 1.65rem);
   transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transform-style: preserve-3d;
   transition: transform 0.22s ease, box-shadow 0.22s ease;
@@ -2058,7 +2058,7 @@ ul {
 .contact-form label {
   display: grid;
   gap: 0.42rem;
-  margin-top: 0.8rem;
+  margin-top: 0.75rem;
   font-weight: 700;
 }
 
@@ -2084,7 +2084,18 @@ ul {
 }
 
 .contact-form textarea {
+  min-height: 160px;
   resize: vertical;
+}
+
+.contact-submit {
+  width: max-content;
+  min-width: 150px;
+  margin-top: 1rem;
+  padding-inline: 1.35rem;
+  border-radius: 999px;
+  justify-self: start;
+  box-shadow: 0 14px 28px rgba(45, 91, 122, 0.16);
 }
 
 .payments,
@@ -3029,7 +3040,7 @@ ul {
     min-height: 360px;
   }
 
-  .contact-methods h2 {
+  .contact-methods h1 {
     max-width: none;
   }
 }

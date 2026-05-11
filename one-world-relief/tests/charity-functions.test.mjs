@@ -332,16 +332,21 @@ test("contact page has the updated flowing contact layout", async () => {
   assert.match(contactHtml, /contact-method-card/);
   assert.match(contactHtml, /contact-message-card/);
   assert.match(contactHtml, /Questions about donations, receipts, projects, or partnerships/);
-  assert.match(contactHtml, /We are here to help/);
+  assert.match(contactHtml, /Reach One World Relief/);
   assert.match(contactHtml, /Send us a note/);
+  assert.match(contactHtml, /Send Email/);
   assert.doesNotMatch(contactHtml, /Send a note and we will follow up/);
+  assert.doesNotMatch(contactHtml, /We are here to help/);
   assert.match(siteCss, /\.contact-flow-section/);
   assert.match(siteCss, /\.contact-intro/);
+  assert.match(siteCss, /\.contact-submit/);
   assert.match(siteCss, /\.contact-method-card/);
   assert.match(siteCss, /\.contact-message-card/);
-  assert.match(siteCss, /contact-methods h2[\s\S]*font-family: "Manrope"/);
+  assert.match(siteCss, /min-height: calc\(100svh - 74px\)/);
+  assert.match(siteCss, /contact-methods h1[\s\S]*font-family: "Manrope"/);
   assert.match(siteCss, /contact-message-card h2[\s\S]*font-family: "Manrope"/);
   assert.match(siteJs, /contact-message-card/);
+  assert.match(siteJs, /rootMargin: "0px 0px 22% 0px"/);
 });
 
 test("about page shows nonprofit status and EIN without a public home address", async () => {
