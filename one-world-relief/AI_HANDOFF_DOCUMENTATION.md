@@ -1314,11 +1314,16 @@ Additional DNS check later on May 4, 2026:
   - `.reveal.is-visible` elements appeared.
   - `.motion-surface` elements were present.
   - Project card pointer movement set tilt CSS variables.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org` motion assets.
+- Code sync:
+  - GitHub code commit: `1aa13d1 feat: add cinematic site motion`
+  - Local GitLab sync commit created: `1d6cb67 feat: add cinematic site motion`
+  - GitHub-only handoff commit: `4814844 docs: log cinematic motion pass`
+- Cloudflare production deployment:
+  - `https://f3cd9256.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/one-world-relief.css` contains scroll progress, ribbon drift, section float, pointer glow, and reduced-motion support.
+  - `https://one-world-relief.org/one-world-relief.js` contains scroll progress, pointer motion, animated numbers, and reveal variant setup.
+  - `https://one-world-relief.org/`, `/projects`, and `/donate` return HTTP 200.
 
 ---
 
