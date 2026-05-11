@@ -1258,6 +1258,24 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.org/projects/case-003` contains timeline, active step, and pending steps.
   - `https://one-world-relief.org/projects/case-004` contains timeline, active step, and pending steps.
 
+### 2026-05-10 Add 501(c)(3) and EIN to About Page
+- User asked to add nonprofit legitimacy information to the About page.
+- Updated `one-world-relief/about.html`:
+  - Added `501(c)(3) Status`.
+  - Added `OneWorld Relief is a 501(c)(3) nonprofit organization.`
+  - Added `EIN: 41-5079927`.
+  - Added safe tax language: `Donations may be tax-deductible to the extent allowed by law.`
+  - Kept mailing address as `Available upon request` to avoid publishing the user's home address.
+- Updated `one-world-relief/tests/charity-functions.test.mjs`:
+  - Added a regression test confirming the About page includes 501(c)(3), EIN, tax language, and does not expose a known private address string.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 13 tests passed.
+- Deployment/code sync pending at the time of this entry:
+  - Commit code to GitHub.
+  - Create local GitLab sync commit without this handoff document.
+  - Deploy Cloudflare Pages production.
+  - Verify live `.org/about`.
+
 ---
 
 **End of AI Handoff Documentation**
