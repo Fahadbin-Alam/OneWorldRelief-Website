@@ -1674,6 +1674,28 @@ Additional DNS check later on May 4, 2026:
   - Live CSS no longer contains `.share-icon` styling.
   - Live Share page has text-only `Enlarge QR` and `Download QR` actions and still points to `one-world-relief.org/donate`.
 
+### 2026-05-11 Clean About Organization Details
+- User asked to make the About page nonprofit/owner/details section look cleaner.
+- Updated `one-world-relief/about.html`:
+  - Replaced the separate Owner, nonprofit status, contact, mailing address, and donor questions card rows with one cleaner `official-panel`.
+  - Changed the section heading to `Organization Details` and removed the awkward `Owned by Fahadbin Alam` heading.
+  - Kept EIN, 501(c)(3) status, tax-deductible language, public email, mailing-address privacy, and donor-question guidance visible.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added `official-panel` and `official-details` styles with a cleaner two-column layout, compact detail tiles, softer borders, and responsive stacking.
+- Updated tests:
+  - About test now verifies `official-panel` / `official-details`, confirms EIN/nonprofit/tax/contact privacy copy, and asserts `Owned by Fahadbin Alam` is gone.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Code sync:
+  - GitHub code commit: `6c8509d style: clean up about organization details`
+  - Local GitLab sync commit created: `a415b09 style: clean up about organization details`
+- Cloudflare production deployment:
+  - `https://4f82d9bb.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/about` contains `Organization Details`, `official-panel`, `official-details`, and EIN `41-5079927`.
+  - Live About page no longer contains `Owned by Fahadbin Alam`.
+  - Live CSS contains `.official-panel` and `.official-details`.
+
 ---
 
 **End of AI Handoff Documentation**
