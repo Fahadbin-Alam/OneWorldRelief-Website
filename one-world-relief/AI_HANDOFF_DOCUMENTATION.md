@@ -1245,11 +1245,18 @@ Additional DNS check later on May 4, 2026:
   - Each page had 3 timeline steps.
   - Ongoing cases had 1 active step and 2 pending steps.
   - No broken images.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org` timelines.
+- Code sync:
+  - GitHub code commit: `0b99a8c feat: add animated case timelines`
+  - Local GitLab sync commit created: `615b10c feat: add animated case timelines`
+  - GitHub-only handoff commit: `18dd01a docs: log animated case timelines`
+- Cloudflare production deployment:
+  - `https://8d94b4d5.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/one-world-relief.css` contains `timeline-glow`, `timeline-node-pulse`, and `timeline-step-pending`.
+  - `https://one-world-relief.org/projects/case-001` contains timeline and active step.
+  - `https://one-world-relief.org/projects/case-002` contains timeline and active step.
+  - `https://one-world-relief.org/projects/case-003` contains timeline, active step, and pending steps.
+  - `https://one-world-relief.org/projects/case-004` contains timeline, active step, and pending steps.
 
 ---
 
