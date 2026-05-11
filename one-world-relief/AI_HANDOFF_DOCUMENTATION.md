@@ -1385,6 +1385,32 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.org/one-world-relief.css` contains the custom donation panel styles and new panel keyframes.
   - Live CSS/JS still do not contain the removed cursor glow variables.
 
+### 2026-05-11 Homepage Flowing Case Photo Reel
+- User emphasized that making the animations flowy is key and asked for the homepage case photos to animate so visitors can see the work One World Relief has done.
+- Updated `one-world-relief/index.html`:
+  - Added a `Cases in Motion` homepage section between the donation focus chips and the project flow section.
+  - Added `#homeCaseFlowTrack` as the dynamic container for case photo cards.
+  - Loaded `project-data.js` before `one-world-relief.js` on the homepage so the reel uses the same real case data as the Projects page.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Added `renderHomeCaseFlow()` to build a duplicated, seamless case reel from `window.ONE_WORLD_RELIEF_PROJECTS`.
+  - Each case card links to its case page and displays case ID/status, title, category, and amount/progress.
+  - Added `.case-flow-card` to existing pointer tilt motion targets.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added a full-width flowing case photo strip with large image cards, edge fade mask, hover pause, shine sweep, card float, and long-current background motion.
+  - Added responsive mobile sizing and reduced-motion fallback so the reel becomes manually scrollable when motion reduction is requested.
+- Added test coverage in `one-world-relief/tests/charity-functions.test.mjs` for the homepage section, project data script, renderer, and flow keyframes.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 15 tests passed.
+- Code sync:
+  - GitHub code commit: `09e4294 feat: add flowing homepage case reel`
+  - Local GitLab sync commit created: `3d188d1 feat: add flowing homepage case reel`
+- Cloudflare production deployment:
+  - `https://7c1eeb23.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/` contains `Cases in Motion`, `homeCaseFlowTrack`, and the `project-data.js` script.
+  - Live JavaScript contains `renderHomeCaseFlow()` and `.case-flow-card` pointer motion support.
+  - Live CSS contains `.home-case-flow`, `@keyframes case-river`, `@keyframes case-shine`, and reduced-motion support for the case reel.
+
 ---
 
 **End of AI Handoff Documentation**
