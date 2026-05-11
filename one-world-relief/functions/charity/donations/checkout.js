@@ -31,6 +31,8 @@ export const onRequestPost = async ({ request, env }) => {
   const amountUsd = Number(body.amount_usd || 0);
   const paymentMethod = String(body.payment_method || "stripe").trim().toLowerCase().replace(/-/g, "_");
   const campaign = String(body.campaign || "General Fund").trim() || "General Fund";
+  const donorNote = String(body.donor_note || "").trim().slice(0, 180);
+  const anonymousPublic = Boolean(body.anonymous_public);
 
   if (donorName.length < 2 || !donorEmail.includes("@")) {
     return json({ detail: "Please enter a valid donor name and email." }, 400);
@@ -92,11 +94,15 @@ export const onRequestPost = async ({ request, env }) => {
   form.set("metadata[campaign]", campaign);
   form.set("metadata[donor_name]", donorName);
   form.set("metadata[donor_email]", donorEmail);
+  form.set("metadata[donor_note]", donorNote);
+  form.set("metadata[anonymous_public]", anonymousPublic ? "yes" : "no");
   form.set("payment_intent_data[metadata][donation_id]", donationId);
   form.set("payment_intent_data[metadata][source]", "one-world-relief");
   form.set("payment_intent_data[metadata][campaign]", campaign);
   form.set("payment_intent_data[metadata][donor_name]", donorName);
   form.set("payment_intent_data[metadata][donor_email]", donorEmail);
+  form.set("payment_intent_data[metadata][donor_note]", donorNote);
+  form.set("payment_intent_data[metadata][anonymous_public]", anonymousPublic ? "yes" : "no");
   form.set("payment_intent_data[receipt_email]", donorEmail);
   form.set("line_items[0][quantity]", "1");
   form.set("line_items[0][price_data][currency]", "usd");

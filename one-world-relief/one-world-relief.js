@@ -654,6 +654,8 @@
     const donorEmail = document.getElementById("donorEmail").value.trim();
     const paymentMethod = document.getElementById("paymentMethod").value;
     const campaign = document.getElementById("campaignSelect")?.value || "General Fund";
+    const donorNote = document.getElementById("donorNote")?.value.trim() || "";
+    const anonymousDonation = Boolean(document.getElementById("anonymousDonation")?.checked);
     const amountUsd = getDonationAmount();
 
     if (!donorName || !donorEmail) {
@@ -678,6 +680,8 @@
           amount_usd: amountUsd,
           payment_method: paymentMethod,
           campaign,
+          donor_note: donorNote,
+          anonymous_public: anonymousDonation,
         }),
       });
 
@@ -711,7 +715,7 @@
       setStatus(error.message || fallbackMessage, true);
     } finally {
       donateButton.disabled = false;
-      donateButton.textContent = "Complete Donation";
+      donateButton.textContent = "Continue to Secure Checkout";
     }
   });
 })();

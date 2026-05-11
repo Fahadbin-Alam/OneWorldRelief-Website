@@ -206,6 +206,8 @@ const appendDonationToGoogleSheet = async (env, session) => {
     session.payment_intent ? `Payment Intent: ${session.payment_intent}` : "",
     receiptEmailStatus ? `Receipt Email: ${receiptEmailStatus}` : "",
     receiptUrl ? `Receipt URL: ${receiptUrl}` : "",
+    metadata.anonymous_public === "yes" ? "Public Display: Anonymous" : "",
+    metadata.donor_note ? `Donor Note: ${metadata.donor_note}` : "",
   ].filter(Boolean).join(" | ");
   const row = [
     metadata.donation_id || session.client_reference_id || "",

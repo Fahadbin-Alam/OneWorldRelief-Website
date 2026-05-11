@@ -33,6 +33,8 @@ test("checkout creates Stripe session with receipt email and configured redirect
         amount_usd: 1,
         payment_method: "stripe",
         campaign: "General Fund",
+        donor_note: "For orphan support",
+        anonymous_public: true,
       }),
     });
     const response = await checkout.onRequestPost({
@@ -50,6 +52,10 @@ test("checkout creates Stripe session with receipt email and configured redirect
     assert.equal(response.status, 200);
     assert.equal(payload.redirect_url, "https://checkout.stripe.test/session");
     assert.equal(form.get("payment_intent_data[receipt_email]"), "donor@example.com");
+    assert.equal(form.get("metadata[donor_note]"), "For orphan support");
+    assert.equal(form.get("metadata[anonymous_public]"), "yes");
+    assert.equal(form.get("payment_intent_data[metadata][donor_note]"), "For orphan support");
+    assert.equal(form.get("payment_intent_data[metadata][anonymous_public]"), "yes");
     assert.equal(successUrl.origin, "https://one-world-relief.org");
     assert.equal(successUrl.pathname, "/charity/thank-you");
     assert.match(successUrl.searchParams.get("donation_id"), /^[0-9a-f-]+$/);
@@ -228,13 +234,23 @@ test("donation page opens custom amount only when selected", async () => {
   ]);
 
   assert.match(donateHtml, /name="amount" value="custom"/);
-  assert.match(donateHtml, /Custom Amount/);
+  assert.match(donateHtml, /Give in under a minute/);
+  assert.match(donateHtml, /Continue to Secure Checkout/);
+  assert.match(donateHtml, /Basic support/);
+  assert.match(donateHtml, /Note for One World Relief/);
+  assert.match(donateHtml, /anonymousDonation/);
   assert.match(donateHtml, /id="customDonationPanel" hidden/);
   assert.match(donateHtml, /inputmode="numeric"/);
   assert.match(siteJs, /syncCustomAmountPanel/);
+  assert.match(siteJs, /donor_note: donorNote/);
+  assert.match(siteJs, /anonymous_public: anonymousDonation/);
   assert.match(siteJs, /selected\?\.value === "custom"/);
   assert.match(siteJs, /customDonationPanel\.hidden = !isCustomAmount/);
   assert.match(siteJs, /radio\.value !== "custom"/);
+  assert.match(siteCss, /\.donation-form-card-featured/);
+  assert.match(siteCss, /\.donation-form-heading/);
+  assert.match(siteCss, /\.donor-options/);
+  assert.match(siteCss, /\.checkbox-line/);
   assert.match(siteCss, /\.custom-donation-panel/);
   assert.match(siteCss, /@keyframes custom-panel-open/);
   assert.match(siteCss, /@keyframes panel-current/);
@@ -495,6 +511,8 @@ test("stripe webhook returns 500 so Stripe retries when Sheets is not configured
           donor_name: "Test Donor",
           donor_email: "donor@example.com",
           campaign: "General Fund",
+          donor_note: "For school supplies",
+          anonymous_public: "yes",
         },
       },
     },
@@ -536,6 +554,8 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
           donor_name: "Test Donor",
           donor_email: "donor@example.com",
           campaign: "General Fund",
+          donor_note: "For school supplies",
+          anonymous_public: "yes",
         },
       },
     },
@@ -625,6 +645,8 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     ]);
     assert.match(sheetPayload.values[0][7], /Receipt Email: sent/);
     assert.match(sheetPayload.values[0][7], /Payment Intent: pi_test_123/);
+    assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
+    assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
   } finally {
     globalThis.fetch = originalFetch;
   }

@@ -60,20 +60,97 @@
           </div>
         </div>
 
-        <aside class="donate-share-card" aria-label="Share this donation page">
-          <div class="donate-share-copy">
-            <p class="eyebrow">Share</p>
-            <h2>Invite someone to give.</h2>
-            <p>Share the donation link or show the QR code during a conversation or presentation.</p>
+        <article class="donation-card donation-form-card donation-form-card-featured">
+          <div class="form-current" aria-hidden="true">
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
           </div>
-          <div class="donate-share-qr">
-            <img src="assets/one-world-relief-donate-qr.svg" alt="QR code linking to the One World Relief donation page" />
+          <div class="donation-form-heading">
+            <p class="eyebrow">Secure Donation</p>
+            <h2>Give in under a minute.</h2>
+            <span>USD</span>
           </div>
-          <div class="share-actions donate-share-actions">
-            <button class="button button-primary" id="nativeShareButton" type="button">Share Link</button>
-            <a class="button button-outline" href="share.html">Open QR</a>
-          </div>
-        </aside>
+          <form id="donationForm">
+            <label class="custom-amount" for="campaignSelect">
+              Donation type
+              <select id="campaignSelect" required>
+                <option value="General Fund">Regular Donation</option>
+                <option value="Orphan Support">Orphan Support</option>
+                <option value="Wells">Wells</option>
+                <option value="Zakat">Zakat</option>
+                <option value="Feeding">Feeding</option>
+              </select>
+            </label>
+
+            <fieldset class="amount-grid amount-grid-impact">
+              <legend>Select an amount</legend>
+              <label><input type="radio" name="amount" value="10" checked /><strong>$10</strong><small>Basic support</small></label>
+              <label><input type="radio" name="amount" value="25" /><strong>$25</strong><small>Essentials</small></label>
+              <label><input type="radio" name="amount" value="50" /><strong>$50</strong><small>Food aid</small></label>
+              <label><input type="radio" name="amount" value="100" /><strong>$100</strong><small>Project help</small></label>
+              <label class="custom-amount-choice"><input type="radio" name="amount" value="custom" /><strong>Custom</strong><small>Your amount</small></label>
+            </fieldset>
+
+            <div class="custom-donation-panel" id="customDonationPanel" hidden>
+              <label class="custom-amount custom-donation-field" for="customDonation">
+                Custom amount
+                <span class="custom-donation-input-wrap">
+                  <span aria-hidden="true">$</span>
+                  <input id="customDonation" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter amount" />
+                </span>
+              </label>
+            </div>
+
+            <div class="donor-grid">
+              <label class="custom-amount" for="donorName">
+                Full name
+                <input id="donorName" type="text" placeholder="Your full name" required />
+              </label>
+
+              <label class="custom-amount" for="donorEmail">
+                Email for receipt
+                <input id="donorEmail" type="email" placeholder="you@example.com" required />
+              </label>
+            </div>
+
+            <label class="custom-amount" for="paymentMethod">
+              Payment method
+              <select id="paymentMethod" required>
+                <option value="apple_pay">Apple Pay</option>
+                <option value="cash_app">Cash App Pay</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="stripe">Stripe Checkout</option>
+                <option value="venmo">Venmo</option>
+              </select>
+            </label>
+
+            <div class="donor-options">
+              <label for="donorNote">
+                Note for One World Relief <span>optional</span>
+                <textarea id="donorNote" rows="2" maxlength="180" placeholder="Add a short note or dedication"></textarea>
+              </label>
+              <label class="checkbox-line" for="anonymousDonation">
+                <input id="anonymousDonation" type="checkbox" />
+                Keep my name anonymous in public updates
+              </label>
+            </div>
+
+            <div class="payments" aria-label="Supported payment methods">
+              <span>Apple Pay</span>
+              <span>Cash App Pay</span>
+              <span>Visa</span>
+              <span>Mastercard</span>
+              <span>Venmo</span>
+            </div>
+
+            <button class="button button-primary donate-button" type="submit">Continue to Secure Checkout</button>
+            <p class="donation-note">
+              Receipt emails and donation tracking are handled after payment confirmation.
+            </p>
+            <p class="donation-status" id="donationStatus" aria-live="polite"></p>
+          </form>
+        </article>
       </div>
     </section>
 
@@ -116,85 +193,23 @@
     <section class="flow-section flow-section-checkout reveal">
       <div class="container">
       <div class="section-heading">
-        <p class="eyebrow">Direct Giving</p>
-        <h2>A smoother way to give.</h2>
+        <p class="eyebrow">After You Give</p>
+        <h2>Share it or follow what happens next.</h2>
       </div>
       <div class="donation-layout">
-        <article class="donation-card donation-form-card">
-          <div class="form-current" aria-hidden="true">
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
+        <article class="donate-share-card" aria-label="Share this donation page">
+          <div class="donate-share-copy">
+            <p class="eyebrow">Share</p>
+            <h3>Invite someone to give.</h3>
+            <p>Share the donation link or show the QR code during a conversation or presentation.</p>
           </div>
-          <h3>Donation Details</h3>
-          <form id="donationForm">
-            <label class="custom-amount" for="campaignSelect">
-              Donation type
-              <select id="campaignSelect" required>
-                <option value="General Fund">Regular Donation</option>
-                <option value="Orphan Support">Orphan Support</option>
-                <option value="Wells">Wells</option>
-                <option value="Zakat">Zakat</option>
-                <option value="Feeding">Feeding</option>
-              </select>
-            </label>
-
-            <fieldset class="amount-grid">
-              <legend>Select or enter a donation amount</legend>
-              <label><input type="radio" name="amount" value="10" checked />$10</label>
-              <label><input type="radio" name="amount" value="25" />$25</label>
-              <label><input type="radio" name="amount" value="50" />$50</label>
-              <label><input type="radio" name="amount" value="100" />$100</label>
-              <label class="custom-amount-choice"><input type="radio" name="amount" value="custom" />Custom Amount</label>
-            </fieldset>
-
-            <div class="custom-donation-panel" id="customDonationPanel" hidden>
-              <label class="custom-amount custom-donation-field" for="customDonation">
-                Custom amount
-                <span class="custom-donation-input-wrap">
-                  <span aria-hidden="true">$</span>
-                  <input id="customDonation" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter amount" />
-                </span>
-              </label>
-            </div>
-
-            <div class="donor-grid">
-              <label class="custom-amount" for="donorName">
-                Full name
-                <input id="donorName" type="text" placeholder="Your full name" required />
-              </label>
-
-              <label class="custom-amount" for="donorEmail">
-                Email
-                <input id="donorEmail" type="email" placeholder="you@example.com" required />
-              </label>
-            </div>
-
-            <label class="custom-amount" for="paymentMethod">
-              Payment method
-              <select id="paymentMethod" required>
-                <option value="apple_pay">Apple Pay</option>
-                <option value="cash_app">Cash App Pay</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="stripe">Stripe Checkout</option>
-                <option value="venmo">Venmo</option>
-              </select>
-            </label>
-
-            <div class="payments" aria-label="Supported payment methods">
-              <span>Apple Pay</span>
-              <span>Cash App Pay</span>
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>Venmo</span>
-            </div>
-
-            <button class="button button-primary donate-button" type="submit">Complete Donation</button>
-            <p class="donation-note">
-              Apple Pay, Cash App Pay, and card payments are handled through secure checkout. Venmo opens separately when configured.
-            </p>
-            <p class="donation-status" id="donationStatus" aria-live="polite"></p>
-          </form>
+          <div class="donate-share-qr">
+            <img src="assets/one-world-relief-donate-qr.svg" alt="QR code linking to the One World Relief donation page" />
+          </div>
+          <div class="share-actions donate-share-actions">
+            <button class="button button-primary" id="nativeShareButton" type="button">Share Link</button>
+            <a class="button button-outline" href="share.html">Open QR</a>
+          </div>
         </article>
 
         <article class="donation-card donation-benefits">
