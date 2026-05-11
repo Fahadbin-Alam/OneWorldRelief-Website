@@ -1342,11 +1342,18 @@ Additional DNS check later on May 4, 2026:
   - Project card tilt still works.
   - Project card no longer sets glow variables.
   - Project card `::before` glow overlay is gone.
-- Deployment/code sync pending at the time of this entry:
-  - Commit code to GitHub.
-  - Create local GitLab sync commit without this handoff document.
-  - Deploy Cloudflare Pages production.
-  - Verify live `.org` assets no longer contain cursor glow.
+- Code sync:
+  - GitHub code commit: `ac51262 fix: remove cursor glow effect`
+  - Local GitLab sync commit created: `452f308 fix: remove cursor glow effect`
+  - GitHub-only handoff commit: `ae2a5d1 docs: log cursor glow removal`
+- Cloudflare production deployment:
+  - `https://4d1319eb.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/one-world-relief.css` no longer contains `--glow-x`, `--glow-y`, or the cursor radial gradient.
+  - Live CSS still contains subtle tilt and scroll progress.
+  - `https://one-world-relief.org/one-world-relief.js` no longer sets `--glow-x` or `--glow-y`.
+  - Live JS still contains pointer motion and tilt.
+  - `https://one-world-relief.org/projects` returns HTTP 200.
 
 ---
 
