@@ -1,5 +1,5 @@
 # One World Relief - AI Handoff Documentation
-**Last Updated**: May 4, 2026  
+**Last Updated**: May 11, 2026  
 **Created By**: Codex AI  
 **For**: Future AI Sessions & Development  
 
@@ -1354,6 +1354,36 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.org/one-world-relief.js` no longer sets `--glow-x` or `--glow-y`.
   - Live JS still contains pointer motion and tilt.
   - `https://one-world-relief.org/projects` returns HTTP 200.
+
+### 2026-05-11 Donation Custom Amount Popup
+- User asked to keep the current animation direction and make the donation page custom amount clickable so donors can choose their own amount only after clicking it.
+- Updated `one-world-relief/donate.html`:
+  - Added a fifth amount choice labeled `Custom`.
+  - Moved the custom dollar input into a hidden `#customDonationPanel` that opens only when `Custom` is selected.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Added `syncCustomAmountPanel()` to open/close the custom amount panel.
+  - Custom amount input is required only while `Custom` is selected.
+  - Preset amounts now clear the custom input so an old custom amount cannot override `$10`, `$25`, `$50`, or `$100`.
+  - URL deep links such as `donate.html?amount=222&campaign=Feeding#donationForm` now select `Custom`, fill `222`, and keep the campaign selected.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Reworked amount buttons into animated selectable tiles.
+  - Added an animated custom amount panel with a subtle flowing background.
+  - Added responsive tablet layout and reduced-motion support for the new panel animation.
+- Added test coverage in `one-world-relief/tests/charity-functions.test.mjs` for the hidden custom panel, custom radio option, JavaScript syncing, and panel animation styles.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 14 tests passed.
+- Browser automation note:
+  - Attempted a local Playwright smoke test, but Playwright is not installed in this workspace. No new dependency was added.
+- Code sync:
+  - GitHub code commit: `88709bf fix: make custom donation amount selectable`
+  - Local GitLab sync commit created: `6e0f7a3 fix: make custom donation amount selectable`
+- Cloudflare production deployment:
+  - `https://dbf47851.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/donate` contains the custom amount radio, hidden `customDonationPanel`, and numeric input mode.
+  - `https://one-world-relief.org/one-world-relief.js` contains `syncCustomAmountPanel`, custom amount branching, and preset clearing.
+  - `https://one-world-relief.org/one-world-relief.css` contains the custom donation panel styles and new panel keyframes.
+  - Live CSS/JS still do not contain the removed cursor glow variables.
 
 ---
 
