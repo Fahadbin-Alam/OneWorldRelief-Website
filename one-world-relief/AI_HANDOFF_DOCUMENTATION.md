@@ -1411,6 +1411,45 @@ Additional DNS check later on May 4, 2026:
   - Live JavaScript contains `renderHomeCaseFlow()` and `.case-flow-card` pointer motion support.
   - Live CSS contains `.home-case-flow`, `@keyframes case-river`, `@keyframes case-shine`, and reduced-motion support for the case reel.
 
+### 2026-05-11 Completed Case Reel, Custom Amount, Contact Polish
+- User clarified:
+  - Homepage animation should only show cases One World Relief already worked on / finished.
+  - Remove the homepage text `See the work as it moves` and just show the animation.
+  - Keep the case reel looping continuously without stopping on hover and restarting.
+  - Make the amount custom option behave like a clickable button that opens the custom amount input.
+  - Improve the contact page to match the more polished homepage motion style.
+- Updated `one-world-relief/index.html`:
+  - The case reel now has only an accessible hidden heading; no visible `See the work as it moves` copy.
+  - Homepage quick donation now has a `Custom Amount` radio button and hidden `#quickCustomPanel`.
+- Updated `one-world-relief/donate.html`:
+  - Renamed the custom amount option to `Custom Amount`.
+- Updated `one-world-relief/one-world-relief.js`:
+  - `renderHomeCaseFlow()` filters the reel to completed cases only.
+  - The reel repeats completed cases four times to keep the loop visually continuous.
+  - Added `syncQuickCustomPanel()` for the homepage quick donation custom amount popup.
+  - Added validation so a selected custom quick amount must be entered before redirecting.
+  - Added `contact-message-card` to pointer tilt targets.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Removed hover pause from the case reel.
+  - Added button-style quick amount tiles and animated quick custom amount panel.
+  - Added `.sr-only` utility for accessible hidden headings.
+  - Added flowing contact page layout, contact method cards, animated current background, and polished message card.
+- Updated `one-world-relief/contact.html`:
+  - Rebuilt the top contact content into a motion-friendly direct contact + message layout.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 16 tests passed.
+- Code sync:
+  - GitHub code commit: `6b470ad feat: refine homepage reel contact and custom amounts`
+  - Local GitLab sync commit created: `9ee1ed4 feat: refine homepage reel contact and custom amounts`
+- Cloudflare production deployment:
+  - `https://dca949a4.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/` no longer contains the visible `See the work as it moves` text.
+  - Homepage contains the accessible hidden completed-cases heading, quick custom amount panel, and project data script.
+  - Live JavaScript filters the case reel to completed cases and includes `syncQuickCustomPanel()`.
+  - Live CSS no longer pauses the case reel on hover and includes quick custom panel/contact flow styles.
+  - `https://one-world-relief.org/contact` contains the new contact flow section, contact method cards, and polished message card.
+
 ---
 
 **End of AI Handoff Documentation**
