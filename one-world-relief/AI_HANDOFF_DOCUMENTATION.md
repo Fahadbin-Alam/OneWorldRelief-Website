@@ -1609,6 +1609,30 @@ Additional DNS check later on May 4, 2026:
   - Live contact page no longer contains `Send a note and we will follow up`.
   - Live CSS contains `.contact-intro`, Manrope heading rules for the contact methods and message card headings, and the tighter contact card shadow.
 
+### 2026-05-11 Homepage Hero Layout Correction
+- User called out the homepage hero screenshot as looking bad/stupid because the donation form and case lanes were squeezed together.
+- Updated `one-world-relief/index.html`:
+  - Removed the Worked On/Goals case lanes from inside the hero.
+  - Added a separate `home-case-panel-section` immediately below the hero for the Worked On/Goals lanes.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Hero is now a clean two-column layout: message copy + donation card.
+  - Donation card max width is capped at 420px and aligned cleanly.
+  - Quick amount buttons have more height and spacing so `$10/$25/$50/$100` do not crowd.
+  - Worked On/Goals panel now has room below the hero and renders lane items in a readable grid.
+  - Responsive rules keep the donation card centered and stack case items on smaller screens.
+- Updated tests to assert the case panel is outside the hero and the new hero columns are used.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Code sync:
+  - GitHub code commit: `a7937ae fix: separate homepage hero and case panels`
+  - Local GitLab sync commit created: `dc44592 fix: separate homepage hero and case panels`
+- Cloudflare production deployment:
+  - `https://5b73b0e6.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/` contains `home-case-panel-section` after the hero, with Worked On/Goals no longer inside the hero card.
+  - Live CSS uses the corrected two-column hero grid `minmax(0, 0.95fr) minmax(340px, 420px)`.
+  - Live CSS caps the quick donation card at `max-width: 420px` and gives quick amount buttons `min-height: 58px`.
+
 ---
 
 **End of AI Handoff Documentation**
