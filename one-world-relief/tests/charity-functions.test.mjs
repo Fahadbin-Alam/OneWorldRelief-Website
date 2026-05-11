@@ -261,7 +261,16 @@ test("home page renders a continuous completed-case photo flow from project data
   ]);
 
   assert.doesNotMatch(homeHtml, /See the work as it moves/);
+  assert.doesNotMatch(homeHtml, /Project Flow/);
+  assert.doesNotMatch(homeHtml, /From donation to proof/);
   assert.match(homeHtml, /Completed One World Relief cases/);
+  assert.match(homeHtml, /faith-video-section/);
+  assert.match(homeHtml, /faith-video-bg/);
+  assert.match(homeHtml, /Why We Give/);
+  assert.match(homeHtml, /Quran 2:215/);
+  assert.match(homeHtml, /Sahih al-Bukhari 6005/);
+  assert.match(homeHtml, /Quran 76:8/);
+  assert.match(homeHtml, /Sunan Abi Dawud 1681/);
   assert.match(homeHtml, /id="homeCaseFlowTrack"/);
   assert.match(homeHtml, /<script src="project-data\.js"><\/script>/);
   assert.match(homeHtml, /name="quickAmount" value="custom"/);
@@ -283,6 +292,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteJs, /case-flow-card/);
   assert.match(siteCss, /\.home-case-flow/);
   assert.match(siteCss, /\.home-case-lanes/);
+  assert.match(siteCss, /\.faith-video-section/);
+  assert.match(siteCss, /\.faith-quote-track/);
+  assert.match(siteCss, /@keyframes faith-quote-scroll/);
   assert.match(siteCss, /\.case-flow-track/);
   assert.match(siteCss, /@keyframes case-river/);
   assert.match(siteCss, /will-change: transform/);
