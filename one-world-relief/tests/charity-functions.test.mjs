@@ -271,6 +271,8 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(casePage, /orphan-support-001-primary\.mp4/);
   assert.match(casePage, /orphan-support-001-main\.jpg/);
   assert.match(casePage, /orphan-support-001-proof\.jpg/);
+  assert.match(casePage, /project-timeline/);
+  assert.match(casePage, /timeline-step-active/);
 
   assert.match(caseTwoPage, /A fresh start for a father's business/);
   assert.match(caseTwoPage, /Case ID/);
@@ -282,16 +284,24 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(caseTwoPage, /Personal identity documents and home address details are kept off the public website/);
   assert.doesNotMatch(caseTwoPage, /NID No/);
   assert.doesNotMatch(caseTwoPage, /Middle Patenga/);
+  assert.match(caseTwoPage, /project-timeline/);
+  assert.match(caseTwoPage, /timeline-step-active/);
 
   assert.match(caseThreePage, /Keeping an orphan boy in school/);
   assert.match(caseThreePage, /Case 003/);
   assert.match(caseThreePage, /Ongoing/);
   assert.match(caseThreePage, /Media coming soon/);
+  assert.match(caseThreePage, /project-timeline/);
+  assert.match(caseThreePage, /timeline-step-active/);
+  assert.match(caseThreePage, /timeline-step-pending/);
 
   assert.match(caseFourPage, /Korbani meals for a village/);
   assert.match(caseFourPage, /Case 004/);
   assert.match(caseFourPage, /Ongoing/);
   assert.match(caseFourPage, /Media coming soon/);
+  assert.match(caseFourPage, /project-timeline/);
+  assert.match(caseFourPage, /timeline-step-active/);
+  assert.match(caseFourPage, /timeline-step-pending/);
 });
 
 test("stripe webhook rejects invalid signatures", async () => {
