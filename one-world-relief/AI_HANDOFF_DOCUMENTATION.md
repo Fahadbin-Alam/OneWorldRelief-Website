@@ -1562,6 +1562,29 @@ Additional DNS check later on May 4, 2026:
   - `https://one-world-relief.org/projects/case-003` and `/projects/case-004` contain `current-case-banner` and `Current Case`, and no longer reference the placeholder SVGs.
   - Live CSS/JS contain `.project-media-banner`, `.current-case-banner`, and `Current Case` rendering support.
 
+### 2026-05-11 Share Page Link/Icon Clarity
+- User asked to make sure the share links work, are easy to use, and have icons next to them.
+- Updated `one-world-relief/share.html`:
+  - Added inline icons beside Facebook, X, Instagram Caption, WhatsApp, Enlarge QR, Share, Download QR, and Text Link actions.
+  - Kept Facebook, X, WhatsApp, SMS, download, native share, Instagram caption copy, and QR modal actions wired to their existing destinations/handlers.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added `.share-icon` styling.
+  - Added icon spacing and hover affordance for share pills and share buttons.
+- Updated tests:
+  - Share tests now assert the `.org` Facebook, X, WhatsApp, SMS, QR download, native share, Instagram caption copy, and QR modal actions are present.
+  - Added CSS coverage for icon button styling.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Code sync:
+  - GitHub code commit: `d4df787 feat: add icons to share actions`
+  - Local GitLab sync commit created: `6ad2ecd feat: add icons to share actions`
+- Cloudflare production deployment:
+  - `https://bbfacd0f.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/share` contains `.share-icon` icons and working Facebook, X, WhatsApp, SMS, QR download, native share, Instagram caption copy, and QR modal controls.
+  - Live CSS contains `.share-icon`, `.share-pill:hover`, and share button icon layout styles.
+  - Live QR SVG returns HTTP 200 and contains the expected SVG/styling.
+
 ---
 
 **End of AI Handoff Documentation**
