@@ -1283,6 +1283,43 @@ Additional DNS check later on May 4, 2026:
   - Live About page still says mailing address is `Available upon request`.
   - Live About page does not contain the known private address string.
 
+### 2026-05-10 Cinematic Motion Pass
+- User asked to make the website much more animated like the prior reference site.
+- Reviewed the current reference style at `https://theoceancleanup.com/` and translated the pattern into original One World Relief code:
+  - cinematic scroll feel
+  - layered drifting background motion
+  - scroll-triggered reveal variants
+  - pointer-reactive cards/media
+  - animated counters
+  - scroll progress glow
+- Updated `one-world-relief/one-world-relief.js`:
+  - Added `setupScrollProgress()`.
+  - Added reveal variants via `data-reveal-variant`.
+  - Added `setupPointerMotion()` for project cards, proof cards, case media, home stories, and donation form.
+  - Added `setupAnimatedNumbers()` for project stats and homepage impact stats.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added `.scroll-progress`.
+  - Added animated button shine.
+  - Added floating hero motion.
+  - Added drifting ribbon overlays on hero/page/case sections.
+  - Added stronger reveal motion variants with blur-to-clear transitions.
+  - Added pointer-glow/tilt surfaces.
+  - Added reduced-motion fallbacks for the new animation effects.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 13 tests passed.
+- Browser verification:
+  - Local `/`, `/donate.html`, `/projects.html`, and `/projects/case-003.html` returned HTTP 200.
+  - No broken images.
+  - `.scroll-progress` updated after scrolling.
+  - `.reveal.is-visible` elements appeared.
+  - `.motion-surface` elements were present.
+  - Project card pointer movement set tilt CSS variables.
+- Deployment/code sync pending at the time of this entry:
+  - Commit code to GitHub.
+  - Create local GitLab sync commit without this handoff document.
+  - Deploy Cloudflare Pages production.
+  - Verify live `.org` motion assets.
+
 ---
 
 **End of AI Handoff Documentation**
