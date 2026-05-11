@@ -1776,6 +1776,31 @@ Additional DNS check later on May 4, 2026:
   - Live JS sends `donor_note` and `anonymous_public`.
   - Live CSS contains `.donation-form-card-featured` and `.donor-options`.
 
+### 2026-05-11 Simplify Projects Category Filters
+- User said the Projects page should not explain obvious categories and should show them instead.
+- Updated `one-world-relief/projects.html`:
+  - Removed the `Categories` eyebrow and `Clear giving categories` headline.
+  - Converted the top Projects content into a compact `project-filter-section` with only category/filter pills.
+  - Added `aria-label="Project filters"` for accessibility without visible explanatory text.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added `.project-filter-section` and `.project-filter-row` spacing so the filters sit cleanly above the impact board.
+- Updated tests:
+  - Projects test now asserts `Clear giving categories` is gone and `project-filter-section` / `Project filters` remain.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+- Visual verification:
+  - Generated desktop and mobile Projects screenshots.
+  - Confirmed the filter row appears directly at the top, the redundant headline is gone, and the Impact Board/cards are visible quickly on mobile.
+- Code sync:
+  - GitHub code commit: `9990a74 fix: simplify projects category filters`
+  - Local GitLab sync commit created: `4c0c262 fix: simplify projects category filters`
+- Cloudflare production deployment:
+  - `https://557b1cd0.trying-8o0.pages.dev`
+- Live verification:
+  - `https://one-world-relief.org/projects` no longer contains `Clear giving categories`.
+  - Live Projects page contains `project-filter-section`, `aria-label="Project filters"`, and `Latest work and current campaigns`.
+  - Live CSS contains `.project-filter-section`.
+
 ---
 
 **End of AI Handoff Documentation**
