@@ -345,14 +345,23 @@ test("contact page has the updated flowing contact layout", async () => {
 });
 
 test("about page shows nonprofit status and EIN without a public home address", async () => {
-  const aboutHtml = await readFile("about.html", "utf8");
+  const [aboutHtml, siteCss] = await Promise.all([
+    readFile("about.html", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
 
+  assert.match(aboutHtml, /Organization Details/);
+  assert.match(aboutHtml, /official-panel/);
+  assert.match(aboutHtml, /official-details/);
   assert.match(aboutHtml, /501\(c\)\(3\) nonprofit organization/);
   assert.match(aboutHtml, /EIN/);
   assert.match(aboutHtml, /41-5079927/);
   assert.match(aboutHtml, /tax-deductible to the extent allowed by law/);
   assert.match(aboutHtml, /Available upon request/);
+  assert.doesNotMatch(aboutHtml, /Owned by Fahadbin Alam/);
   assert.doesNotMatch(aboutHtml, /Middle Patenga/);
+  assert.match(siteCss, /\.official-panel/);
+  assert.match(siteCss, /\.official-details/);
 });
 
 test("project cards publish approved cases with embedded local media", async () => {

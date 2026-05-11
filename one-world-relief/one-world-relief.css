@@ -1386,6 +1386,65 @@ ul {
   font-size: clamp(1.7rem, 3vw, 2.4rem);
 }
 
+.official-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.22fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid rgba(77, 149, 194, 0.14);
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 249, 255, 0.9)),
+    rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 42px rgba(45, 91, 122, 0.09);
+}
+
+.official-panel-copy {
+  max-width: 48ch;
+}
+
+.official-panel-copy h2 {
+  margin-bottom: 0.7rem;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  line-height: 1.08;
+}
+
+.official-panel-copy p {
+  color: var(--ink-soft);
+}
+
+.official-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.official-details article {
+  min-height: 110px;
+  padding: 1rem;
+  border: 1px solid rgba(77, 149, 194, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.official-details span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--blue-500);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.official-details strong {
+  display: block;
+  color: var(--ink);
+  font-size: clamp(0.98rem, 1.5vw, 1.08rem);
+  line-height: 1.35;
+}
+
 .page-hero {
   padding: 2.2rem 0 0.5rem;
 }
@@ -2913,6 +2972,10 @@ ul {
     grid-template-columns: 1fr 1fr;
   }
 
+  .official-panel {
+    grid-template-columns: 1fr;
+  }
+
   .hero-donate-first {
     grid-template-columns: 1fr;
     text-align: center;
@@ -3038,6 +3101,10 @@ ul {
   .project-proof-grid,
   .project-fact-grid,
   .project-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .official-details {
     grid-template-columns: 1fr;
   }
 
