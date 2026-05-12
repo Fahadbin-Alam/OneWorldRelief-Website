@@ -1940,6 +1940,24 @@ Additional DNS check later on May 4, 2026:
 - Note:
   - The hosts-file entries are a local workaround for this Windows machine. Public Cloudflare DNS was already correct; the root problem was this network/computer's DNS resolution path.
 
+### 2026-05-12 Blue LaunchGood-Style Background Refresh
+- User shared a LaunchGood screenshot and asked for that type of blueish background.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Replaced the pale diagonal body background with a brighter aqua/sky gradient.
+  - Added soft CSS cloud/light shapes behind the site.
+  - Changed global wave/ribbon overlays from thin diagonal stripes into wider soft blue/white bands.
+  - Updated the sticky header to sit better on the brighter blue background.
+  - Updated hero surfaces to use glassy white/blue panels with cloud-like highlights.
+  - Updated donation-flow hero ribbons to match the same blue sky style.
+  - Added `cloud-breathe` and `wave-drift` keyframes.
+  - Tightened mobile hero headline sizing/wrapping so the new design does not clip on phones.
+- Visual verification:
+  - Started a local static server on port `4177`.
+  - Captured desktop and mobile Chrome headless screenshots.
+  - Fixed the mobile headline after the first screenshot showed clipping.
+- Test result:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+
 ---
 
 **End of AI Handoff Documentation**
