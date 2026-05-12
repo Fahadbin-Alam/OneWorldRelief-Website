@@ -1964,6 +1964,25 @@ Additional DNS check later on May 4, 2026:
   - GitLab-safe branch commit: `e864a27 style: add blue relief background system`
   - AI handoff remained out of the GitLab-safe branch.
 
+### 2026-05-12 Livelier Donation Page Flow
+- User shared a LaunchGood donation-flow screenshot and said the site should feel lively, not dead.
+- Updated `one-world-relief/donate.html`:
+  - Reworked the main donation form into four lively steps: fund, amount, receipt details, and payment method.
+  - Added clickable fund chips that sync to the existing `campaignSelect` field.
+  - Added clickable payment chips that sync to the existing `paymentMethod` field.
+  - Added a selected-amount badge in the donation card heading.
+  - Kept the original backend field IDs and values so checkout, receipt email, and spreadsheet tracking continue working.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added step cards, rounded chip controls, stronger selected states, and softer blue motion accents.
+  - Made the amount buttons larger and more tactile.
+  - Fixed mobile donation-card heading so the selected-amount badge does not clip.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Added chip-to-select synchronization for fund/payment choices.
+  - Added live amount badge updates for preset and custom donation amounts.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+  - Captured local desktop and mobile donation page screenshots; fixed the mobile badge clipping found during review.
+
 ---
 
 **End of AI Handoff Documentation**

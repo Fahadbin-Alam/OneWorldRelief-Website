@@ -559,6 +559,29 @@
   const customDonationPanel = document.getElementById("customDonationPanel");
   const customDonationInput = document.getElementById("customDonation");
   const customDonationRadio = donationForm.querySelector('input[name="amount"][value="custom"]');
+  const campaignSelect = document.getElementById("campaignSelect");
+  const paymentMethodSelect = document.getElementById("paymentMethod");
+  const totalBadge = document.getElementById("donationTotalBadge");
+  const campaignChoiceButtons = Array.from(donationForm.querySelectorAll("[data-campaign-choice]"));
+  const paymentChoiceButtons = Array.from(donationForm.querySelectorAll("[data-payment-choice]"));
+
+  const syncChoiceButtons = (buttons, selectedValue, dataKey) => {
+    buttons.forEach((button) => {
+      const isSelected = button.dataset[dataKey] === selectedValue;
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-pressed", String(isSelected));
+    });
+  };
+
+  const updateDonationTotalBadge = () => {
+    if (!totalBadge) {
+      return;
+    }
+
+    const selected = donationForm.querySelector('input[name="amount"]:checked');
+    const amount = selected?.value === "custom" ? Number(customDonationInput?.value || 0) : Number(selected?.value || 0);
+    totalBadge.textContent = amount > 0 ? `$${amount} selected` : "Custom amount";
+  };
 
   const syncCustomAmountPanel = ({ focus = false, clear = false } = {}) => {
     const selected = donationForm.querySelector('input[name="amount"]:checked');
@@ -578,14 +601,14 @@
     if (isCustomAmount && focus) {
       requestAnimationFrame(() => customDonationInput.focus());
     }
+
+    updateDonationTotalBadge();
   };
 
   const applyDonationParams = () => {
     const params = new URLSearchParams(window.location.search);
     const amount = params.get("amount");
     const campaign = params.get("campaign");
-    const campaignSelect = document.getElementById("campaignSelect");
-
     if (amount) {
       const amountRadio = donationForm.querySelector(`input[name="amount"][value="${amount}"]`);
       if (amountRadio) {
@@ -610,6 +633,8 @@
       }
     }
 
+    syncChoiceButtons(campaignChoiceButtons, campaignSelect?.value || "General Fund", "campaignChoice");
+    syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect?.value || "apple_pay", "paymentChoice");
     syncCustomAmountPanel();
   };
 
@@ -621,17 +646,53 @@
         focus: radio.value === "custom",
         clear: radio.value !== "custom",
       });
+      updateDonationTotalBadge();
     });
   });
 
   if (customDonationInput && customDonationRadio) {
     customDonationInput.addEventListener("input", () => {
       if (customDonationInput.value && !customDonationRadio.checked) {
-        customDonationRadio.checked = true;
-        syncCustomAmountPanel();
+          customDonationRadio.checked = true;
+          syncCustomAmountPanel();
       }
+      updateDonationTotalBadge();
     });
   }
+
+  campaignChoiceButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!campaignSelect) {
+        return;
+      }
+      campaignSelect.value = button.dataset.campaignChoice || campaignSelect.value;
+      syncChoiceButtons(campaignChoiceButtons, campaignSelect.value, "campaignChoice");
+    });
+  });
+
+  paymentChoiceButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!paymentMethodSelect) {
+        return;
+      }
+      paymentMethodSelect.value = button.dataset.paymentChoice || paymentMethodSelect.value;
+      syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect.value, "paymentChoice");
+    });
+  });
+
+  if (campaignSelect) {
+    campaignSelect.addEventListener("change", () => {
+      syncChoiceButtons(campaignChoiceButtons, campaignSelect.value, "campaignChoice");
+    });
+  }
+
+  if (paymentMethodSelect) {
+    paymentMethodSelect.addEventListener("change", () => {
+      syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect.value, "paymentChoice");
+    });
+  }
+
+  updateDonationTotalBadge();
 
   const setStatus = (message, isError) => {
     statusEl.textContent = message;
