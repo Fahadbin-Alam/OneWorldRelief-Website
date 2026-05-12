@@ -1921,6 +1921,25 @@ Additional DNS check later on May 4, 2026:
   - Use `https://trying-8o0.pages.dev` temporarily if needed.
   - Enable Chrome Secure DNS with Cloudflare (`1.1.1.1`) or Google DNS, or change Windows/router DNS to `1.1.1.1` / `8.8.8.8`.
 
+### 2026-05-12 Local Website Access Fix
+- User asked to fix why the site could not be seen on their end.
+- Confirmed active Windows adapter was `Wi-Fi`.
+- Changed Wi-Fi IPv4 DNS servers to:
+  - `1.1.1.1`
+  - `8.8.8.8`
+- Plain DNS resolution on the local network still timed out even after DNS change.
+- Added temporary Windows hosts-file entries so this computer can reach the site immediately:
+  - `172.66.47.26 one-world-relief.org`
+  - `172.66.47.26 www.one-world-relief.org`
+- Flushed Windows DNS cache.
+- Verified from this machine:
+  - `https://one-world-relief.org` returned HTTP `200 OK`.
+  - `https://one-world-relief.org/donate` returned HTTP `200 OK`.
+  - `https://www.one-world-relief.org` returned HTTP `200 OK`.
+- Opened the live home page and donate page in Chrome.
+- Note:
+  - The hosts-file entries are a local workaround for this Windows machine. Public Cloudflare DNS was already correct; the root problem was this network/computer's DNS resolution path.
+
 ---
 
 **End of AI Handoff Documentation**
