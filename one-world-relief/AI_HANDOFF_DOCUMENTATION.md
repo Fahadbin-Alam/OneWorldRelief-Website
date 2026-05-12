@@ -1848,6 +1848,56 @@ Additional DNS check later on May 4, 2026:
   - Confirm the Google Sheet is shared with the service account email as Editor.
   - Fix `.org` DNS/custom-domain resolution before relying on `.org` for real donors.
 
+### 2026-05-12 Stripe to Google Sheets Production Fix
+- User said to fix the Stripe and Google Sheets reflection issue.
+- Found the live Google Sheet using the local service account:
+  - Spreadsheet: `OneWorldRelief_SUPER_TRACKER_DASHBOARD`
+  - Sheet ID: `1VeJ6gmU4o6iOq-ky1FeW_QSt6K36TJZs9_1ItLaBkKY`
+  - Donation tab: `Donations (2026)`
+  - Service account: `owr-sheets-writer@owr-sheets-136480.iam.gserviceaccount.com`
+- Confirmed the service account can read and edit the spreadsheet.
+- Set missing Cloudflare Pages production secrets:
+  - `OWR_GOOGLE_SHEET_ID`
+  - `OWR_GOOGLE_SHEET_TAB`
+  - `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL`
+- Verified existing Cloudflare production secrets include:
+  - Stripe secret key and webhook secret
+  - Google private key
+  - Resend receipt email configuration
+  - Public `.org` receipt/success URLs
+- Redeployed Cloudflare Pages production:
+  - Deployment URL: `https://f22a0442.trying-8o0.pages.dev`
+- No-charge Stripe verification:
+  - Posted to `https://trying-8o0.pages.dev/charity/donations/checkout`.
+  - Received HTTP `200` and a `checkout.stripe.com` redirect URL.
+  - Did not follow the Checkout URL and did not make a real payment.
+- Signed webhook-to-Sheets verification:
+  - Sent a signed fake `checkout.session.completed` webhook to production using the Stripe webhook signing secret from the Stripe dashboard.
+  - Production returned HTTP `200` with `{"received":true}`.
+  - Confirmed the test donation appended into `Donations (2026)` row 9 in the correct `A:H` columns:
+    - Donation ID
+    - Date
+    - Donor Name
+    - Amount
+    - Purpose/Fund
+    - Method
+    - Receipt ID
+    - Notes
+  - The Notes cell included status, Stripe session, payment intent, receipt email status, receipt URL, anonymous display, and donor note.
+  - Deleted the temporary test row after verification so tax/donation records stay clean.
+- Spreadsheet formatting fix:
+  - Updated `Donations (2026)` column D to currency with two decimals for more accurate tax-time records.
+- Domain check:
+  - Cloudflare Pages still lists both `one-world-relief.org` and `www.one-world-relief.org` on project `trying`.
+  - Cloudflare DNS has CNAME records for apex and `www` pointing to `trying-8o0.pages.dev`.
+  - Cloudflare DNS-over-HTTPS returns valid answers for `.org`.
+  - Forced host checks returned HTTP `200` for both:
+    - `https://one-world-relief.org/donate`
+    - `https://www.one-world-relief.org/donate`
+  - Local Windows DNS still failed to resolve `.org`, so the machine/browser DNS cache or resolver may lag even though Cloudflare DNS and Pages are configured.
+- Important note:
+  - The local `.env` Stripe webhook secret did not match production; the Stripe dashboard signing secret worked. Keep `.env` in sync for future local webhook tests.
+
 ---
 
 **End of AI Handoff Documentation**
