@@ -1898,6 +1898,29 @@ Additional DNS check later on May 4, 2026:
 - Important note:
   - The local `.env` Stripe webhook secret did not match production; the Stripe dashboard signing secret worked. Keep `.env` in sync for future local webhook tests.
 
+### 2026-05-12 Website Not Loading Diagnosis
+- User asked why the website is not working.
+- Checked the Cloudflare Pages URL directly:
+  - `https://trying-8o0.pages.dev` returned HTTP `200 OK`.
+- Checked `.org` through the local Windows resolver:
+  - `https://one-world-relief.org` failed with `Could not resolve host`.
+  - `https://www.one-world-relief.org` failed with `Could not resolve host`.
+- Flushed Windows DNS cache with `ipconfig /flushdns`.
+- Rechecked after flush:
+  - Local Windows/curl resolver still could not resolve `.org`.
+- Checked public DNS-over-HTTPS:
+  - Cloudflare DNS returned valid A records for `one-world-relief.org`.
+  - Google DNS-over-HTTPS returned valid A records for `one-world-relief.org`.
+  - Cloudflare DNS returned valid CNAME for `www.one-world-relief.org` to `trying-8o0.pages.dev`.
+- Current diagnosis:
+  - The site/deployment is up.
+  - Cloudflare DNS records are present.
+  - Public DoH resolvers can resolve the domain.
+  - The remaining failure is local/network DNS resolution on this Windows environment, likely a stale ISP/router DNS cache or resolver issue.
+- Practical workaround:
+  - Use `https://trying-8o0.pages.dev` temporarily if needed.
+  - Enable Chrome Secure DNS with Cloudflare (`1.1.1.1`) or Google DNS, or change Windows/router DNS to `1.1.1.1` / `8.8.8.8`.
+
 ---
 
 **End of AI Handoff Documentation**
