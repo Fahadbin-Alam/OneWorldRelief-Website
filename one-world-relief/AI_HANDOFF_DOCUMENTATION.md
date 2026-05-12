@@ -1816,6 +1816,38 @@ Additional DNS check later on May 4, 2026:
     - `a415b09 style: clean up about organization details`
     - `cd277f6 fix: restore simple share buttons`
 
+### 2026-05-12 Stripe / Google Sheets Reflection Check
+- User asked whether Stripe and Google Sheets are working and reflecting donations.
+- Checked current production Cloudflare Pages secrets with `wrangler pages secret list --project-name trying`.
+- Production secrets present:
+  - `OWR_CANCEL_URL`
+  - `OWR_GOOGLE_PRIVATE_KEY`
+  - `OWR_PUBLIC_SITE_URL`
+  - `OWR_RECEIPT_FROM_EMAIL`
+  - `OWR_RECEIPT_REPLY_TO`
+  - `OWR_RESEND_API_KEY`
+  - `OWR_STRIPE_SECRET_KEY`
+  - `OWR_STRIPE_WEBHOOK_SECRET`
+  - `OWR_SUCCESS_URL`
+- Production secrets/config missing for Google Sheets append:
+  - `OWR_GOOGLE_SHEET_ID`
+  - `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` or `OWR_GOOGLE_SERVICE_ACCOUNT_JSON`
+  - Optional but recommended: `OWR_GOOGLE_SHEET_TAB`
+- Result:
+  - Stripe Checkout creation works on the Cloudflare Pages URL `https://trying-8o0.pages.dev/charity/donations/checkout`; it returned a Stripe Checkout redirect URL without charging money.
+  - The Stripe webhook endpoint rejects invalid signatures with HTTP `400`, so signature protection is active.
+  - Google Sheets reflection cannot work in production until the missing Google Sheet ID and service account identity are configured. The webhook code throws `OWR_GOOGLE_SHEET_ID is not configured.` when Sheets is missing and returns `500` so Stripe retries instead of silently losing the row.
+  - `one-world-relief.org` did not resolve from the local environment during this check, while `one-world-relief.com` resolves and redirects to `.org`; if `.org` is still unresolved publicly, the public donation URL is effectively broken despite the Pages URL working.
+- Connector notes:
+  - Stripe connector token was expired, so dashboard payment/event inspection could not be completed through the plugin.
+  - Google Drive connector token was expired, so live spreadsheet row inspection could not be completed through the plugin.
+- Needed next actions:
+  - Reconnect Stripe connector or check Stripe Dashboard webhook deliveries manually.
+  - Reconnect Google Drive connector or provide the spreadsheet URL/id.
+  - Set Cloudflare production secrets for `OWR_GOOGLE_SHEET_ID` and either `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` plus existing private key, or `OWR_GOOGLE_SERVICE_ACCOUNT_JSON`.
+  - Confirm the Google Sheet is shared with the service account email as Editor.
+  - Fix `.org` DNS/custom-domain resolution before relying on `.org` for real donors.
+
 ---
 
 **End of AI Handoff Documentation**
