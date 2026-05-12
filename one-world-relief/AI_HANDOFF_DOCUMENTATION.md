@@ -1801,6 +1801,21 @@ Additional DNS check later on May 4, 2026:
   - Live Projects page contains `project-filter-section`, `aria-label="Project filters"`, and `Latest work and current campaigns`.
   - Live CSS contains `.project-filter-section`.
 
+### 2026-05-11 GitLab Safe Branch Push
+- User reminded that work commits should be visible on GitLab too.
+- Pushed the GitLab-safe branch `gitlab-charity-sync` to GitLab after receiving a fresh token.
+- Important:
+  - The AI handoff documentation was not pushed to GitLab.
+  - The pushed GitLab branch contains the website/code sync commits only.
+- GitLab verification:
+  - Remote branch `refs/heads/gitlab-charity-sync` is now at `4c0c262342bad724781dfab2961ebcc0153ec595`.
+  - Latest visible GitLab-safe commits include:
+    - `4c0c262 fix: simplify projects category filters`
+    - `9479e4f feat: improve donation page flow`
+    - `1112857 fix: tighten contact layout and reveal timing`
+    - `a415b09 style: clean up about organization details`
+    - `cd277f6 fix: restore simple share buttons`
+
 ---
 
 **End of AI Handoff Documentation**
