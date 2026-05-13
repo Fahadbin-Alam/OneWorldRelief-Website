@@ -2073,6 +2073,26 @@ Additional DNS check later on May 4, 2026:
   - GitLab-safe branch commit: `2922529 feat: add offline dinosaur fallback`
   - AI handoff remained out of the GitLab-safe branch.
 
+### 2026-05-13 Other Devices Cannot Reach Site Diagnosis
+- User reported the site works on their laptop but other people cannot reach it.
+- Local finding:
+  - The laptop has manual Windows hosts entries:
+    - `172.66.47.26 one-world-relief.org`
+    - `172.66.47.26 www.one-world-relief.org`
+  - This can make the laptop work even if public DNS, DNS cache, or another device's resolver is failing.
+- Public/live checks:
+  - `https://one-world-relief.org/` returns HTTP `200 OK`.
+  - `https://www.one-world-relief.org/` returns HTTP `200 OK`.
+  - `https://one-world-relief.com/` returns HTTP `301` to `https://one-world-relief.org/`.
+  - `https://www.one-world-relief.com/` returns HTTP `301` to `https://one-world-relief.org/`.
+  - DNS-over-HTTPS resolves `one-world-relief.org` to Cloudflare Pages IPs `172.66.44.230` and `172.66.47.26`.
+  - DNS-over-HTTPS resolves `www.one-world-relief.org` as CNAME `trying-8o0.pages.dev`.
+- Current diagnosis:
+  - Production deployment is up.
+  - The laptop is not a clean public-DNS test because of the hosts override.
+  - If outside users still see "site can't be reached," the most likely causes are stale DNS cache on their device/network, a typo/old URL, or a resolver/network blocking Cloudflare/DNS temporarily.
+  - Need exact failing URL and Chrome error code from another device, for example `ERR_NAME_NOT_RESOLVED`, `DNS_PROBE_FINISHED_NXDOMAIN`, `ERR_CONNECTION_TIMED_OUT`, or `ERR_SSL_PROTOCOL_ERROR`.
+
 ---
 
 **End of AI Handoff Documentation**
