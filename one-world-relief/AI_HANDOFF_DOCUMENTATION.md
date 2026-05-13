@@ -1988,6 +1988,29 @@ Additional DNS check later on May 4, 2026:
   - GitLab-safe branch commit: `33abdf8 feat: make donation flow more lively`
   - AI handoff remained out of the GitLab-safe branch.
 
+### 2026-05-12 Animated Case Timeline Graphs
+- User asked for a nice animated graph timeline on each case page with an orange glowing line and dated points showing what happened on each date.
+- Updated all case pages:
+  - `projects/case-001.html`
+  - `projects/case-002.html`
+  - `projects/case-003.html`
+  - `projects/case-004.html`
+- Each case now has:
+  - A `Case Timeline` heading.
+  - Four timeline milestones.
+  - Dated completed milestones where dates are known.
+  - Maintenance/follow-up milestone so donors can see the case page is being kept current.
+  - Pending milestones for ongoing cases where delivery/proof is still coming.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Converted project timelines into an orange glowing graph line.
+  - Added animated glowing points and staged card entrance.
+  - Added active, pending, and maintenance visual states.
+  - Added mobile vertical timeline behavior.
+  - Added reduced-motion support for timeline animations.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
+  - Confirmed all four case pages include `case-maintenance-timeline`, `Case Timeline`, maintenance text, and four milestones.
+
 ---
 
 **End of AI Handoff Documentation**
