@@ -281,6 +281,24 @@ test("pages include the One World Relief favicon", async () => {
   assert.match(faviconSvg, /OWR/);
 });
 
+test("offline fallback shows branded connection page after first visit", async () => {
+  const [offlineHtml, siteJs, serviceWorker, siteCss] = await Promise.all([
+    readFile("offline.html", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("sw.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+
+  assert.match(offlineHtml, /One World Relief is still here\./);
+  assert.match(offlineHtml, /offline-dino-scene/);
+  assert.match(offlineHtml, /Try Again/);
+  assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
+  assert.match(serviceWorker, /owr-offline-v1/);
+  assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
+  assert.match(siteCss, /\.offline-dino/);
+  assert.match(siteCss, /@keyframes offline-dino-hop/);
+});
+
 test("home page renders a continuous completed-case photo flow from project data", async () => {
   const [homeHtml, siteJs, siteCss] = await Promise.all([
     readFile("index.html", "utf8"),

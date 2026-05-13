@@ -2042,6 +2042,27 @@ Additional DNS check later on May 4, 2026:
   - The site was not down.
   - The likely visitor problem was people typing or opening `www.one-world-relief.com`, which was not covered before this fix.
 
+### 2026-05-13 Offline Fallback Dinosaur Page
+- User reported they still saw "site can't be reached" and asked to add a dinosaur-style page.
+- Important limitation:
+  - A true browser/DNS failure such as `ERR_NAME_NOT_RESOLVED` happens before One World Relief code loads, so the website cannot replace Chrome's built-in dinosaur screen in that exact case.
+  - The site can provide a custom offline page after a visitor has successfully loaded the site once and the service worker is installed.
+- Added `one-world-relief/offline.html`:
+  - Branded One World Relief connection issue page.
+  - Includes a small animated dinosaur-style scene, clear retry copy, and buttons for `Try Again`, `Home`, and `Donate`.
+- Added `one-world-relief/sw.js`:
+  - Caches the app shell.
+  - Serves `/offline.html` for navigation failures after first visit.
+  - Keeps CSS, JS, favicon, home, and offline page in the offline cache.
+- Updated `one-world-relief/one-world-relief.js`:
+  - Registers `/sw.js` on HTTPS, localhost, and 127.0.0.1 only.
+- Updated `one-world-relief/one-world-relief.css`:
+  - Added the offline page layout, blue background, animated dinosaur scene, responsive behavior, and reduced-motion handling.
+- Added regression coverage:
+  - `offline fallback shows branded connection page after first visit`.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
+
 ---
 
 **End of AI Handoff Documentation**

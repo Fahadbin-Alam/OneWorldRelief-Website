@@ -27,6 +27,24 @@
   const revealItems = Array.from(document.querySelectorAll(".reveal"));
   const flowLayers = Array.from(document.querySelectorAll("[data-flow-layer]"));
 
+  const registerOfflineFallback = () => {
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    const secureContext = window.location.protocol === "https:"
+      || window.location.hostname === "localhost"
+      || window.location.hostname === "127.0.0.1";
+
+    if (!secureContext) {
+      return;
+    }
+
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  };
+
   const escapeHtml = (value) => {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -388,6 +406,7 @@
     }
   };
 
+  registerOfflineFallback();
   setupReveals();
   setupScrollProgress();
   setupFlowLayers();

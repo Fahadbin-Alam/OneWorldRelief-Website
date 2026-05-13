@@ -1,0 +1,49 @@
+<!-- Author: Fahadbin Alam (fma52), 5/13/26 -->
+<!-- Mod by Codex, 5/13/26 -->
+<!-- One World Relief offline fallback page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One World Relief | Connection Issue</title>
+  <meta name="description" content="One World Relief offline page shown when a connection issue prevents the site from loading." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="one-world-relief.css" />
+</head>
+<body class="site-body offline-body">
+  <main class="offline-shell">
+    <section class="offline-card" aria-labelledby="offlineTitle">
+      <div class="offline-dino-scene" aria-hidden="true">
+        <div class="offline-sun"></div>
+        <div class="offline-dino">
+          <span class="dino-head"></span>
+          <span class="dino-body"></span>
+          <span class="dino-tail"></span>
+          <span class="dino-leg dino-leg-front"></span>
+          <span class="dino-leg dino-leg-back"></span>
+          <span class="dino-eye"></span>
+        </div>
+        <div class="offline-ground"></div>
+      </div>
+      <p class="eyebrow">Connection Issue</p>
+      <h1 id="offlineTitle">One World Relief is still here.</h1>
+      <p>
+        Your browser could not reach the site for a moment. Check your connection, refresh the page,
+        or open the secure donation page again.
+      </p>
+      <div class="offline-actions">
+        <button class="button button-primary" type="button" onclick="window.location.reload()">Try Again</button>
+        <a class="button button-outline" href="/">Home</a>
+        <a class="button button-outline" href="/donate">Donate</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
