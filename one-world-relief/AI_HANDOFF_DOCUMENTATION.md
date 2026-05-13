@@ -2109,6 +2109,31 @@ Additional DNS check later on May 4, 2026:
   - The site is publicly reachable in these checks.
   - If a specific person/device still gets "site can't be reached," the next needed data is the exact URL, exact browser error code, and whether it fails on both Wi-Fi and cellular.
 
+### 2026-05-13 Multi-Person Access Report Follow-Up
+- User said multiple people are still reporting "site can't be reached."
+- Additional checks:
+  - `one-world-relief.org` and `www.one-world-relief.org` still return HTTP `200 OK`.
+  - Cloudflare Pages project `trying` shows custom domains:
+    - `trying-8o0.pages.dev`
+    - `api.one-world-relief.com`
+    - `one-world-relief.com`
+    - `one-world-relief.org`
+    - `www.one-world-relief.org`
+  - Checked common mistaken domains:
+    - `oneworldrelief.org` returns DNS status `NXDOMAIN` / does not resolve.
+    - `oneworld-relief.org` does not resolve.
+    - `one-worldrelief.org` does not resolve.
+  - `oneworldrelief.com` resolves to an unrelated IP (`217.160.0.127`) and is not the One World Relief site.
+- Global external HTTP check:
+  - Check-host request `3fb1465akc73` tested `https://one-world-relief.org`.
+  - Nodes in Bulgaria, Canada, Switzerland, France, India, Lithuania, Netherlands, and Sweden all returned HTTP `200`.
+  - Permanent report: `https://check-host.net/check-report/3fb1465akc73`
+- Current conclusion:
+  - The official hyphenated URL is globally reachable.
+  - Multiple failures are most likely from people typing a non-owned spelling, especially `oneworldrelief.org` without hyphens, or from local DNS/network filtering.
+  - Recommended fallback link for testing: `https://trying-8o0.pages.dev`.
+  - If the fallback opens but `.org` fails, the problem is DNS/URL spelling, not the website deployment.
+
 ---
 
 **End of AI Handoff Documentation**
