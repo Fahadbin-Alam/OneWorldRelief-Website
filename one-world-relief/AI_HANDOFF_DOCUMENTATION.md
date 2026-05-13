@@ -2062,6 +2062,16 @@ Additional DNS check later on May 4, 2026:
   - `offline fallback shows branded connection page after first visit`.
 - Verification:
   - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
+- Code/deploy sync:
+  - GitHub commit: `9c759e4 feat: add offline dinosaur fallback`
+  - Cloudflare Pages deployment: `https://5ad743f9.trying-8o0.pages.dev`
+  - Live checks:
+    - `https://one-world-relief.org/` returns HTTP `200 OK`.
+    - `https://one-world-relief.org/offline.html` redirects to `/offline` and returns HTTP `200 OK`.
+    - `https://one-world-relief.org/sw.js` returns HTTP `200 OK` and contains cache `owr-offline-v1`.
+    - `https://www.one-world-relief.com/donate` returns HTTP `301` to `https://one-world-relief.org/donate`.
+  - GitLab-safe branch commit: `2922529 feat: add offline dinosaur fallback`
+  - AI handoff remained out of the GitLab-safe branch.
 
 ---
 
