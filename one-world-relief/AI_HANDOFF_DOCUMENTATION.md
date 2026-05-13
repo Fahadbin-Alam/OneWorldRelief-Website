@@ -2134,6 +2134,23 @@ Additional DNS check later on May 4, 2026:
   - Recommended fallback link for testing: `https://trying-8o0.pages.dev`.
   - If the fallback opens but `.org` fails, the problem is DNS/URL spelling, not the website deployment.
 
+### 2026-05-13 Case 3 Google Drive Lookup Attempt
+- User asked to look at Google Drive for Case 3.
+- Attempted Google Drive connector searches for:
+  - `Case 3`
+  - `Case 003`
+  - `orphan education`
+  - `orphan boy`
+- Blocker:
+  - Google Drive connector returned `token_expired` / `Provided authentication token is expired. Please try signing in again.`
+  - Google Drive profile lookup also failed with the same expired token error.
+- Local fallback check:
+  - Checked synced local Drive mount `G:\My Drive`.
+  - Found only tax/receipt charity files, not Case 3 media or project folders.
+  - No local synced folder/file matching Case 3 / Case 003 / orphan education was found.
+- Next needed action:
+  - Reauthenticate the Google Drive connector, or ensure the Case 3 folder/files are synced locally under `G:\My Drive`, then retry the lookup.
+
 ---
 
 **End of AI Handoff Documentation**
