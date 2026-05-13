@@ -60,6 +60,16 @@
 
   const isExternalUrl = (url) => /^https?:\/\//i.test(String(url || ""));
 
+  const getProjectCaseClass = (project) => {
+    const caseId = String(project.date || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    return caseId ? `project-${caseId}` : "";
+  };
+
   const setupReveals = () => {
     if (!revealItems.length) {
       return;
@@ -282,6 +292,8 @@
       const hasBannerThumbnail = project.thumbnailType === "banner" || !project.thumbnailUrl;
       const rawMediaUrl = project.mediaUrl || "#";
       const mediaUrl = escapeHtml(rawMediaUrl);
+      const projectCaseClass = getProjectCaseClass(project);
+      const projectCardClass = ["project-card", projectCaseClass].filter(Boolean).join(" ");
       const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
       const donationUrl = escapeHtml(project.donationUrl || "donate.html#donationForm");
       const mediaMarkup = hasBannerThumbnail
@@ -294,7 +306,7 @@
         : `<img src="${thumbnailUrl}" alt="${title}" loading="lazy" />`;
 
       return `
-        <article class="project-card">
+        <article class="${projectCardClass}">
           <a class="project-media" href="${mediaUrl}"${mediaLinkAttrs} aria-label="${mediaLabel} for ${title}">
             ${mediaMarkup}
             <span>${mediaLabel}</span>

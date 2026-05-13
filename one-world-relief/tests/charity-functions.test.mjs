@@ -437,6 +437,9 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /thumbnailType: "banner"/);
   assert.doesNotMatch(projectData, /orphan-education-003-placeholder\.svg/);
   assert.doesNotMatch(projectData, /korbani-village-004-placeholder\.svg/);
+  assert.match(siteJs, /project-\$\{caseId\}/);
+  assert.match(siteCss, /\.project-card\.project-case-003 \.project-media img/);
+  assert.match(siteCss, /object-position: center 70%/);
   assert.match(siteJs, /project-media-banner/);
   assert.match(siteCss, /\.current-case-banner/);
 

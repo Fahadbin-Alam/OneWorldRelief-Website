@@ -2490,6 +2490,10 @@ ul {
   transition: transform 0.25s ease;
 }
 
+.project-card.project-case-003 .project-media img {
+  object-position: center 70%;
+}
+
 .project-media:hover img {
   transform: scale(1.03);
 }

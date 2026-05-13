@@ -2247,6 +2247,18 @@ Additional DNS check later on May 4, 2026:
   - Case 003 is now public as a completed $400 orphan education support case with safe proof media.
   - Sensitive identity documents remain private records and are not exposed on the website.
 
+### 2026-05-13 Case 003 Project Card Crop Fix
+- User requested that the Projects tab image for Case 003 be oriented toward the kids.
+- Updated `one-world-relief.js`:
+  - Project cards now receive a case-specific class based on the case ID, such as `project-case-003`.
+- Updated `one-world-relief.css`:
+  - Added a Case 003-specific thumbnail focal point so the card crop centers lower on the image and keeps the children visible.
+- Updated tests:
+  - Added regression checks for the case-specific project card class and Case 003 crop rule.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
+  - Ran a local Playwright screenshot check for `projects.html`; Case 003 card now visually centers on the two boys.
+
 ---
 
 **End of AI Handoff Documentation**
