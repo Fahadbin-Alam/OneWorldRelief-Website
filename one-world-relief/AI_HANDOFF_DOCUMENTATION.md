@@ -2010,6 +2010,12 @@ Additional DNS check later on May 4, 2026:
 - Verification:
   - `node --test tests/charity-functions.test.mjs`: 17 tests passed.
   - Confirmed all four case pages include `case-maintenance-timeline`, `Case Timeline`, maintenance text, and four milestones.
+- Code/deploy sync:
+  - GitHub commit: `669ced2 feat: add animated case timelines`
+  - Cloudflare Pages deployment: `https://cc94d733.trying-8o0.pages.dev`
+  - Live deployment check confirmed Case 001 has the new timeline heading, `case-maintenance-timeline`, and maintenance milestone.
+  - GitLab-safe branch commit: `4985c43 feat: add animated case timelines`
+  - AI handoff remained out of the GitLab-safe branch.
 
 ---
 
