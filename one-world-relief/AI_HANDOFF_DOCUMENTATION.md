@@ -2017,6 +2017,31 @@ Additional DNS check later on May 4, 2026:
   - GitLab-safe branch commit: `4985c43 feat: add animated case timelines`
   - AI handoff remained out of the GitLab-safe branch.
 
+### 2026-05-13 Website Access Issue for Some Visitors
+- User reported that some people could not access the website.
+- Checked live access:
+  - `https://one-world-relief.org` returned HTTP `200 OK`.
+  - `https://www.one-world-relief.org` returned HTTP `200 OK`.
+  - `https://trying-8o0.pages.dev` returned HTTP `200 OK`.
+  - `https://one-world-relief.com` redirected to `https://one-world-relief.org` and then returned HTTP `200 OK`.
+- Found the access gap:
+  - `www.one-world-relief.com` had no valid working path for visitors who naturally type `www` plus `.com`.
+  - Public DNS initially returned NXDOMAIN for `www.one-world-relief.com`.
+  - Adding only a DNS CNAME to Pages caused Cloudflare `522` because the hostname was not properly handled by Pages/custom-domain routing.
+- Fix applied:
+  - Added/kept DNS for `www.one-world-relief.com`.
+  - Deployed a tiny Cloudflare Worker named `owr-www-com-redirect`.
+  - Worker route: `www.one-world-relief.com/*`.
+  - Worker redirects all requests to the matching `https://one-world-relief.org/*` URL.
+- Verification after fix:
+  - `https://www.one-world-relief.com/donate` now returns HTTP `301` to `https://one-world-relief.org/donate`, then HTTP `200 OK`.
+  - `https://one-world-relief.com/donate` still redirects to `.org` and returns HTTP `200 OK`.
+  - `https://one-world-relief.org/donate` returns HTTP `200 OK`.
+  - `https://www.one-world-relief.org/donate` returns HTTP `200 OK`.
+- Current diagnosis:
+  - The site was not down.
+  - The likely visitor problem was people typing or opening `www.one-world-relief.com`, which was not covered before this fix.
+
 ---
 
 **End of AI Handoff Documentation**
