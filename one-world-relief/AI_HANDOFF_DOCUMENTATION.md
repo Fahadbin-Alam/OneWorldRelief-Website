@@ -2222,6 +2222,31 @@ Additional DNS check later on May 4, 2026:
   - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
   - Asset integrity check confirmed Case 003 JPG files have JPEG signatures and videos have MP4 `ftypmp42` signatures.
 
+### 2026-05-13 Case 003 Deployment + Repository Sync
+- GitHub:
+  - Code/media/docs commit pushed to `oneworld-github` on `charity-frontend-redesign`.
+  - Commit: `ed567ad feat: publish case 003 proof media`
+- Cloudflare Pages:
+  - Deployed Case 003 update successfully.
+  - Deployment URL: `https://722863f5.trying-8o0.pages.dev`
+  - Live page checked: `https://one-world-relief.org/projects/case-003`
+  - Confirmed live page includes:
+    - `orphan-education-003-primary.mp4`
+    - `orphan-education-003-video-2.mp4`
+    - `$400`
+    - `Completed`
+    - Private identity/birth-registration note.
+  - Confirmed live assets:
+    - `https://one-world-relief.org/assets/projects/case-003/orphan-education-003-primary.mp4` returned `200` with `video/mp4`.
+    - `https://one-world-relief.org/assets/projects/case-003/orphan-education-003-thumbnail.jpg` returned `200` with `image/jpeg`.
+- GitLab:
+  - Code-only commit pushed to GitLab branch `gitlab-charity-sync`.
+  - Commit: `116fcea feat: publish case 003 proof media`
+  - `AI_HANDOFF_DOCUMENTATION.md` was intentionally excluded from GitLab and kept GitHub-only.
+- Current production result:
+  - Case 003 is now public as a completed $400 orphan education support case with safe proof media.
+  - Sensitive identity documents remain private records and are not exposed on the website.
+
 ---
 
 **End of AI Handoff Documentation**
