@@ -2151,6 +2151,23 @@ Additional DNS check later on May 4, 2026:
 - Next needed action:
   - Reauthenticate the Google Drive connector, or ensure the Case 3 folder/files are synced locally under `G:\My Drive`, then retry the lookup.
 
+### 2026-05-13 Case 3 Local Drive Sync Recheck
+- User said Google Drive says the files are already synced.
+- Performed a broader local scan of `G:\` / `G:\My Drive`:
+  - Listed top-level synced Drive folders.
+  - Scanned recent media files (`mp4`, `mov`, `jpg`, `jpeg`, `png`, `heic`, `webp`).
+  - Scanned folder/file names for Case/003/Orphan/Education/OneWorld/Relief-related terms.
+- Finding:
+  - `G:\My Drive` is mounted and synced, but no visible Case 3 / Case 003 / orphan education media folder was found.
+  - Only existing One World Relief-related synced files found locally were older receipt/project files and current repo assets.
+- Likely explanations:
+  - Case 3 is in `Shared with me` and has not been added as a shortcut to My Drive.
+  - Case 3 is under a different Google account than the local `G:\My Drive` mount.
+  - Case 3 folder has a name that does not include Case/orphan/education terms and needs the exact folder name/path.
+  - Google Drive Desktop says synced globally, but that folder is not selected/available offline locally.
+- Next needed action:
+  - Provide the exact local Drive path, or right-click the Case 3 folder in Google Drive and copy/share the folder link.
+
 ---
 
 **End of AI Handoff Documentation**
