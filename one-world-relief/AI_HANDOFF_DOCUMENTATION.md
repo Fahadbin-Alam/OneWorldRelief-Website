@@ -2258,6 +2258,11 @@ Additional DNS check later on May 4, 2026:
 - Verification:
   - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
   - Ran a local Playwright screenshot check for `projects.html`; Case 003 card now visually centers on the two boys.
+- Repository/deployment:
+  - GitHub commit: `0f40343 fix: focus case 003 project thumbnail`.
+  - Cloudflare production deployment: `https://87dd35e1.trying-8o0.pages.dev`.
+  - Verified `https://one-world-relief.org/projects` returns `200 OK`.
+  - Verified live `.org` CSS contains the Case 003 crop rule and `object-position: center 70%`.
 
 ---
 
