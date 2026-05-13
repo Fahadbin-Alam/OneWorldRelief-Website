@@ -2093,6 +2093,22 @@ Additional DNS check later on May 4, 2026:
   - If outside users still see "site can't be reached," the most likely causes are stale DNS cache on their device/network, a typo/old URL, or a resolver/network blocking Cloudflare/DNS temporarily.
   - Need exact failing URL and Chrome error code from another device, for example `ERR_NAME_NOT_RESOLVED`, `DNS_PROBE_FINISHED_NXDOMAIN`, `ERR_CONNECTION_TIMED_OUT`, or `ERR_SSL_PROTOCOL_ERROR`.
 
+### 2026-05-13 Fresh External Access Recheck
+- User again reported the browser says "site can't be reached."
+- Rechecked the public site paths:
+  - `https://one-world-relief.org/` returns HTTP `200 OK`.
+  - `https://www.one-world-relief.org/` returns HTTP `200 OK`.
+  - `http://one-world-relief.org/` returns HTTP `301` then `200 OK` at HTTPS.
+  - `http://www.one-world-relief.org/` returns HTTP `301` then `200 OK` at HTTPS.
+- Rechecked public DNS-over-HTTPS:
+  - Google DNS resolves `one-world-relief.org` A records to `172.66.44.230` and `172.66.47.26`.
+  - Google DNS resolves `www.one-world-relief.org` to CNAME `trying-8o0.pages.dev`, then Cloudflare Pages IPs.
+  - Cloudflare DNS-over-HTTPS shows the same results.
+  - DS lookup does not show a broken DNSSEC delegation.
+- Current conclusion:
+  - The site is publicly reachable in these checks.
+  - If a specific person/device still gets "site can't be reached," the next needed data is the exact URL, exact browser error code, and whether it fails on both Wi-Fi and cellular.
+
 ---
 
 **End of AI Handoff Documentation**
