@@ -2168,6 +2168,32 @@ Additional DNS check later on May 4, 2026:
 - Next needed action:
   - Provide the exact local Drive path, or right-click the Case 3 folder in Google Drive and copy/share the folder link.
 
+### 2026-05-13 Case 003 Google Drive Found
+- User asked to check Google Drive again to see whether Case 003 is there.
+- Google Drive connector is now working again.
+- Found folder:
+  - Title: `Case 003 -orphans 400$`
+  - Folder ID: `1DIBqY-4QgwCyZa65mLD76fWgFfGTTEtC`
+  - URL: `https://drive.google.com/drive/folders/1DIBqY-4QgwCyZa65mLD76fWgFfGTTEtC`
+  - Created: `2026-05-13T11:03:17.126Z`
+  - Updated: `2026-05-13T17:15:11.898Z`
+- Folder contents:
+  - `Scanned_20260513-1747.pdf`
+  - `VID-20260513-WA0012.mp4`
+  - `VID-20260513-WA0018.mp4`
+  - `Scanned_20260513-1704-08.jpg`
+  - `Scanned_20260513-1704-07.jpg`
+  - `Scanned_20260513-1704-06.jpg`
+  - `Scanned_20260513-1704-05.jpg`
+  - `Scanned_20260513-1704-04.jpg`
+  - `Scanned_20260513-1704-03.jpg`
+  - `Scanned_20260513-1704-02.jpg`
+  - `Scanned_20260513-1704-01.jpg`
+- Summary:
+  - Case 003 exists in Google Drive.
+  - It contains 2 videos, 8 scanned JPG images, and 1 PDF.
+  - Next website step is to download/review usable media, create local optimized assets, then update the Case 003 page and project cards.
+
 ---
 
 **End of AI Handoff Documentation**
