@@ -2194,6 +2194,34 @@ Additional DNS check later on May 4, 2026:
   - It contains 2 videos, 8 scanned JPG images, and 1 PDF.
   - Next website step is to download/review usable media, create local optimized assets, then update the Case 003 page and project cards.
 
+### 2026-05-13 Case 003 Website Media Update
+- User asked to do the Case 003 website update.
+- Downloaded media from Google Drive folder `Case 003 -orphans 400$`.
+- Public website assets added under `one-world-relief/assets/projects/case-003/`:
+  - `orphan-education-003-primary.mp4`
+  - `orphan-education-003-video-2.mp4`
+  - `orphan-education-003-main.jpg`
+  - `orphan-education-003-proof.jpg`
+  - `orphan-education-003-thumbnail.jpg`
+- Privacy decision:
+  - Scanned birth-registration/identity documentation and the PDF were reviewed as sensitive records and were not published to the public website.
+  - The Case 003 page now states that private identity and birth-registration documents are kept on file for verification.
+- Updated `project-data.js`:
+  - Case 003 changed from `Ongoing` to `Completed`.
+  - Amount changed to `$400`.
+  - Thumbnail changed to `assets/projects/case-003/orphan-education-003-thumbnail.jpg`.
+  - Summary/update now mention delivered education support and local proof media.
+- Updated `projects/case-003.html`:
+  - Replaced placeholder/current-case banner with primary local video.
+  - Added proof media grid with both videos and safe field photos.
+  - Updated overview, facts, and timeline to reflect completed $400 education support.
+  - Added note that private documents are kept off the public page.
+- Updated tests:
+  - Case 003 now asserts local MP4/JPG assets, `$400`, `Completed`, and no exposed birth-registration number.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 18 tests passed.
+  - Asset integrity check confirmed Case 003 JPG files have JPEG signatures and videos have MP4 `ftypmp42` signatures.
+
 ---
 
 **End of AI Handoff Documentation**

@@ -433,6 +433,7 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /Korbani Meals for a Village/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
   assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
+  assert.match(projectData, /orphan-education-003-thumbnail\.jpg/);
   assert.match(projectData, /thumbnailType: "banner"/);
   assert.doesNotMatch(projectData, /orphan-education-003-placeholder\.svg/);
   assert.doesNotMatch(projectData, /korbani-village-004-placeholder\.svg/);
@@ -465,14 +466,19 @@ test("project cards publish approved cases with embedded local media", async () 
 
   assert.match(caseThreePage, /Keeping an orphan boy in school/);
   assert.match(caseThreePage, /Case 003/);
-  assert.match(caseThreePage, /Current Case/);
-  assert.match(caseThreePage, /current-case-banner/);
-  assert.match(caseThreePage, /Ongoing/);
-  assert.match(caseThreePage, /Media coming soon/);
+  assert.match(caseThreePage, /Amount delivered/);
+  assert.match(caseThreePage, /\$400/);
+  assert.match(caseThreePage, /Completed/);
+  assert.match(caseThreePage, /orphan-education-003-primary\.mp4/);
+  assert.match(caseThreePage, /orphan-education-003-video-2\.mp4/);
+  assert.match(caseThreePage, /orphan-education-003-main\.jpg/);
+  assert.match(caseThreePage, /orphan-education-003-proof\.jpg/);
+  assert.match(caseThreePage, /Private identity and birth-registration documents are kept on file/);
   assert.doesNotMatch(caseThreePage, /orphan-education-003-placeholder\.svg/);
+  assert.doesNotMatch(caseThreePage, /Birth Registration Number/);
+  assert.doesNotMatch(caseThreePage, /20171591629107850/);
   assert.match(caseThreePage, /project-timeline/);
-  assert.match(caseThreePage, /timeline-step-active/);
-  assert.match(caseThreePage, /timeline-step-pending/);
+  assert.match(caseThreePage, /timeline-step-maintenance/);
 
   assert.match(caseFourPage, /Korbani meals for a village/);
   assert.match(caseFourPage, /Case 004/);
