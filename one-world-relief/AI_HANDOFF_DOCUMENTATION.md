@@ -2261,6 +2261,8 @@ Additional DNS check later on May 4, 2026:
 - Repository/deployment:
   - GitHub commit: `0f40343 fix: focus case 003 project thumbnail`.
   - Cloudflare production deployment: `https://87dd35e1.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync`: `d7dacd4 fix: focus case 003 project thumbnail`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
   - Verified `https://one-world-relief.org/projects` returns `200 OK`.
   - Verified live `.org` CSS contains the Case 003 crop rule and `object-position: center 70%`.
 
