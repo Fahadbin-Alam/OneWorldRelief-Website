@@ -236,7 +236,7 @@ const appendDonationToGoogleSheet = async (env, session) => {
     receiptEmailStatus = "failed";
   }
   const origin = env.OWR_PUBLIC_SITE_URL || env.OWR_SUCCESS_URL?.replace(/\/charity\/thank-you.*$/, "") || "";
-  const receiptUrl = origin ? `${origin.replace(/\/$/, "")}/charity/thank-you?donation_id=${encodeURIComponent(metadata.donation_id || session.client_reference_id || "")}&session_id=${encodeURIComponent(session.id || "")}` : "";
+  const receiptUrl = origin ? `${origin.replace(/\/$/, "")}/charity/thank-you?donation_id=${encodeURIComponent(donationId)}&session_id=${encodeURIComponent(session.id || "")}` : "";
   const notes = [
     session.payment_status ? `Status: ${session.payment_status}` : "",
     session.id ? `Stripe Session: ${session.id}` : "",
