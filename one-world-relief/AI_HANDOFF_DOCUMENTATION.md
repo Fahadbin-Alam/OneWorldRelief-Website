@@ -2266,6 +2266,37 @@ Additional DNS check later on May 4, 2026:
   - Verified `https://one-world-relief.org/projects` returns `200 OK`.
   - Verified live `.org` CSS contains the Case 003 crop rule and `object-position: center 70%`.
 
+### 2026-05-14 Stripe to Google Sheets Repair
+- User reported Stripe donations were not appearing in `OneWorldRelief_SUPER_TRACKER_DASHBOARD`.
+- Root cause found:
+  - Stripe webhook endpoint was still set to `https://one-world-relief.com/charity/webhooks/stripe`.
+  - The `.com` domain now redirects to `.org`; Stripe webhook delivery does not work through that redirect.
+  - Updated Stripe webhook endpoint `we_1TTCvuCAf4VnejRL01HRDGMW` to `https://one-world-relief.org/charity/webhooks/stripe`.
+- Code changes:
+  - Updated `functions/charity/webhooks/stripe.js` to check existing `Donations (2026)` rows before sending receipt email or appending a row.
+  - Duplicate detection checks Donation ID, Receipt ID, and Stripe Session ID in Notes.
+  - Updated receipt URL generation to use the same fallback Donation ID as the spreadsheet row when Stripe metadata is missing.
+- Tests:
+  - Added duplicate-safe webhook test so replayed Stripe events do not create duplicate rows or duplicate receipt emails.
+  - `node --test tests/charity-functions.test.mjs`: 19 tests passed.
+- Cloudflare:
+  - Deployed duplicate-safe webhook: `https://a99457c1.trying-8o0.pages.dev`.
+  - Deployed receipt URL fallback refinement: `https://e6b18bcb.trying-8o0.pages.dev`.
+  - Verified unsigned `POST https://one-world-relief.org/charity/webhooks/stripe` returns `400`, confirming the live function route and signature protection are active.
+- Spreadsheet repair:
+  - Backfilled missing paid Stripe donations by replaying signed completed Checkout Session events through the fixed `.org` webhook.
+  - Added missing rows:
+    - 2026-04-24, Fahadbin Alam, `$1.00`, General Fund, receipt `R-2026-04-24-CSLIVEA1H8`.
+    - 2026-05-10, Samii Shabuse, `$1.00`, Orphan Support, receipt `R-2026-05-10-C6BB305923`.
+    - 2026-05-11, Samii Shabuse, `$317.00`, General Fund, receipt `R-2026-05-11-F32357CB00`.
+    - 2026-05-11, shahin parvin, `$25.00`, General Fund, receipt `R-2026-05-11-D666E84CAE`.
+  - Replaced old `.com` receipt URLs in the Notes column with `.org` receipt URLs.
+  - Sorted the Donations table by date and restored the existing manual TD Bank donation ID to `D-2026-002` after a row-number formula recalculated during sort.
+- Verification:
+  - `Donations (2026)` now has 9 Stripe rows.
+  - All 9 Stripe rows have `.org` receipt URLs and `Receipt Email: sent`.
+  - Stripe endpoint is enabled and listening for `checkout.session.completed` on the `.org` webhook.
+
 ---
 
 **End of AI Handoff Documentation**
