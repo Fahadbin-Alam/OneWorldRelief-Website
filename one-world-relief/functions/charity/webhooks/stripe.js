@@ -183,6 +183,35 @@ const sendReceiptEmail = async (env, session) => {
   return "sent";
 };
 
+const getSheetRows = async (env, accessToken, tabName) => {
+  const range = encodeURIComponent(`'${tabName}'!A:H`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}?majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE`;
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!response.ok) {
+    const payload = await response.text();
+    throw new Error(`Google Sheets duplicate check failed: ${payload}`);
+  }
+
+  const payload = await response.json();
+  return payload.values || [];
+};
+
+const hasExistingDonationRow = (rows, session, receipt, donationId) => {
+  const normalizedDonationId = String(donationId || "").trim();
+  const sessionId = String(session.id || "").trim();
+  const receiptNumber = String(receipt.receiptNumber || "").trim();
+
+  return rows.some((row) => {
+    const cells = row.map((cell) => String(cell || ""));
+    return (normalizedDonationId && cells[0] === normalizedDonationId)
+      || (receiptNumber && cells[6] === receiptNumber)
+      || (sessionId && cells.some((cell) => cell.includes(sessionId)));
+  });
+};
+
 const appendDonationToGoogleSheet = async (env, session) => {
   if (!env.OWR_GOOGLE_SHEET_ID) {
     throw new Error("OWR_GOOGLE_SHEET_ID is not configured.");
@@ -191,6 +220,14 @@ const appendDonationToGoogleSheet = async (env, session) => {
   const accessToken = await getGoogleAccessToken(env);
   const metadata = session.metadata || {};
   const receipt = getReceiptDetails(session);
+  const donationId = metadata.donation_id || session.client_reference_id || session.id || "";
+  const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
+  const existingRows = await getSheetRows(env, accessToken, tabName);
+  if (hasExistingDonationRow(existingRows, session, receipt, donationId)) {
+    console.log("One World Relief donation already exists in Google Sheets", session.id || donationId);
+    return;
+  }
+
   let receiptEmailStatus = "not_attempted";
   try {
     receiptEmailStatus = await sendReceiptEmail(env, session);
@@ -210,7 +247,7 @@ const appendDonationToGoogleSheet = async (env, session) => {
     metadata.donor_note ? `Donor Note: ${metadata.donor_note}` : "",
   ].filter(Boolean).join(" | ");
   const row = [
-    metadata.donation_id || session.client_reference_id || "",
+    donationId,
     new Date((session.created || Date.now() / 1000) * 1000).toLocaleDateString("en-US", { timeZone: "UTC" }),
     receipt.donorName,
     Number(receipt.amount),
@@ -219,7 +256,6 @@ const appendDonationToGoogleSheet = async (env, session) => {
     receipt.receiptNumber,
     notes,
   ];
-  const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
   const range = encodeURIComponent(`'${tabName}'!A:H`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 

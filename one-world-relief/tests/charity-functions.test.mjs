@@ -605,7 +605,13 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
         headers: { "Content-Type": "application/json" },
       });
     }
-    if (String(url).includes("sheets.googleapis.com")) {
+    if (String(url).includes("sheets.googleapis.com") && !String(url).includes(":append")) {
+      return new Response(JSON.stringify({ values: [["Donation ID", "Date", "Donor Name", "Amount ($)", "Purpose/Fund", "Method", "Receipt ID", "Notes"]] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com") && String(url).includes(":append")) {
       return new Response(JSON.stringify({ updates: { updatedRows: 1 } }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -660,7 +666,9 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(emailPayload.text, /Amount: \$1\.00/);
     assert.match(emailPayload.text, /No goods or services were provided/);
 
-    const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com"));
+    const sheetReadCall = calls.find((call) => call.url.includes("sheets.googleapis.com") && !call.url.includes(":append"));
+    assert.ok(sheetReadCall, "webhook should check for duplicate spreadsheet rows before sending a receipt");
+    const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com") && call.url.includes(":append"));
     assert.match(sheetCall.url, /A%3AH/);
     const sheetPayload = JSON.parse(sheetCall.options.body);
     assert.deepEqual(sheetPayload.values[0].slice(0, 7), [
@@ -676,6 +684,100 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(sheetPayload.values[0][7], /Payment Intent: pi_test_123/);
     assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
     assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("stripe webhook skips existing spreadsheet rows without duplicate receipt email", async () => {
+  const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
+  const originalFetch = globalThis.fetch;
+  const secret = "whsec_test";
+  const timestamp = "1770000000";
+  const calls = [];
+  const body = JSON.stringify({
+    id: "evt_test_duplicate",
+    type: "checkout.session.completed",
+    data: {
+      object: {
+        id: "cs_test_duplicate",
+        created: 1770000000,
+        amount_total: 100,
+        payment_status: "paid",
+        customer_email: "donor@example.com",
+        client_reference_id: "don_duplicate",
+        payment_intent: "pi_test_duplicate",
+        metadata: {
+          donation_id: "don_duplicate",
+          donor_name: "Test Donor",
+          donor_email: "donor@example.com",
+          campaign: "General Fund",
+        },
+      },
+    },
+  });
+  const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (String(url).includes("oauth2.googleapis.com")) {
+      return new Response(JSON.stringify({ access_token: "google-token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com") && !String(url).includes(":append")) {
+      return new Response(JSON.stringify({
+        values: [
+          ["Donation ID", "Date", "Donor Name", "Amount ($)", "Purpose/Fund", "Method", "Receipt ID", "Notes"],
+          ["don_duplicate", "2/2/2026", "Test Donor", "$1.00", "General Fund", "Stripe", "R-2026-02-02-DONDUPLIC", "Stripe Session: cs_test_duplicate"],
+        ],
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch ${url}`);
+  };
+
+  try {
+    const privateKey = await crypto.subtle.generateKey(
+      {
+        name: "RSASSA-PKCS1-v1_5",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["sign", "verify"]
+    ).then(async (keyPair) => {
+      const exported = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+      const base64 = Buffer.from(exported).toString("base64").match(/.{1,64}/g).join("\n");
+      return `-----BEGIN PRIVATE KEY-----\n${base64}\n-----END PRIVATE KEY-----`;
+    });
+
+    const response = await webhook.onRequestPost({
+      request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+        body,
+      }),
+      env: {
+        OWR_STRIPE_WEBHOOK_SECRET: secret,
+        OWR_GOOGLE_SHEET_ID: "sheet_123",
+        OWR_GOOGLE_SHEET_TAB: "Donations (2026)",
+        OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.iam.gserviceaccount.com",
+        OWR_GOOGLE_PRIVATE_KEY: privateKey,
+        OWR_PUBLIC_SITE_URL: "https://one-world-relief.org",
+        OWR_RESEND_API_KEY: "re_test",
+        OWR_RECEIPT_FROM_EMAIL: "OneWorld Relief <receipts@one-world-relief.org>",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.ok(calls.some((call) => call.url.includes("sheets.googleapis.com") && !call.url.includes(":append")));
+    assert.equal(calls.some((call) => call.url.includes("api.resend.com")), false);
+    assert.equal(calls.some((call) => call.url.includes("sheets.googleapis.com") && call.url.includes(":append")), false);
   } finally {
     globalThis.fetch = originalFetch;
   }
