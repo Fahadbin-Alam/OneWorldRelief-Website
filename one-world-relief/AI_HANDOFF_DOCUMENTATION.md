@@ -2296,6 +2296,11 @@ Additional DNS check later on May 4, 2026:
   - `Donations (2026)` now has 9 Stripe rows.
   - All 9 Stripe rows have `.org` receipt URLs and `Receipt Email: sent`.
   - Stripe endpoint is enabled and listening for `checkout.session.completed` on the `.org` webhook.
+- Repository sync:
+  - GitHub code commits: `3012f54 fix: prevent duplicate stripe sheet rows`, `c2237d0 fix: use fallback donation id in receipt urls`.
+  - GitHub handoff commit: `ba629b5 docs: log stripe sheet repair`.
+  - GitLab code-only commits pushed to `gitlab-charity-sync`: `d72a868 fix: prevent duplicate stripe sheet rows`, `7d60b10 fix: use fallback donation id in receipt urls`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab.
 
 ---
 
