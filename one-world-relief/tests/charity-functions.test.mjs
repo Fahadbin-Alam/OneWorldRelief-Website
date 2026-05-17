@@ -452,7 +452,13 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(casePage, /orphan-support-001-main\.jpg/);
   assert.match(casePage, /orphan-support-001-proof\.jpg/);
   assert.match(casePage, /project-timeline/);
+  assert.match(casePage, /id="case-timeline"/);
   assert.match(casePage, /timeline-step-active/);
+  assert.match(siteCss, /\.project-timeline::after/);
+  assert.match(siteCss, /timeline-runner-horizontal/);
+  assert.match(siteCss, /timeline-runner-vertical/);
+  assert.match(siteCss, /timeline-ring-breathe/);
+  assert.match(siteJs, /hashReveal/);
 
   assert.match(caseTwoPage, /A fresh start for a father's business/);
   assert.match(caseTwoPage, /Case ID/);

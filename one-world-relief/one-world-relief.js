@@ -75,6 +75,9 @@
       return;
     }
 
+    const hashTarget = window.location.hash ? document.querySelector(window.location.hash) : null;
+    const hashReveal = hashTarget?.classList?.contains("reveal") ? hashTarget : hashTarget?.closest?.(".reveal");
+
     if (!("IntersectionObserver" in window)) {
       revealItems.forEach((item) => item.classList.add("is-visible"));
       return;
@@ -94,6 +97,10 @@
       item.dataset.revealVariant = item.dataset.revealVariant || ["rise", "slide-left", "slide-right", "scale"][index % 4];
       observer.observe(item);
     });
+
+    if (hashReveal) {
+      hashReveal.classList.add("is-visible");
+    }
   };
 
   const setupScrollProgress = () => {

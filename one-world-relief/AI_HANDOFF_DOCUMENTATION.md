@@ -2302,6 +2302,28 @@ Additional DNS check later on May 4, 2026:
   - GitLab code-only commits pushed to `gitlab-charity-sync`: `d72a868 fix: prevent duplicate stripe sheet rows`, `7d60b10 fix: use fallback donation id in receipt urls`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab.
 
+### 2026-05-16 Animated Case Timeline Redesign
+- User requested a much nicer animated timeline for each case, with a circle moving through a line.
+- Updated `one-world-relief.css`:
+  - Rebuilt `.project-timeline` as a polished animated rail with a glowing orange line.
+  - Added a traveling orb via `.project-timeline::after`.
+  - Upgraded milestone circles with larger rings, glow, pulse, and a cleaner card layout.
+  - Added a vertical animated timeline layout for mobile screens.
+  - Added pending/active/maintenance styling so ongoing cases show future steps more clearly.
+- Updated `projects/case-001.html`, `case-002.html`, `case-003.html`, and `case-004.html`:
+  - Added `id="case-timeline"` to the timeline sections so pages can link directly to the timeline.
+- Updated `one-world-relief.js`:
+  - Hash-linked reveal sections, including `#case-timeline`, become visible immediately so direct timeline links do not appear blurred.
+- Updated tests:
+  - Added checks for `#case-timeline`, the animated timeline runner, and the reveal hash handling.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 19 tests passed.
+  - Local Playwright screenshots reviewed:
+    - Case 003 desktop timeline.
+    - Case 003 mobile timeline.
+    - Case 004 desktop timeline with pending steps.
+  - Visual result: desktop timeline now shows a horizontal glowing line with large numbered circles and a moving orb; mobile timeline switches to a vertical rail with circles and readable cards.
+
 ---
 
 **End of AI Handoff Documentation**
