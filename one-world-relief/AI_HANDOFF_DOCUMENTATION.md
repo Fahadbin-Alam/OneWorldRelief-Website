@@ -2323,6 +2323,14 @@ Additional DNS check later on May 4, 2026:
     - Case 003 mobile timeline.
     - Case 004 desktop timeline with pending steps.
   - Visual result: desktop timeline now shows a horizontal glowing line with large numbered circles and a moving orb; mobile timeline switches to a vertical rail with circles and readable cards.
+- Repository/deployment:
+  - GitHub code commit: `9a1ac82 feat: animate case timelines`.
+  - Cloudflare production deployment: `https://d6505d7a.trying-8o0.pages.dev`.
+  - Verified `https://one-world-relief.org/projects/case-003#case-timeline` returns `200 OK`.
+  - Verified live `.org` CSS contains `timeline-runner-horizontal`, `.project-timeline::after`, and `timeline-runner-vertical`.
+  - Verified live `.org` JS contains the `hashReveal` direct-link reveal fix.
+  - GitLab code-only commit pushed to `gitlab-charity-sync`: `75bb693 feat: animate case timelines`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
 ---
 
