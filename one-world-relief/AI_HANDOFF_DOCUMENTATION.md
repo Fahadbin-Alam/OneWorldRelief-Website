@@ -2332,6 +2332,20 @@ Additional DNS check later on May 4, 2026:
   - GitLab code-only commit pushed to `gitlab-charity-sync`: `75bb693 feat: animate case timelines`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-17 GitLab Commit Visibility Check
+- User reported they could not see the latest commit history in GitLab.
+- Found that GitLab default branch is `main`, while the newest code-only charity commits were on `gitlab-charity-sync`.
+- Also found the GitLab `charity-frontend-redesign` branch was behind the code-only sync branch.
+- Updated GitLab `charity-frontend-redesign` by fast-forwarding it from `gitlab-charity-sync`.
+- Current GitLab branch heads:
+  - `charity-frontend-redesign`: `75bb693 feat: animate case timelines`.
+  - `gitlab-charity-sync`: `75bb693 feat: animate case timelines`.
+  - `main`: left unchanged to avoid deleting unrelated student-guide files from the default branch.
+- Fixed local branch tracking:
+  - `charity-frontend-redesign` now tracks `oneworld-github/charity-frontend-redesign`.
+  - `gitlab-charity-sync` now tracks `origin/gitlab-charity-sync`.
+- `AI_HANDOFF_DOCUMENTATION.md` remains GitHub-only and was not pushed to GitLab.
+
 ---
 
 **End of AI Handoff Documentation**
