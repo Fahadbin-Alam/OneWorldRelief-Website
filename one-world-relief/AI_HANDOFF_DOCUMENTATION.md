@@ -2346,6 +2346,18 @@ Additional DNS check later on May 4, 2026:
   - `gitlab-charity-sync` now tracks `origin/gitlab-charity-sync`.
 - `AI_HANDOFF_DOCUMENTATION.md` remains GitHub-only and was not pushed to GitLab.
 
+### 2026-05-17 GitLab Main Visibility Retry
+- User still could not see the GitLab commit history and asked to try again.
+- Created a safe GitLab `main` commit that syncs only the `one-world-relief` folder to the current GitLab code-only charity state.
+- Preserved unrelated student-guide files on GitLab `main`; no root-level student-guide files were deleted.
+- Confirmed `AI_HANDOFF_DOCUMENTATION.md` was not included in the GitLab `main` sync.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 19 tests passed before pushing.
+- GitLab branch heads after retry:
+  - `main`: `26eb7c7 feat: sync One World Relief updates to main`.
+  - `charity-frontend-redesign`: `75bb693 feat: animate case timelines`.
+  - `gitlab-charity-sync`: `75bb693 feat: animate case timelines`.
+
 ---
 
 **End of AI Handoff Documentation**
