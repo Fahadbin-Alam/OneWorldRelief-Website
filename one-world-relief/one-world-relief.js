@@ -169,7 +169,7 @@
     }
 
     const targets = Array.from(document.querySelectorAll(
-      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .donation-form-card, .contact-message-card"
+      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .contact-message-card"
     ));
 
     targets.forEach((target) => {

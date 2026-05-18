@@ -384,12 +384,22 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(siteJs, /syncRecurringPaymentAvailability/);
   assert.match(siteJs, /giving_frequency: givingFrequency/);
   assert.match(siteJs, /recurringBlockedMethods/);
+  assert.doesNotMatch(siteJs, /home-stories, \.donation-form-card/);
   assert.match(siteJs, /donor_note: donorNote/);
   assert.match(siteJs, /anonymous_public: anonymousDonation/);
   assert.match(siteJs, /selected\?\.value === "custom"/);
   assert.match(siteJs, /customDonationPanel\.hidden = !isCustomAmount/);
   assert.match(siteJs, /radio\.value !== "custom"/);
   assert.match(siteCss, /\.donation-form-card-featured/);
+  assert.match(siteCss, /@keyframes donation-form-sheen/);
+  assert.match(siteCss, /@keyframes donation-card-glow/);
+  assert.match(siteCss, /@keyframes donation-current-glide/);
+  const donationCardRule = siteCss.slice(
+    siteCss.indexOf(".donation-form-card {"),
+    siteCss.indexOf(".donation-form-card-featured")
+  );
+  assert.equal(donationCardRule.includes("rotateX"), false);
+  assert.equal(donationCardRule.includes("--tilt-x"), false);
   assert.match(siteCss, /\.donation-form-heading/);
   assert.match(siteCss, /\.donor-options/);
   assert.match(siteCss, /\.checkbox-line/);
