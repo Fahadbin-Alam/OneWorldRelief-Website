@@ -2388,6 +2388,34 @@ Additional DNS check later on May 4, 2026:
   - GitLab `main` visibility sync commit: `8d577b8 feat: sync recurring donation schedules to main`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-18 Simplified Donation Checkout Form
+- User disliked the cluttered recurring donation form and asked to make it simple.
+- Simplified `donate.html`:
+  - Removed the top `1 2 3 4 5` progress bubble strip.
+  - Removed the duplicate fund chip row under the fund dropdown.
+  - Removed the duplicate payment chip row under the payment dropdown.
+  - Renamed the form heading to "Donation details".
+  - Kept the actual donation choices: fund, amount, schedule, receipt details, payment method, note, anonymous checkbox.
+- Simplified `one-world-relief.css`:
+  - Donation steps now render as clean divider rows instead of nested cards.
+  - Amount and schedule options are smaller, flatter, and less visually noisy.
+  - Removed the animated/wavy panel background inside each step.
+  - Mobile layout now keeps the simplified form readable with compact amount buttons.
+- Updated tests to assert the simplified form no longer includes `form-current`, `fund-chip-grid`, or `payment-chip-grid`.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local Playwright screenshot review:
+    - Desktop donation page looked clean and aligned.
+    - Mobile donation page looked simpler and readable.
+  - Live `.org` check confirmed `/donate` contains "Donation details" and no longer contains `form-current`, `fund-chip-grid`, or `payment-chip-grid`.
+  - Live `.org` CSS check confirmed simplified divider-style donation steps.
+- Repository/deployment:
+  - GitHub code commit: `b6b673f fix: simplify donation checkout form`.
+  - Cloudflare production deployment: `https://467d4471.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `46ba4b2 fix: simplify donation checkout form`.
+  - GitLab `main` visibility sync commit: `e489437 fix: sync simplified donation form to main`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
