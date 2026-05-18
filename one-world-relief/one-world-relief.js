@@ -600,8 +600,10 @@
   const campaignSelect = document.getElementById("campaignSelect");
   const paymentMethodSelect = document.getElementById("paymentMethod");
   const totalBadge = document.getElementById("donationTotalBadge");
+  const recurringDonationNote = document.getElementById("recurringDonationNote");
   const campaignChoiceButtons = Array.from(donationForm.querySelectorAll("[data-campaign-choice]"));
   const paymentChoiceButtons = Array.from(donationForm.querySelectorAll("[data-payment-choice]"));
+  const recurringBlockedMethods = ["cash_app", "cashapp", "venmo"];
 
   const syncChoiceButtons = (buttons, selectedValue, dataKey) => {
     buttons.forEach((button) => {
@@ -619,6 +621,40 @@
     const selected = donationForm.querySelector('input[name="amount"]:checked');
     const amount = selected?.value === "custom" ? Number(customDonationInput?.value || 0) : Number(selected?.value || 0);
     totalBadge.textContent = amount > 0 ? `$${amount} selected` : "Custom amount";
+  };
+
+  const getGivingFrequency = () => {
+    return donationForm.querySelector('input[name="givingFrequency"]:checked')?.value || "one_time";
+  };
+
+  const syncRecurringPaymentAvailability = () => {
+    const isRecurring = getGivingFrequency() !== "one_time";
+
+    if (recurringDonationNote) {
+      recurringDonationNote.textContent = getGivingFrequency() === "monthly"
+        ? "Monthly donations start in Stripe Checkout and repeat every month."
+        : getGivingFrequency() === "weekly_jummah"
+          ? "Weekly Jummah donations start on the next Friday around Jummah and repeat every Friday."
+          : "One-time donations are charged today.";
+    }
+
+    if (paymentMethodSelect) {
+      Array.from(paymentMethodSelect.options).forEach((option) => {
+        option.disabled = isRecurring && recurringBlockedMethods.includes(option.value);
+      });
+      if (isRecurring && recurringBlockedMethods.includes(paymentMethodSelect.value)) {
+        paymentMethodSelect.value = "apple_pay";
+      }
+    }
+
+    paymentChoiceButtons.forEach((button) => {
+      const isBlocked = isRecurring && recurringBlockedMethods.includes(button.dataset.paymentChoice || "");
+      button.disabled = isBlocked;
+      button.classList.toggle("is-disabled", isBlocked);
+      button.setAttribute("aria-disabled", String(isBlocked));
+    });
+
+    syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect?.value || "apple_pay", "paymentChoice");
   };
 
   const syncCustomAmountPanel = ({ focus = false, clear = false } = {}) => {
@@ -674,6 +710,7 @@
     syncChoiceButtons(campaignChoiceButtons, campaignSelect?.value || "General Fund", "campaignChoice");
     syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect?.value || "apple_pay", "paymentChoice");
     syncCustomAmountPanel();
+    syncRecurringPaymentAvailability();
   };
 
   applyDonationParams();
@@ -698,6 +735,10 @@
     });
   }
 
+  donationForm.querySelectorAll('input[name="givingFrequency"]').forEach((radio) => {
+    radio.addEventListener("change", syncRecurringPaymentAvailability);
+  });
+
   campaignChoiceButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (!campaignSelect) {
@@ -713,6 +754,9 @@
       if (!paymentMethodSelect) {
         return;
       }
+      if (button.disabled) {
+        return;
+      }
       paymentMethodSelect.value = button.dataset.paymentChoice || paymentMethodSelect.value;
       syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect.value, "paymentChoice");
     });
@@ -726,11 +770,13 @@
 
   if (paymentMethodSelect) {
     paymentMethodSelect.addEventListener("change", () => {
+      syncRecurringPaymentAvailability();
       syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect.value, "paymentChoice");
     });
   }
 
   updateDonationTotalBadge();
+  syncRecurringPaymentAvailability();
 
   const setStatus = (message, isError) => {
     statusEl.textContent = message;
@@ -755,6 +801,7 @@
     const campaign = document.getElementById("campaignSelect")?.value || "General Fund";
     const donorNote = document.getElementById("donorNote")?.value.trim() || "";
     const anonymousDonation = Boolean(document.getElementById("anonymousDonation")?.checked);
+    const givingFrequency = getGivingFrequency();
     const amountUsd = getDonationAmount();
 
     if (!donorName || !donorEmail) {
@@ -779,6 +826,7 @@
           amount_usd: amountUsd,
           payment_method: paymentMethod,
           campaign,
+          giving_frequency: givingFrequency,
           donor_note: donorNote,
           anonymous_public: anonymousDonation,
         }),

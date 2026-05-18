@@ -10,6 +10,49 @@ const json = (payload, status = 200) => {
   });
 };
 
+const frequencyLabels = {
+  one_time: "One-time donation",
+  monthly: "Monthly donation",
+  weekly_jummah: "Weekly Jummah donation",
+};
+
+const normalizeGivingFrequency = (value) => {
+  return String(value || "one_time").trim().toLowerCase().replace(/[-\s]+/g, "_");
+};
+
+const getRecurringInterval = (givingFrequency) => {
+  if (givingFrequency === "monthly") {
+    return "month";
+  }
+
+  if (givingFrequency === "weekly_jummah") {
+    return "week";
+  }
+
+  return "";
+};
+
+const getNextFridayJummahAnchor = (now = new Date()) => {
+  const target = new Date(now.getTime());
+  const friday = 5;
+  const day = target.getUTCDay();
+  const daysUntilFriday = (friday - day + 7) % 7;
+  target.setUTCDate(target.getUTCDate() + daysUntilFriday);
+  target.setUTCHours(17, 30, 0, 0);
+
+  if (target.getTime() <= now.getTime() + 5 * 60 * 1000) {
+    target.setUTCDate(target.getUTCDate() + 7);
+  }
+
+  return Math.floor(target.getTime() / 1000);
+};
+
+const setFormMetadata = (form, prefix, metadata) => {
+  Object.entries(metadata).forEach(([key, value]) => {
+    form.set(`${prefix}[${key}]`, String(value ?? ""));
+  });
+};
+
 export const onRequestOptions = async () => {
   return json({});
 };
@@ -33,9 +76,16 @@ export const onRequestPost = async ({ request, env }) => {
   const campaign = String(body.campaign || "General Fund").trim() || "General Fund";
   const donorNote = String(body.donor_note || "").trim().slice(0, 180);
   const anonymousPublic = Boolean(body.anonymous_public);
+  const givingFrequency = normalizeGivingFrequency(body.giving_frequency);
+  const recurringInterval = getRecurringInterval(givingFrequency);
+  const isRecurring = givingFrequency !== "one_time";
 
   if (donorName.length < 2 || !donorEmail.includes("@")) {
     return json({ detail: "Please enter a valid donor name and email." }, 400);
+  }
+
+  if (!frequencyLabels[givingFrequency]) {
+    return json({ detail: "Please choose one-time, monthly, or weekly Friday giving." }, 400);
   }
 
   if (!amountUsd || amountUsd <= 0) {
@@ -43,6 +93,10 @@ export const onRequestPost = async ({ request, env }) => {
   }
 
   const stripeMethods = ["stripe", "credit_card", "card", "apple_pay", "cash_app", "cashapp"];
+  if (isRecurring && paymentMethod === "venmo") {
+    return json({ detail: "Recurring donations use Stripe card checkout. Please choose Apple Pay, card, or Stripe Checkout." }, 400);
+  }
+
   if (paymentMethod === "venmo") {
     const venmoUrl = env.OWR_VENMO_URL || env.OWR_PAYPAL_VENMO_URL;
     if (!venmoUrl) {
@@ -66,6 +120,10 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Please use Apple Pay, Cash App Pay, card, or Venmo." }, 400);
   }
 
+  if (isRecurring && (paymentMethod === "cash_app" || paymentMethod === "cashapp")) {
+    return json({ detail: "Recurring donations use Stripe card checkout. Please choose Apple Pay, card, or Stripe Checkout." }, 400);
+  }
+
   const origin = new URL(request.url).origin;
   const donationId = crypto.randomUUID();
   const amountCents = Math.round(amountUsd * 100);
@@ -78,7 +136,8 @@ export const onRequestPost = async ({ request, env }) => {
   cancelUrl.searchParams.set("donation_id", donationId);
 
   const form = new URLSearchParams();
-  form.set("mode", "payment");
+  form.set("mode", isRecurring ? "subscription" : "payment");
+  form.set("submit_type", "donate");
   if (paymentMethod === "apple_pay") {
     form.set("payment_method_types[0]", "card");
   } else if (paymentMethod === "cash_app" || paymentMethod === "cashapp") {
@@ -89,26 +148,43 @@ export const onRequestPost = async ({ request, env }) => {
   form.set("cancel_url", cancelUrl.toString());
   form.set("customer_email", donorEmail);
   form.set("client_reference_id", donationId);
-  form.set("metadata[donation_id]", donationId);
-  form.set("metadata[source]", "one-world-relief");
-  form.set("metadata[campaign]", campaign);
-  form.set("metadata[donor_name]", donorName);
-  form.set("metadata[donor_email]", donorEmail);
-  form.set("metadata[donor_note]", donorNote);
-  form.set("metadata[anonymous_public]", anonymousPublic ? "yes" : "no");
-  form.set("payment_intent_data[metadata][donation_id]", donationId);
-  form.set("payment_intent_data[metadata][source]", "one-world-relief");
-  form.set("payment_intent_data[metadata][campaign]", campaign);
-  form.set("payment_intent_data[metadata][donor_name]", donorName);
-  form.set("payment_intent_data[metadata][donor_email]", donorEmail);
-  form.set("payment_intent_data[metadata][donor_note]", donorNote);
-  form.set("payment_intent_data[metadata][anonymous_public]", anonymousPublic ? "yes" : "no");
-  form.set("payment_intent_data[receipt_email]", donorEmail);
+
+  const metadata = {
+    donation_id: donationId,
+    source: "one-world-relief",
+    campaign,
+    donor_name: donorName,
+    donor_email: donorEmail,
+    donor_note: donorNote,
+    anonymous_public: anonymousPublic ? "yes" : "no",
+    giving_frequency: givingFrequency,
+    recurring_interval: recurringInterval || "one_time",
+    schedule_label: frequencyLabels[givingFrequency],
+  };
+
+  setFormMetadata(form, "metadata", metadata);
+
+  if (isRecurring) {
+    form.set("payment_method_collection", "always");
+    setFormMetadata(form, "subscription_data[metadata]", metadata);
+    form.set("subscription_data[description]", `${frequencyLabels[givingFrequency]} for One World Relief - ${campaign}`);
+    if (givingFrequency === "weekly_jummah") {
+      form.set("subscription_data[billing_cycle_anchor]", String(getNextFridayJummahAnchor()));
+      form.set("subscription_data[proration_behavior]", "none");
+    }
+  } else {
+    setFormMetadata(form, "payment_intent_data[metadata]", metadata);
+    form.set("payment_intent_data[receipt_email]", donorEmail);
+  }
+
   form.set("line_items[0][quantity]", "1");
   form.set("line_items[0][price_data][currency]", "usd");
   form.set("line_items[0][price_data][unit_amount]", String(amountCents));
+  if (isRecurring) {
+    form.set("line_items[0][price_data][recurring][interval]", recurringInterval);
+  }
   form.set("line_items[0][price_data][product_data][name]", `One World Relief - ${campaign}`);
-  form.set("line_items[0][price_data][product_data][description]", `Donation from ${donorName}`);
+  form.set("line_items[0][price_data][product_data][description]", `${frequencyLabels[givingFrequency]} from ${donorName}`);
 
   const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
@@ -128,6 +204,7 @@ export const onRequestPost = async ({ request, env }) => {
   return json({
     donation_id: donationId,
     provider: "stripe",
+    giving_frequency: givingFrequency,
     status: "pending",
     redirect_url: payload.url,
     message: "Redirect donor to Stripe Checkout URL",

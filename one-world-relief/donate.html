@@ -65,6 +65,8 @@
             <span>1</span>
             <span>2</span>
             <span>3</span>
+            <span>4</span>
+            <span>5</span>
           </div>
           <div class="donation-form-heading">
             <p class="eyebrow">Secure Donation</p>
@@ -127,9 +129,38 @@
               </label>
             </div>
 
-            <section class="donation-step" aria-labelledby="receiptStepTitle">
+            <section class="donation-step donation-step-frequency" aria-labelledby="frequencyStepTitle">
               <div class="donation-step-heading">
                 <span>3</span>
+                <div>
+                  <h3 id="frequencyStepTitle">Choose a schedule</h3>
+                  <p>Give once, monthly, or every Friday around Jummah.</p>
+                </div>
+              </div>
+              <fieldset class="frequency-grid" aria-labelledby="frequencyStepTitle">
+                <legend class="sr-only">Select donation schedule</legend>
+                <label>
+                  <input type="radio" name="givingFrequency" value="one_time" checked />
+                  <strong>One-time</strong>
+                  <small>Give today</small>
+                </label>
+                <label>
+                  <input type="radio" name="givingFrequency" value="monthly" />
+                  <strong>Monthly</strong>
+                  <small>Repeats monthly</small>
+                </label>
+                <label>
+                  <input type="radio" name="givingFrequency" value="weekly_jummah" />
+                  <strong>Jummah Friday</strong>
+                  <small>Every Friday</small>
+                </label>
+              </fieldset>
+              <p class="recurring-note" id="recurringDonationNote">One-time donations are charged today.</p>
+            </section>
+
+            <section class="donation-step" aria-labelledby="receiptStepTitle">
+              <div class="donation-step-heading">
+                <span>4</span>
                 <div>
                   <h3 id="receiptStepTitle">Receipt details</h3>
                   <p>We email your tax-ready receipt after confirmation.</p>
@@ -150,7 +181,7 @@
 
             <section class="donation-step donation-step-payment" aria-labelledby="paymentStepTitle">
               <div class="donation-step-heading">
-                <span>4</span>
+                <span>5</span>
                 <div>
                   <h3 id="paymentStepTitle">Payment method</h3>
                   <p>Continue through the secure checkout option you prefer.</p>

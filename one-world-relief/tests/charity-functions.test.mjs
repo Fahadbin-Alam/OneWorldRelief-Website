@@ -11,6 +11,23 @@ const importFunctionModule = async (relativePath) => {
   return import(`data:text/javascript;base64,${encoded}`);
 };
 
+const createGooglePrivateKey = async () => {
+  return crypto.subtle.generateKey(
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256",
+    },
+    true,
+    ["sign", "verify"]
+  ).then(async (keyPair) => {
+    const exported = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+    const base64 = Buffer.from(exported).toString("base64").match(/.{1,64}/g).join("\n");
+    return `-----BEGIN PRIVATE KEY-----\n${base64}\n-----END PRIVATE KEY-----`;
+  });
+};
+
 test("checkout creates Stripe session with receipt email and configured redirect URLs", async () => {
   const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
   const originalFetch = globalThis.fetch;
@@ -51,6 +68,7 @@ test("checkout creates Stripe session with receipt email and configured redirect
 
     assert.equal(response.status, 200);
     assert.equal(payload.redirect_url, "https://checkout.stripe.test/session");
+    assert.equal(form.get("submit_type"), "donate");
     assert.equal(form.get("payment_intent_data[receipt_email]"), "donor@example.com");
     assert.equal(form.get("metadata[donor_note]"), "For orphan support");
     assert.equal(form.get("metadata[anonymous_public]"), "yes");
@@ -138,6 +156,119 @@ test("checkout supports Cash App Pay through Stripe Checkout", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("checkout creates monthly recurring Stripe subscriptions", async () => {
+  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
+  const originalFetch = globalThis.fetch;
+  let stripeBody = "";
+
+  globalThis.fetch = async (_url, options) => {
+    stripeBody = String(options.body);
+    return new Response(JSON.stringify({ url: "https://checkout.stripe.test/monthly" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await checkout.onRequestPost({
+      request: new Request("https://pages.example/charity/donations/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          donor_name: "Monthly Donor",
+          donor_email: "monthly@example.com",
+          amount_usd: 25,
+          payment_method: "credit_card",
+          campaign: "Orphan Support",
+          giving_frequency: "monthly",
+        }),
+      }),
+      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+    });
+    const form = new URLSearchParams(stripeBody);
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.giving_frequency, "monthly");
+    assert.equal(form.get("mode"), "subscription");
+    assert.equal(form.get("line_items[0][price_data][recurring][interval]"), "month");
+    assert.equal(form.get("payment_method_collection"), "always");
+    assert.equal(form.get("metadata[giving_frequency]"), "monthly");
+    assert.equal(form.get("subscription_data[metadata][giving_frequency]"), "monthly");
+    assert.equal(form.get("subscription_data[metadata][donor_email]"), "monthly@example.com");
+    assert.equal(form.has("payment_intent_data[receipt_email]"), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("checkout anchors weekly Jummah giving to Friday", async () => {
+  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
+  const originalFetch = globalThis.fetch;
+  let stripeBody = "";
+
+  globalThis.fetch = async (_url, options) => {
+    stripeBody = String(options.body);
+    return new Response(JSON.stringify({ url: "https://checkout.stripe.test/jummah" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await checkout.onRequestPost({
+      request: new Request("https://pages.example/charity/donations/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          donor_name: "Friday Donor",
+          donor_email: "friday@example.com",
+          amount_usd: 10,
+          payment_method: "apple_pay",
+          campaign: "Feeding",
+          giving_frequency: "weekly_jummah",
+        }),
+      }),
+      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+    });
+    const form = new URLSearchParams(stripeBody);
+    const anchor = new Date(Number(form.get("subscription_data[billing_cycle_anchor]")) * 1000);
+
+    assert.equal(response.status, 200);
+    assert.equal(form.get("mode"), "subscription");
+    assert.equal(form.get("payment_method_types[0]"), "card");
+    assert.equal(form.get("line_items[0][price_data][recurring][interval]"), "week");
+    assert.equal(form.get("subscription_data[proration_behavior]"), "none");
+    assert.equal(form.get("metadata[giving_frequency]"), "weekly_jummah");
+    assert.equal(form.get("metadata[schedule_label]"), "Weekly Jummah donation");
+    assert.equal(anchor.getUTCDay(), 5);
+    assert.equal(anchor.getUTCHours(), 17);
+    assert.equal(anchor.getUTCMinutes(), 30);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("checkout blocks manual payment methods for recurring donations", async () => {
+  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
+  const response = await checkout.onRequestPost({
+    request: new Request("https://pages.example/charity/donations/checkout", {
+      method: "POST",
+      body: JSON.stringify({
+        donor_name: "Recurring Donor",
+        donor_email: "recurring@example.com",
+        amount_usd: 10,
+        payment_method: "cash_app",
+        campaign: "General Fund",
+        giving_frequency: "monthly",
+      }),
+    }),
+    env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
+  });
+  const payload = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.match(payload.detail, /Recurring donations use Stripe card checkout/);
 });
 
 test("checkout redirects Venmo only when a Venmo URL is configured", async () => {
@@ -239,9 +370,17 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(donateHtml, /Basic support/);
   assert.match(donateHtml, /Note for One World Relief/);
   assert.match(donateHtml, /anonymousDonation/);
+  assert.match(donateHtml, /name="givingFrequency" value="one_time" checked/);
+  assert.match(donateHtml, /name="givingFrequency" value="monthly"/);
+  assert.match(donateHtml, /name="givingFrequency" value="weekly_jummah"/);
+  assert.match(donateHtml, /Jummah Friday/);
+  assert.match(donateHtml, /recurringDonationNote/);
   assert.match(donateHtml, /id="customDonationPanel" hidden/);
   assert.match(donateHtml, /inputmode="numeric"/);
   assert.match(siteJs, /syncCustomAmountPanel/);
+  assert.match(siteJs, /syncRecurringPaymentAvailability/);
+  assert.match(siteJs, /giving_frequency: givingFrequency/);
+  assert.match(siteJs, /recurringBlockedMethods/);
   assert.match(siteJs, /donor_note: donorNote/);
   assert.match(siteJs, /anonymous_public: anonymousDonation/);
   assert.match(siteJs, /selected\?\.value === "custom"/);
@@ -251,6 +390,8 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(siteCss, /\.donation-form-heading/);
   assert.match(siteCss, /\.donor-options/);
   assert.match(siteCss, /\.checkbox-line/);
+  assert.match(siteCss, /\.frequency-grid/);
+  assert.match(siteCss, /\.recurring-note/);
   assert.match(siteCss, /\.custom-donation-panel/);
   assert.match(siteCss, /@keyframes custom-panel-open/);
   assert.match(siteCss, /@keyframes panel-current/);
@@ -627,20 +768,7 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
   };
 
   try {
-    const privateKey = await crypto.subtle.generateKey(
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256",
-      },
-      true,
-      ["sign", "verify"]
-    ).then(async (keyPair) => {
-      const exported = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
-      const base64 = Buffer.from(exported).toString("base64").match(/.{1,64}/g).join("\n");
-      return `-----BEGIN PRIVATE KEY-----\n${base64}\n-----END PRIVATE KEY-----`;
-    });
+    const privateKey = await createGooglePrivateKey();
 
     const response = await webhook.onRequestPost({
       request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
@@ -690,6 +818,113 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(sheetPayload.values[0][7], /Payment Intent: pi_test_123/);
     assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
     assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("stripe webhook records recurring invoice payments with subscription metadata", async () => {
+  const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
+  const originalFetch = globalThis.fetch;
+  const secret = "whsec_test";
+  const timestamp = "1770000000";
+  const calls = [];
+  const body = JSON.stringify({
+    id: "evt_invoice_paid",
+    type: "invoice.paid",
+    data: {
+      object: {
+        id: "in_recurring_123",
+        created: 1770600000,
+        amount_paid: 2500,
+        total: 2500,
+        status: "paid",
+        customer_email: "monthly@example.com",
+        customer_name: "Monthly Donor",
+        subscription: "sub_123",
+        payment_intent: "pi_invoice_123",
+        parent: {
+          subscription_details: {
+            metadata: {
+              donation_id: "don_sub_123",
+              donor_name: "Monthly Donor",
+              donor_email: "monthly@example.com",
+              campaign: "Orphan Support",
+              donor_note: "Monthly orphan care",
+              anonymous_public: "no",
+              giving_frequency: "monthly",
+              recurring_interval: "month",
+              schedule_label: "Monthly donation",
+            },
+          },
+        },
+      },
+    },
+  });
+  const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (String(url).includes("oauth2.googleapis.com")) {
+      return new Response(JSON.stringify({ access_token: "google-token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("api.resend.com")) {
+      return new Response(JSON.stringify({ id: "email_recurring_123" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com") && !String(url).includes(":append")) {
+      return new Response(JSON.stringify({ values: [["Donation ID", "Date", "Donor Name", "Amount ($)", "Purpose/Fund", "Method", "Receipt ID", "Notes"]] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com") && String(url).includes(":append")) {
+      return new Response(JSON.stringify({ updates: { updatedRows: 1 } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch ${url}`);
+  };
+
+  try {
+    const privateKey = await createGooglePrivateKey();
+    const response = await webhook.onRequestPost({
+      request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+        body,
+      }),
+      env: {
+        OWR_STRIPE_WEBHOOK_SECRET: secret,
+        OWR_GOOGLE_SHEET_ID: "sheet_123",
+        OWR_GOOGLE_SHEET_TAB: "Donations (2026)",
+        OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.iam.gserviceaccount.com",
+        OWR_GOOGLE_PRIVATE_KEY: privateKey,
+        OWR_PUBLIC_SITE_URL: "https://one-world-relief.org",
+        OWR_RESEND_API_KEY: "re_test",
+        OWR_RECEIPT_FROM_EMAIL: "OneWorld Relief <receipts@one-world-relief.org>",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com") && call.url.includes(":append"));
+    assert.ok(sheetCall, "recurring paid invoice should append a donation row");
+    const sheetPayload = JSON.parse(sheetCall.options.body);
+    assert.equal(sheetPayload.values[0][0], "don_sub_123-in_recurring_123");
+    assert.equal(sheetPayload.values[0][2], "Monthly Donor");
+    assert.equal(sheetPayload.values[0][3], 25);
+    assert.equal(sheetPayload.values[0][4], "Orphan Support");
+    assert.match(sheetPayload.values[0][6], /^R-2026-/);
+    assert.match(sheetPayload.values[0][7], /Subscription: sub_123/);
+    assert.match(sheetPayload.values[0][7], /Stripe Invoice: in_recurring_123/);
+    assert.match(sheetPayload.values[0][7], /Giving Schedule: Monthly donation/);
+    assert.match(sheetPayload.values[0][7], /Receipt Email: sent/);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -747,20 +982,7 @@ test("stripe webhook skips existing spreadsheet rows without duplicate receipt e
   };
 
   try {
-    const privateKey = await crypto.subtle.generateKey(
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256",
-      },
-      true,
-      ["sign", "verify"]
-    ).then(async (keyPair) => {
-      const exported = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
-      const base64 = Buffer.from(exported).toString("base64").match(/.{1,64}/g).join("\n");
-      return `-----BEGIN PRIVATE KEY-----\n${base64}\n-----END PRIVATE KEY-----`;
-    });
+    const privateKey = await createGooglePrivateKey();
 
     const response = await webhook.onRequestPost({
       request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {

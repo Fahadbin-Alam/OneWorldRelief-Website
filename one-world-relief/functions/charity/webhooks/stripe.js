@@ -112,6 +112,42 @@ const getAmountUsd = (session) => {
   return ((session.amount_total || 0) / 100).toFixed(2);
 };
 
+const getInvoiceMetadata = (invoice) => {
+  return {
+    ...(invoice.parent?.subscription_details?.metadata || {}),
+    ...(invoice.subscription_details?.metadata || {}),
+    ...(invoice.lines?.data?.[0]?.metadata || {}),
+    ...(invoice.metadata || {}),
+  };
+};
+
+const normalizeInvoiceAsSession = (invoice) => {
+  const metadata = getInvoiceMetadata(invoice);
+  const baseDonationId = metadata.donation_id || invoice.subscription || invoice.id || "recurring";
+  const donationId = `${baseDonationId}-${invoice.id || "invoice"}`;
+  return {
+    id: invoice.id,
+    mode: "subscription_invoice",
+    created: invoice.status_transitions?.paid_at || invoice.created,
+    amount_total: invoice.amount_paid || invoice.total || 0,
+    payment_status: invoice.status === "paid" ? "paid" : invoice.status,
+    customer_email: metadata.donor_email || invoice.customer_email || "",
+    customer_details: {
+      name: metadata.donor_name || invoice.customer_name || "",
+      email: metadata.donor_email || invoice.customer_email || "",
+    },
+    client_reference_id: donationId,
+    payment_intent: invoice.payment_intent || "",
+    subscription: invoice.subscription || invoice.parent?.subscription_details?.subscription || "",
+    metadata: {
+      ...metadata,
+      donation_id: donationId,
+      original_donation_id: baseDonationId,
+      stripe_invoice_id: invoice.id || "",
+    },
+  };
+};
+
 const getReceiptDetails = (session) => {
   const metadata = session.metadata || {};
   const donorName = metadata.donor_name || session.customer_details?.name || "";
@@ -240,7 +276,10 @@ const appendDonationToGoogleSheet = async (env, session) => {
   const notes = [
     session.payment_status ? `Status: ${session.payment_status}` : "",
     session.id ? `Stripe Session: ${session.id}` : "",
+    session.subscription ? `Subscription: ${session.subscription}` : "",
     session.payment_intent ? `Payment Intent: ${session.payment_intent}` : "",
+    metadata.stripe_invoice_id ? `Stripe Invoice: ${metadata.stripe_invoice_id}` : "",
+    metadata.schedule_label ? `Giving Schedule: ${metadata.schedule_label}` : "",
     receiptEmailStatus ? `Receipt Email: ${receiptEmailStatus}` : "",
     receiptUrl ? `Receipt URL: ${receiptUrl}` : "",
     metadata.anonymous_public === "yes" ? "Public Display: Anonymous" : "",
@@ -316,8 +355,23 @@ export const onRequestPost = async ({ request, env }) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data?.object;
     console.log("One World Relief donation completed", session?.id || event.id);
+    if (session?.mode !== "subscription") {
+      try {
+        await appendDonationToGoogleSheet(env, session);
+      } catch (error) {
+        console.error("One World Relief Google Sheets sync failed", error.message);
+        return text("Google Sheets sync failed; retry webhook later", 500);
+      }
+    } else {
+      console.log("One World Relief recurring checkout completed; waiting for invoice.paid", session?.id || event.id);
+    }
+  }
+
+  if (event.type === "invoice.paid" || event.type === "invoice.payment_succeeded") {
+    const invoice = event.data?.object;
+    console.log("One World Relief recurring donation invoice paid", invoice?.id || event.id);
     try {
-      await appendDonationToGoogleSheet(env, session);
+      await appendDonationToGoogleSheet(env, normalizeInvoiceAsSession(invoice || {}));
     } catch (error) {
       console.error("One World Relief Google Sheets sync failed", error.message);
       return text("Google Sheets sync failed; retry webhook later", 500);
