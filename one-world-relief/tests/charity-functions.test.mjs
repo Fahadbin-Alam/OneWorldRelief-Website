@@ -370,11 +370,14 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(donateHtml, /Basic support/);
   assert.match(donateHtml, /Note for One World Relief/);
   assert.match(donateHtml, /anonymousDonation/);
-  assert.match(donateHtml, /name="givingFrequency" value="one_time" checked/);
-  assert.match(donateHtml, /name="givingFrequency" value="monthly"/);
-  assert.match(donateHtml, /name="givingFrequency" value="weekly_jummah"/);
-  assert.match(donateHtml, /Jummah Friday/);
+  assert.match(donateHtml, /Fund &amp; schedule|Fund & schedule/);
+  assert.match(donateHtml, /id="givingFrequencySelect" name="givingFrequency"/);
+  assert.match(donateHtml, /value="one_time" selected>One-time donation/);
+  assert.match(donateHtml, /value="monthly">Monthly recurring/);
+  assert.match(donateHtml, /value="weekly_jummah">Every Friday \/ Jummah/);
   assert.match(donateHtml, /recurringDonationNote/);
+  assert.doesNotMatch(donateHtml, /donation-step-frequency/);
+  assert.doesNotMatch(donateHtml, /frequency-grid/);
   assert.doesNotMatch(donateHtml, /class="form-current"/);
   assert.doesNotMatch(donateHtml, /fund-chip-grid/);
   assert.doesNotMatch(donateHtml, /payment-chip-grid/);
@@ -382,6 +385,7 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(donateHtml, /inputmode="numeric"/);
   assert.match(siteJs, /syncCustomAmountPanel/);
   assert.match(siteJs, /syncRecurringPaymentAvailability/);
+  assert.match(siteJs, /givingFrequencySelect/);
   assert.match(siteJs, /giving_frequency: givingFrequency/);
   assert.match(siteJs, /recurringBlockedMethods/);
   assert.doesNotMatch(siteJs, /home-stories, \.donation-form-card/);
@@ -401,9 +405,10 @@ test("donation page opens custom amount only when selected", async () => {
   assert.equal(donationCardRule.includes("rotateX"), false);
   assert.equal(donationCardRule.includes("--tilt-x"), false);
   assert.match(siteCss, /\.donation-form-heading/);
+  assert.match(siteCss, /\.donation-select-pair/);
+  assert.match(siteCss, /\.schedule-select select/);
   assert.match(siteCss, /\.donor-options/);
   assert.match(siteCss, /\.checkbox-line/);
-  assert.match(siteCss, /\.frequency-grid/);
   assert.match(siteCss, /\.recurring-note/);
   assert.match(siteCss, /\.custom-donation-panel/);
   assert.match(siteCss, /@keyframes custom-panel-open/);

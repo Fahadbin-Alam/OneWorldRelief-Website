@@ -598,6 +598,7 @@
   const customDonationInput = document.getElementById("customDonation");
   const customDonationRadio = donationForm.querySelector('input[name="amount"][value="custom"]');
   const campaignSelect = document.getElementById("campaignSelect");
+  const givingFrequencySelect = document.getElementById("givingFrequencySelect");
   const paymentMethodSelect = document.getElementById("paymentMethod");
   const totalBadge = document.getElementById("donationTotalBadge");
   const recurringDonationNote = document.getElementById("recurringDonationNote");
@@ -624,6 +625,9 @@
   };
 
   const getGivingFrequency = () => {
+    if (givingFrequencySelect) {
+      return givingFrequencySelect.value || "one_time";
+    }
     return donationForm.querySelector('input[name="givingFrequency"]:checked')?.value || "one_time";
   };
 
@@ -683,6 +687,7 @@
     const params = new URLSearchParams(window.location.search);
     const amount = params.get("amount");
     const campaign = params.get("campaign");
+    const frequency = params.get("frequency") || params.get("giving_frequency");
     if (amount) {
       const amountRadio = donationForm.querySelector(`input[name="amount"][value="${amount}"]`);
       if (amountRadio) {
@@ -704,6 +709,13 @@
       const option = Array.from(campaignSelect.options).find((item) => item.value === campaign);
       if (option) {
         campaignSelect.value = campaign;
+      }
+    }
+
+    if (givingFrequencySelect && frequency) {
+      const option = Array.from(givingFrequencySelect.options).find((item) => item.value === frequency);
+      if (option) {
+        givingFrequencySelect.value = frequency;
       }
     }
 
@@ -735,9 +747,13 @@
     });
   }
 
-  donationForm.querySelectorAll('input[name="givingFrequency"]').forEach((radio) => {
-    radio.addEventListener("change", syncRecurringPaymentAvailability);
-  });
+  if (givingFrequencySelect) {
+    givingFrequencySelect.addEventListener("change", syncRecurringPaymentAvailability);
+  } else {
+    donationForm.querySelectorAll('input[name="givingFrequency"]').forEach((radio) => {
+      radio.addEventListener("change", syncRecurringPaymentAvailability);
+    });
+  }
 
   campaignChoiceButtons.forEach((button) => {
     button.addEventListener("click", () => {

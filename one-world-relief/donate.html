@@ -70,19 +70,30 @@
             <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
               <div class="donation-step-heading">
                 <div>
-                  <h3 id="fundStepTitle">Fund</h3>
+                  <h3 id="fundStepTitle">Fund &amp; schedule</h3>
                 </div>
               </div>
-              <label class="custom-amount compact-select" for="campaignSelect">
-                <span class="sr-only">Donation type</span>
-                <select id="campaignSelect" required>
-                  <option value="General Fund">Regular Donation</option>
-                  <option value="Orphan Support">Orphan Support</option>
-                  <option value="Wells">Wells</option>
-                  <option value="Zakat">Zakat</option>
-                  <option value="Feeding">Feeding</option>
-                </select>
-              </label>
+              <div class="donation-select-pair">
+                <label class="custom-amount compact-select" for="campaignSelect">
+                  <span class="sr-only">Donation fund</span>
+                  <select id="campaignSelect" required>
+                    <option value="General Fund">Regular Donation</option>
+                    <option value="Orphan Support">Orphan Support</option>
+                    <option value="Wells">Wells</option>
+                    <option value="Zakat">Zakat</option>
+                    <option value="Feeding">Feeding</option>
+                  </select>
+                </label>
+                <label class="custom-amount compact-select schedule-select" for="givingFrequencySelect">
+                  <span class="sr-only">Donation schedule</span>
+                  <select id="givingFrequencySelect" name="givingFrequency" required>
+                    <option value="one_time" selected>One-time donation</option>
+                    <option value="monthly">Monthly recurring</option>
+                    <option value="weekly_jummah">Every Friday / Jummah</option>
+                  </select>
+                </label>
+              </div>
+              <p class="recurring-note" id="recurringDonationNote">One-time donations are charged today.</p>
             </section>
 
             <section class="donation-step" aria-labelledby="amountStepTitle">
@@ -110,33 +121,6 @@
                 </span>
               </label>
             </div>
-
-            <section class="donation-step donation-step-frequency" aria-labelledby="frequencyStepTitle">
-              <div class="donation-step-heading">
-                <div>
-                  <h3 id="frequencyStepTitle">Schedule</h3>
-                </div>
-              </div>
-              <fieldset class="frequency-grid" aria-labelledby="frequencyStepTitle">
-                <legend class="sr-only">Select donation schedule</legend>
-                <label>
-                  <input type="radio" name="givingFrequency" value="one_time" checked />
-                  <strong>One-time</strong>
-                  <small>Give today</small>
-                </label>
-                <label>
-                  <input type="radio" name="givingFrequency" value="monthly" />
-                  <strong>Monthly</strong>
-                  <small>Repeats monthly</small>
-                </label>
-                <label>
-                  <input type="radio" name="givingFrequency" value="weekly_jummah" />
-                  <strong>Jummah Friday</strong>
-                  <small>Every Friday</small>
-                </label>
-              </fieldset>
-              <p class="recurring-note" id="recurringDonationNote">One-time donations are charged today.</p>
-            </section>
 
             <section class="donation-step" aria-labelledby="receiptStepTitle">
               <div class="donation-step-heading">
