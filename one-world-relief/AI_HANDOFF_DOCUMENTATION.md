@@ -2416,6 +2416,26 @@ Additional DNS check later on May 4, 2026:
   - GitLab `main` visibility sync commit: `e489437 fix: sync simplified donation form to main`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-18 Donation Animation Polish
+- User disliked the rotating/tilting donation animation and asked for a better visual treatment.
+- Updated donation page animation:
+  - Removed `.donation-form-card` from the pointer-motion tilt system in `one-world-relief.js`.
+  - Removed the perspective `rotateX` / `rotateY` transform from the donation card.
+  - Replaced the round drifting background bubble/orb near the donation card with non-rotating horizontal light trails.
+  - Added a softer donation-card edge flow, card glow, and moving sheen using `donation-edge-flow`, `donation-card-glow`, `donation-form-sheen`, and `donation-current-glide`.
+- Updated tests to assert the donation card is not in the tilt selector and the new non-rotating animation keyframes are present.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local desktop and mobile screenshot review confirmed the donation card no longer rotates/leans and the background no longer shows the weird circular rotating element.
+  - Live `.org` CSS check confirmed `donation-form-sheen` and `donation-current-glide` are deployed.
+  - Live `.org` JS check confirmed `.donation-form-card` is no longer in the pointer tilt selector.
+- Repository/deployment:
+  - GitHub code commit: `be7ad7c fix: replace donation form rotate animation`.
+  - Cloudflare production deployment: `https://3ebf79b4.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `1555d8f fix: replace donation form rotate animation`.
+  - GitLab `main` visibility sync commit: `ddc0b50 fix: sync donation animation polish to main`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
