@@ -2358,6 +2358,36 @@ Additional DNS check later on May 4, 2026:
   - `charity-frontend-redesign`: `75bb693 feat: animate case timelines`.
   - `gitlab-charity-sync`: `75bb693 feat: animate case timelines`.
 
+### 2026-05-17 Recurring Donation Schedules
+- User requested donation payment selection options for recurring monthly payments and weekly Friday/Jummah giving.
+- Updated the donation form:
+  - Added a new "Choose a schedule" step with One-time, Monthly, and Jummah Friday options.
+  - Added a live recurring note so donors understand the selected schedule.
+  - Recurring selections disable manual/non-recurring payment choices such as Cash App Pay and Venmo in the UI.
+- Updated Stripe Checkout creation:
+  - One-time donations continue to use Checkout `mode=payment`.
+  - Monthly and Jummah Friday donations use Checkout `mode=subscription`.
+  - Monthly donations use `price_data[recurring][interval]=month`.
+  - Jummah Friday donations use `price_data[recurring][interval]=week`.
+  - Jummah Friday subscriptions get a Friday 17:30 UTC billing anchor and `proration_behavior=none`, so the repeating donation starts on the next Friday around Jummah instead of charging immediately on another day.
+  - Metadata now includes `giving_frequency`, `recurring_interval`, and `schedule_label`.
+- Updated Stripe webhook handling:
+  - Subscription Checkout completion waits for the paid invoice instead of writing a zero/duplicate row.
+  - Added handling for `invoice.paid` and `invoice.payment_succeeded` so recurring payments are recorded in Google Sheets and receipt emails are sent for each paid invoice.
+  - Spreadsheet notes include subscription ID, invoice ID, and giving schedule.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local Playwright screenshot review of desktop and mobile donation page after the new schedule step.
+  - Live `.org` checks confirmed `/donate` contains `weekly_jummah`, `Monthly`, and `recurringDonationNote`.
+  - Live `.org` JS contains `giving_frequency` and `syncRecurringPaymentAvailability`.
+  - Live `.org` CSS contains `.frequency-grid` and `.recurring-note`.
+- Repository/deployment:
+  - GitHub code commit: `7cbc4c7 feat: add recurring donation schedules`.
+  - Cloudflare production deployment: `https://7f10e977.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `4764453 feat: add recurring donation schedules`.
+  - GitLab `main` visibility sync commit: `8d577b8 feat: sync recurring donation schedules to main`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
