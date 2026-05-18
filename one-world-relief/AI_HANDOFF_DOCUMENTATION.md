@@ -2436,6 +2436,33 @@ Additional DNS check later on May 4, 2026:
   - GitLab `main` visibility sync commit: `ddc0b50 fix: sync donation animation polish to main`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-18 Simplified Recurring Donation Selection
+- User asked to put the recurring option where the "Regular Donation" dropdown is, to simplify the donation form more.
+- Updated `donate.html`:
+  - Changed the first form section to "Fund & schedule".
+  - Kept the fund dropdown with "Regular Donation", "Orphan Support", "Wells", "Zakat", and "Feeding".
+  - Added a compact schedule dropdown beside/under it with "One-time donation", "Monthly recurring", and "Every Friday / Jummah".
+  - Removed the separate large "Schedule" step and the three schedule button cards.
+  - Kept the live recurring note directly under the first dropdown row.
+- Updated `one-world-relief.js`:
+  - `getGivingFrequency()` now reads from `givingFrequencySelect`.
+  - Existing Stripe payload still sends `giving_frequency` so monthly and Jummah Friday subscriptions continue to work.
+  - Added support for `?frequency=` / `?giving_frequency=` URL params.
+  - Recurring donations still disable manual methods such as Cash App Pay and Venmo.
+- Updated CSS:
+  - Added `.donation-select-pair` and `.schedule-select` styling.
+  - Mobile stacks the fund and schedule dropdowns neatly in the first form section.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local desktop and mobile screenshot review confirmed the separate schedule card was removed and the first form section is cleaner.
+  - Live `.org` check confirmed `/donate` has `givingFrequencySelect`, has "Fund & schedule", and no longer has `donation-step-frequency`.
+- Repository/deployment:
+  - GitHub code commit: `8f081a3 fix: simplify recurring donation selection`.
+  - Cloudflare production deployment: `https://4bacac56.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `296944c fix: simplify recurring donation selection`.
+  - GitLab `main` visibility sync commit: `c60d96f fix: sync simplified recurring selection to main`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
