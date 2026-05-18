@@ -365,7 +365,7 @@ test("donation page opens custom amount only when selected", async () => {
   ]);
 
   assert.match(donateHtml, /name="amount" value="custom"/);
-  assert.match(donateHtml, /Give in under a minute/);
+  assert.match(donateHtml, /Donation details/);
   assert.match(donateHtml, /Continue to Secure Checkout/);
   assert.match(donateHtml, /Basic support/);
   assert.match(donateHtml, /Note for One World Relief/);
@@ -375,6 +375,9 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(donateHtml, /name="givingFrequency" value="weekly_jummah"/);
   assert.match(donateHtml, /Jummah Friday/);
   assert.match(donateHtml, /recurringDonationNote/);
+  assert.doesNotMatch(donateHtml, /class="form-current"/);
+  assert.doesNotMatch(donateHtml, /fund-chip-grid/);
+  assert.doesNotMatch(donateHtml, /payment-chip-grid/);
   assert.match(donateHtml, /id="customDonationPanel" hidden/);
   assert.match(donateHtml, /inputmode="numeric"/);
   assert.match(siteJs, /syncCustomAmountPanel/);

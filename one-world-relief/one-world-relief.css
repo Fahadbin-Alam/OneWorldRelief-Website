@@ -1733,24 +1733,24 @@ ul {
   --tilt-y: 0deg;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 30px 70px rgba(45, 91, 122, 0.13);
+  box-shadow: 0 24px 54px rgba(45, 91, 122, 0.12);
   transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transform-style: preserve-3d;
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .donation-form-card-featured {
-  padding: clamp(1rem, 2.4vw, 1.35rem);
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(18px);
+  padding: clamp(1.05rem, 2.2vw, 1.45rem);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
 }
 
 .donation-form-card::before {
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
-  width: 7px;
-  background: linear-gradient(180deg, var(--blue-500), var(--mint), var(--gold));
+  width: 4px;
+  background: linear-gradient(180deg, var(--blue-500), var(--mint));
 }
 
 .donation-form-heading {
@@ -1758,9 +1758,9 @@ ul {
   z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.45rem 0.8rem;
+  gap: 0.35rem 0.8rem;
   align-items: center;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
 }
 
 .donation-form-heading .eyebrow {
@@ -1771,7 +1771,7 @@ ul {
 .donation-form-heading h2 {
   margin-bottom: 0;
   font-family: "Manrope", "Segoe UI", sans-serif;
-  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
   line-height: 1.08;
 }
 
@@ -1792,26 +1792,14 @@ ul {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 0.75rem;
-  margin-top: 0.85rem;
-  padding: 0.9rem;
-  border: 1px solid rgba(77, 149, 194, 0.14);
-  border-radius: 20px;
-  background:
-    radial-gradient(circle at 96% 8%, rgba(255, 255, 255, 0.88), transparent 7rem),
-    rgba(247, 253, 255, 0.72);
-  box-shadow: 0 14px 34px rgba(45, 91, 122, 0.08);
-  overflow: hidden;
+  gap: 0.48rem;
+  margin-top: 0.72rem;
+  padding-top: 0.72rem;
+  border-top: 1px solid rgba(77, 149, 194, 0.15);
 }
 
 .donation-step::before {
-  content: "";
-  position: absolute;
-  inset: auto -18% -68px;
-  height: 106px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(117, 222, 247, 0.18), rgba(255, 255, 255, 0.5), rgba(77, 149, 194, 0.12));
-  animation: panel-current 6s ease-in-out infinite alternate;
+  display: none;
 }
 
 .donation-step > * {
@@ -1820,10 +1808,7 @@ ul {
 }
 
 .donation-step-heading {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.65rem;
-  align-items: start;
+  display: block;
 }
 
 .donation-step-heading > span {
@@ -1842,14 +1827,14 @@ ul {
 .donation-step-heading h3 {
   margin: 0;
   font-family: "Manrope", "Segoe UI", sans-serif;
-  font-size: 1.05rem;
+  color: var(--ink);
+  font-size: 0.92rem;
   font-weight: 900;
   line-height: 1.2;
 }
 
 .donation-step-heading p {
-  margin: 0.18rem 0 0;
-  font-size: 0.85rem;
+  display: none;
 }
 
 .compact-select {
@@ -1857,7 +1842,7 @@ ul {
 }
 
 .compact-select select {
-  min-height: 44px;
+  min-height: 46px;
   font-weight: 850;
 }
 
@@ -2152,7 +2137,7 @@ ul {
   border: 0;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.7rem;
+  gap: 0.5rem;
 }
 
 .frequency-grid {
@@ -2171,11 +2156,11 @@ ul {
   display: grid;
   align-items: center;
   justify-content: center;
-  gap: 0.18rem;
-  min-height: 76px;
-  padding: 0.72rem;
+  gap: 0.08rem;
+  min-height: 58px;
+  padding: 0.56rem 0.42rem;
   border: 1px solid rgba(24, 52, 71, 0.12);
-  border-radius: 22px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.9);
   color: var(--blue-700);
   font-weight: 900;
@@ -2187,24 +2172,24 @@ ul {
 .frequency-grid label {
   align-content: center;
   justify-items: center;
-  min-height: 82px;
-  border-radius: 18px;
+  min-height: 60px;
+  border-radius: 14px;
 }
 
 .amount-grid label strong,
 .frequency-grid label strong {
-  font-size: 1.16rem;
+  font-size: 1.02rem;
   text-align: center;
 }
 
 .frequency-grid label strong {
-  font-size: 1.02rem;
+  font-size: 0.98rem;
 }
 
 .amount-grid label small,
 .frequency-grid label small {
   color: var(--ink-soft);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   text-align: center;
 }
@@ -2218,8 +2203,8 @@ ul {
 .frequency-grid label::before {
   content: "";
   position: absolute;
-  inset: auto 16% -44px;
-  height: 58px;
+  inset: auto 18% -42px;
+  height: 54px;
   border-radius: 999px;
   background: rgba(19, 151, 213, 0.16);
   transition: transform 0.24s ease;
@@ -2235,7 +2220,7 @@ ul {
 .frequency-grid label:has(input:checked) {
   color: #fff;
   background: linear-gradient(135deg, #13a8df, var(--blue-700));
-  box-shadow: 0 18px 38px rgba(19, 151, 213, 0.22);
+  box-shadow: 0 12px 26px rgba(19, 151, 213, 0.18);
 }
 
 .amount-grid label:has(input:checked)::before,
@@ -2258,15 +2243,15 @@ ul {
 }
 
 .recurring-note {
-  margin: 0.72rem 0 0;
-  padding: 0.78rem 0.9rem;
+  margin: 0.5rem 0 0;
+  padding: 0.62rem 0.72rem;
   border: 1px solid rgba(215, 165, 54, 0.22);
-  border-radius: 14px;
+  border-radius: 12px;
   color: var(--blue-700);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 247, 224, 0.72)),
     var(--paper);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 800;
 }
 
@@ -3892,6 +3877,14 @@ ul {
     grid-template-columns: 1fr;
   }
 
+  .amount-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .frequency-grid {
+    grid-template-columns: 1fr;
+  }
+
   .current-lines span {
     height: 72px;
   }
@@ -4011,14 +4004,11 @@ ul {
   }
 
   .donation-step {
-    padding: 0.85rem;
-    border-radius: 18px;
+    padding-top: 0.72rem;
   }
 
   .donation-step-heading {
-    grid-template-columns: 1fr;
-    text-align: center;
-    justify-items: center;
+    text-align: left;
   }
 
   .choice-chip-grid {
