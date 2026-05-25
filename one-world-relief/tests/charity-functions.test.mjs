@@ -347,8 +347,14 @@ test("share QR points donors to the .org donation domain", async () => {
   assert.match(shareHtml, /id="copyInstagramCaption"/);
   assert.match(shareHtml, /id="nativeShareButton"/);
   assert.match(shareHtml, /id="openQrPresentation"/);
+  assert.match(shareHtml, /social-share-actions/);
+  assert.match(shareHtml, /share-pill-facebook/);
+  assert.match(shareHtml, /share-pill-instagram/);
+  assert.match(shareHtml, /share-pill-whatsapp/);
+  assert.match(shareHtml, /id="instagramShareStatus"/);
   assert.doesNotMatch(shareHtml, /class="share-icon"/);
   assert.match(siteJs, /https:\/\/one-world-relief\.org\/donate/);
+  assert.match(siteJs, /https:\/\/www\.instagram\.com\//);
   assert.match(siteJs, /navigator\.share/);
   assert.match(siteJs, /copyInstagramCaption/);
   assert.match(qrSvg, /stroke="#183447"/);

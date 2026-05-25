@@ -52,12 +52,33 @@
         <p class="lead">
           A clean donation QR for presentations, printed flyers, and quick sharing from your phone.
         </p>
-        <div class="share-actions share-actions-top" aria-label="Social sharing links">
-          <a class="share-pill" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fone-world-relief.org%2Fdonate" target="_blank" rel="noreferrer">Facebook</a>
-          <a class="share-pill" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fone-world-relief.org%2Fdonate&text=Donate%20to%20One%20World%20Relief" target="_blank" rel="noreferrer">X</a>
-          <button class="share-pill" id="copyInstagramCaption" type="button">Instagram Caption</button>
-          <a class="share-pill" href="https://wa.me/?text=Donate%20to%20One%20World%20Relief%3A%20https%3A%2F%2Fone-world-relief.org%2Fdonate" target="_blank" rel="noreferrer">WhatsApp</a>
+        <div class="share-actions share-actions-top social-share-actions" aria-label="Social sharing links">
+          <a class="share-pill share-pill-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fone-world-relief.org%2Fdonate" target="_blank" rel="noreferrer" aria-label="Share One World Relief on Facebook" title="Share on Facebook">
+            <svg class="share-logo" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.6 8.1h2.2V4.3c-.4-.1-1.8-.2-3.4-.2-3.4 0-5.7 2.1-5.7 6v3.4H4v4.3h3.7V24h4.5v-6.2h3.5l.6-4.3h-4.1v-3c0-1.2.3-2.4 2.4-2.4Z" />
+            </svg>
+            <span class="sr-only">Facebook</span>
+          </a>
+          <a class="share-pill share-pill-x" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fone-world-relief.org%2Fdonate&text=Donate%20to%20One%20World%20Relief" target="_blank" rel="noreferrer" aria-label="Share One World Relief on X" title="Share on X">
+            <svg class="share-logo" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M13.9 10.2 22.2 0h-2l-7.2 8.9L7.2 0H.5l8.7 12.7L.5 24h2l7.6-9.8 6.1 9.8h6.7l-9-13.8Zm-2.7 3.4-.9-1.3-7-10.5h2.9l5.7 8.6.9 1.3 7.4 10.9h-2.9l-6.1-9Z" />
+            </svg>
+            <span class="sr-only">X</span>
+          </a>
+          <button class="share-pill share-pill-instagram" id="copyInstagramCaption" type="button" aria-label="Copy Instagram caption and open Instagram" title="Copy caption and open Instagram">
+            <svg class="share-logo" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7.3 2h9.4C19.6 2 22 4.4 22 7.3v9.4c0 2.9-2.4 5.3-5.3 5.3H7.3C4.4 22 2 19.6 2 16.7V7.3C2 4.4 4.4 2 7.3 2Zm0 2A3.3 3.3 0 0 0 4 7.3v9.4A3.3 3.3 0 0 0 7.3 20h9.4a3.3 3.3 0 0 0 3.3-3.3V7.3A3.3 3.3 0 0 0 16.7 4H7.3Zm4.7 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5-2.4a1.2 1.2 0 1 1-1.2 1.2A1.2 1.2 0 0 1 17 6.8Z" />
+            </svg>
+            <span class="sr-only">Instagram</span>
+          </button>
+          <a class="share-pill share-pill-whatsapp" href="https://wa.me/?text=Donate%20to%20One%20World%20Relief%3A%20https%3A%2F%2Fone-world-relief.org%2Fdonate" target="_blank" rel="noreferrer" aria-label="Share One World Relief on WhatsApp" title="Share on WhatsApp">
+            <svg class="share-logo" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.5 3.5A11.8 11.8 0 0 0 2.6 18.8L1 24l5.3-1.5A11.8 11.8 0 0 0 20.5 3.5ZM12 21a9 9 0 0 1-4.6-1.3l-.3-.2-3.1.9.9-3-.2-.3A9 9 0 1 1 12 21Zm5-6.7c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.2l-.9 1.1c-.2.2-.4.2-.7.1a7.4 7.4 0 0 1-3.7-3.2c-.2-.3 0-.5.1-.7l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6l-.9-2c-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.6s1.1 3 1.3 3.2c.1.2 2.2 3.4 5.4 4.8.8.3 1.4.5 1.8.6.8.3 1.5.2 2.1.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.4Z" />
+            </svg>
+            <span class="sr-only">WhatsApp</span>
+          </a>
         </div>
+        <p class="share-status" id="instagramShareStatus" aria-live="polite"></p>
       </div>
 
       <article class="qr-card" aria-label="One World Relief donation QR code">

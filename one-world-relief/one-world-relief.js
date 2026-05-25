@@ -21,7 +21,9 @@
   const closeQrPresentation = document.getElementById("closeQrPresentation");
   const qrPresentationModal = document.getElementById("qrPresentationModal");
   const copyInstagramCaption = document.getElementById("copyInstagramCaption");
+  const instagramShareStatus = document.getElementById("instagramShareStatus");
   const DONATION_URL = "https://one-world-relief.org/donate";
+  const INSTAGRAM_URL = "https://www.instagram.com/";
   const SHARE_TEXT = "Donate to One World Relief and support direct aid projects.";
   const INSTAGRAM_CAPTION = `${SHARE_TEXT} ${DONATION_URL}`;
   const revealItems = Array.from(document.querySelectorAll(".reveal"));
@@ -483,8 +485,24 @@
 
   if (copyInstagramCaption) {
     copyInstagramCaption.addEventListener("click", async () => {
+      const instagramWindow = window.open(INSTAGRAM_URL, "_blank");
+      if (instagramWindow) {
+        instagramWindow.opener = null;
+      }
       const copied = await copyText(INSTAGRAM_CAPTION);
-      temporarilySetText(copyInstagramCaption, copied ? "Caption Copied" : "Copy Manually");
+      const statusText = copied
+        ? "Caption copied. Paste it into your Instagram post."
+        : "Open Instagram and paste this donation link: one-world-relief.org/donate";
+
+      if (instagramShareStatus) {
+        instagramShareStatus.textContent = statusText;
+      } else {
+        temporarilySetText(copyInstagramCaption, copied ? "Caption Copied" : "Copy Manually");
+      }
+
+      if (!instagramWindow || instagramWindow.closed) {
+        copyInstagramCaption.setAttribute("aria-label", "Instagram opened in a new tab or pop-up was blocked");
+      }
     });
   }
 
