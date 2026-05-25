@@ -2480,6 +2480,31 @@ Additional DNS check later on May 4, 2026:
   - Confirmed `AI_HANDOFF_DOCUMENTATION.md` exists on GitHub.
   - Confirmed `AI_HANDOFF_DOCUMENTATION.md` is absent from GitLab `main`, `gitlab-charity-sync`, and `charity-frontend-redesign`.
 
+### 2026-05-25 Homepage Motion and Project Reel Polish
+- User asked for the homepage hero/donation area to feel more animated, less clumped, and more polished, and asked for the rotating projects to be smoother.
+- Updated homepage quick-donation hero:
+  - Added a compact top badge row: "Secure checkout" and "Receipt emailed".
+  - Widened the donation panel and increased hero spacing so the layout breathes more.
+  - Added a soft animated edge, card glow, and sheen to the quick donation panel.
+  - Added a subtle selected-amount glow and cleaner button/card styling.
+  - Improved mobile quick amount layout to two columns instead of one tall stack.
+- Updated completed project reel:
+  - Increased repeated project sets from 4 to 6 for a smoother seamless loop.
+  - Added animated card floating, photo drift, and light sweep effects.
+  - Hid duplicate repeated reel cards from assistive technology with `aria-hidden` and `tabindex="-1"`.
+  - Kept the reel continuously moving with no hover pause.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local desktop/mobile screenshot review of the hero confirmed cleaner spacing and less clumping.
+  - Local desktop/mobile screenshot review of the project reel confirmed the cards render larger, smoother, and more animated.
+  - Live `.org` checks confirmed `quick-donation-topline`, six-set project reel JS, `quick-card-sheen`, `case-photo-drift`, and `case-card-float` are deployed.
+- Repository/deployment:
+  - GitHub code commit: `2700b12 feat: polish homepage motion and project reel`.
+  - Cloudflare production deployment: `https://19ab8aeb.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `1421b0e feat: polish homepage motion and project reel`.
+  - GitLab `main` visibility sync commit: `a5d8e29 feat: sync homepage motion polish to main`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
