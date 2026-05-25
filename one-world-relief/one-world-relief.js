@@ -355,9 +355,10 @@
       return;
     }
 
-    const repeatedProjects = [...projects, ...projects, ...projects, ...projects];
+    const repeatedProjects = Array.from({ length: 6 }, () => projects).flat();
 
     homeCaseFlowTrack.innerHTML = repeatedProjects.map((project, index) => {
+      const isDuplicate = index >= projects.length;
       const title = escapeHtml(project.title);
       const category = escapeHtml(project.category);
       const status = escapeHtml(project.status);
@@ -367,10 +368,12 @@
       const rawMediaUrl = project.mediaUrl || "projects.html";
       const mediaUrl = escapeHtml(rawMediaUrl);
       const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
+      const duplicateAttrs = isDuplicate ? ' aria-hidden="true" tabindex="-1"' : ` aria-label="Open ${title}"`;
+      const altText = isDuplicate ? "" : title;
 
       return `
-        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs} aria-label="Open ${title}" style="--case-delay: ${index * 120}ms">
-          <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
+        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs}${duplicateAttrs} style="--case-delay: ${(index % projects.length) * 110}ms; --case-phase: ${index % 7};">
+          <img src="${thumbnailUrl}" alt="${altText}" loading="lazy" />
           <span class="case-flow-copy">
             <span>${date} &middot; ${status}</span>
             <strong>${title}</strong>
