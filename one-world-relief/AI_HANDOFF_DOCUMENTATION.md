@@ -2463,6 +2463,23 @@ Additional DNS check later on May 4, 2026:
   - GitLab `main` visibility sync commit: `c60d96f fix: sync simplified recurring selection to main`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-25 GitLab/GitHub Match Audit
+- User asked to make sure everything from GitLab was present and that everything matched before continuing work.
+- Refreshed remotes:
+  - Fetched GitHub `oneworld-github/charity-frontend-redesign`.
+  - Fetched GitLab `origin/main`, `origin/gitlab-charity-sync`, and `origin/charity-frontend-redesign`.
+- Local branch status after audit:
+  - `charity-frontend-redesign` matches GitHub `oneworld-github/charity-frontend-redesign`.
+  - `gitlab-charity-sync` matches GitLab `origin/gitlab-charity-sync`.
+  - Local `main` was fast-forwarded to GitLab `origin/main` at `891ba1d`.
+- One World Relief content check:
+  - `origin/main` matches GitHub `charity-frontend-redesign` for `one-world-relief`, excluding `AI_HANDOFF_DOCUMENTATION.md`.
+  - `origin/gitlab-charity-sync` matches GitHub `charity-frontend-redesign` for `one-world-relief`, excluding `AI_HANDOFF_DOCUMENTATION.md`.
+  - `origin/charity-frontend-redesign` matches GitHub `charity-frontend-redesign` for `one-world-relief`, excluding `AI_HANDOFF_DOCUMENTATION.md`.
+- Handoff-doc rule check:
+  - Confirmed `AI_HANDOFF_DOCUMENTATION.md` exists on GitHub.
+  - Confirmed `AI_HANDOFF_DOCUMENTATION.md` is absent from GitLab `main`, `gitlab-charity-sync`, and `charity-frontend-redesign`.
+
 ---
 
 **End of AI Handoff Documentation**
