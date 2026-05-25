@@ -2556,6 +2556,8 @@ Additional DNS check later on May 4, 2026:
 - Repository/deployment:
   - GitHub code commit: `7f28aae feat: add branded social share icons`.
   - Cloudflare production deployment: `https://292b5e44.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `ebad0cf feat: add branded social share icons`.
+  - GitLab `main` visibility sync commit: `aec8a9f feat: add branded social share icons`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
 ---
