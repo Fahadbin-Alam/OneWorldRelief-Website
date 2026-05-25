@@ -2505,6 +2505,29 @@ Additional DNS check later on May 4, 2026:
   - GitLab `main` visibility sync commit: `a5d8e29 feat: sync homepage motion polish to main`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-25 Homepage Animation Performance Pass
+- User reported that the website felt laggy and asked for it to be smoother.
+- Performance-focused animation changes:
+  - Removed paint-heavy animated `box-shadow` behavior from the homepage quick donation card.
+  - Changed `quick-card-lift` to a light transform-only movement.
+  - Removed the selected amount filter animation.
+  - Reduced the homepage project reel from 6 repeated sets to 4 repeated sets while keeping the continuous loop.
+  - Removed per-card floating, per-photo drift, and light sweep animations from the reel cards.
+  - Removed the `backdrop-filter` from the project reel text overlay.
+  - Added `decoding="async"` to project reel images.
+  - Added `content-visibility: auto` to expensive below-the-fold homepage sections.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local desktop/mobile screenshot review confirmed the hero still looks polished after the performance cleanup.
+  - Local project reel screenshot review confirmed the reel still renders cleanly and keeps the continuous horizontal motion.
+  - Live `.org` checks confirmed four-set project reel JS, async image decoding, `content-visibility`, removed heavy keyframes, and transform-only quick card lift.
+- Repository/deployment:
+  - GitHub code commit: `821f530 perf: smooth homepage animations`.
+  - Cloudflare production deployment: `https://e48cba81.trying-8o0.pages.dev`.
+  - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `77f867b perf: smooth homepage animations`.
+  - GitLab `main` visibility sync commit: `78b2659 perf: sync smoother homepage animations to main`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
