@@ -2538,6 +2538,26 @@ Additional DNS check later on May 4, 2026:
 - GitLab `main` commit: `4f7e369 feat: add charity link to succeed menu`.
 - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-25 Branded Share Icons and Platform Links
+- User asked to replace the share text pills with actual platform-style icons and make each one open the relevant sharing website.
+- Updated `one-world-relief/share.html`:
+  - Replaced text-only Facebook, X, Instagram, and WhatsApp pills with branded icon buttons.
+  - Facebook opens the Facebook share URL for `https://one-world-relief.org/donate`.
+  - X opens the X/Twitter intent URL with the donation page and message.
+  - WhatsApp opens `wa.me` with the donation message and link.
+  - Instagram copies the prepared donation caption and opens Instagram, because normal websites cannot pre-fill and auto-post Instagram feed posts.
+- Updated `one-world-relief/one-world-relief.css` with brand colors, icon sizing, hover polish, and mobile sizing for the social share row.
+- Updated `one-world-relief/one-world-relief.js` so the Instagram button copies the caption, opens Instagram, and shows a live status message.
+- Updated the share tests to check the branded classes, Instagram behavior, and `.org` donation URL.
+- Verification:
+  - `node --test tests/charity-functions.test.mjs`: 23 tests passed.
+  - Local desktop/mobile Playwright screenshots confirmed the new icon row looks clean.
+  - Live `.org` checks confirmed the deployed share page, CSS, and JS include the new branded share icon classes and Instagram copy/open behavior.
+- Repository/deployment:
+  - GitHub code commit: `7f28aae feat: add branded social share icons`.
+  - Cloudflare production deployment: `https://292b5e44.trying-8o0.pages.dev`.
+  - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
