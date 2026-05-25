@@ -2528,6 +2528,16 @@ Additional DNS check later on May 4, 2026:
   - GitLab `main` visibility sync commit: `78b2659 perf: sync smoother homepage animations to main`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
 
+### 2026-05-25 SUCCEED Burger Menu Charity Link
+- User asked to add the charity to the SUCCEED website burger menu.
+- Updated GitLab `main` SUCCEED drawer menus:
+  - `SUCCEED_Final_Version.html`
+  - `MainMenu.html`
+- Added a Charity section linking to `https://one-world-relief.org/`.
+- Added a compact `OWR` badge style so the charity link fits cleanly in the drawer icon column.
+- GitLab `main` commit: `4f7e369 feat: add charity link to succeed menu`.
+- `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
 ---
 
 **End of AI Handoff Documentation**
