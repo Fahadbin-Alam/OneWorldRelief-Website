@@ -355,7 +355,7 @@
       return;
     }
 
-    const repeatedProjects = Array.from({ length: 6 }, () => projects).flat();
+    const repeatedProjects = Array.from({ length: 4 }, () => projects).flat();
 
     homeCaseFlowTrack.innerHTML = repeatedProjects.map((project, index) => {
       const isDuplicate = index >= projects.length;
@@ -372,8 +372,8 @@
       const altText = isDuplicate ? "" : title;
 
       return `
-        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs}${duplicateAttrs} style="--case-delay: ${(index % projects.length) * 110}ms; --case-phase: ${index % 7};">
-          <img src="${thumbnailUrl}" alt="${altText}" loading="lazy" />
+        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs}${duplicateAttrs} style="--case-delay: ${(index % projects.length) * 90}ms; --case-phase: ${index % 5};">
+          <img src="${thumbnailUrl}" alt="${altText}" loading="lazy" decoding="async" />
           <span class="case-flow-copy">
             <span>${date} &middot; ${status}</span>
             <strong>${title}</strong>
