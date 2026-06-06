@@ -36,7 +36,7 @@ Best option:
 - Send the YouTube link.
 
 Alternative:
-- Put MP4 files in `one-world-relief/assets/projects/...`, but keep files small so GitLab does not get too heavy.
+- Put MP4 files in `one-world-relief/assets/projects/...`, but keep files small so GitHub and Cloudflare Pages stay fast.
 
 ## Data Entry
 Each project becomes one object in `project-data.js` with:

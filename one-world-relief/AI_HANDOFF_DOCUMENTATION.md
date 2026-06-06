@@ -12,8 +12,9 @@ This document provides a complete technical reference for the One World Relief n
 
 ### Standing User Instructions Logged May 4, 2026
 - Keep this AI handoff document updated during One World Relief work.
-- Do not include this handoff document in GitLab pushes; keep it for GitHub/personal project context only.
-- Keep GitHub, GitLab, and Cloudflare synchronized after changes, while respecting the GitLab exclusion above.
+- Active workflow as of June 6, 2026: use GitHub only for source control.
+- Do not push One World Relief work to GitLab anymore.
+- Keep GitHub and Cloudflare synchronized after changes.
 - Keep One World Relief donation UX to one top-level donation CTA; do not add a second Donate link in the top nav.
 - Receipt delivery and Google Sheets donation dashboard updates are production-critical.
 - The custom `.org` domain must be fixed as soon as DNS/Cloudflare access allows it.
