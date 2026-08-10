@@ -1,5 +1,5 @@
 # One World Relief - AI Handoff Documentation
-**Last Updated**: May 11, 2026  
+**Last Updated**: August 9, 2026
 **Created By**: Codex AI  
 **For**: Future AI Sessions & Development  
 
@@ -2560,6 +2560,26 @@ Additional DNS check later on May 4, 2026:
   - GitLab code-only commit pushed to `gitlab-charity-sync` and `charity-frontend-redesign`: `ebad0cf feat: add branded social share icons`.
   - GitLab `main` visibility sync commit: `aec8a9f feat: add branded social share icons`.
   - `AI_HANDOFF_DOCUMENTATION.md` stayed out of GitLab and remains GitHub-only.
+
+### 2026-08-09 Homepage Project Reel Pacing
+- User shared a screenshot of the completed-case photo reel and asked for it to move a little faster at a normal, readable pace.
+- Updated `.case-flow-track` in `one-world-relief.css` from a `56s` loop to a `48s` linear loop (about 17% faster).
+- Kept the existing seamless continuous motion, no-hover-pause behavior, layout, card styling, and reduced-motion fallback unchanged.
+- Made the Node regression test file resolve project files from its own location so the suite can run reliably from the repository root or the site directory.
+- Added an exact regression assertion for `animation: case-river 48s linear infinite`.
+- Verification:
+  - Full charity regression suite: 23 tests passed, 0 failed.
+  - `git diff --check` passed.
+- Repository:
+  - GitHub commit pushed to `charity-frontend-redesign`: `47d27a4 perf: tune homepage case reel pacing`.
+  - Per the June 6 standing instruction, no GitLab push was made.
+- Cloudflare / live status at handoff time:
+  - Cloudflare Pages production project remains `trying` (`trying-8o0.pages.dev`) with `one-world-relief.org` as the canonical domain.
+  - This machine had no connected browser session, Wrangler installation/authentication, Cloudflare connector, or Cloudflare API token, so a manual Pages production deployment could not be started.
+  - Five cache-bypassed checks of the public `.org` stylesheet after the GitHub push still returned the previous `56s` rule; both `trying-8o0.pages.dev` and the branch alias also returned `56s`.
+  - Next required action: connect an authenticated Cloudflare dashboard browser session or Cloudflare integration, then deploy the `one-world-relief` directory from GitHub commit `47d27a4` to Pages project `trying`; confirm the live stylesheet contains `case-river 48s`.
+- Stripe access status:
+  - No connected Stripe dashboard browser session or Stripe integration was available in this environment, so no Stripe account settings, payments, or webhook configuration were changed.
 
 ---
 
