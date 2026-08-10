@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { readFile as readFileFromDisk } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const readFile = (relativePath, options) => readFileFromDisk(resolve(projectRoot, relativePath), options);
 
 const importFunctionModule = async (relativePath) => {
-  const absolutePath = resolve(relativePath);
-  const source = await readFile(absolutePath, "utf8");
+  const absolutePath = resolve(projectRoot, relativePath);
+  const source = await readFileFromDisk(absolutePath, "utf8");
   const encoded = Buffer.from(source, "utf8").toString("base64");
   return import(`data:text/javascript;base64,${encoded}`);
 };
@@ -521,6 +525,7 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteCss, /@keyframes faith-quote-scroll/);
   assert.match(siteCss, /\.case-flow-track/);
   assert.match(siteCss, /@keyframes case-river/);
+  assert.match(siteCss, /animation:\s*case-river 48s linear infinite/);
   assert.match(siteCss, /will-change: transform/);
   assert.match(siteCss, /translate3d\(calc\(-50% - 0\.5rem\), 0, 0\)/);
   assert.doesNotMatch(siteCss, /@keyframes selected-amount-glow/);
