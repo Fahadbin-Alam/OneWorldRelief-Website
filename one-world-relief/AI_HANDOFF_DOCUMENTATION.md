@@ -2573,13 +2573,18 @@ Additional DNS check later on May 4, 2026:
 - Repository:
   - GitHub commit pushed to `charity-frontend-redesign`: `47d27a4 perf: tune homepage case reel pacing`.
   - Per the June 6 standing instruction, no GitLab push was made.
-- Cloudflare / live status at handoff time:
-  - Cloudflare Pages production project remains `trying` (`trying-8o0.pages.dev`) with `one-world-relief.org` as the canonical domain.
-  - This machine had no connected browser session, Wrangler installation/authentication, Cloudflare connector, or Cloudflare API token, so a manual Pages production deployment could not be started.
-  - Five cache-bypassed checks of the public `.org` stylesheet after the GitHub push still returned the previous `56s` rule; both `trying-8o0.pages.dev` and the branch alias also returned `56s`.
-  - Next required action: connect an authenticated Cloudflare dashboard browser session or Cloudflare integration, then deploy the `one-world-relief` directory from GitHub commit `47d27a4` to Pages project `trying`; confirm the live stylesheet contains `case-river 48s`.
-- Stripe access status:
-  - No connected Stripe dashboard browser session or Stripe integration was available in this environment, so no Stripe account settings, payments, or webhook configuration were changed.
+- Cloudflare deployment completed on 2026-08-12:
+  - Connected to the One World Relief Cloudflare account and confirmed Pages project `trying` is a Direct Upload project with production branch `main` and canonical domain `one-world-relief.org`.
+  - Compiled the Pages Functions bundle with Wrangler `4.122.0` using the project's production compatibility date `2026-04-23`.
+  - Successful preview deployment: `https://c01ea4bd.trying-8o0.pages.dev` (`c01ea4bd-e6b1-4e94-ac4c-a094e665eacb`).
+  - Successful production deployment: `https://b7a02223.trying-8o0.pages.dev` (`b7a02223-167e-426c-8a6c-a937ee7c1fae`) from repository commit `72e5045`.
+  - Cloudflare reports the production deployment as successful with Functions enabled and aliases for `one-world-relief.org`, `www.one-world-relief.org`, `one-world-relief.com`, and `api.one-world-relief.com`.
+  - Cache-bypassed live `.org` checks returned `200`, confirmed `animation: case-river 48s linear infinite`, and confirmed the previous `56s` rule is absent.
+  - Safe integration checks returned `400` for an empty checkout request before any Stripe Checkout Session could be created and `400` for an unsigned Stripe webhook request.
+  - Added `.assetsignore` so repository-only handoff, backend, schema, intake-template, README, Functions-source, and test files are not published as static assets in future Direct Uploads. Pages Functions continue to be compiled and deployed separately.
+- Stripe access status on 2026-08-12:
+  - Installed the official Stripe integration, but the connected-account check returned `USER_NOT_LOGGED_IN` / `not connected`.
+  - No Stripe account settings, payments, refunds, products, webhook endpoints, or other Stripe data were read or changed. Sign in to the Stripe integration before the next read-only account review.
 
 ---
 

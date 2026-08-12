@@ -1,0 +1,8 @@
+# Repository-only documentation and implementation files.
+AI_HANDOFF_DOCUMENTATION.md
+backend-setup.md
+cloudflare-d1-schema.sql
+PROJECT_INTAKE_TEMPLATE.md
+assets/projects/README.md
+tests/
+functions/
