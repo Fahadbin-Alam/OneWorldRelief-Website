@@ -2613,6 +2613,16 @@ Additional DNS check later on May 4, 2026:
   - Full Node regression suite: 23 tests passed, 0 failed.
   - Tests cover the new cards, detail pages, all 13 public media references, completed timelines, privacy wording, JPEG/MP4 signatures, H.264/AAC compatibility, deployable file sizes, and the 80-second reel calculation.
   - All local media references resolve and `git diff --check` passes.
+- Repository and Cloudflare release:
+  - GitHub commit pushed to `charity-frontend-redesign`: `1a7a522 feat: publish flood relief and mosque gate cases`.
+  - Built a fresh Pages Functions bundle with Wrangler `4.122.0` and compatibility date `2026-04-23`.
+  - Built a manually filtered 50-file Pages manifest so the AI handoff, backend notes, D1 schema, intake template, media README, tests, and raw Functions source remained private.
+  - Successful preview deployment: `https://c48accba.trying-8o0.pages.dev` (`c48accba-825a-45c7-b27f-4ecfa4674f03`).
+  - Successful production deployment: `https://11e12a2e.trying-8o0.pages.dev` (`11e12a2e-026d-4dad-be0a-d866512183fe`).
+  - Cloudflare reports Functions enabled and production aliases for `one-world-relief.org`, `www.one-world-relief.org`, `one-world-relief.com`, and `api.one-world-relief.com`.
+  - Cache-bypassed `.org` checks confirmed both case pages, both new filters, project data, reel timing, JPEG/MP4 media types, and representative media files are live.
+  - All six protected repository-file URLs return the public homepage fallback instead of their internal contents.
+  - Safe integration checks returned `400` for an empty checkout request and `400` for an unsigned Stripe webhook; no real Stripe Checkout Session or payment was created.
 
 ---
 
