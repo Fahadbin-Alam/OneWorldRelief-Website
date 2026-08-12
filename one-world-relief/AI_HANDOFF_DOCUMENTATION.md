@@ -2577,11 +2577,13 @@ Additional DNS check later on May 4, 2026:
   - Connected to the One World Relief Cloudflare account and confirmed Pages project `trying` is a Direct Upload project with production branch `main` and canonical domain `one-world-relief.org`.
   - Compiled the Pages Functions bundle with Wrangler `4.122.0` using the project's production compatibility date `2026-04-23`.
   - Successful preview deployment: `https://c01ea4bd.trying-8o0.pages.dev` (`c01ea4bd-e6b1-4e94-ac4c-a094e665eacb`).
-  - Successful production deployment: `https://b7a02223.trying-8o0.pages.dev` (`b7a02223-167e-426c-8a6c-a937ee7c1fae`) from repository commit `72e5045`.
+  - Initial successful production deployment: `https://b7a02223.trying-8o0.pages.dev` (`b7a02223-167e-426c-8a6c-a937ee7c1fae`) from repository commit `72e5045`.
+  - Final synchronized production deployment: `https://71109755.trying-8o0.pages.dev` (`71109755-1740-43e8-83c1-d635706afbc1`) from repository commit `ece1428`, with the internal-file asset exclusions applied.
   - Cloudflare reports the production deployment as successful with Functions enabled and aliases for `one-world-relief.org`, `www.one-world-relief.org`, `one-world-relief.com`, and `api.one-world-relief.com`.
   - Cache-bypassed live `.org` checks returned `200`, confirmed `animation: case-river 48s linear infinite`, and confirmed the previous `56s` rule is absent.
   - Safe integration checks returned `400` for an empty checkout request before any Stripe Checkout Session could be created and `400` for an unsigned Stripe webhook request.
   - Added `.assetsignore` so repository-only handoff, backend, schema, intake-template, README, Functions-source, and test files are not published as static assets in future Direct Uploads. Pages Functions continue to be compiled and deployed separately.
+  - Verified all six formerly exposed repository-only asset URLs now return the public homepage fallback byte-for-byte and no longer return their internal file contents. The fallback deliberately returns HTTP `200`, so content equality—not status alone—was used for this check.
 - Stripe access status on 2026-08-12:
   - Installed the official Stripe integration, but the connected-account check returned `USER_NOT_LOGGED_IN` / `not connected`.
   - No Stripe account settings, payments, refunds, products, webhook endpoints, or other Stripe data were read or changed. Sign in to the Stripe integration before the next read-only account review.
