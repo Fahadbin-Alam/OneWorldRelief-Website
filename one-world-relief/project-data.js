@@ -61,5 +61,35 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     mediaLabel: "View case",
     mediaUrl: "projects/case-004.html",
     donationUrl: "donate.html?campaign=Feeding#donationForm"
+  },
+  {
+    title: "Food Relief for Flood-Affected Families",
+    category: "Flood Relief",
+    status: "Completed",
+    location: "Bangladesh",
+    date: "Case 005",
+    amountRaised: "Aid delivered",
+    impact: "Food supplies delivered to families affected by flooding",
+    summary: "One World Relief delivered food relief to flood-affected families in Bangladesh. The public case page includes field photos and videos from the July 15-16, 2026 response while keeping unlisted personal details private.",
+    update: "Field delivery and proof media were documented on July 15-16, 2026.",
+    thumbnailUrl: "assets/projects/case-005/flood-relief-005-thumbnail.jpg",
+    mediaLabel: "View story",
+    mediaUrl: "projects/case-005.html",
+    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+  },
+  {
+    title: "A Secure Gate for a Community Mosque",
+    category: "Mosque Support",
+    status: "Completed",
+    location: "Bangladesh",
+    date: "Case 006",
+    amountRaised: "Gate installed",
+    impact: "A secure entrance gate installed for a community mosque",
+    summary: "One World Relief supported the installation of a secure gate for a community mosque in Bangladesh. Photos and videos document the completed work from July 27-31, 2026.",
+    update: "Installation and completion proof were documented on July 27-31, 2026.",
+    thumbnailUrl: "assets/projects/case-006/mosque-gate-006-thumbnail.jpg",
+    mediaLabel: "View story",
+    mediaUrl: "projects/case-006.html",
+    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
   }
 ];

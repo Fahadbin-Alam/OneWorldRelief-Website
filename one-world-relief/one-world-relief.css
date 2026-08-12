@@ -930,7 +930,7 @@ ul {
   will-change: transform;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
-  animation: case-river 48s linear infinite;
+  animation: case-river var(--case-flow-duration, 48s) linear infinite;
 }
 
 .case-flow-card {

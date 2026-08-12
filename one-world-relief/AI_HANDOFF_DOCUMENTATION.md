@@ -2588,6 +2588,32 @@ Additional DNS check later on May 4, 2026:
   - Installed the official Stripe integration, but the connected-account check returned `USER_NOT_LOGGED_IN` / `not connected`.
   - No Stripe account settings, payments, refunds, products, webhook endpoints, or other Stripe data were read or changed. Sign in to the Stripe integration before the next read-only account review.
 
+### 2026-08-12 Cases 005 and 006 Website Addition
+- User asked to publish the new case photos and videos from their One World Relief media folder. The folder described as being on the Desktop was found at `D:\OneWorldRelief\Cases`; `C:\Users\Mihad\Desktop` did not contain a matching folder.
+- Added two completed public projects:
+  - Case 005: `Food Relief for Flood-Affected Families`, documenting food-aid delivery and flood conditions in Bangladesh on July 15-16, 2026.
+  - Case 006: `A Secure Gate for a Community Mosque`, documenting gate construction and the completed mosque entrance in Bangladesh on July 27-31, 2026.
+- Public pages:
+  - `one-world-relief/projects/case-005.html`
+  - `one-world-relief/projects/case-006.html`
+- Media preparation:
+  - Curated 13 public assets: six Case 005 JPEGs, three Case 005 MP4 clips, two Case 006 JPEGs, and two Case 006 MP4 clips.
+  - Kept receipts, PDFs, scans, duplicate files, and unused source footage outside the public website.
+  - Selected adult/relief-supply/flood-condition media for Case 005 instead of the available images prominently showing children.
+  - Stripped media metadata, compressed the JPEGs, and normalized videos to browser-compatible H.264/AAC MP4 with web-optimized streaming metadata.
+  - Did not publish private originals from `D:\OneWorldRelief`.
+- Content decisions:
+  - Did not invent a dollar amount or beneficiary count because neither was established by the supplied folder names or safe public evidence.
+  - Public cards instead use `Aid delivered` and `Gate installed`; both campaigns route to the existing `General Fund` donation option.
+  - Added `Flood Relief` and `Mosque Support` project filters.
+- Homepage project reel:
+  - The prior approved pace was 48 seconds for three completed cases (16 seconds per completed case).
+  - Made the duration data-driven with `projects.length * 16`, so five completed cases use an 80-second loop and retain the same readable movement speed after adding Cases 005 and 006.
+- Verification before deployment:
+  - Full Node regression suite: 23 tests passed, 0 failed.
+  - Tests cover the new cards, detail pages, all 13 public media references, completed timelines, privacy wording, JPEG/MP4 signatures, H.264/AAC compatibility, deployable file sizes, and the 80-second reel calculation.
+  - All local media references resolve and `git diff --check` passes.
+
 ---
 
 **End of AI Handoff Documentation**

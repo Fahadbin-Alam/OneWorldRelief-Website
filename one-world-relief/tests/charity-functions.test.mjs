@@ -469,10 +469,11 @@ test("offline fallback shows branded connection page after first visit", async (
 });
 
 test("home page renders a continuous completed-case photo flow from project data", async () => {
-  const [homeHtml, siteJs, siteCss] = await Promise.all([
+  const [homeHtml, siteJs, siteCss, projectData] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
+    readFile("project-data.js", "utf8"),
   ]);
 
   assert.doesNotMatch(homeHtml, /See the work as it moves/);
@@ -525,7 +526,14 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteCss, /@keyframes faith-quote-scroll/);
   assert.match(siteCss, /\.case-flow-track/);
   assert.match(siteCss, /@keyframes case-river/);
-  assert.match(siteCss, /animation:\s*case-river 48s linear infinite/);
+  assert.match(siteCss, /animation:\s*case-river var\(--case-flow-duration, 48s\) linear infinite/);
+  assert.match(siteJs, /"--case-flow-duration"/);
+  assert.match(siteJs, /`\$\{projects\.length \* secondsPerProject\}s`/);
+  const secondsPerProject = Number(siteJs.match(/const secondsPerProject = (\d+);/)?.[1]);
+  const completedCaseCount = [...projectData.matchAll(/status:\s*"Completed"/g)].length;
+  assert.equal(secondsPerProject, 16);
+  assert.equal(completedCaseCount, 5);
+  assert.equal(completedCaseCount * secondsPerProject, 80);
   assert.match(siteCss, /will-change: transform/);
   assert.match(siteCss, /translate3d\(calc\(-50% - 0\.5rem\), 0, 0\)/);
   assert.doesNotMatch(siteCss, /@keyframes selected-amount-glow/);
@@ -588,7 +596,17 @@ test("about page shows nonprofit status and EIN without a public home address", 
 });
 
 test("project cards publish approved cases with embedded local media", async () => {
-  const [projectData, siteJs, siteCss, casePage, caseTwoPage, caseThreePage, caseFourPage] = await Promise.all([
+  const [
+    projectData,
+    siteJs,
+    siteCss,
+    casePage,
+    caseTwoPage,
+    caseThreePage,
+    caseFourPage,
+    caseFivePage,
+    caseSixPage,
+  ] = await Promise.all([
     readFile("project-data.js", "utf8"),
     readFile("one-world-relief.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
@@ -596,6 +614,8 @@ test("project cards publish approved cases with embedded local media", async () 
     readFile("projects/case-002.html", "utf8"),
     readFile("projects/case-003.html", "utf8"),
     readFile("projects/case-004.html", "utf8"),
+    readFile("projects/case-005.html", "utf8"),
+    readFile("projects/case-006.html", "utf8"),
   ]);
 
   assert.doesNotMatch(projectData, /drive\.google\.com/);
@@ -604,6 +624,8 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /projects\/case-002\.html/);
   assert.match(projectData, /projects\/case-003\.html/);
   assert.match(projectData, /projects\/case-004\.html/);
+  assert.match(projectData, /projects\/case-005\.html/);
+  assert.match(projectData, /projects\/case-006\.html/);
   assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
   assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
@@ -611,13 +633,18 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.doesNotMatch(projectData, /title: "Case 002:/);
   assert.doesNotMatch(projectData, /title: "Case 003:/);
   assert.doesNotMatch(projectData, /title: "Case 004:/);
+  assert.doesNotMatch(projectData, /title:\s*"Case \d{3}\b/i);
   assert.match(projectData, /Keeping a Hafiz Student in School/);
   assert.match(projectData, /A Fresh Start for a Father's Business/);
   assert.match(projectData, /Keeping an Orphan Boy in School/);
   assert.match(projectData, /Korbani Meals for a Village/);
+  assert.match(projectData, /Food Relief for Flood-Affected Families/);
+  assert.match(projectData, /A Secure Gate for a Community Mosque/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
   assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
   assert.match(projectData, /orphan-education-003-thumbnail\.jpg/);
+  assert.match(projectData, /flood-relief-005-thumbnail\.jpg/);
+  assert.match(projectData, /mosque-gate-006-thumbnail\.jpg/);
   assert.match(projectData, /thumbnailType: "banner"/);
   assert.doesNotMatch(projectData, /orphan-education-003-placeholder\.svg/);
   assert.doesNotMatch(projectData, /korbani-village-004-placeholder\.svg/);
@@ -683,6 +710,83 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(caseFourPage, /project-timeline/);
   assert.match(caseFourPage, /timeline-step-active/);
   assert.match(caseFourPage, /timeline-step-pending/);
+
+  const caseFiveData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 005"/.test(entry));
+  assert.ok(caseFiveData);
+  assert.match(caseFiveData, /title: "Food Relief for Flood-Affected Families"/);
+  assert.match(caseFiveData, /status: "Completed"/);
+  assert.match(caseFiveData, /thumbnailUrl: "assets\/projects\/case-005\/flood-relief-005-thumbnail\.jpg"/);
+  assert.match(caseFiveData, /mediaUrl: "projects\/case-005\.html"/);
+
+  const caseFiveMedia = [
+    "flood-relief-005-thumbnail.jpg",
+    "flood-relief-005-main.jpg",
+    "flood-relief-005-context.jpg",
+    "flood-relief-005-supplies.jpg",
+    "flood-relief-005-banner.jpg",
+    "flood-relief-005-delivery.jpg",
+    "flood-relief-005-primary.mp4",
+    "flood-relief-005-video-2.mp4",
+    "flood-relief-005-video-3.mp4",
+  ];
+  assert.match(caseFivePage, /<h1>Food Relief for Flood-Affected Families<\/h1>/);
+  assert.match(caseFivePage, /<strong>Completed<\/strong>/);
+  assert.match(caseFivePage, /July 15-16, 2026/);
+  assert.match(caseFivePage, /project-timeline/);
+  assert.match(caseFivePage, /timeline-step-maintenance/);
+  assert.match(caseFivePage, /<h3>Case completed<\/h3>/);
+  assert.match(caseFivePage, /personal details beyond what appears in the approved field media are not published/);
+  assert.match(caseFivePage, /unlisted personal and financial details remained private/);
+  assert.doesNotMatch(caseFivePage, /NID No|Birth Registration Number|Middle Patenga/);
+  for (const filename of caseFiveMedia) {
+    assert.ok(caseFivePage.includes(filename), `Case 005 page should include ${filename}`);
+  }
+
+  const caseSixData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 006"/.test(entry));
+  assert.ok(caseSixData);
+  assert.match(caseSixData, /title: "A Secure Gate for a Community Mosque"/);
+  assert.match(caseSixData, /status: "Completed"/);
+  assert.match(caseSixData, /thumbnailUrl: "assets\/projects\/case-006\/mosque-gate-006-thumbnail\.jpg"/);
+  assert.match(caseSixData, /mediaUrl: "projects\/case-006\.html"/);
+
+  const caseSixMedia = [
+    "mosque-gate-006-thumbnail.jpg",
+    "mosque-gate-006-main.jpg",
+    "mosque-gate-006-primary.mp4",
+    "mosque-gate-006-video-2.mp4",
+  ];
+  assert.match(caseSixPage, /<h1>A Secure Gate for a Community Mosque<\/h1>/);
+  assert.match(caseSixPage, /<strong>Completed<\/strong>/);
+  assert.match(caseSixPage, /July 27-31, 2026/);
+  assert.match(caseSixPage, /project-timeline/);
+  assert.match(caseSixPage, /timeline-step-maintenance/);
+  assert.match(caseSixPage, /<h3>Case completed<\/h3>/);
+  assert.match(caseSixPage, /unrelated personal details are not included on this page/);
+  assert.match(caseSixPage, /without adding unlisted project or personal details/);
+  assert.doesNotMatch(caseSixPage, /NID No|Birth Registration Number|Middle Patenga/);
+  for (const filename of caseSixMedia) {
+    assert.ok(caseSixPage.includes(filename), `Case 006 page should include ${filename}`);
+  }
+
+  const jpegFiles = [...caseFiveMedia, ...caseSixMedia].filter((filename) => filename.endsWith(".jpg"));
+  const mp4Files = [...caseFiveMedia, ...caseSixMedia].filter((filename) => filename.endsWith(".mp4"));
+  for (const filename of jpegFiles) {
+    const caseFolder = filename.includes("005") ? "case-005" : "case-006";
+    const media = await readFile(`assets/projects/${caseFolder}/${filename}`);
+    assert.ok(media.byteLength > 50_000, `${filename} should contain a usable image`);
+    assert.ok(media.byteLength < 1_500_000, `${filename} should remain web-sized`);
+    assert.deepEqual([...media.subarray(0, 3)], [0xff, 0xd8, 0xff], `${filename} should have a JPEG signature`);
+    assert.deepEqual([...media.subarray(-2)], [0xff, 0xd9], `${filename} should be a complete JPEG`);
+  }
+  for (const filename of mp4Files) {
+    const caseFolder = filename.includes("005") ? "case-005" : "case-006";
+    const media = await readFile(`assets/projects/${caseFolder}/${filename}`);
+    assert.ok(media.byteLength > 1_000_000, `${filename} should contain a usable video`);
+    assert.ok(media.byteLength < 25 * 1024 * 1024, `${filename} should remain deployable as a site asset`);
+    assert.equal(media.subarray(4, 8).toString("ascii"), "ftyp", `${filename} should be an ISO MP4`);
+    assert.ok(media.includes(Buffer.from("avc1")), `${filename} should use browser-safe H.264 video`);
+    assert.ok(media.includes(Buffer.from("mp4a")), `${filename} should use browser-safe AAC audio`);
+  }
 });
 
 test("projects page opens directly into project content", async () => {

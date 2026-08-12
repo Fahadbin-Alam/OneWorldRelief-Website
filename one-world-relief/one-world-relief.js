@@ -357,6 +357,14 @@
       return;
     }
 
+    // Keep the approved visual pace consistent as completed cases are added.
+    // Each unique card receives 16 seconds of travel time (3 cards = 48s).
+    const secondsPerProject = 16;
+    homeCaseFlowTrack.style.setProperty(
+      "--case-flow-duration",
+      `${projects.length * secondsPerProject}s`,
+    );
+
     const repeatedProjects = Array.from({ length: 4 }, () => projects).flat();
 
     homeCaseFlowTrack.innerHTML = repeatedProjects.map((project, index) => {
