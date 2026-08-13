@@ -16,6 +16,7 @@
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
   const homeCompletedCases = document.getElementById("homeCompletedCases");
   const homeGoalCases = document.getElementById("homeGoalCases");
+  const donateProjectFlow = document.getElementById("donateProjectFlow");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
   const closeQrPresentation = document.getElementById("closeQrPresentation");
@@ -237,7 +238,7 @@
     }
 
     const targets = Array.from(document.querySelectorAll(
-      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories, .contact-message-card"
+      ".project-card, .proof-card, .project-detail-feature, .flow-impact-media, .home-stories"
     ));
 
     targets.forEach((target) => {
@@ -429,9 +430,9 @@
       return;
     }
 
-    // Keep the approved visual pace consistent as completed cases are added.
-    // Each unique card receives 16 seconds of travel time (3 cards = 48s).
-    const secondsPerProject = 16;
+    // A readable but slightly quicker pace than the previous 16 seconds per card.
+    // Six completed projects now make one 84-second visual cycle.
+    const secondsPerProject = 14;
     homeCaseFlowTrack.style.setProperty(
       "--case-flow-duration",
       `${projects.length * secondsPerProject}s`,
@@ -466,6 +467,72 @@
     }).join("");
 
     homeCaseFlowTrack.setAttribute("aria-live", "off");
+  };
+
+  const renderDonateProjectFlow = () => {
+    if (!donateProjectFlow || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+      return;
+    }
+
+    const statusKind = (project) => {
+      const status = String(project.status || "").toLowerCase();
+      if (status.includes("coming soon")) {
+        return "coming";
+      }
+      if (status.includes("completed")) {
+        return "completed";
+      }
+      return "current";
+    };
+    const statusOrder = { current: 0, coming: 1, completed: 2 };
+    const projects = window.ONE_WORLD_RELIEF_PROJECTS
+      .map((project, index) => ({ project, index, kind: statusKind(project) }))
+      .sort((left, right) => statusOrder[left.kind] - statusOrder[right.kind] || left.index - right.index);
+
+    if (!projects.length) {
+      donateProjectFlow.hidden = true;
+      return;
+    }
+
+    const renderCards = (isDuplicate) => projects.map(({ project, kind }) => {
+      const title = escapeHtml(project.title);
+      const category = escapeHtml(project.category);
+      const status = escapeHtml(project.status || "Project update");
+      const date = escapeHtml(project.date || "One World Relief");
+      const rawMediaUrl = project.mediaUrl || "projects.html";
+      const mediaUrl = escapeHtml(rawMediaUrl);
+      const linkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
+      const accessibilityAttrs = isDuplicate
+        ? ' tabindex="-1"'
+        : ` aria-label="View ${title}, ${status}"`;
+      const hasBanner = project.thumbnailType === "banner" || !project.thumbnailUrl;
+      const visual = hasBanner
+        ? `
+          <span class="donate-project-banner" aria-hidden="true">
+            <small>${escapeHtml(project.thumbnailLabel || status)}</small>
+            <strong>${date}</strong>
+          </span>
+        `
+        : `<img src="${escapeHtml(project.thumbnailUrl)}" alt="" loading="lazy" decoding="async" />`;
+
+      return `
+        <a class="donate-project-card donate-project-card-${kind}" href="${mediaUrl}"${linkAttrs}${accessibilityAttrs}>
+          <span class="donate-project-visual">${visual}</span>
+          <span class="donate-project-copy">
+            <small>${status} &middot; ${date}</small>
+            <strong>${title}</strong>
+            <span>${category}</span>
+          </span>
+        </a>
+      `;
+    }).join("");
+
+    donateProjectFlow.innerHTML = `
+      <div class="donate-project-track">
+        <div class="donate-project-set">${renderCards(false)}</div>
+        <div class="donate-project-set donate-project-set-duplicate" aria-hidden="true">${renderCards(true)}</div>
+      </div>
+    `;
   };
 
   const renderHomeCaseLanes = () => {
@@ -517,6 +584,7 @@
   renderProjects();
   renderHomeCaseFlow();
   renderHomeCaseLanes();
+  renderDonateProjectFlow();
   setupPointerMotion();
   setupAnimatedNumbers();
 
@@ -676,15 +744,126 @@
     });
   }
 
+  const CONTACT_EMAIL = "Oneworldrelief.fma@gmail.com";
+  const buildContactMailtoUrl = ({ name, email, message }) => {
+    const subject = encodeURIComponent("One World Relief question");
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
+    return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+  };
+
   if (contactForm) {
+    const nameField = document.getElementById("nameField");
+    const emailField = document.getElementById("emailField");
+    const messageField = document.getElementById("messageField");
+    const contactSubmit = document.getElementById("contactSubmit");
+    const contactSubmitLabel = contactSubmit?.querySelector("[data-contact-submit-label]");
+    const contactStatus = document.getElementById("contactFormStatus");
+    const contactFields = [nameField, emailField, messageField].filter(Boolean);
+
+    const fieldErrorElements = {
+      nameField: document.getElementById("nameFieldError"),
+      emailField: document.getElementById("emailFieldError"),
+      messageField: document.getElementById("messageFieldError"),
+    };
+
+    const setContactStatus = (message = "", state = "") => {
+      if (!contactStatus) {
+        return;
+      }
+      contactStatus.textContent = message;
+      contactStatus.classList.toggle("success", state === "success");
+      contactStatus.classList.toggle("error", state === "error");
+    };
+
+    const getContactFieldError = (field) => {
+      const value = field.value.trim();
+      if (!value) {
+        if (field === nameField) {
+          return "Please enter your full name.";
+        }
+        if (field === emailField) {
+          return "Please enter your email address.";
+        }
+        return "Please tell us how we can help.";
+      }
+      if (field === emailField && field.validity.typeMismatch) {
+        return "Enter a valid email address, such as you@example.com.";
+      }
+      return "";
+    };
+
+    const validateContactField = (field) => {
+      const error = getContactFieldError(field);
+      const errorElement = fieldErrorElements[field.id];
+      field.toggleAttribute("aria-invalid", Boolean(error));
+      if (errorElement) {
+        errorElement.textContent = error;
+      }
+      return !error;
+    };
+
+    contactFields.forEach((field) => {
+      field.addEventListener("input", () => {
+        if (field.hasAttribute("aria-invalid")) {
+          validateContactField(field);
+        }
+        setContactStatus();
+      });
+      field.addEventListener("blur", () => {
+        if (field.value.trim() || field.hasAttribute("aria-invalid")) {
+          validateContactField(field);
+        }
+      });
+    });
+
     contactForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      const name = document.getElementById("nameField")?.value.trim() || "";
-      const email = document.getElementById("emailField")?.value.trim() || "";
-      const message = document.getElementById("messageField")?.value.trim() || "";
-      const subject = encodeURIComponent("One World Relief question");
-      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-      window.location.href = `mailto:Oneworldrelief.fma@gmail.com?subject=${subject}&body=${body}`;
+      if (contactForm.dataset.submitting === "true") {
+        return;
+      }
+
+      const invalidFields = contactFields.filter((field) => !validateContactField(field));
+      const firstInvalidField = invalidFields[0];
+      if (firstInvalidField) {
+        setContactStatus("Please review the highlighted fields and try again.", "error");
+        firstInvalidField.focus();
+        return;
+      }
+
+      const mailtoUrl = buildContactMailtoUrl({
+        name: nameField.value.trim(),
+        email: emailField.value.trim(),
+        message: messageField.value.trim(),
+      });
+      contactForm.dataset.submitting = "true";
+      contactForm.setAttribute("aria-busy", "true");
+      if (contactSubmit) {
+        contactSubmit.disabled = true;
+      }
+      if (contactSubmitLabel) {
+        contactSubmitLabel.textContent = "Opening email\u2026";
+      }
+      setContactStatus();
+
+      window.requestAnimationFrame(() => {
+        try {
+          window.location.href = mailtoUrl;
+          setContactStatus("Your email app is ready. Send the drafted message to finish.", "success");
+        } catch (_error) {
+          setContactStatus(`We couldn't open your email app. Please email ${CONTACT_EMAIL} directly.`, "error");
+        } finally {
+          window.setTimeout(() => {
+            delete contactForm.dataset.submitting;
+            contactForm.removeAttribute("aria-busy");
+            if (contactSubmit) {
+              contactSubmit.disabled = false;
+            }
+            if (contactSubmitLabel) {
+              contactSubmitLabel.textContent = "Send Message";
+            }
+          }, 700);
+        }
+      });
     });
   }
 

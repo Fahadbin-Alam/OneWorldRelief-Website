@@ -427,6 +427,57 @@ test("donation page opens custom amount only when selected", async () => {
   assert.match(siteCss, /\.amount-grid label:has\(input:checked\)/);
 });
 
+test("donation page renders a calm data-driven project collage beside the checkout form", async () => {
+  const [donateHtml, siteJs, siteCss, projectDataSource] = await Promise.all([
+    readFile("donate.html", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+    readFile("project-data.js", "utf8"),
+  ]);
+  const projectContext = { window: {} };
+  runInNewContext(projectDataSource, projectContext);
+  const projects = JSON.parse(JSON.stringify(projectContext.window.ONE_WORLD_RELIEF_PROJECTS));
+
+  assert.match(donateHtml, /<section class="donate-project-showcase" aria-labelledby="donateProjectShowcaseTitle">/);
+  assert.match(donateHtml, /id="donateProjectShowcaseTitle">See the projects your gift can join\.<\/h2>/);
+  assert.match(donateHtml, /<a href="projects\.html">View all projects<\/a>/);
+  assert.match(donateHtml, /id="donateProjectFlow"[\s\S]*?aria-label="Completed, current, and coming-soon One World Relief projects"/);
+  assert.ok(donateHtml.indexOf('id="donateProjectFlow"') < donateHtml.indexOf('class="donation-card donation-form-card'));
+  assert.match(donateHtml, /<script src="project-data\.js"><\/script>\s*<script src="one-world-relief\.js"><\/script>/);
+  for (const project of projects) {
+    assert.equal(donateHtml.includes(project.title), false, `${project.date} content should come from project-data.js`);
+  }
+
+  assert.match(siteJs, /const donateProjectFlow = document\.getElementById\("donateProjectFlow"\)/);
+  assert.match(siteJs, /const renderDonateProjectFlow = \(\) =>/);
+  assert.match(siteJs, /statusOrder = \{ current: 0, coming: 1, completed: 2 \}/);
+  assert.match(siteJs, /project\.thumbnailType === "banner" \|\| !project\.thumbnailUrl/);
+  assert.match(siteJs, /class="donate-project-banner" aria-hidden="true"/);
+  assert.match(siteJs, /loading="lazy" decoding="async"/);
+  assert.match(siteJs, /aria-label="View \$\{title\}, \$\{status\}"/);
+  assert.match(siteJs, /donate-project-set donate-project-set-duplicate" aria-hidden="true"/);
+  assert.match(siteJs, /isDuplicate\s*\? ' tabindex="-1"'/);
+  assert.match(siteJs, /renderDonateProjectFlow\(\)/);
+  assert.equal(projects.filter((project) => project.status === "Completed").length, 6);
+  assert.equal(projects.filter((project) => project.status === "Ongoing").length, 0);
+  assert.equal(projects.filter((project) => project.status === "Coming Soon").length, 2);
+  assert.ok(projects.some((project) => project.thumbnailType === "banner"));
+  assert.ok(projects.some((project) => project.thumbnailUrl));
+
+  assert.match(siteCss, /\.donate-project-showcase/);
+  assert.match(siteCss, /\.donate-project-flow/);
+  assert.match(siteCss, /\.donate-project-set\s*\{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /animation: donate-project-current 44s linear infinite/);
+  assert.match(siteCss, /\.donate-project-flow:hover \.donate-project-track,\s*\.donate-project-flow:focus-within \.donate-project-track\s*\{[\s\S]*?animation-play-state: paused/);
+  assert.match(siteCss, /@keyframes donate-project-current\s*\{[\s\S]*?translate3d\(0, -50%, 0\)/);
+  assert.match(siteCss, /\.donate-project-card:focus-visible/);
+  assert.match(siteCss, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.donate-project-track,[\s\S]*?animation: none/);
+  assert.match(siteCss, /\.donate-project-set::after,\s*\.donate-project-set-duplicate\s*\{\s*display: none/);
+  assert.match(siteCss, /\.donate-project-track\s*\{\s*width: max-content;\s*display: block;\s*transform: none;\s*will-change: auto/);
+  assert.match(siteCss, /@media \(max-width: 980px\)[\s\S]*?\.donate-hero-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.donate-project-flow\s*\{\s*height: 310px/);
+});
+
 test(".com host redirects to .org", async () => {
   const middleware = await importFunctionModule("functions/_middleware.js");
   const response = await middleware.onRequest({
@@ -476,7 +527,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v3/);
+  assert.match(serviceWorker, /owr-offline-v4/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
 });
 
@@ -534,7 +585,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v3/);
+  assert.match(serviceWorker, /owr-offline-v4/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -679,17 +730,12 @@ test("homepage checkout keeps accessible amount, frequency, and allowlisted proj
   }));
   const expectedDestinations = [
     {
-      label: "Current projects",
-      options: [
-        { value: "Korbani Meals", label: "Korbani Meals" },
-      ],
-    },
-    {
       label: "Support areas",
       options: [
         { value: "Hafiz Student Support", label: "Hafiz Student Support" },
         { value: "Father's Business Support", label: "Father's Business Support" },
         { value: "Orphan Education", label: "Orphan Education" },
+        { value: "Korbani Meals", label: "Korbani Meals" },
         { value: "Flood Relief", label: "Flood Relief" },
       ],
     },
@@ -793,7 +839,7 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteCss, /@keyframes faith-quote-scroll/);
   assert.match(siteCss, /\.case-flow-track/);
   assert.match(siteCss, /@keyframes case-river/);
-  assert.match(siteCss, /animation:\s*case-river var\(--case-flow-duration, 48s\) linear infinite/);
+  assert.match(siteCss, /animation:\s*case-river var\(--case-flow-duration, 70s\) linear infinite/);
   assert.match(siteJs, /"--case-flow-duration"/);
   assert.match(siteJs, /`\$\{projects\.length \* secondsPerProject\}s`/);
   const secondsPerProject = Number(siteJs.match(/const secondsPerProject = (\d+);/)?.[1]);
@@ -801,14 +847,19 @@ test("home page renders a continuous completed-case photo flow from project data
   const completedCaseCount = [...projectData.matchAll(/status:\s*"Completed"/g)].length;
   const comingSoonCaseCount = [...projectData.matchAll(/status:\s*"Coming Soon"/g)].length;
   const activeCaseCount = totalCaseCount - completedCaseCount - comingSoonCaseCount;
-  assert.equal(secondsPerProject, 16);
+  assert.equal(secondsPerProject, 14);
   assert.equal(totalCaseCount, 8);
-  assert.equal(completedCaseCount, 5);
-  assert.equal(activeCaseCount, 1);
+  assert.equal(completedCaseCount, 6);
+  assert.equal(activeCaseCount, 0);
   assert.equal(comingSoonCaseCount, 2);
-  assert.equal(completedCaseCount * secondsPerProject, 80);
+  assert.equal(completedCaseCount * secondsPerProject, 84);
   assert.match(siteCss, /will-change: transform/);
-  assert.match(siteCss, /translate3d\(calc\(-50% - 0\.5rem\), 0, 0\)/);
+  assert.match(siteCss, /--case-flow-start-offset: clamp\(-3rem, -2\.5vw, -1\.25rem\)/);
+  assert.match(siteCss, /padding: 0\.8rem clamp\(1rem, 4vw, 4rem\) 1\.4rem/);
+  assert.doesNotMatch(siteCss, /\.case-flow-track\s*\{[\s\S]*?calc\(\(100vw - var\(--max-width\)\) \/ 2\)/);
+  assert.match(siteCss, /translate3d\(var\(--case-flow-start-offset\), 0, 0\)/);
+  assert.match(siteCss, /translate3d\(calc\(-50% - 0\.5rem \+ var\(--case-flow-start-offset\)\), 0, 0\)/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?--case-flow-start-offset: -1\.5rem/);
   assert.doesNotMatch(siteCss, /@keyframes selected-amount-glow/);
   assert.doesNotMatch(siteCss, /@keyframes case-card-float/);
   assert.doesNotMatch(siteCss, /@keyframes case-photo-drift/);
@@ -820,7 +871,7 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.doesNotMatch(siteJs, /case-flow-card, \\.contact-message-card/);
 });
 
-test("contact page has the updated flowing contact layout", async () => {
+test("contact page has a polished accessible mailto contact flow", async () => {
   const [contactHtml, siteJs, siteCss] = await Promise.all([
     readFile("contact.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -832,20 +883,75 @@ test("contact page has the updated flowing contact layout", async () => {
   assert.match(contactHtml, /contact-message-card/);
   assert.match(contactHtml, /Questions about donations, receipts, projects, or partnerships/);
   assert.match(contactHtml, /Reach One World Relief/);
-  assert.match(contactHtml, /Send us a note/);
-  assert.match(contactHtml, /Send Email/);
+  assert.match(contactHtml, /Send us a message/);
+  assert.match(contactHtml, /href="mailto:Oneworldrelief\.fma@gmail\.com" class="contact-method-card contact-method-card-link"/);
+  assert.match(contactHtml, /href="tel:\+18568707528" class="contact-method-card contact-method-card-link"/);
+  assert.match(contactHtml, /contact-method-card contact-method-card-static/);
+  assert.equal([...contactHtml.matchAll(/class="contact-method-icon"/g)].length, 3);
+  assert.match(contactHtml, /<form class="contact-form" id="contactForm" novalidate>/);
+  assert.match(contactHtml, /id="nameField" name="name" type="text"[^>]*autocomplete="name" required[^>]*aria-describedby="nameFieldError"/);
+  assert.match(contactHtml, /id="emailField" name="email" type="email" placeholder="you@example\.com" autocomplete="email" required[^>]*aria-describedby="emailFieldError"/);
+  assert.match(contactHtml, /id="messageField" name="message"[^>]*maxlength="2000"[^>]*required[^>]*aria-describedby="messageFieldError"/);
+  assert.equal([...contactHtml.matchAll(/class="contact-field-error"[^>]*aria-live="polite"/g)].length, 3);
+  assert.match(contactHtml, /id="contactSubmit"[^>]*>\s*<span data-contact-submit-label>Send Message<\/span>/);
+  assert.match(contactHtml, /Your message goes directly to One World Relief\./);
+  assert.match(contactHtml, /id="contactFormStatus" role="status" aria-live="polite" aria-atomic="true"/);
+  assert.doesNotMatch(contactHtml, /Send us a note|Send Email/);
   assert.doesNotMatch(contactHtml, /Send a note and we will follow up/);
   assert.doesNotMatch(contactHtml, /We are here to help/);
+
   assert.match(siteCss, /\.contact-flow-section/);
   assert.match(siteCss, /\.contact-intro/);
   assert.match(siteCss, /\.contact-submit/);
-  assert.match(siteCss, /\.contact-method-card/);
+  assert.match(siteCss, /\.contact-method-card-link:focus-visible/);
   assert.match(siteCss, /\.contact-message-card/);
-  assert.match(siteCss, /min-height: calc\(100svh - 74px\)/);
+  assert.match(siteCss, /min-height: min\(760px, calc\(100svh - 74px\)\)/);
+  assert.match(siteCss, /grid-template-columns: minmax\(0, 0\.82fr\) minmax\(420px, 1fr\)/);
   assert.match(siteCss, /contact-methods h1[\s\S]*font-family: "Manrope"/);
   assert.match(siteCss, /contact-message-card h2[\s\S]*font-family: "Manrope"/);
-  assert.match(siteJs, /contact-message-card/);
+  assert.match(siteCss, /\.contact-form input:focus-visible,[\s\S]*\.contact-form textarea:focus-visible/);
+  assert.match(siteCss, /\.contact-form input\[aria-invalid="true"\]/);
+  assert.match(siteCss, /\.contact-submit \{[\s\S]*?width: 100%/);
+  assert.match(siteCss, /\.contact-submit:focus-visible/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.contact-flow-grid \{[\s\S]*?gap: 2rem/);
+  const messageDecorationRule = siteCss.slice(
+    siteCss.indexOf(".contact-message-card::before"),
+    siteCss.indexOf(".contact-method-icon"),
+  );
+  assert.doesNotMatch(messageDecorationRule, /animation\s*:/);
+
+  assert.doesNotMatch(siteJs, /contact-message-card/);
+  assert.match(siteJs, /const buildContactMailtoUrl =/);
+  assert.match(siteJs, /field\.validity\.typeMismatch/);
+  assert.match(siteJs, /field\.toggleAttribute\("aria-invalid", Boolean\(error\)\)/);
+  assert.match(siteJs, /contactForm\.dataset\.submitting = "true"/);
+  assert.match(siteJs, /contactSubmit\.disabled = true/);
+  assert.match(siteJs, /contactSubmitLabel\.textContent = "Opening email\\u2026"/);
+  assert.match(siteJs, /window\.location\.href = mailtoUrl/);
+  assert.match(siteJs, /Your email app is ready\. Send the drafted message to finish\./);
+  assert.match(siteJs, /We couldn't open your email app/);
   assert.match(siteJs, /rootMargin: "0px 0px 22% 0px"/);
+
+  const helperStart = siteJs.indexOf("  const CONTACT_EMAIL =");
+  const helperEnd = siteJs.indexOf("\n\n  if (contactForm)", helperStart);
+  assert.ok(helperStart >= 0 && helperEnd > helperStart, "contact mailto helper should remain available");
+  const helperContext = {};
+  runInNewContext(
+    `${siteJs.slice(helperStart, helperEnd)}\n` +
+      "globalThis.__buildContactMailtoUrl = buildContactMailtoUrl;",
+    helperContext,
+  );
+  const contactMailto = helperContext.__buildContactMailtoUrl({
+    name: "Test Donor",
+    email: "donor@example.com",
+    message: "I have a receipt question.",
+  });
+  const mailtoUrl = new URL(contactMailto);
+  const mailtoParams = new URLSearchParams(mailtoUrl.search);
+  assert.equal(mailtoUrl.protocol, "mailto:");
+  assert.equal(mailtoUrl.pathname, "Oneworldrelief.fma@gmail.com");
+  assert.equal(mailtoParams.get("subject"), "One World Relief question");
+  assert.equal(mailtoParams.get("body"), "Name: Test Donor\nEmail: donor@example.com\n\nI have a receipt question.");
 });
 
 test("about page shows nonprofit status and EIN without a public home address", async () => {
@@ -981,16 +1087,26 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(caseThreePage, /project-timeline/);
   assert.match(caseThreePage, /timeline-step-maintenance/);
 
+  const caseFourData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 004"/.test(entry));
+  assert.ok(caseFourData);
+  assert.match(caseFourData, /status: "Completed"/);
+  assert.match(caseFourData, /amountRaised: "Amount not published"/);
+  assert.match(caseFourData, /thumbnailUrl: "assets\/projects\/case-004\/korbani-meals-004-thumbnail\.jpg"/);
+  assert.match(caseFourData, /June 24, 2026/);
   assert.match(caseFourPage, /Korbani meals for a village/);
   assert.match(caseFourPage, /Case 004/);
-  assert.match(caseFourPage, /Current Case/);
-  assert.match(caseFourPage, /current-case-banner/);
-  assert.match(caseFourPage, /Ongoing/);
-  assert.match(caseFourPage, /Media coming soon/);
+  assert.match(caseFourPage, /<strong>Completed<\/strong>/);
+  assert.match(caseFourPage, /<span>Amount<\/span><strong>Not published<\/strong>/);
+  assert.match(caseFourPage, /June 24, 2026/);
+  assert.match(caseFourPage, /korbani-meals-004-primary\.mp4/);
+  assert.match(caseFourPage, /korbani-meals-004-thumbnail\.jpg/);
+  assert.match(caseFourPage, /korbani-meals-004-main\.jpg/);
+  assert.match(caseFourPage, /korbani-meals-004-proof\.jpg/);
+  assert.match(caseFourPage, /No public budget, donation amount, meal count, or beneficiary count was supplied/);
+  assert.doesNotMatch(caseFourPage, /Current Case|current-case-banner|Ongoing|Media coming soon/);
   assert.doesNotMatch(caseFourPage, /korbani-village-004-placeholder\.svg/);
   assert.match(caseFourPage, /project-timeline/);
-  assert.match(caseFourPage, /timeline-step-active/);
-  assert.match(caseFourPage, /timeline-step-pending/);
+  assert.match(caseFourPage, /<h3>Meal served<\/h3>/);
 
   const caseFiveData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 005"/.test(entry));
   assert.ok(caseFiveData);
@@ -1102,6 +1218,31 @@ test("project cards publish approved cases with embedded local media", async () 
     assert.ok(media.includes(Buffer.from("avc1")), `${filename} should use browser-safe H.264 video`);
     assert.ok(media.includes(Buffer.from("mp4a")), `${filename} should use browser-safe AAC audio`);
   }
+});
+
+test("Case 004 publishes stripped, deployable meal proof media", async () => {
+  const jpegFiles = [
+    "korbani-meals-004-thumbnail.jpg",
+    "korbani-meals-004-main.jpg",
+    "korbani-meals-004-proof.jpg",
+  ];
+
+  for (const filename of jpegFiles) {
+    const media = await readFile(`assets/projects/case-004/${filename}`);
+    assert.ok(media.byteLength > 50_000, `${filename} should contain a usable image`);
+    assert.ok(media.byteLength < 1_500_000, `${filename} should remain web-sized`);
+    assert.deepEqual([...media.subarray(0, 3)], [0xff, 0xd8, 0xff], `${filename} should have a JPEG signature`);
+    assert.deepEqual([...media.subarray(-2)], [0xff, 0xd9], `${filename} should be a complete JPEG`);
+    assert.equal(media.includes(Buffer.from("Exif")), false, `${filename} should not retain EXIF metadata`);
+  }
+
+  const video = await readFile("assets/projects/case-004/korbani-meals-004-primary.mp4");
+  assert.ok(video.byteLength > 1_000_000, "Case 004 video should contain usable proof media");
+  assert.ok(video.byteLength < 25 * 1024 * 1024, "Case 004 video should remain below Cloudflare's per-file limit");
+  assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp", "Case 004 video should be an ISO MP4");
+  assert.ok(video.includes(Buffer.from("avc1")), "Case 004 video should use browser-safe H.264 video");
+  assert.ok(video.includes(Buffer.from("mp4a")), "Case 004 video should use browser-safe AAC audio");
+  assert.equal(video.includes(Buffer.from("location")), false, "Case 004 video should not retain location metadata");
 });
 
 test("projects page opens directly into project content", async () => {

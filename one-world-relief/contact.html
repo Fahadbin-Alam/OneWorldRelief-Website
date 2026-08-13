@@ -50,38 +50,73 @@
           <h1>Reach One World Relief.</h1>
           <p class="contact-intro">Questions about donations, receipts, projects, or partnerships can start here.</p>
           <div class="contact-method-list">
-            <a href="mailto:Oneworldrelief.fma@gmail.com" class="contact-method-card">
-              <span>Email</span>
-              <strong>Oneworldrelief.fma@gmail.com</strong>
+            <a href="mailto:Oneworldrelief.fma@gmail.com" class="contact-method-card contact-method-card-link">
+              <span class="contact-method-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4.5 6.5h15v11h-15z" />
+                  <path d="m5 7 7 5 7-5" />
+                </svg>
+              </span>
+              <span class="contact-method-copy">
+                <span class="contact-method-label">Email</span>
+                <strong>Oneworldrelief.fma@gmail.com</strong>
+              </span>
+              <span class="contact-method-arrow" aria-hidden="true">&rarr;</span>
             </a>
-            <a href="tel:+18568707528" class="contact-method-card">
-              <span>Phone</span>
-              <strong>856-870-7528</strong>
+            <a href="tel:+18568707528" class="contact-method-card contact-method-card-link">
+              <span class="contact-method-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M7.2 3.8 4.8 5.1c-1.1.6-1.4 2-.9 3.1 2.2 5.2 6.4 9.4 11.6 11.6 1.1.5 2.5.1 3.1-.9l1.3-2.4-4-2.1-1.6 2.1c-2.9-1.4-5.4-3.9-6.8-6.8l2.1-1.6-2.4-4.3Z" />
+                </svg>
+              </span>
+              <span class="contact-method-copy">
+                <span class="contact-method-label">Phone</span>
+                <strong>856-870-7528</strong>
+              </span>
+              <span class="contact-method-arrow" aria-hidden="true">&rarr;</span>
             </a>
-            <div class="contact-method-card">
-              <span>Organizer</span>
-              <strong>Fahadbin Alam</strong>
+            <div class="contact-method-card contact-method-card-static">
+              <span class="contact-method-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <circle cx="12" cy="8" r="3.5" />
+                  <path d="M5 20c.8-4 3.1-6 7-6s6.2 2 7 6" />
+                </svg>
+              </span>
+              <span class="contact-method-copy">
+                <span class="contact-method-label">Organizer</span>
+                <strong>Fahadbin Alam</strong>
+              </span>
             </div>
           </div>
         </article>
 
         <article class="contact-message-card">
-          <p class="eyebrow">Message</p>
-          <h2>Send us a note</h2>
-          <form class="contact-form" id="contactForm">
+          <div class="contact-message-heading">
+            <p class="eyebrow">Message</p>
+            <h2>Send us a message</h2>
+          </div>
+          <form class="contact-form" id="contactForm" novalidate>
             <label for="nameField">
-              Full Name
-              <input id="nameField" type="text" placeholder="Your full name" />
+              <span>Full Name</span>
+              <input id="nameField" name="name" type="text" placeholder="Your full name" autocomplete="name" required aria-describedby="nameFieldError" />
+              <small class="contact-field-error" id="nameFieldError" aria-live="polite"></small>
             </label>
             <label for="emailField">
-              Email Address
-              <input id="emailField" type="email" placeholder="your@email.com" />
+              <span>Email Address</span>
+              <input id="emailField" name="email" type="email" placeholder="you@example.com" autocomplete="email" required aria-describedby="emailFieldError" />
+              <small class="contact-field-error" id="emailFieldError" aria-live="polite"></small>
             </label>
             <label for="messageField">
-              Message
-              <textarea id="messageField" rows="5" placeholder="How can we help?"></textarea>
+              <span>Message</span>
+              <textarea id="messageField" name="message" rows="5" maxlength="2000" placeholder="How can we help?" required aria-describedby="messageFieldError"></textarea>
+              <small class="contact-field-error" id="messageFieldError" aria-live="polite"></small>
             </label>
-            <button class="button button-primary contact-submit" type="submit">Send Email</button>
+            <button class="button button-primary contact-submit" id="contactSubmit" type="submit">
+              <span data-contact-submit-label>Send Message</span>
+              <span class="contact-submit-arrow" aria-hidden="true">&rarr;</span>
+            </button>
+            <p class="contact-form-trust">Your message goes directly to One World Relief.</p>
+            <p class="contact-form-status" id="contactFormStatus" role="status" aria-live="polite" aria-atomic="true"></p>
           </form>
         </article>
       </div>
