@@ -2701,7 +2701,7 @@ Additional DNS check later on May 4, 2026:
 - Case 004 evidence and privacy:
   - Found two 4000×3000 JPEGs and one 36.67-second 1920×1080 HEVC/HLG phone video in `D:\OneWorldRelief\Cases\Case 004 - Korbani For Bangladesh`.
   - The supplied media documents a Korbani meal being served to a group of children on June 24, 2026. No identity documents, addresses, medical material, phone numbers, or readable personal names were visible.
-  - Updated Case 004 from `Ongoing` to `Completed`, added the real thumbnail/story/proof page, and kept the amount and beneficiary count explicitly unpublished because neither was supplied.
+  - Updated Case 004 from `Ongoing` to `Completed` and added the real thumbnail/story/proof page. The amount was initially unpublished; the user later confirmed the final public title and `$400` cost, as recorded in the following update. The meal and beneficiary counts remain unpublished because neither was supplied.
   - Published three metadata-stripped JPEG derivatives and one 10.82 MiB 1280×720 H.264/AAC fast-start MP4. The 255 MB source video contained precise GPS metadata and remains private outside the website; its public transcode has location and device metadata removed.
 - Motion and donation-page presentation:
   - Homepage completed-case reel now uses 14 seconds per project instead of 16. With six completed projects the cycle is 84 seconds, and the track padding/start offset place the first card near the left fade instead of the centered content margin.
@@ -2716,6 +2716,22 @@ Additional DNS check later on May 4, 2026:
   - Cache-bypassed `.org` checks confirmed byte-for-byte matches for Contact, Donate, CSS, JavaScript, project data, Case 004, service worker, all four Case 004 media files, and correct JPEG/MP4 response types. The generated collage contained 16 cards representing two accessible loop sets of all eight projects.
   - Five representative private repository URLs returned the public homepage fallback, empty checkout and unsigned Stripe webhook requests returned `400`, and `.com` returned a `301` redirect to `.org`. No real Stripe Checkout Session or payment was created.
   - Browser discovery again returned no connected browser, so rendered screenshot, browser-console, and real external-mail-client checks were unavailable. Source/interaction regression tests, CSS compilation, preview verification, exact production bytes, and live endpoint checks were completed instead.
+
+### 2026-08-13 Case 004 Confirmation and Hadith-Led Homepage Hero
+- Case 004 confirmed public facts:
+  - The user confirmed the exact title `Feeding Madrasa for Orphan Kids` and project cost `$400`.
+  - `project-data.js` and `projects/case-004.html` now use that title and amount. The donation destination label follows the confirmed title, while the detail-page support link retains its existing `Feeding` campaign prefill.
+  - No meal or beneficiary count was supplied, so the public copy continues to avoid estimating either figure.
+- Homepage hero design:
+  - Replaced the old `Direct aid, moving fast.` marketing headline and explanatory lead with a semantic `<blockquote>` centered on orphan care.
+  - The displayed text is `I and the person who looks after an orphan and provides for him, will be in Paradise like this.` and is attributed to Prophet Muhammad ﷺ.
+  - The blockquote `cite` and visible keyboard-accessible source link point to `https://sunnah.com/bukhari:6005`, labeled `Sahih al-Bukhari 6005`. The displayed wording was checked against the English translation on that source page before documenting the change.
+  - The donation form remains the primary adjacent action; scoped quote-card styling adds readable contrast and a solid focus outline without adding a new continuous animation.
+- Cache and regression coverage:
+  - Offline app-shell cache advanced from `owr-offline-v4` to `owr-offline-v5` because homepage HTML and shared CSS changed.
+  - Regression coverage now locks the exact Case 004 title and `$400` cost, rejects the former unpublished amount for that case, verifies the semantic quote/attribution/source link, and rejects the former hero copy.
+  - The full regression suite passes `27/27`; JavaScript syntax checks, CSS compilation, and `git diff --check` also pass.
+  - This update has not been committed or deployed as part of the current task.
 
 ---
 

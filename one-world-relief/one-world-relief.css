@@ -450,6 +450,92 @@ ul {
   animation: hero-copy-breathe 9s ease-in-out infinite;
 }
 
+.hero-shell-home .hero-donate-first .hero-quote-copy {
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+  animation: none;
+}
+
+.hero-shell-home .hero-quote-eyebrow {
+  margin-bottom: 0.65rem;
+  color: var(--blue-700);
+  letter-spacing: 0.1em;
+}
+
+.hero-shell-home .hero-giving-quote {
+  position: relative;
+  margin: 0;
+  padding: clamp(1.25rem, 3vw, 1.7rem) clamp(1.2rem, 3vw, 1.65rem) clamp(1.15rem, 3vw, 1.45rem);
+  border: 1px solid rgba(33, 79, 113, 0.14);
+  border-left: 4px solid var(--blue-700);
+  border-radius: 4px 22px 22px 4px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 16px 38px rgba(24, 52, 71, 0.09);
+  overflow: hidden;
+}
+
+.hero-shell-home .hero-giving-quote::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.2rem;
+  right: 0.75rem;
+  color: rgba(77, 149, 194, 0.18);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 5.5rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.hero-shell-home .hero-giving-quote p {
+  position: relative;
+  z-index: 1;
+  max-width: 21ch;
+  margin: 0;
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 650;
+  line-height: 1.26;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+.hero-shell-home .hero-quote-source {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+  color: var(--blue-700);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.hero-shell-home .hero-quote-source cite {
+  font-style: normal;
+}
+
+.hero-shell-home .hero-quote-source a {
+  text-decoration: underline;
+  text-decoration-color: rgba(33, 79, 113, 0.42);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color 0.18s ease, text-decoration-color 0.18s ease;
+}
+
+.hero-shell-home .hero-quote-source a:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+.hero-shell-home .hero-quote-source a:focus-visible {
+  border-radius: 4px;
+  outline: 3px solid var(--blue-700);
+  outline-offset: 3px;
+}
+
 .eyebrow {
   display: inline-flex;
   margin-bottom: 0.8rem;

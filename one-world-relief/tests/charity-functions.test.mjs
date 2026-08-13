@@ -527,7 +527,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v4/);
+  assert.match(serviceWorker, /owr-offline-v5/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
 });
 
@@ -585,7 +585,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v4/);
+  assert.match(serviceWorker, /owr-offline-v5/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -735,7 +735,7 @@ test("homepage checkout keeps accessible amount, frequency, and allowlisted proj
         { value: "Hafiz Student Support", label: "Hafiz Student Support" },
         { value: "Father's Business Support", label: "Father's Business Support" },
         { value: "Orphan Education", label: "Orphan Education" },
-        { value: "Korbani Meals", label: "Korbani Meals" },
+        { value: "Feeding Madrasa for Orphan Kids", label: "Feeding Madrasa for Orphan Kids" },
         { value: "Flood Relief", label: "Flood Relief" },
       ],
     },
@@ -795,6 +795,15 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /faith-video-section/);
   assert.match(homeHtml, /faith-video-bg/);
   assert.match(homeHtml, /Why We Give/);
+  assert.match(
+    homeHtml,
+    /<blockquote class="hero-giving-quote" cite="https:\/\/sunnah\.com\/bukhari:6005">\s*<p>I and the person who looks after an orphan and provides for him, will be in Paradise like this\.<\/p>\s*<footer class="hero-quote-source">\s*Prophet Muhammad <span aria-label="peace and blessings be upon him">ﷺ<\/span>\s*<span aria-hidden="true">&middot;<\/span>\s*<cite><a href="https:\/\/sunnah\.com\/bukhari:6005" target="_blank" rel="noreferrer">Sahih al-Bukhari 6005<\/a><\/cite>\s*<\/footer>\s*<\/blockquote>/u,
+  );
+  assert.doesNotMatch(homeHtml, /Direct aid, moving fast\./);
+  assert.doesNotMatch(
+    homeHtml,
+    /Choose an amount, pick where it should go, and follow real project updates as support reaches people\./,
+  );
   assert.match(homeHtml, /Quran 2:215/);
   assert.match(homeHtml, /Sahih al-Bukhari 6005/);
   assert.match(homeHtml, /Quran 76:8/);
@@ -833,6 +842,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteCss, /\.quick-donation-heading/);
   assert.match(siteCss, /\.quick-frequency-control/);
   assert.match(siteCss, /\.quick-donation-trust/);
+  assert.match(siteCss, /\.hero-donate-first \.hero-quote-copy/);
+  assert.match(siteCss, /\.hero-giving-quote/);
+  assert.match(siteCss, /\.hero-quote-source a:focus-visible/);
   assert.match(siteCss, /content-visibility: auto/);
   assert.match(siteCss, /\.faith-video-section/);
   assert.match(siteCss, /\.faith-quote-track/);
@@ -1022,7 +1034,7 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /Keeping a Hafiz Student in School/);
   assert.match(projectData, /A Fresh Start for a Father's Business/);
   assert.match(projectData, /Keeping an Orphan Boy in School/);
-  assert.match(projectData, /Korbani Meals for a Village/);
+  assert.match(projectData, /Feeding Madrasa for Orphan Kids/);
   assert.match(projectData, /Food Relief for Flood-Affected Families/);
   assert.match(projectData, /A Secure Gate for a Community Mosque/);
   assert.match(projectData, /Water for a Madrasa Mosque/);
@@ -1089,20 +1101,26 @@ test("project cards publish approved cases with embedded local media", async () 
 
   const caseFourData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 004"/.test(entry));
   assert.ok(caseFourData);
+  assert.match(caseFourData, /title: "Feeding Madrasa for Orphan Kids"/);
+  assert.match(caseFourData, /donationLabel: "Feeding Madrasa for Orphan Kids"/);
   assert.match(caseFourData, /status: "Completed"/);
-  assert.match(caseFourData, /amountRaised: "Amount not published"/);
+  assert.match(caseFourData, /amountRaised: "\$400"/);
+  assert.doesNotMatch(caseFourData, /Amount not published/);
   assert.match(caseFourData, /thumbnailUrl: "assets\/projects\/case-004\/korbani-meals-004-thumbnail\.jpg"/);
   assert.match(caseFourData, /June 24, 2026/);
-  assert.match(caseFourPage, /Korbani meals for a village/);
+  assert.match(caseFourPage, /<title>One World Relief \| Feeding Madrasa for Orphan Kids<\/title>/);
+  assert.match(caseFourPage, /<h1>Feeding Madrasa for Orphan Kids<\/h1>/);
   assert.match(caseFourPage, /Case 004/);
   assert.match(caseFourPage, /<strong>Completed<\/strong>/);
-  assert.match(caseFourPage, /<span>Amount<\/span><strong>Not published<\/strong>/);
+  assert.match(caseFourPage, /<span>Project cost<\/span><strong>\$400<\/strong>/);
+  assert.doesNotMatch(caseFourPage, /Amount not published|<strong>Not published<\/strong>/);
   assert.match(caseFourPage, /June 24, 2026/);
   assert.match(caseFourPage, /korbani-meals-004-primary\.mp4/);
   assert.match(caseFourPage, /korbani-meals-004-thumbnail\.jpg/);
   assert.match(caseFourPage, /korbani-meals-004-main\.jpg/);
   assert.match(caseFourPage, /korbani-meals-004-proof\.jpg/);
-  assert.match(caseFourPage, /No public budget, donation amount, meal count, or beneficiary count was supplied/);
+  assert.match(caseFourPage, /The confirmed project cost is \$400\. No meal count or beneficiary count was supplied/);
+  assert.doesNotMatch(caseFourPage, /Korbani meals for a village|No public budget/);
   assert.doesNotMatch(caseFourPage, /Current Case|current-case-banner|Ongoing|Media coming soon/);
   assert.doesNotMatch(caseFourPage, /korbani-village-004-placeholder\.svg/);
   assert.match(caseFourPage, /project-timeline/);

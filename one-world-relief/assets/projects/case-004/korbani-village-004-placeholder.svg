@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
-  <title id="title">Case 004 Korbani village feeding placeholder</title>
-  <desc id="desc">A simple One World Relief placeholder for an ongoing Korbani village feeding case.</desc>
+  <title id="title">Case 004 Feeding Madrasa for Orphan Kids legacy placeholder</title>
+  <desc id="desc">A retained One World Relief placeholder for the completed $400 Feeding Madrasa for Orphan Kids case.</desc>
   <rect width="1200" height="900" fill="#eef8f6"/>
   <path d="M0 600 C180 520 340 642 505 545 C690 438 830 500 1200 350 L1200 900 L0 900 Z" fill="#cfeee7"/>
   <path d="M0 720 C260 620 412 758 650 626 C842 520 998 590 1200 480 L1200 900 L0 900 Z" fill="#a9ded2"/>
@@ -13,6 +13,6 @@
   <path d="M460 532 H660" stroke="#183447" stroke-width="18" stroke-linecap="round"/>
   <path d="M374 580 C450 640 676 640 752 580" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
   <text x="84" y="114" fill="#183447" font-family="Arial, sans-serif" font-size="54" font-weight="700">Case 004</text>
-  <text x="84" y="174" fill="#4f7287" font-family="Arial, sans-serif" font-size="34" font-weight="700">Korbani village feeding</text>
-  <text x="84" y="820" fill="#183447" font-family="Arial, sans-serif" font-size="42" font-weight="700">Media coming soon</text>
+  <text x="84" y="174" fill="#4f7287" font-family="Arial, sans-serif" font-size="34" font-weight="700">Feeding Madrasa for Orphan Kids</text>
+  <text x="84" y="820" fill="#183447" font-family="Arial, sans-serif" font-size="42" font-weight="700">Completed · $400</text>
 </svg>
