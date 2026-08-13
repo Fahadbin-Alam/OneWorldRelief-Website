@@ -2646,6 +2646,18 @@ Additional DNS check later on May 4, 2026:
   - Added `site.webmanifest` for install/bookmark icons.
   - Updated all root and project pages so the clickable header brand displays the supplied logo.
   - Bumped the offline cache from `owr-offline-v1` to `owr-offline-v2` so existing visitors receive the new icons.
+- Verification and release:
+  - Full Node regression suite: 23 tests passed, 0 failed; JavaScript syntax and `git diff --check` passed.
+  - GitHub release commit pushed to `charity-frontend-redesign`: `cb8ec42 feat: add project pricing upcoming cases and branding`.
+  - Built a fresh Pages Functions bundle with Wrangler `4.122.0` and compatibility date `2026-04-23`.
+  - Built a manually filtered 58-file Pages manifest so the AI handoff, backend notes, D1 schema, intake template, media README, tests, and raw Functions source remained private.
+  - Successful Cloudflare preview: `https://53b85364.trying-8o0.pages.dev` (`53b85364-0248-4a88-928f-307d4e90b297`).
+  - Successful Cloudflare production deployment: `https://bcaf0bd6.trying-8o0.pages.dev` (`bcaf0bd6-607d-42a5-a4b7-8b3c00910d90`).
+  - Cloudflare reports Functions enabled and production aliases for `one-world-relief.org`, `www.one-world-relief.org`, `one-world-relief.com`, and `api.one-world-relief.com`.
+  - Cache-bypassed `.org` checks confirmed Cases 005-008, exact `$450`/`$170` costs, both approved child/community images, project statistics, the 16-seconds-per-completed-project reel pacing, logo/icon signatures and media types, manifest, and offline cache v2.
+  - All six protected repository-file URLs return the public homepage fallback instead of internal contents.
+  - Safe integration checks returned `400` for an empty donation checkout request and `400` for an unsigned Stripe webhook; no real Stripe Checkout Session or payment was created.
+  - The `.com` domain continues to redirect to the canonical `.org` domain.
 
 ---
 
