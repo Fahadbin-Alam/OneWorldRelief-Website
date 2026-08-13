@@ -2691,6 +2691,32 @@ Additional DNS check later on May 4, 2026:
   - Five representative operational/test file URLs returned the public homepage fallback instead of internal contents. An empty checkout request returned `400`, an unsigned Stripe webhook returned `400`, and `.com` returned a `301` redirect to `.org`.
   - No real Stripe Checkout Session or payment was created. The in-app browser runtime reported no available browser, so visual screenshot/console inspection could not be performed; source parsing, CSS compilation, regression tests, preview checks, and live endpoint checks were completed instead.
 
+### 2026-08-13 Contact Polish, Completed Case 004, Reel Pace, and Donation Collage
+- Contact page refinement:
+  - Preserved the existing background, navigation, FAQ, footer, contact details, and two-column content structure while improving desktop balance, vertical rhythm, glass-card contrast, spacing, and responsive stacking.
+  - Email and phone are full-card `mailto:` and `tel:` links with lightweight inline SVG icons and visible keyboard focus. The Organizer card remains deliberately non-interactive.
+  - Form heading is now `Send us a message`; inputs have names, autocomplete, required semantics, associated inline errors, stronger focus/invalid states, and mobile-safe sizing.
+  - The full-width `Send Message` button prevents duplicate actions, shows `Opening email…`, and reports whether the email draft was opened or the action failed. It does not falsely claim the message was delivered.
+  - The existing `mailto:` architecture remains unchanged: there is no server contact endpoint, verifiable delivery, rate limiting, honeypot, CAPTCHA, or Turnstile. A future server endpoint plus rate limiting or Turnstile is the recommended spam-protected upgrade.
+- Case 004 evidence and privacy:
+  - Found two 4000×3000 JPEGs and one 36.67-second 1920×1080 HEVC/HLG phone video in `D:\OneWorldRelief\Cases\Case 004 - Korbani For Bangladesh`.
+  - The supplied media documents a Korbani meal being served to a group of children on June 24, 2026. No identity documents, addresses, medical material, phone numbers, or readable personal names were visible.
+  - Updated Case 004 from `Ongoing` to `Completed`, added the real thumbnail/story/proof page, and kept the amount and beneficiary count explicitly unpublished because neither was supplied.
+  - Published three metadata-stripped JPEG derivatives and one 10.82 MiB 1280×720 H.264/AAC fast-start MP4. The 255 MB source video contained precise GPS metadata and remains private outside the website; its public transcode has location and device metadata removed.
+- Motion and donation-page presentation:
+  - Homepage completed-case reel now uses 14 seconds per project instead of 16. With six completed projects the cycle is 84 seconds, and the track padding/start offset place the first card near the left fade instead of the centered content margin.
+  - The full donation page now has a data-driven project collage beside the checkout form. It renders all eight project records from `project-data.js` using approved thumbnails or generated banner fallbacks, orders current/upcoming/completed states, links to existing case pages, and duplicates no project copy in HTML.
+  - Collage movement is a calm 44-second vertical loop that pauses for hover/focus. Reduced-motion mode removes the animation, removes the duplicate set, and provides a horizontal scroll presentation.
+  - Offline app-shell cache advanced to `owr-offline-v4` for the updated CSS and JavaScript.
+- Validation and deployment:
+  - Regression suite passes `27/27`; JavaScript syntax, CSS compilation, local reference resolution, media signatures/codecs/sizes, and `git diff --check` passed.
+  - Code commit `ab890ee` (`ab890eeec016452dcf0effa6713e8de9a252ba23`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - Cloudflare preview `72648691-9dc2-4ae0-84a9-dd35ab0a7cd6` succeeded at `https://72648691.trying-8o0.pages.dev` with Functions enabled.
+  - Cloudflare production `bb3e6c2b-8948-4818-8cd4-a97ebf95766f` succeeded at `https://bb3e6c2b.trying-8o0.pages.dev`, with Functions enabled and the `.org`, `www`, `.com`, and API aliases active.
+  - Cache-bypassed `.org` checks confirmed byte-for-byte matches for Contact, Donate, CSS, JavaScript, project data, Case 004, service worker, all four Case 004 media files, and correct JPEG/MP4 response types. The generated collage contained 16 cards representing two accessible loop sets of all eight projects.
+  - Five representative private repository URLs returned the public homepage fallback, empty checkout and unsigned Stripe webhook requests returned `400`, and `.com` returned a `301` redirect to `.org`. No real Stripe Checkout Session or payment was created.
+  - Browser discovery again returned no connected browser, so rendered screenshot, browser-console, and real external-mail-client checks were unavailable. Source/interaction regression tests, CSS compilation, preview verification, exact production bytes, and live endpoint checks were completed instead.
+
 ---
 
 **End of AI Handoff Documentation**
