@@ -2682,6 +2682,14 @@ Additional DNS check later on May 4, 2026:
   - Removed the old constant checkout-card lift and sheen animations; only short hover, focus, selection, and press transitions remain.
   - Mobile uses a 2-by-2 amount grid, two frequency segments, 16px inputs, and a full-width CTA.
   - Offline app-shell cache advanced from `owr-offline-v2` to `owr-offline-v3` so visitors receive the new homepage assets.
+- Validation and deployment:
+  - The dependency-free regression suite passes `25/25`, including all preset amounts, custom amounts, both giving frequencies, project destinations, query-string handoff, Stripe campaign metadata, accessibility states, responsive rules, and offline cache behavior.
+  - Source commit `088ed22` (`088ed2281e2f5bae3a65f8a7ef40213007b889fc`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - Cloudflare preview deployment `2c81f6ea-0049-41a3-aeed-f3c8c2f784fc` succeeded at `https://2c81f6ea.trying-8o0.pages.dev` with Functions enabled.
+  - Cloudflare production deployment `d18ce203-7ec4-4456-aecb-a39b783cf436` succeeded at `https://d18ce203.trying-8o0.pages.dev`, with Functions enabled and aliases for `one-world-relief.org`, `www.one-world-relief.org`, `one-world-relief.com`, and `api.one-world-relief.com`.
+  - Cache-bypassed checks on the canonical `.org` domain confirmed byte-for-byte matches for the homepage, donate page, shared JavaScript, shared CSS, project data, and service worker.
+  - Five representative operational/test file URLs returned the public homepage fallback instead of internal contents. An empty checkout request returned `400`, an unsigned Stripe webhook returned `400`, and `.com` returned a `301` redirect to `.org`.
+  - No real Stripe Checkout Session or payment was created. The in-app browser runtime reported no available browser, so visual screenshot/console inspection could not be performed; source parsing, CSS compilation, regression tests, preview checks, and live endpoint checks were completed instead.
 
 ---
 
