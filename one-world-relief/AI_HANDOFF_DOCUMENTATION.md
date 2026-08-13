@@ -2659,6 +2659,30 @@ Additional DNS check later on May 4, 2026:
   - Safe integration checks returned `400` for an empty donation checkout request and `400` for an unsigned Stripe webhook; no real Stripe Checkout Session or payment was created.
   - The `.com` domain continues to redirect to the canonical `.org` domain.
 
+### 2026-08-13 Homepage Donation Checkout Redesign
+- Reworked only the homepage quick-donation card into a brighter nonprofit/fintech-style checkout while preserving the full donation form and Cloudflare/Stripe backend contract.
+- Homepage controls now include:
+  - Four preset amounts: `$10`, `$25`, `$50`, and `$100`, with `$25` selected by default.
+  - An always-visible numeric custom amount field with a built-in dollar sign; entering a value clears the selected preset, and choosing a preset clears the custom amount.
+  - An accessible native-radio segmented selector for `One-time` (`one_time`) and `Monthly` (`monthly`).
+  - A destination selector whose project labels and eligibility are sourced from `project-data.js`, rather than duplicated in page markup.
+  - A full-width `Start Donation` CTA and a small inline-SVG `Secure checkout · Receipt provided` trust row.
+- Destination data decisions:
+  - `Where it's needed most` continues to submit the established backend value `General Fund`.
+  - Canonical short labels are stored with each project as `donationLabel`, and explicit `acceptsDonations` flags control whether each appears.
+  - Available designations are Hafiz Student Support, Father's Business Support, Orphan Education, Korbani Meals, Flood Relief, Madrasa Water, and Mosque Tiles; the completed Mosque Gate case is closed.
+  - The UI groups them as Current projects, Support areas, and Upcoming goals without duplicating project titles in HTML.
+- Functional flow:
+  - The homepage remains a safe prefill step and forwards `amount`, `campaign`, and `frequency` to `donate.html` with `URLSearchParams`.
+  - `donate.html` now loads the same project data before the shared JavaScript, so a selected project designation survives query hydration and is passed unchanged to existing Stripe metadata, product details, webhooks, and Google Sheets.
+  - No Pages Function or Stripe API contract was changed.
+- Accessibility and motion:
+  - Native fieldsets, legends, radios, and selects remain keyboard accessible; selected state is exposed semantically and has solid focus indicators.
+  - Custom validation uses a persistent polite status region and `aria-invalid`.
+  - Removed the old constant checkout-card lift and sheen animations; only short hover, focus, selection, and press transitions remain.
+  - Mobile uses a 2-by-2 amount grid, two frequency segments, 16px inputs, and a full-width CTA.
+  - Offline app-shell cache advanced from `owr-offline-v2` to `owr-offline-v3` so visitors receive the new homepage assets.
+
 ---
 
 **End of AI Handoff Documentation**

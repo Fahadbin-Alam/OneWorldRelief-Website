@@ -4,6 +4,8 @@
 window.ONE_WORLD_RELIEF_PROJECTS = [
   {
     title: "Keeping a Hafiz Student in School",
+    donationLabel: "Hafiz Student Support",
+    acceptsDonations: true,
     category: "Orphan Support",
     status: "Completed",
     location: "Bangladesh",
@@ -19,6 +21,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "A Fresh Start for a Father's Business",
+    donationLabel: "Father's Business Support",
+    acceptsDonations: true,
     category: "Livelihood Support",
     status: "Completed",
     location: "Bangladesh",
@@ -34,6 +38,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "Keeping an Orphan Boy in School",
+    donationLabel: "Orphan Education",
+    acceptsDonations: true,
     category: "Orphan Support",
     status: "Completed",
     location: "Bangladesh",
@@ -49,6 +55,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "Korbani Meals for a Village",
+    donationLabel: "Korbani Meals",
+    acceptsDonations: true,
     category: "Feeding",
     status: "Ongoing",
     location: "Bangladesh",
@@ -64,6 +72,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "Food Relief for Flood-Affected Families",
+    donationLabel: "Flood Relief",
+    acceptsDonations: true,
     category: "Flood Relief",
     status: "Completed",
     location: "Bangladesh",
@@ -79,6 +89,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "A Secure Gate for a Community Mosque",
+    donationLabel: "Mosque Gate",
+    acceptsDonations: false,
     category: "Mosque Support",
     status: "Completed",
     location: "Bangladesh",
@@ -94,6 +106,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "Water for a Madrasa Mosque",
+    donationLabel: "Madrasa Water",
+    acceptsDonations: true,
     category: "Mosque Support",
     status: "Coming Soon",
     location: "",
@@ -110,6 +124,8 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
   },
   {
     title: "Tiles to Help Finish a Mosque",
+    donationLabel: "Mosque Tiles",
+    acceptsDonations: true,
     category: "Mosque Support",
     status: "Coming Soon",
     location: "",

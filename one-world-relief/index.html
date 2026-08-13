@@ -60,41 +60,58 @@
 
         <div class="home-action-panel">
           <form class="quick-donation" id="quickDonationForm" aria-label="Start a donation">
-            <div class="quick-donation-topline" aria-hidden="true">
-              <span>Secure checkout</span>
-              <span>Receipt emailed</span>
+            <div class="quick-donation-heading">
+              <div>
+                <p class="quick-donation-kicker">Secure Donation</p>
+                <h2>Choose how you want to help.</h2>
+              </div>
+              <span class="quick-donation-mark" aria-hidden="true">
+                <img src="assets/one-world-relief-icon-192.png" alt="" />
+              </span>
             </div>
+
             <fieldset class="quick-amounts">
               <legend>Amount</legend>
-              <label><input type="radio" name="quickAmount" value="10" />$10</label>
-              <label><input type="radio" name="quickAmount" value="25" checked />$25</label>
-              <label><input type="radio" name="quickAmount" value="50" />$50</label>
-              <label><input type="radio" name="quickAmount" value="100" />$100</label>
-              <label class="quick-custom-choice"><input type="radio" name="quickAmount" value="custom" />Custom Amount</label>
+              <label><input type="radio" name="quickAmount" value="10" /><span>$10</span></label>
+              <label><input type="radio" name="quickAmount" value="25" checked /><span>$25</span></label>
+              <label><input type="radio" name="quickAmount" value="50" /><span>$50</span></label>
+              <label><input type="radio" name="quickAmount" value="100" /><span>$100</span></label>
             </fieldset>
 
-            <div class="quick-custom-panel" id="quickCustomPanel" hidden>
-              <label class="quick-custom-amount" for="quickCustomAmount">
-                Custom amount
-                <span class="quick-custom-input-wrap">
-                  <span aria-hidden="true">$</span>
-                  <input id="quickCustomAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter amount" />
-                </span>
-              </label>
-            </div>
+            <label class="quick-custom-amount" for="quickCustomAmount">
+              <span class="sr-only">Enter another donation amount</span>
+              <span class="quick-custom-input-wrap">
+                <span aria-hidden="true">$</span>
+                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter other amount" aria-describedby="quickAmountHint" />
+              </span>
+              <small id="quickAmountHint">Entering an amount replaces the selected preset.</small>
+            </label>
+
+            <fieldset class="quick-frequency">
+              <legend>Frequency</legend>
+              <div class="quick-frequency-control">
+                <label><input type="radio" name="quickFrequency" value="one_time" checked /><span>One-time</span></label>
+                <label><input type="radio" name="quickFrequency" value="monthly" /><span>Monthly</span></label>
+              </div>
+            </fieldset>
 
             <label class="quick-category" for="quickCampaign">
-              Donation type
+              Where should my donation go?
               <select id="quickCampaign" name="quickCampaign">
-                <option value="General Fund">Regular Donation</option>
-                <option value="Orphan Support">Orphan Support</option>
-                <option value="Wells">Wells</option>
-                <option value="Zakat">Zakat</option>
-                <option value="Feeding">Feeding</option>
+                <option value="General Fund">Where it's needed most</option>
               </select>
             </label>
 
-            <button class="button button-primary quick-donation-button" type="submit">Start Donation</button>
+            <button class="button button-primary quick-donation-button" type="submit">
+              <span>Start Donation</span><span aria-hidden="true">&rarr;</span>
+            </button>
+            <p class="quick-donation-trust">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
+              </svg>
+              Secure checkout <span aria-hidden="true">&middot;</span> Receipt provided
+            </p>
+            <p class="quick-donation-status" id="quickDonationStatus" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
