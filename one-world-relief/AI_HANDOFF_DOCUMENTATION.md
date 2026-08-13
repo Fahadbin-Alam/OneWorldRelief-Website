@@ -2731,7 +2731,13 @@ Additional DNS check later on May 4, 2026:
   - Offline app-shell cache advanced from `owr-offline-v4` to `owr-offline-v5` because homepage HTML and shared CSS changed.
   - Regression coverage now locks the exact Case 004 title and `$400` cost, rejects the former unpublished amount for that case, verifies the semantic quote/attribution/source link, and rejects the former hero copy.
   - The full regression suite passes `27/27`; JavaScript syntax checks, CSS compilation, and `git diff --check` also pass.
-  - This update has not been committed or deployed as part of the current task.
+- Release and live verification:
+  - Code commit `214dedd` (`214deddec3270198c962e934596e165f8cd9825e`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - Cloudflare preview `c67dbd6c-d99d-4ebe-83a7-c62c83bc32dd` succeeded at `https://c67dbd6c.trying-8o0.pages.dev` with Functions enabled.
+  - Cloudflare production `5e6d0857-1b45-4ff9-8577-a72801ba99a8` succeeded at `https://5e6d0857.trying-8o0.pages.dev`, with Functions enabled and the `.org`, `www`, `.com`, and API aliases active.
+  - Cache-bypassed `.org` checks confirmed byte-for-byte matches for the homepage, shared CSS, project data, Case 004 page, retained public placeholder, and service worker. The confirmed title, `$400` cost, hadith text/source, quote styling, and cache v5 all passed live checks.
+  - Five representative private repository URLs returned the public homepage fallback, empty checkout and unsigned Stripe webhook requests returned `400`, and `.com` returned a `301` redirect to `.org`. No real Stripe Checkout Session or payment was created.
+  - Browser discovery reported no connected browser, so rendered screenshot and browser-console checks were unavailable. Source regression, CSS compilation, Cloudflare preview checks, exact production-byte comparisons, and live endpoint checks were completed instead.
 
 ---
 
