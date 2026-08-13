@@ -32,5 +32,6 @@ Current case media:
 - `case-002/` contains the livelihood-support main, proof, thumbnail, video-poster, and primary-video files used by `projects/case-002.html`.
 - `case-003/` contains the orphan-education main, proof, thumbnail, primary-video, and second-video files used by `projects/case-003.html`. Its legacy placeholder is retained but is not used publicly.
 - `case-004/korbani-village-004-placeholder.svg` is a retained legacy file and is not referenced publicly; the ongoing Case 004 page uses the current-case banner while delivery media remains pending.
-- `case-005/` contains six approved flood-relief JPEGs (`thumbnail`, `main`, `context`, `supplies`, `banner`, and `delivery`) plus `primary`, `video-2`, and `video-3` MP4 clips for `projects/case-005.html`.
+- `case-005/` contains eight approved flood-relief JPEGs (`thumbnail`, `main`, `context`, `supplies`, `banner`, `delivery`, and two outdoor children/community context photos) plus `primary`, `video-2`, and `video-3` MP4 clips for `projects/case-005.html`. The children/community photos were added at the organization's explicit direction; private-bedroom, potentially medical-context, and readable-personal-name images remain unpublished.
 - `case-006/` contains the mosque-gate `thumbnail` and `main` JPEGs plus `primary` and `video-2` MP4 clips for `projects/case-006.html`.
+- Cases 007 and 008 currently use generated `Coming Soon` banners and have no public media folders. Add approved local media only after each project's location, scope, budget, and schedule are confirmed.

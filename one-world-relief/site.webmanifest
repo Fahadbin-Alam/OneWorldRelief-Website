@@ -1,0 +1,20 @@
+{
+  "name": "One World Relief",
+  "short_name": "OWR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e7faff",
+  "theme_color": "#4d95c2",
+  "icons": [
+    {
+      "src": "/assets/one-world-relief-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/one-world-relief-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

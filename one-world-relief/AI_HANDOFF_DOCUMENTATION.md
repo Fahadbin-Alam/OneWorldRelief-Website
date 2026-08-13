@@ -2624,6 +2624,29 @@ Additional DNS check later on May 4, 2026:
   - All six protected repository-file URLs return the public homepage fallback instead of their internal contents.
   - Safe integration checks returned `400` for an empty checkout request and `400` for an unsigned Stripe webhook; no real Stripe Checkout Session or payment was created.
 
+### 2026-08-13 Case Pricing, Community Media, Coming-Soon Projects, and Supplied Logo
+- User supplied the confirmed completed-project costs, superseding the earlier unknown-cost wording:
+  - Case 005 flood relief: `$450`.
+  - Case 006 mosque gate: `$170`.
+- Updated both project cards and detail pages to show those exact costs. The beneficiary counts remain unpublished because the user did not provide them.
+- User explicitly asked to include children photos so visitors can understand the flood situation:
+  - Added two outdoor/context Case 005 photos showing children and community relief activity.
+  - Published only images without government IDs, beneficiary names, street addresses, or medical claims.
+  - Kept private-bedroom images, potentially medical-context images, and mother/infant interior images off the public site.
+  - Stripped metadata and compressed the two public JPEG derivatives; private originals remain under `D:\OneWorldRelief`.
+  - Excluded a third child-context image because its thank-you sign displayed a readable personal name.
+- Added two user-announced projects as `Coming Soon`:
+  - Case 007: `Water for a Madrasa Mosque`.
+  - Case 008: `Tiles to Help Finish a Mosque`.
+  - Their location, budget, schedule, detailed scope, and media are intentionally unlisted until confirmed.
+  - Both use banner placeholders and route general donations to the existing `General Fund` option without creating a new Stripe campaign category.
+  - Project statistics now separate completed, active, and coming-soon counts; the expected split is 8 total / 5 completed / 1 active / 2 coming soon.
+- Replaced the temporary `OWR` text favicon/header badge with the supplied logo from `D:\OneWorldRelief\Logos\Oneworld Relief Icon Logo.png`:
+  - Created metadata-stripped 512px and 192px public logo assets, a 64px PNG favicon, and a 180px Apple touch icon.
+  - Added `site.webmanifest` for install/bookmark icons.
+  - Updated all root and project pages so the clickable header brand displays the supplied logo.
+  - Bumped the offline cache from `owr-offline-v1` to `owr-offline-v2` so existing visitors receive the new icons.
+
 ---
 
 **End of AI Handoff Documentation**

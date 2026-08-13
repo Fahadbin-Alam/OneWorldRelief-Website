@@ -277,11 +277,15 @@
       const completed = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
         return String(project.status || "").toLowerCase().includes("completed");
       }).length;
-      const active = window.ONE_WORLD_RELIEF_PROJECTS.length - completed;
+      const comingSoon = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
+        return String(project.status || "").toLowerCase().includes("coming soon");
+      }).length;
+      const active = window.ONE_WORLD_RELIEF_PROJECTS.length - completed - comingSoon;
       projectStats.innerHTML = `
         <span>${formatProjectCount(window.ONE_WORLD_RELIEF_PROJECTS.length)}</span>
         <span>${completed} completed</span>
         <span>${active} active</span>
+        <span>${comingSoon} coming soon</span>
       `;
     }
 
@@ -299,6 +303,8 @@
       const thumbnailUrl = escapeHtml(project.thumbnailUrl);
       const caseNumber = escapeHtml(String(date).replace(/^Case\s*/i, "") || date);
       const hasBannerThumbnail = project.thumbnailType === "banner" || !project.thumbnailUrl;
+      const thumbnailLabel = escapeHtml(project.thumbnailLabel || "Current Case");
+      const locationAndDate = [location, date].filter(Boolean).join(" &middot; ");
       const rawMediaUrl = project.mediaUrl || "#";
       const mediaUrl = escapeHtml(rawMediaUrl);
       const projectCaseClass = getProjectCaseClass(project);
@@ -308,7 +314,7 @@
       const mediaMarkup = hasBannerThumbnail
         ? `
           <span class="project-media-banner" aria-hidden="true">
-            <span>Current Case</span>
+            <span>${thumbnailLabel}</span>
             <strong>${caseNumber}</strong>
           </span>
         `
@@ -326,7 +332,7 @@
           </div>
           <div>
             <h3>${title}</h3>
-            <p>${location}${date ? ` &middot; ${date}` : ""}</p>
+            <p>${locationAndDate}</p>
           </div>
           <p>${summary}</p>
           <div class="project-impact">
