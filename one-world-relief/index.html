@@ -5,7 +5,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>One World Relief | Donate</title>
   <meta
     name="description"
@@ -76,7 +76,7 @@
 
             <fieldset class="quick-amounts">
               <legend>Amount</legend>
-              <label><input type="radio" name="quickAmount" value="10" /><span>$10</span></label>
+              <label><input type="radio" name="quickAmount" value="5" /><span>$5</span></label>
               <label><input type="radio" name="quickAmount" value="25" checked /><span>$25</span></label>
               <label><input type="radio" name="quickAmount" value="50" /><span>$50</span></label>
               <label><input type="radio" name="quickAmount" value="100" /><span>$100</span></label>
@@ -86,18 +86,10 @@
               <span class="sr-only">Enter another donation amount</span>
               <span class="quick-custom-input-wrap">
                 <span aria-hidden="true">$</span>
-                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter other amount" aria-describedby="quickAmountHint" />
+                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="1" inputmode="numeric" placeholder="Enter $5 or more" aria-describedby="quickAmountHint" />
               </span>
-              <small id="quickAmountHint">Entering an amount replaces the selected preset.</small>
+              <small id="quickAmountHint">Minimum donation is $5. Entering an amount replaces the selected preset.</small>
             </label>
-
-            <fieldset class="quick-frequency">
-              <legend>Frequency</legend>
-              <div class="quick-frequency-control">
-                <label><input type="radio" name="quickFrequency" value="one_time" checked /><span>One-time</span></label>
-                <label><input type="radio" name="quickFrequency" value="monthly" /><span>Monthly</span></label>
-              </div>
-            </fieldset>
 
             <label class="quick-category" for="quickCampaign">
               Where should my donation go?

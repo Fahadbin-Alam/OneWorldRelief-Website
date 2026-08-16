@@ -16,7 +16,6 @@
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
   const homeCompletedCases = document.getElementById("homeCompletedCases");
   const homeGoalCases = document.getElementById("homeGoalCases");
-  const donateProjectFlow = document.getElementById("donateProjectFlow");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
   const closeQrPresentation = document.getElementById("closeQrPresentation");
@@ -130,11 +129,10 @@
     });
   };
 
-  const buildQuickDonationUrl = ({ amount, campaign = "General Fund", frequency = "one_time" }) => {
+  const buildQuickDonationUrl = ({ amount, campaign = "General Fund" }) => {
     const params = new URLSearchParams({
       amount: String(amount),
       campaign: String(campaign || "General Fund"),
-      frequency: String(frequency || "one_time"),
     });
     return `donate.html?${params.toString()}#donationForm`;
   };
@@ -233,7 +231,10 @@
   };
 
   const setupPointerMotion = () => {
-    if (prefersReducedMotion) {
+    if (
+      prefersReducedMotion ||
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches
+    ) {
       return;
     }
 
@@ -469,72 +470,6 @@
     homeCaseFlowTrack.setAttribute("aria-live", "off");
   };
 
-  const renderDonateProjectFlow = () => {
-    if (!donateProjectFlow || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
-      return;
-    }
-
-    const statusKind = (project) => {
-      const status = String(project.status || "").toLowerCase();
-      if (status.includes("coming soon")) {
-        return "coming";
-      }
-      if (status.includes("completed")) {
-        return "completed";
-      }
-      return "current";
-    };
-    const statusOrder = { current: 0, coming: 1, completed: 2 };
-    const projects = window.ONE_WORLD_RELIEF_PROJECTS
-      .map((project, index) => ({ project, index, kind: statusKind(project) }))
-      .sort((left, right) => statusOrder[left.kind] - statusOrder[right.kind] || left.index - right.index);
-
-    if (!projects.length) {
-      donateProjectFlow.hidden = true;
-      return;
-    }
-
-    const renderCards = (isDuplicate) => projects.map(({ project, kind }) => {
-      const title = escapeHtml(project.title);
-      const category = escapeHtml(project.category);
-      const status = escapeHtml(project.status || "Project update");
-      const date = escapeHtml(project.date || "One World Relief");
-      const rawMediaUrl = project.mediaUrl || "projects.html";
-      const mediaUrl = escapeHtml(rawMediaUrl);
-      const linkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
-      const accessibilityAttrs = isDuplicate
-        ? ' tabindex="-1"'
-        : ` aria-label="View ${title}, ${status}"`;
-      const hasBanner = project.thumbnailType === "banner" || !project.thumbnailUrl;
-      const visual = hasBanner
-        ? `
-          <span class="donate-project-banner" aria-hidden="true">
-            <small>${escapeHtml(project.thumbnailLabel || status)}</small>
-            <strong>${date}</strong>
-          </span>
-        `
-        : `<img src="${escapeHtml(project.thumbnailUrl)}" alt="" loading="lazy" decoding="async" />`;
-
-      return `
-        <a class="donate-project-card donate-project-card-${kind}" href="${mediaUrl}"${linkAttrs}${accessibilityAttrs}>
-          <span class="donate-project-visual">${visual}</span>
-          <span class="donate-project-copy">
-            <small>${status} &middot; ${date}</small>
-            <strong>${title}</strong>
-            <span>${category}</span>
-          </span>
-        </a>
-      `;
-    }).join("");
-
-    donateProjectFlow.innerHTML = `
-      <div class="donate-project-track">
-        <div class="donate-project-set">${renderCards(false)}</div>
-        <div class="donate-project-set donate-project-set-duplicate" aria-hidden="true">${renderCards(true)}</div>
-      </div>
-    `;
-  };
-
   const renderHomeCaseLanes = () => {
     if ((!homeCompletedCases && !homeGoalCases) || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
       return;
@@ -584,7 +519,6 @@
   renderProjects();
   renderHomeCaseFlow();
   renderHomeCaseLanes();
-  renderDonateProjectFlow();
   setupPointerMotion();
   setupAnimatedNumbers();
 
@@ -731,16 +665,15 @@
       const selectedAmount = quickDonationForm.querySelector('input[name="quickAmount"]:checked');
       const customAmount = quickCustomInput ? Number(quickCustomInput.value) : 0;
       const usesCustomAmount = !selectedAmount || Boolean(quickCustomInput?.value);
-      if (usesCustomAmount && customAmount <= 0) {
+      if (usesCustomAmount && (!Number.isFinite(customAmount) || customAmount < 5)) {
         quickCustomInput?.focus();
         quickCustomInput?.setAttribute("aria-invalid", "true");
-        setQuickStatus("Please enter a donation amount of at least $1.", true);
+        setQuickStatus("Please enter a donation amount of at least $5.", true);
         return;
       }
       const amount = usesCustomAmount ? String(customAmount) : selectedAmount.value;
       const campaign = quickCampaignSelect?.value || "General Fund";
-      const frequency = quickDonationForm.querySelector('input[name="quickFrequency"]:checked')?.value || "one_time";
-      window.location.href = buildQuickDonationUrl({ amount, campaign, frequency });
+      window.location.href = buildQuickDonationUrl({ amount, campaign });
     });
   }
 
@@ -871,17 +804,9 @@
     return;
   }
 
-  const customDonationPanel = document.getElementById("customDonationPanel");
   const customDonationInput = document.getElementById("customDonation");
-  const customDonationRadio = donationForm.querySelector('input[name="amount"][value="custom"]');
   const campaignSelect = document.getElementById("campaignSelect");
-  const givingFrequencySelect = document.getElementById("givingFrequencySelect");
-  const paymentMethodSelect = document.getElementById("paymentMethod");
-  const totalBadge = document.getElementById("donationTotalBadge");
-  const recurringDonationNote = document.getElementById("recurringDonationNote");
   const campaignChoiceButtons = Array.from(donationForm.querySelectorAll("[data-campaign-choice]"));
-  const paymentChoiceButtons = Array.from(donationForm.querySelectorAll("[data-payment-choice]"));
-  const recurringBlockedMethods = ["cash_app", "cashapp", "venmo"];
 
   populateDonationDestinations(campaignSelect);
 
@@ -893,91 +818,24 @@
     });
   };
 
-  const updateDonationTotalBadge = () => {
-    if (!totalBadge) {
-      return;
-    }
-
-    const selected = donationForm.querySelector('input[name="amount"]:checked');
-    const amount = selected?.value === "custom" ? Number(customDonationInput?.value || 0) : Number(selected?.value || 0);
-    totalBadge.textContent = amount > 0 ? `$${amount} selected` : "Custom amount";
-  };
-
-  const getGivingFrequency = () => {
-    if (givingFrequencySelect) {
-      return givingFrequencySelect.value || "one_time";
-    }
-    return donationForm.querySelector('input[name="givingFrequency"]:checked')?.value || "one_time";
-  };
-
-  const syncRecurringPaymentAvailability = () => {
-    const isRecurring = getGivingFrequency() !== "one_time";
-
-    if (recurringDonationNote) {
-      recurringDonationNote.textContent = getGivingFrequency() === "monthly"
-        ? "Monthly donations start in Stripe Checkout and repeat every month."
-        : getGivingFrequency() === "weekly_jummah"
-          ? "Weekly Jummah donations start on the next Friday around Jummah and repeat every Friday."
-          : "One-time donations are charged today.";
-    }
-
-    if (paymentMethodSelect) {
-      Array.from(paymentMethodSelect.options).forEach((option) => {
-        option.disabled = isRecurring && recurringBlockedMethods.includes(option.value);
-      });
-      if (isRecurring && recurringBlockedMethods.includes(paymentMethodSelect.value)) {
-        paymentMethodSelect.value = "apple_pay";
-      }
-    }
-
-    paymentChoiceButtons.forEach((button) => {
-      const isBlocked = isRecurring && recurringBlockedMethods.includes(button.dataset.paymentChoice || "");
-      button.disabled = isBlocked;
-      button.classList.toggle("is-disabled", isBlocked);
-      button.setAttribute("aria-disabled", String(isBlocked));
-    });
-
-    syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect?.value || "apple_pay", "paymentChoice");
-  };
-
-  const syncCustomAmountPanel = ({ focus = false, clear = false } = {}) => {
-    const selected = donationForm.querySelector('input[name="amount"]:checked');
-    const isCustomAmount = selected?.value === "custom";
-
-    if (!customDonationPanel || !customDonationInput) {
-      return;
-    }
-
-    customDonationPanel.hidden = !isCustomAmount;
-    customDonationInput.required = isCustomAmount;
-
-    if (!isCustomAmount && clear) {
-      customDonationInput.value = "";
-    }
-
-    if (isCustomAmount && focus) {
-      requestAnimationFrame(() => customDonationInput.focus());
-    }
-
-    updateDonationTotalBadge();
-  };
-
   const applyDonationParams = () => {
     const params = new URLSearchParams(window.location.search);
     const amount = params.get("amount");
     const campaign = params.get("campaign");
-    const frequency = params.get("frequency") || params.get("giving_frequency");
-    if (amount) {
-      const amountRadio = donationForm.querySelector(`input[name="amount"][value="${amount}"]`);
+    const hydratedAmount = Number(amount);
+    if (amount && Number.isFinite(hydratedAmount) && hydratedAmount >= 5) {
+      const amountRadio = Array.from(donationForm.querySelectorAll('input[name="amount"]')).find((radio) => {
+        return radio.value === amount;
+      });
       if (amountRadio) {
         amountRadio.checked = true;
         if (customDonationInput) {
           customDonationInput.value = "";
         }
       } else {
-        if (customDonationRadio) {
-          customDonationRadio.checked = true;
-        }
+        donationForm.querySelectorAll('input[name="amount"]').forEach((radio) => {
+          radio.checked = false;
+        });
         if (customDonationInput) {
           customDonationInput.value = amount;
         }
@@ -991,46 +849,30 @@
       }
     }
 
-    if (givingFrequencySelect && frequency) {
-      const option = Array.from(givingFrequencySelect.options).find((item) => item.value === frequency);
-      if (option) {
-        givingFrequencySelect.value = frequency;
-      }
-    }
-
     syncChoiceButtons(campaignChoiceButtons, campaignSelect?.value || "General Fund", "campaignChoice");
-    syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect?.value || "apple_pay", "paymentChoice");
-    syncCustomAmountPanel();
-    syncRecurringPaymentAvailability();
   };
 
   applyDonationParams();
 
   donationForm.querySelectorAll('input[name="amount"]').forEach((radio) => {
     radio.addEventListener("change", () => {
-      syncCustomAmountPanel({
-        focus: radio.value === "custom",
-        clear: radio.value !== "custom",
-      });
-      updateDonationTotalBadge();
+      if (radio.checked && customDonationInput) {
+        customDonationInput.value = "";
+        customDonationInput.removeAttribute("aria-invalid");
+      }
     });
   });
 
-  if (customDonationInput && customDonationRadio) {
+  if (customDonationInput) {
     customDonationInput.addEventListener("input", () => {
-      if (customDonationInput.value && !customDonationRadio.checked) {
-          customDonationRadio.checked = true;
-          syncCustomAmountPanel();
+      if (customDonationInput.value) {
+        donationForm.querySelectorAll('input[name="amount"]').forEach((radio) => {
+          radio.checked = false;
+        });
       }
-      updateDonationTotalBadge();
-    });
-  }
-
-  if (givingFrequencySelect) {
-    givingFrequencySelect.addEventListener("change", syncRecurringPaymentAvailability);
-  } else {
-    donationForm.querySelectorAll('input[name="givingFrequency"]').forEach((radio) => {
-      radio.addEventListener("change", syncRecurringPaymentAvailability);
+      const amount = Number(customDonationInput.value);
+      const isInvalid = Boolean(customDonationInput.value) && (!Number.isFinite(amount) || amount < 5);
+      customDonationInput.toggleAttribute("aria-invalid", isInvalid);
     });
   }
 
@@ -1044,34 +886,11 @@
     });
   });
 
-  paymentChoiceButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!paymentMethodSelect) {
-        return;
-      }
-      if (button.disabled) {
-        return;
-      }
-      paymentMethodSelect.value = button.dataset.paymentChoice || paymentMethodSelect.value;
-      syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect.value, "paymentChoice");
-    });
-  });
-
   if (campaignSelect) {
     campaignSelect.addEventListener("change", () => {
       syncChoiceButtons(campaignChoiceButtons, campaignSelect.value, "campaignChoice");
     });
   }
-
-  if (paymentMethodSelect) {
-    paymentMethodSelect.addEventListener("change", () => {
-      syncRecurringPaymentAvailability();
-      syncChoiceButtons(paymentChoiceButtons, paymentMethodSelect.value, "paymentChoice");
-    });
-  }
-
-  updateDonationTotalBadge();
-  syncRecurringPaymentAvailability();
 
   const setStatus = (message, isError) => {
     statusEl.textContent = message;
@@ -1079,10 +898,10 @@
   };
 
   const getDonationAmount = () => {
-    const selected = donationForm.querySelector('input[name="amount"]:checked');
-    if (selected?.value === "custom") {
-      return customDonationInput ? Number(customDonationInput.value) : 0;
+    if (customDonationInput?.value) {
+      return Number(customDonationInput.value);
     }
+    const selected = donationForm.querySelector('input[name="amount"]:checked');
     return selected ? Number(selected.value) : 0;
   };
 
@@ -1092,19 +911,17 @@
 
     const donorName = document.getElementById("donorName").value.trim();
     const donorEmail = document.getElementById("donorEmail").value.trim();
-    const paymentMethod = document.getElementById("paymentMethod").value;
     const campaign = document.getElementById("campaignSelect")?.value || "General Fund";
     const donorNote = document.getElementById("donorNote")?.value.trim() || "";
     const anonymousDonation = Boolean(document.getElementById("anonymousDonation")?.checked);
-    const givingFrequency = getGivingFrequency();
     const amountUsd = getDonationAmount();
 
     if (!donorName || !donorEmail) {
       setStatus("Please enter your name and email.", true);
       return;
     }
-    if (!amountUsd || amountUsd <= 0) {
-      setStatus("Please select or enter a valid donation amount.", true);
+    if (!Number.isFinite(amountUsd) || amountUsd < 5) {
+      setStatus("Please select or enter a donation amount of at least $5.", true);
       return;
     }
 
@@ -1119,9 +936,9 @@
           donor_name: donorName,
           donor_email: donorEmail,
           amount_usd: amountUsd,
-          payment_method: paymentMethod,
+          payment_method: "stripe",
           campaign,
-          giving_frequency: givingFrequency,
+          giving_frequency: "one_time",
           donor_note: donorNote,
           anonymous_public: anonymousDonation,
         }),
@@ -1161,7 +978,7 @@
       setStatus(error.message || fallbackMessage, true);
     } finally {
       donateButton.disabled = false;
-      donateButton.textContent = "Continue to Secure Checkout";
+      donateButton.textContent = "Continue to secure checkout →";
     }
   });
 })();

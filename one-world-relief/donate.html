@@ -5,7 +5,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>One World Relief | Donate</title>
   <meta
     name="description"
@@ -44,99 +44,112 @@
 
   <main>
     <section class="page-hero donate-flow-hero reveal">
-      <div class="flow-ribbon" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
       <div class="container page-hero-content donate-hero-grid">
-        <div class="donate-hero-copy">
-          <p class="eyebrow">Donate</p>
-          <h1>Move relief where it is needed.</h1>
-          <p class="lead">Choose a fund, give securely, and receive a tax-ready OneWorld Relief receipt by email.</p>
-          <section class="donate-project-showcase" aria-labelledby="donateProjectShowcaseTitle">
-            <div class="donate-project-showcase-heading">
-              <div>
-                <p class="eyebrow">The Work in Motion</p>
-                <h2 id="donateProjectShowcaseTitle">See the projects your gift can join.</h2>
-              </div>
-              <a href="projects.html">View all projects</a>
-            </div>
-            <div
-              class="donate-project-flow"
-              id="donateProjectFlow"
-              aria-label="Completed, current, and coming-soon One World Relief projects"
-            ></div>
-          </section>
-          <div class="payment-rail" aria-label="Fast payment options">
-            <span>Apple Pay</span>
-            <span>Cash App Pay</span>
-            <span>Card</span>
-            <span>Venmo</span>
+        <section class="donate-impact-panel" aria-labelledby="donateImpactTitle">
+          <div class="donate-impact-intro">
+            <p class="eyebrow">Real project photos</p>
+            <h1 id="donateImpactTitle">Your gift joins work you can see.</h1>
+            <p class="lead">Explore documented costs, field photos, and completed work from One World Relief projects in Bangladesh.</p>
           </div>
-        </div>
+
+          <div class="donate-impact-media" aria-label="Documented One World Relief projects">
+            <a class="donate-impact-photo donate-impact-photo-main" href="projects/case-004.html">
+              <img
+                src="assets/projects/case-004/korbani-meals-004-main.jpg"
+                alt="Orphan students at a madrasa share a meal provided through Case 004."
+                fetchpriority="high"
+                decoding="async"
+              />
+              <span class="donate-impact-caption">
+                <small>Completed &middot; Case 004</small>
+                <strong>Feeding Madrasa for Orphan Kids</strong>
+                <em>$400 delivered</em>
+              </span>
+            </a>
+
+            <a class="donate-impact-photo" href="projects/case-005.html">
+              <img
+                src="assets/projects/case-005/flood-relief-005-child-delivery.jpg"
+                alt="A child stands with a relief worker during a flood-relief food delivery."
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="donate-impact-caption">
+                <small>Case 005</small>
+                <strong>$450 flood relief delivered</strong>
+              </span>
+            </a>
+
+            <a class="donate-impact-photo" href="projects/case-006.html">
+              <img
+                src="assets/projects/case-006/mosque-gate-006-main.jpg"
+                alt="The completed metal entrance gate installed for a community mosque."
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="donate-impact-caption">
+                <small>Case 006</small>
+                <strong>$170 mosque gate completed</strong>
+              </span>
+            </a>
+          </div>
+
+          <a class="donate-impact-link" href="projects.html">See every documented project <span aria-hidden="true">&rarr;</span></a>
+        </section>
 
         <article class="donation-card donation-form-card donation-form-card-featured">
           <div class="donation-form-heading">
-            <p class="eyebrow">Secure Donation</p>
-            <h2>Donation details</h2>
-            <span id="donationTotalBadge">$10 selected</span>
+            <div>
+              <p class="eyebrow">Secure Stripe checkout</p>
+              <h2>Make a donation</h2>
+            </div>
+            <span class="donation-security-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
+              </svg>
+            </span>
           </div>
           <form id="donationForm">
-            <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
-              <div class="donation-step-heading">
-                <div>
-                  <h3 id="fundStepTitle">Fund &amp; schedule</h3>
-                </div>
-              </div>
-              <div class="donation-select-pair">
-                <label class="custom-amount compact-select" for="campaignSelect">
-                  <span class="sr-only">Donation fund</span>
-                  <select id="campaignSelect" required>
-                    <option value="General Fund">Where it's needed most</option>
-                    <option value="Orphan Support">Orphan Support</option>
-                    <option value="Wells">Wells</option>
-                    <option value="Zakat">Zakat</option>
-                    <option value="Feeding">Feeding</option>
-                  </select>
-                </label>
-                <label class="custom-amount compact-select schedule-select" for="givingFrequencySelect">
-                  <span class="sr-only">Donation schedule</span>
-                  <select id="givingFrequencySelect" name="givingFrequency" required>
-                    <option value="one_time" selected>One-time donation</option>
-                    <option value="monthly">Monthly recurring</option>
-                    <option value="weekly_jummah">Every Friday / Jummah</option>
-                  </select>
-                </label>
-              </div>
-              <p class="recurring-note" id="recurringDonationNote">One-time donations are charged today.</p>
-            </section>
-
             <section class="donation-step" aria-labelledby="amountStepTitle">
               <div class="donation-step-heading">
                 <div>
-                  <h3 id="amountStepTitle">Amount</h3>
+                  <h3 id="amountStepTitle">Choose an amount</h3>
+                  <p class="donation-minimum" id="minimumDonationText">Minimum donation is $5.</p>
                 </div>
               </div>
               <fieldset class="amount-grid amount-grid-impact">
                 <legend class="sr-only">Select an amount</legend>
-                <label><input type="radio" name="amount" value="10" checked /><strong>$10</strong><small>Basic support</small></label>
-                <label><input type="radio" name="amount" value="25" /><strong>$25</strong><small>Essentials</small></label>
-                <label><input type="radio" name="amount" value="50" /><strong>$50</strong><small>Food aid</small></label>
-                <label><input type="radio" name="amount" value="100" /><strong>$100</strong><small>Project help</small></label>
-                <label class="custom-amount-choice"><input type="radio" name="amount" value="custom" /><strong>Custom</strong><small>Your amount</small></label>
+                <label><input type="radio" name="amount" value="5" /><strong>$5</strong></label>
+                <label><input type="radio" name="amount" value="25" checked /><strong>$25</strong></label>
+                <label><input type="radio" name="amount" value="50" /><strong>$50</strong></label>
+                <label><input type="radio" name="amount" value="100" /><strong>$100</strong></label>
               </fieldset>
-            </section>
-
-            <div class="custom-donation-panel" id="customDonationPanel" hidden>
-              <label class="custom-amount custom-donation-field" for="customDonation">
-                Custom amount
+              <label class="custom-amount custom-donation-field donation-custom-field" for="customDonation">
+                Or enter another amount
                 <span class="custom-donation-input-wrap">
                   <span aria-hidden="true">$</span>
-                  <input id="customDonation" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter amount" />
+                  <input id="customDonation" type="number" min="5" step="1" inputmode="numeric" placeholder="Enter $5 or more" aria-describedby="minimumDonationText" />
                 </span>
               </label>
-            </div>
+            </section>
+
+            <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
+              <div class="donation-step-heading">
+                <div>
+                  <h3 id="fundStepTitle">Where should your donation go?</h3>
+                </div>
+              </div>
+              <label class="custom-amount compact-select" for="campaignSelect">
+                <span class="sr-only">Donation destination</span>
+                <select id="campaignSelect" required>
+                  <option value="General Fund">Where it's needed most</option>
+                  <option value="Orphan Support">Orphan Support</option>
+                  <option value="Wells">Wells</option>
+                  <option value="Zakat">Zakat</option>
+                  <option value="Feeding">Feeding</option>
+                </select>
+              </label>
+            </section>
 
             <section class="donation-step" aria-labelledby="receiptStepTitle">
               <div class="donation-step-heading">
@@ -147,32 +160,14 @@
               <div class="donor-grid">
                 <label class="custom-amount" for="donorName">
                   Full name
-                  <input id="donorName" type="text" placeholder="Your full name" required />
+                  <input id="donorName" name="name" type="text" autocomplete="name" placeholder="Your full name" required />
                 </label>
 
                 <label class="custom-amount" for="donorEmail">
                   Email for receipt
-                  <input id="donorEmail" type="email" placeholder="you@example.com" required />
+                  <input id="donorEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
                 </label>
               </div>
-            </section>
-
-            <section class="donation-step donation-step-payment" aria-labelledby="paymentStepTitle">
-              <div class="donation-step-heading">
-                <div>
-                  <h3 id="paymentStepTitle">Payment method</h3>
-                </div>
-              </div>
-              <label class="custom-amount compact-select" for="paymentMethod">
-                <span class="sr-only">Payment method</span>
-                <select id="paymentMethod" required>
-                  <option value="apple_pay">Apple Pay</option>
-                  <option value="cash_app">Cash App Pay</option>
-                  <option value="credit_card">Credit Card</option>
-                  <option value="stripe">Stripe Checkout</option>
-                  <option value="venmo">Venmo</option>
-                </select>
-              </label>
             </section>
 
             <div class="donor-options">
@@ -186,19 +181,14 @@
               </label>
             </div>
 
-            <div class="payments" aria-label="Supported payment methods">
-              <span>Apple Pay</span>
-              <span>Cash App Pay</span>
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>Venmo</span>
-            </div>
-
-            <button class="button button-primary donate-button" type="submit">Continue to Secure Checkout</button>
-            <p class="donation-note">
-              Receipt emails and donation tracking are handled after payment confirmation.
+            <button class="button button-primary donate-button" type="submit">Continue to secure checkout <span aria-hidden="true">&rarr;</span></button>
+            <p class="donation-note donation-trust-note">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
+              </svg>
+              Stripe securely handles your payment. One World Relief never receives your card details.
             </p>
-            <p class="donation-status" id="donationStatus" aria-live="polite"></p>
+            <p class="donation-status" id="donationStatus" role="status" aria-live="polite"></p>
           </form>
         </article>
       </div>
@@ -272,7 +262,7 @@
           </ul>
           <div class="secure-note">
             <strong>Secure checkout</strong>
-            <p>After submitting, donors are redirected to Stripe or PayPal depending on the selected payment method.</p>
+            <p>After submitting, donors are redirected to secure Stripe Checkout.</p>
           </div>
         </article>
       </div>

@@ -2739,6 +2739,25 @@ Additional DNS check later on May 4, 2026:
   - Five representative private repository URLs returned the public homepage fallback, empty checkout and unsigned Stripe webhook requests returned `400`, and `.com` returned a `301` redirect to `.org`. No real Stripe Checkout Session or payment was created.
   - Browser discovery reported no connected browser, so rendered screenshot and browser-console checks were unavailable. Source regression, CSS compilation, Cloudflare preview checks, exact production-byte comparisons, and live endpoint checks were completed instead.
 
+### 2026-08-15 Simplified Stripe Checkout and Mobile Cleanup
+- Donation experience:
+  - Replaced the small animated project ticker beside checkout with a static, photo-led proof panel using real completed-project media from Cases 004, 005, and 006. The panel identifies the documented `$400`, `$450`, and `$170` costs and links to each full case record.
+  - Simplified the public form to four preset amounts (`$5`, `$25`, `$50`, `$100`), an always-visible custom amount, destination, required full name and receipt email, optional note/dedication, and the existing public-anonymity choice.
+  - Removed public schedule and payment-method controls. The browser now sends `payment_method: "stripe"` and `giving_frequency: "one_time"`, then sends the donor to Stripe-hosted Checkout. The server retains its existing recurring/API compatibility for older or direct clients.
+  - Enforced a `$5` minimum in the homepage form, full donation form, URL hydration, and both identical Cloudflare checkout Function copies. Stripe, not the site, receives payment-card details.
+- Mobile and touch behavior:
+  - Kept a visible Donate action in the compact two-row header and made all four navigation tabs fit without a hidden horizontal scroller.
+  - Contained wide hero decorations, changed phone reveal effects to vertical-only motion, disabled pointer tilt on coarse/non-hover devices, added standalone safe-area viewport support, and increased footer/QR controls to touch-sized targets.
+  - Converted the homepage case reel and faith reminders to static swipeable snap rows on phones, hid duplicated loop content there, and uses the existing poster rather than autoplaying the faith background video on small screens.
+  - Compressed project cards, keeps mobile facts in a 2-by-2 grid, uses a two-column proof mosaic with full-width videos, preserves full portrait photos with `object-fit: contain`, and adds anchor clearance beneath the sticky header.
+  - Added lazy/async loading to 19 below-fold proof images, changed 12 below-fold videos to `preload="none"`, and added the existing Case 001 photo as its hero-video poster.
+  - Improved Share QR action layout/modal sizing, About detail-card wrapping, dynamic-viewport offline sizing, safe-area padding, and 16px mobile form controls.
+- Cache and verification:
+  - Offline app-shell cache advanced from `owr-offline-v5` to `owr-offline-v6`.
+  - Regression coverage was expanded for the `$5` minimum, simplified one-time Stripe UI, static proof collage, touch-safe navigation and flows, mobile gallery rules, all-page viewport-fit metadata, and both mirrored checkout Functions.
+  - JavaScript and Worker syntax checks, CSS bundling, all local HTML asset/link checks, and `git diff --check` passed. The in-app browser again had no connected browser, so a rendered screenshot/click pass was unavailable.
+  - This update is not yet committed, pushed, or deployed at the time of this handoff entry.
+
 ---
 
 **End of AI Handoff Documentation**

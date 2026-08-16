@@ -88,8 +88,8 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Please choose one-time, monthly, or weekly Friday giving." }, 400);
   }
 
-  if (!amountUsd || amountUsd <= 0) {
-    return json({ detail: "Donation amount must be greater than zero." }, 400);
+  if (!Number.isFinite(amountUsd) || amountUsd < 5) {
+    return json({ detail: "Donation amount must be at least $5." }, 400);
   }
 
   const stripeMethods = ["stripe", "credit_card", "card", "apple_pay", "cash_app", "cashapp"];
