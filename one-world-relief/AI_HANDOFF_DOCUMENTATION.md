@@ -2755,8 +2755,11 @@ Additional DNS check later on May 4, 2026:
 - Cache and verification:
   - Offline app-shell cache advanced from `owr-offline-v5` to `owr-offline-v6`.
   - Regression coverage was expanded for the `$5` minimum, simplified one-time Stripe UI, static proof collage, touch-safe navigation and flows, mobile gallery rules, all-page viewport-fit metadata, and both mirrored checkout Functions.
-  - JavaScript and Worker syntax checks, CSS bundling, all local HTML asset/link checks, and `git diff --check` passed. The in-app browser again had no connected browser, so a rendered screenshot/click pass was unavailable.
-  - This update is not yet committed, pushed, or deployed at the time of this handoff entry.
+  - The full regression suite passes `28/28`; JavaScript and Worker syntax checks, CSS bundling, all local HTML asset/link checks, and `git diff --check` passed. The in-app browser again had no connected browser, so a rendered screenshot/click pass was unavailable.
+  - Feature commit `5af0bbf` (`5af0bbfadd5dad7bb69d22d311afa181daafc16f`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - Cloudflare preview `be77c9bd-a146-4d76-a848-156d7116c2ee` succeeded at `https://be77c9bd.trying-8o0.pages.dev`; production `035d31a5-a99c-427b-b293-33d263ac5d3e` succeeded at `https://035d31a5.trying-8o0.pages.dev`, both with Functions enabled and source metadata `5af0bbf`.
+  - The fresh public-only stage contained 62 files. Internal handoff/setup/SQL/template/test files and raw Function source were excluded; eight representative protected URLs returned the homepage fallback with no leaked markers.
+  - Preview, production, and canonical `.org` checks confirmed exact bytes for all representative pages, shared assets, service worker, project data, and project photos. Empty checkout and unsigned webhook calls returned `400` without creating any payment. `.com` redirects to `.org`, and `www` serves the canonical deployment.
 
 ---
 
