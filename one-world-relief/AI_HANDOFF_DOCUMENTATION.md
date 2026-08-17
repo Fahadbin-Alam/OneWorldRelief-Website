@@ -2761,7 +2761,7 @@ Additional DNS check later on May 4, 2026:
   - The fresh public-only stage contained 62 files. Internal handoff/setup/SQL/template/test files and raw Function source were excluded; eight representative protected URLs returned the homepage fallback with no leaked markers.
 - Preview, production, and canonical `.org` checks confirmed exact bytes for all representative pages, shared assets, service worker, project data, and project photos. Empty checkout and unsigned webhook calls returned `400` without creating any payment. `.com` redirects to `.org`, and `www` serves the canonical deployment.
 
-### 2026-08-17 Case 009 and Purpose-Based Donation Catalog (Not Yet Deployed)
+### 2026-08-17 Case 009 and Purpose-Based Donation Catalog
 - Case 009 verified record:
   - Published title: `Twenty Ceiling Fans for a New Mosque`.
   - Verified completion update date: September 24, 2025.
@@ -2808,10 +2808,14 @@ Additional DNS check later on May 4, 2026:
   - `donate.html` now leads with unrestricted giving from `$5`, followed by photo-led purpose cards for orphan annual support, mosque construction, water, orphan feeding, family recovery, and emergency aid. Its stewardship language keeps any fallback within the same selected program and explicitly limits Zakat to Zakat-eligible uses. On tablet and phone layouts the checkout form appears before the supporting photo panel. `index.html` loads the shared catalog, and project/detail links now use canonical program URLs.
   - Other changed public files include `one-world-relief.js`, `one-world-relief.css`, `project-data.js`, `projects/case-001.html` through `projects/case-009.html`, and `assets/projects/case-009/`. Backend changes are mirrored under both `functions/` trees, and the webhook additions are in both Stripe webhook copies.
   - The offline cache is `owr-offline-v7`; `donation-programs.js` and `donation-checkout.js` are in the app shell.
-- Point-in-time validation and release status:
-  - At the time this section was written, the Case 009/catalog implementation had **not yet been committed or deployed** to Cloudflare. Do not describe it as live based on this section.
-  - The full regression suite passes `35/35`, covering the nine-case data set, Case 009 source/privacy rules and media metadata, cache v7, canonical program URLs, all server amount boundaries, rejected forged/unknown values, trusted redirect enforcement, legacy aliases/recurring compatibility, Stripe-derived attribution, human option labels, and webhook receipt/Sheets formula protection.
-  - Preview deployment, production deployment, canonical-domain byte checks, and safe live endpoint checks were still pending. No real Stripe payment was created while preparing this handoff.
+- Validation and release:
+  - The full regression suite passes `35/35`, covering the nine-case data set, Case 009 source/privacy rules and media metadata, cache v7, canonical program URLs, all server amount boundaries, rejected forged/unknown values, trusted redirect enforcement, legacy aliases/recurring compatibility, Stripe-derived attribution, human option labels, and webhook receipt/Sheets formula protection. JavaScript and Worker syntax checks, CSS compilation, link/asset resolution, and `git diff --check` also passed.
+  - Feature commit `a505089` (`a50508925a4c9a154d1516b73844b916107607a1`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - A fresh public-only stage contained 68 files totaling 66,267,392 bytes; the largest asset was 11,683,738 bytes. Five Pages Function source files were isolated outside the public directory. `.assetsignore`, the AI handoff, setup notes, D1 schema, intake template, media README, tests, and raw Functions source were excluded from public assets.
+  - Cloudflare preview `06c51671-a993-4423-8032-30a53e6e07d9` succeeded at `https://06c51671.trying-8o0.pages.dev` with Functions enabled. Desktop and true 390px rendered checks confirmed the responsive form-first checkout, visible Donate/navigation controls, no horizontal overflow, and six responsive program cards.
+  - Cloudflare production `7dec3a43-3832-474f-b3c5-4e00c33bb6f8` succeeded at `https://7dec3a43.trying-8o0.pages.dev` with source metadata `a505089` and Functions enabled.
+  - Cache-bypassed exact-byte verification passed on the production deployment URL, `https://one-world-relief.org`, and `https://www.one-world-relief.org` for the homepage, Donate, Case 009, the catalog/client scripts, project data, CSS, service worker, and representative Case 009 media. Eight protected internal paths returned the public homepage fallback instead of repository content.
+  - Safe integration checks returned `400` for an empty Checkout POST and an unsigned Stripe webhook on preview and production, without creating a Checkout Session or payment. `https://one-world-relief.com/donate` continues to return a `301` redirect to the canonical `.org` URL.
 
 ---
 
