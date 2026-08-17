@@ -70,7 +70,7 @@ The frontend never collects card numbers. Donors are redirected to Stripe-hosted
 
 The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets in columns A:H. Donor email, Session ID, payment status, payment intent, receipt URL, and receipt email status are stored together in the Notes column so the dashboard layout stays aligned without adding columns. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
 
-## Zakat calculator and donation metadata (2026-08-17 release pending)
+## Zakat calculator and donation metadata (released 2026-08-17)
 The dedicated Zakat experience is designed as an educational Zakat al-mal estimate, not a fatwa or a replacement for advice from a qualified scholar. Its language switcher supports English (`en`), Bangla (`bn`), Urdu (`ur`), and Arabic (`ar`); Urdu and Arabic render right-to-left. The calculation supports:
 
 - a `2.5%` rate for a lunar/Hijri year;
@@ -101,6 +101,8 @@ For a completed Zakat gift, the established Google Sheet contract remains exactl
 Column E (`Purpose/Fund`) is `Zakat`. Column H (`Notes`) adds the sanitized donor email plus safe labels for calculator version, language, year basis/rate, and nisab basis. It must not contain any raw calculator amounts. As with all donations, every A:H value is formula-neutralized before the `USER_ENTERED` append. No test payment or live Google Sheets row should be created merely to verify this feature; use mocked webhook coverage and safe invalid-request probes unless the owner explicitly authorizes a real donation.
 
 The public explanatory rules are grounded in Qur'an 9:60 and current guidance from Islamic Relief UK, National Zakat Foundation, and Muslim Hands. The owner's earlier Zakat note files were unavailable during this update; only cached topic titles such as eligible recipients, people who cannot receive Zakat, loans, and Zakat al-Fitr could be recovered. Do not represent the site's wording as a verbatim transcription of those notes, and do not copy any private personal calculations into the website.
+
+The released public calculator is `https://one-world-relief.org/zakat`. Feature commit `6db32fce7ccf44af11a9cd499de5f1431b6e13e9` was deployed through Cloudflare Pages production deployment `0cd5fe9a-63e3-48ee-b06d-57069e2d7514`. The release used cache `owr-offline-v9`.
 
 ## Custom receipt email template
 The webhook emails this plain-text receipt after `checkout.session.completed`:
