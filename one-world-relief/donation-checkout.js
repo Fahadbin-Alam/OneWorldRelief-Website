@@ -323,11 +323,21 @@
   };
 
   const createProgramAction = (program, variant = null) => {
+    const addActionContent = (element, label) => {
+      const text = document.createElement("span");
+      text.textContent = label;
+      const arrow = document.createElement("span");
+      arrow.className = "donation-program-action-arrow";
+      arrow.setAttribute("aria-hidden", "true");
+      arrow.textContent = "→";
+      element.append(text, arrow);
+    };
+
     if (program.detailUrl && !variant) {
       const link = document.createElement("a");
       link.className = "donation-program-action";
       link.href = program.detailUrl;
-      link.textContent = program.detailActionLabel || `Learn about ${program.title}`;
+      addActionContent(link, program.detailActionLabel || `Learn about ${program.title}`);
       return link;
     }
     const button = document.createElement("button");
@@ -341,7 +351,8 @@
     if (variant) {
       button.dataset.programVariant = variant.id;
     }
-    button.textContent = variant?.label || `Choose this purpose — ${program.amountLabel}`;
+    button.setAttribute("aria-controls", "donationForm");
+    addActionContent(button, variant?.actionLabel || variant?.label || program.actionLabel || `Give ${program.amountLabel}`);
     button.addEventListener("click", () => {
       selectProgram(program.id, {
         variant: variant?.id || "",
@@ -357,9 +368,13 @@
       return;
     }
     programGrid.replaceChildren();
-    programs.filter((program) => program.featured === true).forEach((program) => {
+    programs.filter((program) => program.featured === true).forEach((program, index) => {
       const card = document.createElement("article");
       card.className = "donation-program-card";
+      card.dataset.programId = program.id;
+      card.setAttribute("role", "listitem");
+      card.style.setProperty("--program-index", String(index));
+      card.style.setProperty("--program-delay", `${index * 70}ms`);
 
       const photo = document.createElement("figure");
       photo.className = "donation-program-photo";
@@ -378,7 +393,9 @@
       amount.className = "donation-program-amount";
       amount.textContent = program.amountLabel;
       const title = document.createElement("h3");
+      title.id = `donation-program-title-${program.id}`;
       title.textContent = program.title;
+      card.setAttribute("aria-labelledby", title.id);
       const purpose = document.createElement("p");
       purpose.textContent = program.purposeSummary;
       copy.append(amount, title, purpose);
@@ -388,6 +405,7 @@
         const summary = document.createElement("summary");
         const detailCopy = document.createElement("p");
         summary.textContent = "How this gift is attributed";
+        summary.setAttribute("aria-label", `How a gift to ${program.title} is attributed`);
         detailCopy.textContent = program.stewardship;
         details.append(summary, detailCopy);
         copy.appendChild(details);
@@ -396,6 +414,7 @@
       const actions = document.createElement("div");
       actions.className = "donation-program-actions";
       if (Array.isArray(program.variants) && program.variants.length) {
+        actions.classList.add("donation-program-actions-multiple");
         program.variants.forEach((variant) => actions.appendChild(createProgramAction(program, variant)));
       } else {
         actions.appendChild(createProgramAction(program));

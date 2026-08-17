@@ -33,6 +33,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
     imageUrl: "assets/projects/case-001/orphan-support-001-main.jpg",
     imageAlt: "A student supported through a completed One World Relief orphan-education case.",
     photoContext: "Photo from completed Case 001",
+    actionLabel: "Support an orphan — $300",
     featured: true,
   },
   {
@@ -52,6 +53,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
     imageUrl: "assets/projects/case-009/mosque-fans-009-main.jpg",
     imageAlt: "Ceiling fans documented at a completed One World Relief mosque-support project.",
     photoContext: "Photo from completed Case 009",
+    actionLabel: "Support mosque work — $1,000",
     featured: true,
   },
   {
@@ -70,23 +72,26 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
     stewardship: "The selected amount is designated to approved water work; completion photos will be published separately from this representative field image.",
     imageUrl: "assets/projects/case-006/mosque-gate-006-main.jpg",
     imageAlt: "A completed One World Relief mosque-support project in Bangladesh, used as a representative field-work photo.",
-    photoContext: "Past mosque-support photo · water proof will be separate",
+    photoContext: "Representative past-project photo · Water proof published after completion",
     variants: [
       {
         id: "water_station",
         label: "$350 water cooler or station",
+        actionLabel: "$350 water station",
         amount: 350,
         description: "$350 designated to a filtered water cooler or station for hot-weather drinking water.",
       },
       {
         id: "water_contribution",
         label: "Choose $350–$3,000",
+        actionLabel: "Choose an amount",
         amount: 1000,
         description: "A contribution between $350 and $3,000 designated to approved water work.",
       },
       {
         id: "community_well",
         label: "$3,000 community well",
+        actionLabel: "$3,000 community well",
         amount: 3000,
         description: "$3,000 designated toward a verified community well project.",
       },
@@ -109,6 +114,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
     imageUrl: "assets/projects/case-004/korbani-meals-004-main.jpg",
     imageAlt: "Orphan students sharing a meal documented through completed Case 004.",
     photoContext: "Photo from completed Case 004",
+    actionLabel: "Feed orphan children — $100+",
     featured: true,
   },
   {
@@ -128,6 +134,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
     imageUrl: "assets/projects/case-002/livelihood-support-002-main.jpg",
     imageAlt: "A family livelihood-support delivery documented through completed Case 002.",
     photoContext: "Photo from completed Case 002",
+    actionLabel: "Help a family recover — $600",
     featured: true,
   },
   {
@@ -146,6 +153,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
     imageUrl: "assets/projects/case-005/flood-relief-005-main.jpg",
     imageAlt: "Flood-relief supplies documented through completed Case 005 in Bangladesh.",
     photoContext: "Photo from completed Case 005",
+    actionLabel: "Send emergency aid — $25+",
     featured: true,
   },
   {

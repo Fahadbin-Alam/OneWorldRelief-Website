@@ -613,8 +613,9 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   }
 });
 
-test("donation catalog renders approved real-photo cards in responsive 3-2-1 columns", async () => {
-  const [programSource, checkoutJs, siteCss] = await Promise.all([
+test("donation catalog is a polished, accessible, animated 3-2-1 giving experience", async () => {
+  const [donateHtml, programSource, checkoutJs, siteCss] = await Promise.all([
+    readFile("donate.html", "utf8"),
     readFile("donation-programs.js", "utf8"),
     readFile("donation-checkout.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
@@ -634,12 +635,57 @@ test("donation catalog renders approved real-photo cards in responsive 3-2-1 col
     "emergency_aid",
     "zakat",
   ]);
+
+  assert.match(donateHtml, /<section class="flow-section flow-section-funds reveal" aria-labelledby="donationCatalogTitle">/);
+  assert.match(donateHtml, /<h2 id="donationCatalogTitle">Choose the work that matters to you\.<\/h2>/);
+  assert.match(donateHtml, /<ul class="donation-catalog-assurances" aria-label="What to expect when choosing a purpose">/);
+  for (const assurance of ["Clear amounts", "Purpose recorded", "Secure payment"]) {
+    assert.match(donateHtml, new RegExp(`<strong>${assurance}</strong>`));
+  }
+  assert.match(donateHtml, /Your selected program follows the donation into our records\./);
+  assert.match(donateHtml, /Card details stay inside Stripe&rsquo;s hosted checkout\./);
+  assert.match(donateHtml, /<div class="donation-program-grid" id="donationProgramGrid" role="list" aria-label="Donation programs"><\/div>/);
+
+  assert.deepEqual(
+    Object.fromEntries(featured.filter((program) => program.actionLabel).map((program) => [program.id, program.actionLabel])),
+    {
+      orphan_annual: "Support an orphan — $300",
+      mosque_build: "Support mosque work — $1,000",
+      orphan_feeding: "Feed orphan children — $100+",
+      family_recovery: "Help a family recover — $600",
+      emergency_aid: "Send emergency aid — $25+",
+    },
+  );
+  const water = featured.find((program) => program.id === "water_support");
+  assert.deepEqual(
+    water.variants.map(({ id, amount, actionLabel }) => ({ id, amount, actionLabel })),
+    [
+      { id: "water_station", amount: 350, actionLabel: "$350 water station" },
+      { id: "water_contribution", amount: 1000, actionLabel: "Choose an amount" },
+      { id: "community_well", amount: 3000, actionLabel: "$3,000 community well" },
+    ],
+  );
+  assert.equal(featured.find((program) => program.id === "zakat").detailActionLabel, "Calculate and give Zakat");
+
   assert.match(checkoutJs, /programs\.filter\(\(program\) => program\.featured === true\)\.forEach/);
   assert.match(checkoutJs, /card\.className = "donation-program-card"/);
+  assert.match(checkoutJs, /card\.dataset\.programId = program\.id/);
+  assert.match(checkoutJs, /card\.setAttribute\("role", "listitem"\)/);
+  assert.match(checkoutJs, /card\.style\.setProperty\("--program-index", String\(index\)\)/);
+  assert.match(checkoutJs, /card\.style\.setProperty\("--program-delay", `\$\{index \* 70\}ms`\)/);
+  assert.match(checkoutJs, /title\.id = `donation-program-title-\$\{program\.id\}`/);
+  assert.match(checkoutJs, /card\.setAttribute\("aria-labelledby", title\.id\)/);
+  assert.match(checkoutJs, /summary\.setAttribute\("aria-label", `How a gift to \$\{program\.title\} is attributed`\)/);
   assert.match(checkoutJs, /image\.src = program\.imageUrl/);
   assert.match(checkoutJs, /caption\.textContent = program\.photoContext/);
   assert.match(checkoutJs, /program\.detailUrl/);
   assert.match(checkoutJs, /(?:href|\.href)\s*=\s*program\.detailUrl/);
+  assert.match(checkoutJs, /arrow\.className = "donation-program-action-arrow"/);
+  assert.match(checkoutJs, /arrow\.setAttribute\("aria-hidden", "true"\)/);
+  assert.match(checkoutJs, /arrow\.textContent = "→"/);
+  assert.match(checkoutJs, /button\.setAttribute\("aria-controls", "donationForm"\)/);
+  assert.match(checkoutJs, /variant\?\.actionLabel \|\| variant\?\.label \|\| program\.actionLabel/);
+  assert.match(checkoutJs, /actions\.classList\.add\("donation-program-actions-multiple"\)/);
 
   for (const program of featured) {
     assert.match(program.imageUrl, /^assets\/projects\/case-\d{3}\/[a-z0-9-]+\.jpg$/);
@@ -650,11 +696,60 @@ test("donation catalog renders approved real-photo cards in responsive 3-2-1 col
     assert.deepEqual([...photo.subarray(0, 3)], [0xff, 0xd8, 0xff], `${program.id} photo should be a JPEG`);
   }
 
-  assert.match(siteCss, /\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /@media \(max-width: 980px\)[\s\S]*?\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.donation-program-grid\s*\{[^}]*grid-template-columns: 1fr/);
-  const catalogRules = siteCss.slice(siteCss.indexOf(".donation-program-grid {"), siteCss.indexOf(".donation-program-action {"));
-  assert.doesNotMatch(catalogRules, /animation\s*:/);
+  const desktopCatalog = siteCss.slice(
+    siteCss.indexOf(".donation-program-grid {"),
+    siteCss.indexOf(".secure-note {", siteCss.indexOf(".donation-program-grid {")),
+  );
+  const tabletCatalog = siteCss.slice(
+    siteCss.indexOf("@media (max-width: 980px)"),
+    siteCss.indexOf("@media (max-width: 720px)"),
+  );
+  const mobileCatalog = siteCss.slice(
+    siteCss.indexOf("@media (max-width: 720px)"),
+    siteCss.indexOf("@media (max-width: 540px)"),
+  );
+  const reducedMotionCatalog = siteCss.slice(siteCss.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(desktopCatalog, /\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)[^}]*align-items: start/);
+  assert.match(desktopCatalog, /\.donation-program-card\s*\{[^}]*height: fit-content;[^}]*align-self: start;[^}]*grid-template-rows: 210px auto/);
+  assert.match(desktopCatalog, /\.donation-program-actions\s*\{[^}]*margin-top: 0\.18rem/);
+  assert.doesNotMatch(desktopCatalog.match(/\.donation-program-actions\s*\{[^}]*\}/)?.[0] || "", /margin-top: auto/);
+  assert.match(desktopCatalog, /\.donation-program-actions-multiple\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+
+  const zakatDesktopRule = desktopCatalog.match(/\.donation-program-card\[data-program-id="zakat"\]\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(zakatDesktopRule, /grid-column: 1 \/ -1/);
+  assert.match(zakatDesktopRule, /grid-template-columns: minmax\(300px, 0\.88fr\) minmax\(0, 1\.12fr\)/);
+
+  assert.match(tabletCatalog, /\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(tabletCatalog, /\.donation-program-card\[data-program-id="zakat"\]\s*\{[^}]*grid-column: auto;[^}]*grid-template-columns: 1fr/);
+  assert.match(tabletCatalog, /\.donation-program-card\[data-program-id="water_support"\]\s*\{[^}]*grid-column: 1 \/ -1;[^}]*grid-template-columns: minmax\(280px, 0\.82fr\) minmax\(0, 1\.18fr\)/);
+
+  assert.match(mobileCatalog, /\.donation-program-grid\s*\{[^}]*grid-template-columns: 1fr/);
+  assert.match(mobileCatalog, /\.donation-program-card,[\s\S]*?\[data-program-id="water_support"\],[\s\S]*?\[data-program-id="zakat"\]\s*\{[^}]*grid-column: auto;[^}]*grid-template-columns: 1fr;[^}]*grid-template-rows: 205px auto/);
+  assert.match(mobileCatalog, /\.donation-program-actions-multiple\s*\{[^}]*grid-template-columns: 1fr/);
+
+  const entranceRule = desktopCatalog.match(/\.flow-section-funds\.is-visible \.donation-program-card\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(entranceRule, /animation: donation-program-arrive 0\.64s/);
+  assert.match(entranceRule, /var\(--program-delay, 0ms\) backwards/);
+  assert.doesNotMatch(entranceRule, /infinite/);
+  assert.match(desktopCatalog, /@keyframes donation-program-arrive\s*\{[\s\S]*?opacity: 0;[\s\S]*?translateY\(26px\)[\s\S]*?opacity: 1;[\s\S]*?translateY\(0\)/);
+  assert.match(desktopCatalog, /\.donation-program-card:focus-within\s*\{[^}]*border-color:[^}]*box-shadow:/);
+  assert.match(desktopCatalog, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.donation-program-card:hover\s*\{[^}]*transform: translateY\(-6px\)/);
+  assert.match(desktopCatalog, /\.donation-program-card:hover \.donation-program-photo img\s*\{[^}]*transform: scale\(1\.045\)/);
+  assert.match(desktopCatalog, /\.donation-program-action:hover \.donation-program-action-arrow\s*\{[^}]*transform: translateX\(3px\)/);
+
+  assert.match(reducedMotionCatalog, /\.flow-section-funds\.is-visible \.donation-program-card,[\s\S]*?\.donation-program-copy details p\s*\{[^}]*animation: none/);
+  for (const selector of [
+    ".donation-program-card",
+    ".donation-program-card::before",
+    ".donation-program-photo img",
+    ".donation-program-copy summary::after",
+    ".donation-program-action",
+    ".donation-program-action-arrow",
+  ]) {
+    assert.match(reducedMotionCatalog, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(reducedMotionCatalog, /transform: none !important;[^}]*transition: none !important/);
 });
 
 test("Zakat page explains eligibility with sources and offers four-language RTL access", async () => {
@@ -993,7 +1088,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v9/);
+  assert.match(serviceWorker, /owr-offline-v10/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1295,7 +1390,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v9/);
+  assert.match(serviceWorker, /owr-offline-v10/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);

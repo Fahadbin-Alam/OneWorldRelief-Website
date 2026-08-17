@@ -215,14 +215,30 @@
       </div>
     </section>
 
-    <section class="flow-section flow-section-funds reveal">
+    <section class="flow-section flow-section-funds reveal" aria-labelledby="donationCatalogTitle">
       <div class="container">
-        <div class="section-heading flow-heading">
-          <p class="eyebrow">Purpose-based giving</p>
-          <h2>Choose the work you want to support.</h2>
-          <p>Every option has a clear amount rule, honest scope, and Stripe designation. Photos are from past One World Relief work.</p>
+        <div class="donation-catalog-header">
+          <div class="section-heading flow-heading">
+            <p class="eyebrow">Purpose-based giving</p>
+            <h2 id="donationCatalogTitle">Choose the work that matters to you.</h2>
+            <p>See the amount, understand the purpose, and continue through secure Stripe checkout. Every photo comes from documented One World Relief work.</p>
+          </div>
+          <ul class="donation-catalog-assurances" aria-label="What to expect when choosing a purpose">
+            <li>
+              <span aria-hidden="true">01</span>
+              <div><strong>Clear amounts</strong><small>Know the minimum or fixed gift before checkout.</small></div>
+            </li>
+            <li>
+              <span aria-hidden="true">02</span>
+              <div><strong>Purpose recorded</strong><small>Your selected program follows the donation into our records.</small></div>
+            </li>
+            <li>
+              <span aria-hidden="true">03</span>
+              <div><strong>Secure payment</strong><small>Card details stay inside Stripe&rsquo;s hosted checkout.</small></div>
+            </li>
+          </ul>
         </div>
-        <div class="donation-program-grid" id="donationProgramGrid" aria-label="Donation programs"></div>
+        <div class="donation-program-grid" id="donationProgramGrid" role="list" aria-label="Donation programs"></div>
       </div>
     </section>
 
