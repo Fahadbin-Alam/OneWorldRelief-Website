@@ -72,67 +72,77 @@
     return caseId ? `project-${caseId}` : "";
   };
 
-  const getProjectDonationValue = (project) => {
-    return String(project.donationLabel || project.title || "").trim();
+  const donationPrograms = Array.isArray(window.ONE_WORLD_RELIEF_DONATION_PROGRAMS)
+    ? window.ONE_WORLD_RELIEF_DONATION_PROGRAMS
+    : [];
+
+  const legacyProgramAliases = {
+    "General Fund": "unrestricted",
+    "Orphan Support": "orphan_annual",
+    "Hafiz Student Support": "orphan_annual",
+    "Orphan Education": "orphan_annual",
+    Wells: "water_support",
+    "Madrasa Water": "water_support",
+    Feeding: "orphan_feeding",
+    "Feeding Madrasa for Orphan Kids": "orphan_feeding",
+    "Flood Relief": "emergency_aid",
+    "Father's Business Support": "family_recovery",
+    "Mosque Tiles": "mosque_build",
+    "Mosque Gate": "mosque_build",
+    Zakat: "zakat",
+  };
+
+  const getDonationProgram = (value = "unrestricted") => {
+    const requested = String(value || "unrestricted").trim();
+    const normalizedId = legacyProgramAliases[requested] || requested;
+    return donationPrograms.find((program) => {
+      return program.id === normalizedId || program.campaign === requested;
+    }) || donationPrograms.find((program) => program.id === "unrestricted") || null;
   };
 
   const populateDonationDestinations = (select) => {
-    if (!select || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+    if (!select || !donationPrograms.length) {
       return;
     }
 
-    select.querySelectorAll("[data-project-destination-group]").forEach((group) => group.remove());
-    const seenValues = new Set(Array.from(select.options || []).map((option) => {
-      return String(option.value || "").trim();
-    }).filter(Boolean));
-    const projects = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
-      const value = getProjectDonationValue(project);
-      if (project.acceptsDonations !== true || !value || seenValues.has(value)) {
-        return false;
-      }
-      seenValues.add(value);
-      return true;
-    });
-    const groups = [
-      {
-        label: "Current projects",
-        projects: projects.filter((project) => {
-          const status = String(project.status || "").toLowerCase();
-          return !status.includes("completed") && !status.includes("coming soon");
-        }),
-      },
-      {
-        label: "Support areas",
-        projects: projects.filter((project) => String(project.status || "").toLowerCase().includes("completed")),
-      },
-      {
-        label: "Upcoming goals",
-        projects: projects.filter((project) => String(project.status || "").toLowerCase().includes("coming soon")),
-      },
-    ];
+    select.replaceChildren();
+    const appendProgramOption = (parent, program) => {
+      const option = document.createElement("option");
+      option.value = program.id;
+      option.textContent = String(program.shortLabel || program.title || program.campaign);
+      parent.appendChild(option);
+    };
 
-    groups.forEach(({ label, projects: groupedProjects }) => {
-      if (!groupedProjects.length) {
-        return;
-      }
+    const unrestricted = getDonationProgram("unrestricted");
+    if (unrestricted) {
+      appendProgramOption(select, unrestricted);
+    }
 
-      const optionGroup = document.createElement("optgroup");
-      optionGroup.label = label;
-      optionGroup.dataset.projectDestinationGroup = "true";
-      groupedProjects.forEach((project) => {
-        const option = document.createElement("option");
-        option.value = getProjectDonationValue(project);
-        option.textContent = String(project.donationLabel || project.title || project.date || "Project");
-        optionGroup.appendChild(option);
-      });
-      select.appendChild(optionGroup);
+    const featured = donationPrograms.filter((program) => program.featured === true);
+    if (featured.length) {
+      const group = document.createElement("optgroup");
+      group.label = "Purpose-based giving";
+      group.dataset.donationProgramGroup = "true";
+      featured.forEach((program) => appendProgramOption(group, program));
+      select.appendChild(group);
+    }
+
+    const secondary = donationPrograms.filter((program) => {
+      return program.featured !== true && program.id !== "unrestricted";
     });
+    if (secondary.length) {
+      const group = document.createElement("optgroup");
+      group.label = "Other giving";
+      group.dataset.donationProgramGroup = "true";
+      secondary.forEach((program) => appendProgramOption(group, program));
+      select.appendChild(group);
+    }
   };
 
-  const buildQuickDonationUrl = ({ amount, campaign = "General Fund" }) => {
+  const buildQuickDonationUrl = ({ amount, program = "unrestricted" }) => {
     const params = new URLSearchParams({
       amount: String(amount),
-      campaign: String(campaign || "General Fund"),
+      program: String(program || "unrestricted"),
     });
     return `donate.html?${params.toString()}#donationForm`;
   };
@@ -672,8 +682,8 @@
         return;
       }
       const amount = usesCustomAmount ? String(customAmount) : selectedAmount.value;
-      const campaign = quickCampaignSelect?.value || "General Fund";
-      window.location.href = buildQuickDonationUrl({ amount, campaign });
+      const program = quickCampaignSelect?.value || "unrestricted";
+      window.location.href = buildQuickDonationUrl({ amount, program });
     });
   }
 
@@ -801,6 +811,10 @@
   }
 
   if (!donationForm || !statusEl || !donateButton) {
+    return;
+  }
+
+  if (donationForm.dataset.programCheckout === "true") {
     return;
   }
 

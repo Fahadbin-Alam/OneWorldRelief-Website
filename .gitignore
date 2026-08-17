@@ -19,6 +19,7 @@ owr-sheets-service-account.json
 *.log
 *.sqlite3
 *.db
+.wrangler/
 
 # OS files
 .DS_Store

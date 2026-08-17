@@ -16,6 +16,173 @@ const frequencyLabels = {
   weekly_jummah: "Weekly Jummah donation",
 };
 
+const donationPrograms = {
+  unrestricted: {
+    id: "unrestricted",
+    campaign: "General Fund",
+    label: "Where Needed Most",
+    purposeSummary: "Flexible support directed to One World Relief's most urgent verified charitable need.",
+    amountRule: "minimum",
+    minCents: 500,
+  },
+  orphan_annual: {
+    id: "orphan_annual",
+    campaign: "Orphan Annual Support",
+    label: "Orphan Annual Support",
+    purposeSummary: "A $300 gift designated toward one year of food and education support for an orphan.",
+    amountRule: "fixed",
+    fixedCents: 30000,
+  },
+  mosque_build: {
+    id: "mosque_build",
+    campaign: "Mosque Construction",
+    label: "Mosque Construction Support",
+    purposeSummary: "A $1,000 gift that helps fund verified mosque construction or completion needs.",
+    amountRule: "fixed",
+    fixedCents: 100000,
+  },
+  water_support: {
+    id: "water_support",
+    campaign: "Water Support",
+    label: "Water Support",
+    purposeSummary: "Support for approved clean-water access and community water projects.",
+    amountRule: "range",
+    minCents: 35000,
+    maxCents: 300000,
+  },
+  orphan_feeding: {
+    id: "orphan_feeding",
+    campaign: "Orphan Feeding",
+    label: "Orphan Feeding",
+    purposeSummary: "Meal and food support for orphan students through verified feeding programs.",
+    amountRule: "minimum",
+    minCents: 10000,
+  },
+  family_recovery: {
+    id: "family_recovery",
+    campaign: "Family Recovery",
+    label: "Family Recovery and Livelihood Support",
+    purposeSummary: "A $600 gift that helps a verified family recover through assessed medical, household, or livelihood needs.",
+    amountRule: "fixed",
+    fixedCents: 60000,
+  },
+  emergency_aid: {
+    id: "emergency_aid",
+    campaign: "Emergency Aid",
+    label: "Emergency Aid",
+    purposeSummary: "Rapid support for verified emergencies such as floods and other urgent relief needs.",
+    amountRule: "minimum",
+    minCents: 2500,
+  },
+  zakat: {
+    id: "zakat",
+    campaign: "Zakat",
+    label: "Zakat",
+    purposeSummary: "Zakat designated for eligible, verified charitable needs.",
+    amountRule: "minimum",
+    minCents: 500,
+  },
+};
+
+const waterProgramVariants = {
+  water_station: {
+    id: "water_station",
+    label: "Filtered Water Station",
+    purposeSummary: "A $350 gift that helps fund a filtered water cooler or station for hot-weather drinking water.",
+    amountRule: "fixed",
+    fixedCents: 35000,
+  },
+  water_contribution: {
+    id: "water_contribution",
+    label: "Water Project Contribution",
+    amountRule: "range",
+    minCents: 35000,
+    maxCents: 300000,
+  },
+  community_well: {
+    id: "community_well",
+    label: "Community Well Support",
+    purposeSummary: "A $3,000 gift that helps fund a verified community well project.",
+    amountRule: "fixed",
+    fixedCents: 300000,
+  },
+};
+
+const legacyCampaignAliases = {
+  "general fund": "unrestricted",
+  "where needed most": "unrestricted",
+  "where it's needed most": "unrestricted",
+  "orphan annual support": "orphan_annual",
+  "orphan support": "orphan_annual",
+  "hafiz student support": "orphan_annual",
+  "orphan education": "orphan_annual",
+  "mosque construction": "mosque_build",
+  "mosque construction support": "mosque_build",
+  "mosque tiles": "mosque_build",
+  "mosque gate": "mosque_build",
+  "water support": "water_support",
+  wells: "water_support",
+  "madrasa water": "water_support",
+  "orphan feeding": "orphan_feeding",
+  feeding: "orphan_feeding",
+  "feeding madrasa for orphan kids": "orphan_feeding",
+  "family recovery": "family_recovery",
+  "family recovery and livelihood support": "family_recovery",
+  "father's business support": "family_recovery",
+  "emergency aid": "emergency_aid",
+  "emergency relief": "emergency_aid",
+  "flood relief": "emergency_aid",
+  zakat: "zakat",
+};
+
+const normalizeProgramToken = (value) => {
+  return String(value || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+};
+
+const normalizeCampaignAlias = (value) => {
+  return String(value || "").trim().toLowerCase().replace(/\u2019/g, "'").replace(/\s+/g, " ");
+};
+
+const formatUsdFromCents = (amountCents) => {
+  const amount = amountCents / 100;
+  return `$${Number.isInteger(amount) ? amount.toLocaleString("en-US") : amount.toFixed(2)}`;
+};
+
+const getAmountRuleError = (program, amountCents) => {
+  if (program.amountRule === "fixed" && amountCents !== program.fixedCents) {
+    return `${program.label} requires a ${formatUsdFromCents(program.fixedCents)} donation.`;
+  }
+
+  if (program.amountRule === "minimum" && amountCents < program.minCents) {
+    return `${program.label} donations must be at least ${formatUsdFromCents(program.minCents)}.`;
+  }
+
+  if (program.amountRule === "range" && (amountCents < program.minCents || amountCents > program.maxCents)) {
+    return `${program.label} donations must be between ${formatUsdFromCents(program.minCents)} and ${formatUsdFromCents(program.maxCents)}.`;
+  }
+
+  return "";
+};
+
+const resolveWaterVariant = (requestedVariant, amountCents) => {
+  let variantId = normalizeProgramToken(requestedVariant);
+  if (!variantId) {
+    variantId = amountCents === 35000
+      ? "water_station"
+      : amountCents === 300000
+        ? "community_well"
+        : "water_contribution";
+  }
+
+  return waterProgramVariants[variantId] || null;
+};
+
+const normalizeReferrerCase = (value) => {
+  const normalized = String(value || "").trim().toLowerCase().replace(/[\s_]+/g, "-");
+  const match = normalized.match(/^case-?(\d{1,3})$/);
+  return match ? `case-${match[1].padStart(3, "0")}` : "";
+};
+
 const normalizeGivingFrequency = (value) => {
   return String(value || "one_time").trim().toLowerCase().replace(/[-\s]+/g, "_");
 };
@@ -53,6 +220,50 @@ const setFormMetadata = (form, prefix, metadata) => {
   });
 };
 
+const parseHttpsUrl = (value) => {
+  try {
+    const url = new URL(String(value || "").trim());
+    if (url.protocol !== "https:" || url.username || url.password) {
+      return null;
+    }
+    url.hash = "";
+    return url;
+  } catch (_error) {
+    return null;
+  }
+};
+
+const getCheckoutRedirectBases = (requestUrl, env) => {
+  const requestOrigin = new URL(requestUrl).origin;
+  const fallbackSuccessUrl = new URL("/charity/thank-you", requestOrigin);
+  const fallbackCancelUrl = new URL("/charity/cancelled", requestOrigin);
+  const configuredPublicSite = parseHttpsUrl(env.OWR_PUBLIC_SITE_URL);
+  const configuredSuccessUrl = parseHttpsUrl(env.OWR_SUCCESS_URL);
+  const configuredCancelUrl = parseHttpsUrl(env.OWR_CANCEL_URL);
+
+  let trustedConfiguredOrigin = configuredPublicSite?.origin || "";
+  if (!trustedConfiguredOrigin && configuredSuccessUrl && configuredCancelUrl && configuredSuccessUrl.origin === configuredCancelUrl.origin) {
+    trustedConfiguredOrigin = configuredSuccessUrl.origin;
+  }
+
+  if (!trustedConfiguredOrigin) {
+    return {
+      successUrl: configuredSuccessUrl?.origin === requestOrigin ? configuredSuccessUrl : fallbackSuccessUrl,
+      cancelUrl: configuredCancelUrl?.origin === requestOrigin ? configuredCancelUrl : fallbackCancelUrl,
+    };
+  }
+
+  if ((configuredSuccessUrl && configuredSuccessUrl.origin !== trustedConfiguredOrigin)
+    || (configuredCancelUrl && configuredCancelUrl.origin !== trustedConfiguredOrigin)) {
+    return { successUrl: fallbackSuccessUrl, cancelUrl: fallbackCancelUrl };
+  }
+
+  return {
+    successUrl: configuredSuccessUrl || new URL("/charity/thank-you", trustedConfiguredOrigin),
+    cancelUrl: configuredCancelUrl || new URL("/charity/cancelled", trustedConfiguredOrigin),
+  };
+};
+
 export const onRequestOptions = async () => {
   return json({});
 };
@@ -72,8 +283,13 @@ export const onRequestPost = async ({ request, env }) => {
   const donorName = String(body.donor_name || "").trim();
   const donorEmail = String(body.donor_email || "").trim();
   const amountUsd = Number(body.amount_usd || 0);
+  const amountCents = Math.round(amountUsd * 100);
   const paymentMethod = String(body.payment_method || "stripe").trim().toLowerCase().replace(/-/g, "_");
-  const campaign = String(body.campaign || "General Fund").trim() || "General Fund";
+  const requestedCampaign = String(body.campaign || "General Fund").trim() || "General Fund";
+  const requestedProgramId = normalizeProgramToken(body.program_id);
+  const requestedProgramVariant = normalizeProgramToken(body.program_variant);
+  const rawReferrerCase = String(body.referrer_case || "").trim();
+  const referrerCase = normalizeReferrerCase(rawReferrerCase);
   const donorNote = String(body.donor_note || "").trim().slice(0, 180);
   const anonymousPublic = Boolean(body.anonymous_public);
   const givingFrequency = normalizeGivingFrequency(body.giving_frequency);
@@ -91,6 +307,59 @@ export const onRequestPost = async ({ request, env }) => {
   if (!Number.isFinite(amountUsd) || amountUsd < 5) {
     return json({ detail: "Donation amount must be at least $5." }, 400);
   }
+
+  if (!Number.isSafeInteger(amountCents) || Math.abs(amountUsd * 100 - amountCents) > 0.000001) {
+    return json({ detail: "Please enter a valid donation amount with no more than two decimal places." }, 400);
+  }
+
+  if (rawReferrerCase && !referrerCase) {
+    return json({ detail: "Please use a valid project reference." }, 400);
+  }
+
+  const resolvedProgramId = requestedProgramId
+    || legacyCampaignAliases[normalizeCampaignAlias(requestedCampaign)];
+  const program = donationPrograms[resolvedProgramId];
+
+  if (!program) {
+    return json({ detail: requestedProgramId ? "Please choose a valid donation program." : "Please choose a valid donation destination." }, 400);
+  }
+
+  // The public catalog is one-time. Existing recurring integrations omit program_id
+  // and continue to use an explicit legacy campaign alias with the global $5 minimum.
+  if (isRecurring && requestedProgramId) {
+    return json({ detail: "Catalog giving programs are currently available for one-time donations only." }, 400);
+  }
+
+  let programVariant = "";
+  let programOptionLabel = "";
+  let purposeSummary = program.purposeSummary;
+  let stripeProgramLabel = program.label;
+  let amountRuleTarget = program;
+
+  if (program.id === "water_support" && !isRecurring) {
+    const waterVariant = resolveWaterVariant(requestedProgramVariant, amountCents);
+    if (!waterVariant) {
+      return json({ detail: "Please choose a valid water-support option." }, 400);
+    }
+    programVariant = waterVariant.id;
+    programOptionLabel = waterVariant.label;
+    amountRuleTarget = waterVariant;
+    purposeSummary = waterVariant.id === "water_contribution"
+      ? `A ${formatUsdFromCents(amountCents)} gift that contributes to approved water work.`
+      : waterVariant.purposeSummary;
+    stripeProgramLabel = `${program.label} - ${waterVariant.label}`;
+  } else if (requestedProgramVariant) {
+    return json({ detail: "This donation program does not accept that option." }, 400);
+  }
+
+  if (!isRecurring) {
+    const amountRuleError = getAmountRuleError(amountRuleTarget, amountCents);
+    if (amountRuleError) {
+      return json({ detail: amountRuleError }, 400);
+    }
+  }
+
+  const campaign = program.campaign;
 
   const stripeMethods = ["stripe", "credit_card", "card", "apple_pay", "cash_app", "cashapp"];
   if (isRecurring && paymentMethod === "venmo") {
@@ -110,6 +379,10 @@ export const onRequestPost = async ({ request, env }) => {
     return json({
       donation_id: crypto.randomUUID(),
       provider: "venmo",
+      program_id: program.id,
+      program_label: program.label,
+      program_variant: programVariant,
+      campaign,
       status: "external_redirect",
       redirect_url: redirectUrl.toString(),
       message: "Redirect donor to Venmo. Add this payment manually to the donation sheet after confirming it clears.",
@@ -124,15 +397,12 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Recurring donations use Stripe card checkout. Please choose Apple Pay, card, or Stripe Checkout." }, 400);
   }
 
-  const origin = new URL(request.url).origin;
   const donationId = crypto.randomUUID();
-  const amountCents = Math.round(amountUsd * 100);
-  const successBaseUrl = body.success_url || env.OWR_SUCCESS_URL || `${origin}/charity/thank-you`;
-  const cancelBaseUrl = body.cancel_url || env.OWR_CANCEL_URL || `${origin}/charity/cancelled`;
-  const successUrl = new URL(successBaseUrl);
+  const redirectBases = getCheckoutRedirectBases(request.url, env);
+  const successUrl = new URL(redirectBases.successUrl);
   successUrl.searchParams.set("donation_id", donationId);
   successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
-  const cancelUrl = new URL(cancelBaseUrl);
+  const cancelUrl = new URL(redirectBases.cancelUrl);
   cancelUrl.searchParams.set("donation_id", donationId);
 
   const form = new URLSearchParams();
@@ -153,6 +423,12 @@ export const onRequestPost = async ({ request, env }) => {
     donation_id: donationId,
     source: "one-world-relief",
     campaign,
+    program_id: program.id,
+    program_label: program.label,
+    program_variant: programVariant,
+    program_option_label: programOptionLabel,
+    purpose_summary: purposeSummary,
+    referrer_case: referrerCase,
     donor_name: donorName,
     donor_email: donorEmail,
     donor_note: donorNote,
@@ -183,8 +459,8 @@ export const onRequestPost = async ({ request, env }) => {
   if (isRecurring) {
     form.set("line_items[0][price_data][recurring][interval]", recurringInterval);
   }
-  form.set("line_items[0][price_data][product_data][name]", `One World Relief - ${campaign}`);
-  form.set("line_items[0][price_data][product_data][description]", `${frequencyLabels[givingFrequency]} from ${donorName}`);
+  form.set("line_items[0][price_data][product_data][name]", `One World Relief - ${stripeProgramLabel}`);
+  form.set("line_items[0][price_data][product_data][description]", purposeSummary);
 
   const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
@@ -204,6 +480,11 @@ export const onRequestPost = async ({ request, env }) => {
   return json({
     donation_id: donationId,
     provider: "stripe",
+    program_id: program.id,
+    program_label: program.label,
+    program_variant: programVariant,
+    program_option_label: programOptionLabel,
+    campaign,
     giving_frequency: givingFrequency,
     status: "pending",
     redirect_url: payload.url,

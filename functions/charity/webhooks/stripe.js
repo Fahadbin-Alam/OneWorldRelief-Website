@@ -112,6 +112,29 @@ const getAmountUsd = (session) => {
   return ((session.amount_total || 0) / 100).toFixed(2);
 };
 
+const getSafeAttributionValue = (value, fallback = "") => {
+  const normalized = String(value || "")
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim()
+    .slice(0, 160);
+  return normalized || fallback;
+};
+
+const protectGoogleSheetsCell = (value) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  return /^[=+\-@]/.test(value.trim()) ? `'${value}` : value;
+};
+
+const programVariantLabels = {
+  water_station: "Filtered Water Station",
+  water_contribution: "Water Project Contribution",
+  community_well: "Community Well Support",
+};
+
 const getInvoiceMetadata = (invoice) => {
   return {
     ...(invoice.parent?.subscription_details?.metadata || {}),
@@ -152,6 +175,7 @@ const getReceiptDetails = (session) => {
   const metadata = session.metadata || {};
   const donorName = metadata.donor_name || session.customer_details?.name || "";
   const donorEmail = metadata.donor_email || session.customer_details?.email || session.customer_email || "";
+  const programVariant = getSafeAttributionValue(metadata.program_variant);
   const paidDate = new Date((session.created || Date.now() / 1000) * 1000);
   return {
     receiptNumber: createReceiptNumber(session),
@@ -160,10 +184,13 @@ const getReceiptDetails = (session) => {
     date: paidDate.toLocaleDateString("en-US", { timeZone: "UTC" }),
     amount: getAmountUsd(session),
     method: "Stripe",
+    designation: getSafeAttributionValue(metadata.campaign, "General Fund"),
+    programOption: getSafeAttributionValue(metadata.program_option_label || programVariantLabels[programVariant] || programVariant),
   };
 };
 
 const createReceiptText = (receipt) => {
+  const programOptionLine = receipt.programOption ? `\nProgram option: ${receipt.programOption}` : "";
   return `OneWorld Relief
 EIN: 41-5079927
 
@@ -174,6 +201,7 @@ Donor Name: ${receipt.donorName || "Donor"}
 Date: ${receipt.date}
 Amount: $${receipt.amount}
 Method: ${receipt.method}
+Designation: ${receipt.designation}${programOptionLine}
 
 Thank you for your generous contribution to OneWorld Relief, a 501(c)(3) nonprofit organization.
 
@@ -273,6 +301,10 @@ const appendDonationToGoogleSheet = async (env, session) => {
   }
   const origin = env.OWR_PUBLIC_SITE_URL || env.OWR_SUCCESS_URL?.replace(/\/charity\/thank-you.*$/, "") || "";
   const receiptUrl = origin ? `${origin.replace(/\/$/, "")}/charity/thank-you?donation_id=${encodeURIComponent(donationId)}&session_id=${encodeURIComponent(session.id || "")}` : "";
+  const programId = getSafeAttributionValue(metadata.program_id);
+  const programVariant = getSafeAttributionValue(metadata.program_variant);
+  const programOption = getSafeAttributionValue(metadata.program_option_label || programVariantLabels[programVariant] || programVariant);
+  const referrerCase = getSafeAttributionValue(metadata.referrer_case);
   const notes = [
     session.payment_status ? `Status: ${session.payment_status}` : "",
     session.id ? `Stripe Session: ${session.id}` : "",
@@ -280,6 +312,10 @@ const appendDonationToGoogleSheet = async (env, session) => {
     session.payment_intent ? `Payment Intent: ${session.payment_intent}` : "",
     metadata.stripe_invoice_id ? `Stripe Invoice: ${metadata.stripe_invoice_id}` : "",
     metadata.schedule_label ? `Giving Schedule: ${metadata.schedule_label}` : "",
+    programId ? `Program ID: ${programId}` : "",
+    programOption ? `Program Option: ${programOption}` : "",
+    programVariant ? `Program Variant ID: ${programVariant}` : "",
+    referrerCase ? `Referrer Case: ${referrerCase}` : "",
     receiptEmailStatus ? `Receipt Email: ${receiptEmailStatus}` : "",
     receiptUrl ? `Receipt URL: ${receiptUrl}` : "",
     metadata.anonymous_public === "yes" ? "Public Display: Anonymous" : "",
@@ -294,7 +330,7 @@ const appendDonationToGoogleSheet = async (env, session) => {
     "Stripe",
     receipt.receiptNumber,
     notes,
-  ];
+  ].map(protectGoogleSheetsCell);
   const range = encodeURIComponent(`'${tabName}'!A:H`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 

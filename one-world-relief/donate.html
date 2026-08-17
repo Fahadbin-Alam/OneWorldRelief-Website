@@ -9,7 +9,7 @@
   <title>One World Relief | Donate</title>
   <meta
     name="description"
-    content="Donate to One World Relief across regular giving, orphan support, wells, zakat, and feeding."
+    content="Give securely to One World Relief or choose orphan, mosque, water, feeding, family recovery, emergency aid, or Zakat support."
   />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -101,7 +101,7 @@
           <div class="donation-form-heading">
             <div>
               <p class="eyebrow">Secure Stripe checkout</p>
-              <h2>Make a donation</h2>
+              <h2 id="donationFormTitle" tabindex="-1">Give any amount</h2>
             </div>
             <span class="donation-security-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" focusable="false">
@@ -109,7 +109,21 @@
               </svg>
             </span>
           </div>
-          <form id="donationForm">
+          <form id="donationForm" data-program-checkout="true">
+            <input id="selectedProgramId" type="hidden" value="unrestricted" />
+            <input id="selectedProgramVariant" type="hidden" value="" />
+            <input id="donationReferrerCase" type="hidden" value="" />
+
+            <aside class="donation-program-summary" id="donationProgramSummary" aria-live="polite">
+              <p class="eyebrow">Selected purpose</p>
+              <div class="donation-program-summary-heading">
+                <h3 id="selectedProgramTitle">Give Where It’s Needed Most</h3>
+                <strong id="selectedProgramAmount">Any amount from $5</strong>
+              </div>
+              <p id="selectedProgramPurpose">Your gift gives One World Relief flexibility to respond to the most urgent verified need.</p>
+              <p class="donation-program-stewardship" id="selectedProgramStewardship" hidden></p>
+            </aside>
+
             <section class="donation-step" aria-labelledby="amountStepTitle">
               <div class="donation-step-heading">
                 <div>
@@ -117,7 +131,7 @@
                   <p class="donation-minimum" id="minimumDonationText">Minimum donation is $5.</p>
                 </div>
               </div>
-              <fieldset class="amount-grid amount-grid-impact">
+              <fieldset class="amount-grid amount-grid-impact" id="donationAmountChoices">
                 <legend class="sr-only">Select an amount</legend>
                 <label><input type="radio" name="amount" value="5" /><strong>$5</strong></label>
                 <label><input type="radio" name="amount" value="25" checked /><strong>$25</strong></label>
@@ -136,17 +150,14 @@
             <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
               <div class="donation-step-heading">
                 <div>
-                  <h3 id="fundStepTitle">Where should your donation go?</h3>
+                  <h3 id="fundStepTitle">Choose a purpose</h3>
                 </div>
               </div>
               <label class="custom-amount compact-select" for="campaignSelect">
                 <span class="sr-only">Donation destination</span>
                 <select id="campaignSelect" required>
-                  <option value="General Fund">Where it's needed most</option>
-                  <option value="Orphan Support">Orphan Support</option>
-                  <option value="Wells">Wells</option>
-                  <option value="Zakat">Zakat</option>
-                  <option value="Feeding">Feeding</option>
+                  <option value="unrestricted">Where it's needed most</option>
+                  <option value="zakat">Zakat</option>
                 </select>
               </label>
             </section>
@@ -188,6 +199,11 @@
               </svg>
               Stripe securely handles your payment. One World Relief never receives your card details.
             </p>
+            <p class="donation-stewardship-note">
+              Your gift is designated to the selected program. If a specific need is fully funded or cannot proceed,
+              One World Relief may apply it to the closest eligible need within that same program. Zakat remains
+              limited to Zakat-eligible uses.
+            </p>
             <p class="donation-status" id="donationStatus" role="status" aria-live="polite"></p>
           </form>
         </article>
@@ -197,36 +213,11 @@
     <section class="flow-section flow-section-funds reveal">
       <div class="container">
         <div class="section-heading flow-heading">
-          <p class="eyebrow">Choose a Current</p>
-          <h2>Every fund has a clear place to go.</h2>
+          <p class="eyebrow">Purpose-based giving</p>
+          <h2>Choose the work you want to support.</h2>
+          <p>Every option has a clear amount rule, honest scope, and Stripe designation. Photos are from past One World Relief work.</p>
         </div>
-      <div class="donation-categories flow-cards">
-        <article class="donation-card">
-          <h3>Where It's Needed Most</h3>
-          <p>General giving for where support is needed most.</p>
-          <a class="button button-primary" href="donate.html?campaign=General%20Fund#donationForm">Donate</a>
-        </article>
-        <article class="donation-card">
-          <h3>Orphan Support</h3>
-          <p>Help fund care, essentials, and educational support for children.</p>
-          <a class="button button-primary" href="donate.html?campaign=Orphan%20Support#donationForm">Donate</a>
-        </article>
-        <article class="donation-card">
-          <h3>Wells</h3>
-          <p>Support clean water access and well construction projects.</p>
-          <a class="button button-primary" href="donate.html?campaign=Wells#donationForm">Donate</a>
-        </article>
-        <article class="donation-card">
-          <h3>Zakat</h3>
-          <p>Give zakat through a category that can be tracked and organized clearly.</p>
-          <a class="button button-primary" href="donate.html?campaign=Zakat#donationForm">Donate</a>
-        </article>
-        <article class="donation-card">
-          <h3>Feeding</h3>
-          <p>Fund meal support, food packs, and emergency feeding campaigns.</p>
-          <a class="button button-primary" href="donate.html?campaign=Feeding#donationForm">Donate</a>
-        </article>
-      </div>
+        <div class="donation-program-grid" id="donationProgramGrid" aria-label="Donation programs"></div>
       </div>
     </section>
 
@@ -253,12 +244,12 @@
         </article>
 
         <article class="donation-card donation-benefits">
-          <h3>What your donation supports</h3>
+          <h3>What happens after checkout</h3>
           <ul>
-            <li><strong>$10</strong> helps fund a basic family support need.</li>
-            <li><strong>$25</strong> supports essentials for a child or household.</li>
-            <li><strong>$50</strong> helps fund part of a relief or feeding campaign.</li>
-            <li><strong>$100</strong> contributes toward larger community projects like wells.</li>
+            <li><strong>1.</strong> Stripe securely processes the payment.</li>
+            <li><strong>2.</strong> Your selected purpose is recorded with the donation.</li>
+            <li><strong>3.</strong> One World Relief sends a receipt to your email.</li>
+            <li><strong>4.</strong> New project proof is published when field work is documented.</li>
           </ul>
           <div class="secure-note">
             <strong>Secure checkout</strong>
@@ -283,7 +274,9 @@
     </div>
   </footer>
 
+  <script src="donation-programs.js"></script>
   <script src="project-data.js"></script>
   <script src="one-world-relief.js"></script>
+  <script src="donation-checkout.js"></script>
 </body>
 </html>

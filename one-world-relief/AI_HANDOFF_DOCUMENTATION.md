@@ -2759,7 +2759,59 @@ Additional DNS check later on May 4, 2026:
   - Feature commit `5af0bbf` (`5af0bbfadd5dad7bb69d22d311afa181daafc16f`) was pushed to `origin/charity-frontend-redesign` before deployment.
   - Cloudflare preview `be77c9bd-a146-4d76-a848-156d7116c2ee` succeeded at `https://be77c9bd.trying-8o0.pages.dev`; production `035d31a5-a99c-427b-b293-33d263ac5d3e` succeeded at `https://035d31a5.trying-8o0.pages.dev`, both with Functions enabled and source metadata `5af0bbf`.
   - The fresh public-only stage contained 62 files. Internal handoff/setup/SQL/template/test files and raw Function source were excluded; eight representative protected URLs returned the homepage fallback with no leaked markers.
-  - Preview, production, and canonical `.org` checks confirmed exact bytes for all representative pages, shared assets, service worker, project data, and project photos. Empty checkout and unsigned webhook calls returned `400` without creating any payment. `.com` redirects to `.org`, and `www` serves the canonical deployment.
+- Preview, production, and canonical `.org` checks confirmed exact bytes for all representative pages, shared assets, service worker, project data, and project photos. Empty checkout and unsigned webhook calls returned `400` without creating any payment. `.com` redirects to `.org`, and `www` serves the canonical deployment.
+
+### 2026-08-17 Case 009 and Purpose-Based Donation Catalog (Not Yet Deployed)
+- Case 009 verified record:
+  - Published title: `Twenty Ceiling Fans for a New Mosque`.
+  - Verified completion update date: September 24, 2025.
+  - Verified scope and location: 20 ceiling fans installed at a newly built mosque in Bangladesh.
+  - The total cost and beneficiary count were not listed in the supplied records and must not be estimated.
+  - Source material is in `D:\OneWorldRelief\Cases\Case 009 - Mosque Ceiling Fans`. The dated completion update came from the user's friends-only Facebook content. It is not a public Facebook post, so future copy must describe it as a supplied or saved completion update, not as a public post.
+  - Only two approved field photos are published as `mosque-fans-009-main.jpg` and `mosque-fans-009-proof.jpg`; the card uses a metadata-stripped derivative named `mosque-fans-009-thumbnail.jpg`.
+  - The supporting letter is private because it includes a phone number and is not published. Phone/contact details, donor names, and embedded image metadata are also excluded from the public case record.
+  - Case 009 is completed and has `acceptsDonations: false`. Its support link points to the broader future mosque-construction program and carries `referrer=case-009`; it does not reopen Case 009 or imply that its unlisted cost was `$1,000`.
+- Canonical one-time donation programs and server amount rules:
+
+  | Program ID | Server-derived campaign | One-time amount rule |
+  | --- | --- | --- |
+  | `unrestricted` | `General Fund` | Minimum `$5` |
+  | `orphan_annual` | `Orphan Annual Support` | Exactly `$300` |
+  | `mosque_build` | `Mosque Construction` | Exactly `$1,000` |
+  | `water_support` | `Water Support` | Variant required or derived: `water_station` exactly `$350`; `water_contribution` from `$350` through `$3,000`; `community_well` exactly `$3,000` |
+  | `orphan_feeding` | `Orphan Feeding` | Minimum `$100` |
+  | `family_recovery` | `Family Recovery` | Exactly `$600` |
+  | `emergency_aid` | `Emergency Aid` | Minimum `$25` |
+  | `zakat` | `Zakat` | Minimum `$5` |
+
+  - All requests still pass the global `$5` validation and must use no more than two decimal places. Unknown program IDs, unsupported variants, invalid `case-NNN` referrers, and amounts outside the selected rule return `400` before Stripe is called.
+  - The public catalog is one-time only. `donation-checkout.js` always submits `giving_frequency: "one_time"`, and the server rejects a recurring request that supplies a catalog `program_id`.
+  - Existing direct/API recurring clients remain compatible when they omit `program_id`, submit `monthly` or `weekly_jummah`, and use a recognized legacy campaign alias. Those legacy recurring requests retain the global `$5` minimum and existing Stripe subscription behavior; the new program-specific one-time amount rule is not applied to them.
+  - Legacy aliases exist only for compatibility. New website links and intake records must use the canonical `program` ID, not an arbitrary `campaign` query value. The exact normalized aliases are:
+    - `unrestricted`: `general fund`, `where needed most`, `where it's needed most`.
+    - `orphan_annual`: `orphan annual support`, `orphan support`, `hafiz student support`, `orphan education`.
+    - `mosque_build`: `mosque construction`, `mosque construction support`, `mosque tiles`, `mosque gate`.
+    - `water_support`: `water support`, `wells`, `madrasa water`.
+    - `orphan_feeding`: `orphan feeding`, `feeding`, `feeding madrasa for orphan kids`.
+    - `family_recovery`: `family recovery`, `family recovery and livelihood support`, `father's business support`.
+    - `emergency_aid`: `emergency aid`, `emergency relief`, `flood relief`.
+    - `zakat`: `zakat`.
+- Server-authoritative Stripe attribution:
+  - Both byte-identical Checkout Function copies resolve the submitted ID or legacy alias against a server-owned allowlist, derive the canonical `campaign`, `program_label`, `purpose_summary`, and water variant, and validate the amount. A browser-supplied or forged campaign cannot override a valid program ID.
+  - Stripe's product name and description are built from the resolved server record. Checkout Session metadata, plus PaymentIntent or Subscription metadata as applicable, carries `program_id`, `program_label`, `program_variant`, `purpose_summary`, normalized `referrer_case`, and the existing donation/frequency fields.
+  - The custom donor receipt now includes `Designation: <canonical campaign>` and includes a server-derived, human-readable `Program option` only when a water variant is present. The stable `program_variant` ID remains in Stripe metadata and Sheets Notes for operations. Attribution text is control-character-safe and length limited.
+  - Google Sheets keeps the canonical campaign in its existing Campaign column. The Notes cell now adds `Program ID`, the stable `Program Variant ID`, human-readable `Program Option`, and `Referrer Case` when present, without adding beneficiary PII. Every A:H value is neutralized before the `USER_ENTERED` append when its trimmed text begins with `=`, `+`, `-`, or `@`, preventing donor-controlled spreadsheet formulas while leaving ordinary strings and numbers unchanged. Older events without the new fields remain compatible and receipts default to `General Fund` when campaign metadata is absent.
+  - Browser-supplied `success_url` and `cancel_url` fields are ignored. Checkout uses only trusted HTTPS environment URLs that resolve to one configured origin; unsafe or mixed configuration falls back to the request origin's standard `/charity/thank-you` and `/charity/cancelled` paths.
+- Frontend and project files:
+  - `donation-programs.js` is the browser-side catalog for labels, honest purpose/stewardship copy, presets, approved past-project photos, and client validation. Server rules remain authoritative and are separately mirrored in both Checkout Functions.
+  - `donation-checkout.js` renders the purpose cards, hydrates `program`, optional `variant`, `amount`, and `referrer` query parameters, updates the selected-purpose summary, validates the selected rule, and posts canonical fields to Checkout.
+  - `donate.html` now leads with unrestricted giving from `$5`, followed by photo-led purpose cards for orphan annual support, mosque construction, water, orphan feeding, family recovery, and emergency aid. Its stewardship language keeps any fallback within the same selected program and explicitly limits Zakat to Zakat-eligible uses. On tablet and phone layouts the checkout form appears before the supporting photo panel. `index.html` loads the shared catalog, and project/detail links now use canonical program URLs.
+  - Other changed public files include `one-world-relief.js`, `one-world-relief.css`, `project-data.js`, `projects/case-001.html` through `projects/case-009.html`, and `assets/projects/case-009/`. Backend changes are mirrored under both `functions/` trees, and the webhook additions are in both Stripe webhook copies.
+  - The offline cache is `owr-offline-v7`; `donation-programs.js` and `donation-checkout.js` are in the app shell.
+- Point-in-time validation and release status:
+  - At the time this section was written, the Case 009/catalog implementation had **not yet been committed or deployed** to Cloudflare. Do not describe it as live based on this section.
+  - The full regression suite passes `35/35`, covering the nine-case data set, Case 009 source/privacy rules and media metadata, cache v7, canonical program URLs, all server amount boundaries, rejected forged/unknown values, trusted redirect enforcement, legacy aliases/recurring compatibility, Stripe-derived attribution, human option labels, and webhook receipt/Sheets formula protection.
+  - Preview deployment, production deployment, canonical-domain byte checks, and safe live endpoint checks were still pending. No real Stripe payment was created while preparing this handoff.
 
 ---
 

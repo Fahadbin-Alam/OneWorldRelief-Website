@@ -17,7 +17,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailUrl: "assets/projects/case-001/orphan-support-001-thumbnail.jpg",
     mediaLabel: "View story",
     mediaUrl: "projects/case-001.html",
-    donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
+    donationUrl: "donate.html?program=orphan_annual&amount=300&referrer=case-001#donationForm"
   },
   {
     title: "A Fresh Start for a Father's Business",
@@ -34,7 +34,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailUrl: "assets/projects/case-002/livelihood-support-002-thumbnail.jpg",
     mediaLabel: "View story",
     mediaUrl: "projects/case-002.html",
-    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+    donationUrl: "donate.html?program=family_recovery&amount=600&referrer=case-002#donationForm"
   },
   {
     title: "Keeping an Orphan Boy in School",
@@ -51,7 +51,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailUrl: "assets/projects/case-003/orphan-education-003-thumbnail.jpg",
     mediaLabel: "View story",
     mediaUrl: "projects/case-003.html",
-    donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
+    donationUrl: "donate.html?program=orphan_annual&amount=300&referrer=case-003#donationForm"
   },
   {
     title: "Feeding Madrasa for Orphan Kids",
@@ -68,7 +68,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailUrl: "assets/projects/case-004/korbani-meals-004-thumbnail.jpg",
     mediaLabel: "View story",
     mediaUrl: "projects/case-004.html",
-    donationUrl: "donate.html?campaign=Feeding#donationForm"
+    donationUrl: "donate.html?program=orphan_feeding&amount=100&referrer=case-004#donationForm"
   },
   {
     title: "Food Relief for Flood-Affected Families",
@@ -85,7 +85,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailUrl: "assets/projects/case-005/flood-relief-005-thumbnail.jpg",
     mediaLabel: "View story",
     mediaUrl: "projects/case-005.html",
-    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+    donationUrl: "donate.html?program=emergency_aid&amount=25&referrer=case-005#donationForm"
   },
   {
     title: "A Secure Gate for a Community Mosque",
@@ -102,7 +102,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailUrl: "assets/projects/case-006/mosque-gate-006-thumbnail.jpg",
     mediaLabel: "View story",
     mediaUrl: "projects/case-006.html",
-    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+    donationUrl: "donate.html?program=mosque_build&amount=1000&referrer=case-006#donationForm"
   },
   {
     title: "Water for a Madrasa Mosque",
@@ -120,7 +120,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailLabel: "Coming Soon",
     mediaLabel: "View project",
     mediaUrl: "projects/case-007.html",
-    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+    donationUrl: "donate.html?program=water_support&variant=water_station&amount=350&referrer=case-007#donationForm"
   },
   {
     title: "Tiles to Help Finish a Mosque",
@@ -138,6 +138,23 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     thumbnailLabel: "Coming Soon",
     mediaLabel: "View project",
     mediaUrl: "projects/case-008.html",
-    donationUrl: "donate.html?campaign=General%20Fund#donationForm"
+    donationUrl: "donate.html?program=mosque_build&amount=1000&referrer=case-008#donationForm"
+  },
+  {
+    title: "Twenty Ceiling Fans for a New Mosque",
+    donationLabel: "Mosque Construction",
+    acceptsDonations: false,
+    category: "Mosque Support",
+    status: "Completed",
+    location: "Bangladesh",
+    date: "Case 009",
+    amountRaised: "Cost not publicly listed",
+    impact: "20 ceiling fans installed for the mosque’s ground floor",
+    summary: "Case 009 documents 20 ceiling fans installed for the ground floor of a newly built mosque in Bangladesh. Two completion photos are published; donor names, contact information, and the private supporting letter remain off the public website.",
+    update: "The completed fan installation was documented on September 24, 2025.",
+    thumbnailUrl: "assets/projects/case-009/mosque-fans-009-thumbnail.jpg",
+    mediaLabel: "View story",
+    mediaUrl: "projects/case-009.html",
+    donationUrl: "donate.html?program=mosque_build&amount=1000&referrer=case-009#donationForm"
   }
 ];
