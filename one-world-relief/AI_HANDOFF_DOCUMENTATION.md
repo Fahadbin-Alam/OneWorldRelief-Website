@@ -2817,14 +2817,18 @@ Additional DNS check later on May 4, 2026:
   - Cache-bypassed exact-byte verification passed on the production deployment URL, `https://one-world-relief.org`, and `https://www.one-world-relief.org` for the homepage, Donate, Case 009, the catalog/client scripts, project data, CSS, service worker, and representative Case 009 media. Eight protected internal paths returned the public homepage fallback instead of repository content.
   - Safe integration checks returned `400` for an empty Checkout POST and an unsigned Stripe webhook on preview and production, without creating a Checkout Session or payment. `https://one-world-relief.com/donate` continues to return a `301` redirect to the canonical `.org` URL.
 
-#### 2026-08-17 Confirmed Case 009 Cost Correction (Pending Deployment)
+#### 2026-08-17 Confirmed Case 009 Cost Correction
 - The user confirmed that the completed 20-ceiling-fan project cost was `$1,650`.
 - The September 24, 2025 supplied record remains the source for the installation and 20-fan facts. The `$1,650` amount is separately attributed to the user's August 17, 2026 confirmation; the public page must not claim that the older supplied record contained the cost.
 - `project-data.js`, `projects/case-009.html`, and `assets/projects/README.md` now show `$1,650`. The page explicitly distinguishes the completed Case 009 cost from the separate `$1,000` future mosque-support option.
 - Private correspondence, the phone number, donor names, and source-photo metadata remain unpublished. The beneficiary count remains unconfirmed.
 - The offline cache advances from `owr-offline-v7` to `owr-offline-v8` for the corrected project data and page.
 - The updated regression suite passes `35/35`; JavaScript syntax and `git diff --check` pass.
-- At the time this correction note was written, the cost update had not yet been committed or deployed. Record the correction commit and new Cloudflare preview/production IDs here after release.
+- Correction commit: `d19570c72a0f43f0b0a4093e3600f95d28a3f3dd` (`fix: record confirmed case 009 cost`), pushed to `origin/charity-frontend-redesign`.
+- Cloudflare preview: deployment `e12d116b-6861-4b24-85ab-aaac377c801b` at `https://e12d116b.trying-8o0.pages.dev` from source `d19570c`.
+- Cloudflare production: deployment `16533f0d-b3c0-4e0c-a602-c4e83acd4ffc` at `https://16533f0d.trying-8o0.pages.dev`, branch `main`, from source `d19570c`.
+- Cache-bypassed release checks confirmed exact staged bytes for the homepage, Projects page, Case 009 page, `project-data.js`, and `sw.js` on the production deployment URL, `https://one-world-relief.org`, and `https://www.one-world-relief.org`. Case 009 shows `$1,650`, the separate future `$1,000` mosque-support option, the August 17, 2026 cost-confirmation record, and cache `owr-offline-v8`, with no stale unknown-cost wording.
+- Eight protected operational/source paths continued to return the public homepage fallback rather than internal content. An empty checkout request and unsigned Stripe webhook both returned `400`, verifying the deployed Functions without creating a checkout or payment. `https://one-world-relief.com/donate` continued to redirect `301` to the canonical `.org` site.
 
 ---
 
