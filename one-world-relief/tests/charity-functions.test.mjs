@@ -759,7 +759,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v7/);
+  assert.match(serviceWorker, /owr-offline-v8/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
 });
 
@@ -942,7 +942,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v7/);
+  assert.match(serviceWorker, /owr-offline-v8/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1623,7 +1623,7 @@ test("Case 009 publishes verified mosque-fan proof without private correspondenc
       category: "Mosque Support",
       status: "Completed",
       location: "Bangladesh",
-      amountRaised: "Cost not publicly listed",
+      amountRaised: "$1,650",
       acceptsDonations: false,
       thumbnailUrl: "assets/projects/case-009/mosque-fans-009-thumbnail.jpg",
       mediaUrl: "projects/case-009.html",
@@ -1631,18 +1631,25 @@ test("Case 009 publishes verified mosque-fan proof without private correspondenc
   );
   assert.match(caseNine.impact, /20 ceiling fans installed/);
   assert.match(caseNine.update, /September 24, 2025/);
+  assert.match(caseNine.update, /later confirmed as \$1,650/);
   assert.equal(caseNine.donationUrl, "donate.html?program=mosque_build&amount=1000&referrer=case-009#donationForm");
 
+  assert.match(casePage, /From One World Relief Case 009 approved completion media, 9\/24\/25/);
   assert.match(casePage, /<title>One World Relief \| Twenty Ceiling Fans for a New Mosque<\/title>/);
   assert.match(casePage, /<meta name="description" content="Completed Case 009 documenting 20 ceiling fans installed at a newly built mosque in Bangladesh\." \/>/);
-  assert.match(casePage, /<strong>Not publicly listed<\/strong>/);
+  assert.match(casePage, /<span>Project cost<\/span><strong>\$1,650<\/strong>/);
   assert.match(casePage, /<strong>September 24, 2025<\/strong>/);
   assert.match(casePage, /<time datetime="2025-09-24">September 24, 2025<\/time>/);
-  assert.match(casePage, /The supplied project record confirms a donation of 20 ceiling fans/);
-  assert.match(casePage, /does not\s+estimate either figure/);
-  assert.match(casePage, /Private correspondence, phone numbers, donor names, and embedded photo\s+metadata are not included/);
+  assert.match(casePage, /The supplied project record and saved completion update document 20 ceiling fans successfully installed\s+in a newly built mosque in Bangladesh/);
+  assert.match(casePage, /One World Relief has now confirmed the completed project cost was\s+\$1,650/);
+  assert.match(casePage, /<time datetime="2025-09-24">September 24, 2025<\/time>\s+<h3>Twenty fans documented<\/h3>/);
+  assert.match(casePage, /<time datetime="2026-08-17">August 17, 2026<\/time>\s+<h3>Project cost confirmed<\/h3>\s+<p>One World Relief confirmed the completed Case 009 project cost was \$1,650\.<\/p>/);
+  assert.match(casePage, /does not estimate that\s+figure/);
+  assert.match(casePage, /the separate \$1,000 mosque-support donation option is for future mosque\s+projects and is not the cost of this case/);
+  assert.match(casePage, /Private correspondence, phone numbers, donor names, and\s+embedded photo metadata are not included/);
   assert.match(casePage, /program=mosque_build&amp;amount=1000&amp;referrer=case-009#donationForm/);
-  assert.match(mediaReadme, /case-009\/.*metadata-stripped.*20 ceiling fans/);
+  assert.match(mediaReadme, /case-009\/.*metadata-stripped.*20-ceiling-fan project/);
+  assert.match(mediaReadme, /project cost was `\$1,650` on August 17, 2026/);
   assert.match(mediaReadme, /private correspondence with a phone number remains unpublished/);
 
   const publicCaseText = `${JSON.stringify(caseNine)}\n${casePage}`;

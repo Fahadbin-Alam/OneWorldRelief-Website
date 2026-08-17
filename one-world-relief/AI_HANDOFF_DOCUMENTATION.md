@@ -2766,11 +2766,11 @@ Additional DNS check later on May 4, 2026:
   - Published title: `Twenty Ceiling Fans for a New Mosque`.
   - Verified completion update date: September 24, 2025.
   - Verified scope and location: 20 ceiling fans installed at a newly built mosque in Bangladesh.
-  - The total cost and beneficiary count were not listed in the supplied records and must not be estimated.
+  - The original supplied records did not state the total cost or beneficiary count. On August 17, 2026, the user confirmed the completed project cost was `$1,650`; the beneficiary count remains unconfirmed and must not be estimated.
   - Source material is in `D:\OneWorldRelief\Cases\Case 009 - Mosque Ceiling Fans`. The dated completion update came from the user's friends-only Facebook content. It is not a public Facebook post, so future copy must describe it as a supplied or saved completion update, not as a public post.
   - Only two approved field photos are published as `mosque-fans-009-main.jpg` and `mosque-fans-009-proof.jpg`; the card uses a metadata-stripped derivative named `mosque-fans-009-thumbnail.jpg`.
   - The supporting letter is private because it includes a phone number and is not published. Phone/contact details, donor names, and embedded image metadata are also excluded from the public case record.
-  - Case 009 is completed and has `acceptsDonations: false`. Its support link points to the broader future mosque-construction program and carries `referrer=case-009`; it does not reopen Case 009 or imply that its unlisted cost was `$1,000`.
+  - Case 009 is completed and has `acceptsDonations: false`. Its support link points to the broader future mosque-construction program and carries `referrer=case-009`; it does not reopen Case 009. The `$1,000` mosque-support option is a separate future-program gift and is not Case 009's confirmed `$1,650` cost.
 - Canonical one-time donation programs and server amount rules:
 
   | Program ID | Server-derived campaign | One-time amount rule |
@@ -2807,15 +2807,24 @@ Additional DNS check later on May 4, 2026:
   - `donation-checkout.js` renders the purpose cards, hydrates `program`, optional `variant`, `amount`, and `referrer` query parameters, updates the selected-purpose summary, validates the selected rule, and posts canonical fields to Checkout.
   - `donate.html` now leads with unrestricted giving from `$5`, followed by photo-led purpose cards for orphan annual support, mosque construction, water, orphan feeding, family recovery, and emergency aid. Its stewardship language keeps any fallback within the same selected program and explicitly limits Zakat to Zakat-eligible uses. On tablet and phone layouts the checkout form appears before the supporting photo panel. `index.html` loads the shared catalog, and project/detail links now use canonical program URLs.
   - Other changed public files include `one-world-relief.js`, `one-world-relief.css`, `project-data.js`, `projects/case-001.html` through `projects/case-009.html`, and `assets/projects/case-009/`. Backend changes are mirrored under both `functions/` trees, and the webhook additions are in both Stripe webhook copies.
-  - The offline cache is `owr-offline-v7`; `donation-programs.js` and `donation-checkout.js` are in the app shell.
+  - The original catalog release used offline cache `owr-offline-v7`; `donation-programs.js` and `donation-checkout.js` were added to the app shell.
 - Validation and release:
-  - The full regression suite passes `35/35`, covering the nine-case data set, Case 009 source/privacy rules and media metadata, cache v7, canonical program URLs, all server amount boundaries, rejected forged/unknown values, trusted redirect enforcement, legacy aliases/recurring compatibility, Stripe-derived attribution, human option labels, and webhook receipt/Sheets formula protection. JavaScript and Worker syntax checks, CSS compilation, link/asset resolution, and `git diff --check` also passed.
+  - The original release regression suite passed `35/35`, covering the nine-case data set, Case 009 source/privacy rules and media metadata, cache v7, canonical program URLs, all server amount boundaries, rejected forged/unknown values, trusted redirect enforcement, legacy aliases/recurring compatibility, Stripe-derived attribution, human option labels, and webhook receipt/Sheets formula protection. JavaScript and Worker syntax checks, CSS compilation, link/asset resolution, and `git diff --check` also passed.
   - Feature commit `a505089` (`a50508925a4c9a154d1516b73844b916107607a1`) was pushed to `origin/charity-frontend-redesign` before deployment.
   - A fresh public-only stage contained 68 files totaling 66,267,392 bytes; the largest asset was 11,683,738 bytes. Five Pages Function source files were isolated outside the public directory. `.assetsignore`, the AI handoff, setup notes, D1 schema, intake template, media README, tests, and raw Functions source were excluded from public assets.
   - Cloudflare preview `06c51671-a993-4423-8032-30a53e6e07d9` succeeded at `https://06c51671.trying-8o0.pages.dev` with Functions enabled. Desktop and true 390px rendered checks confirmed the responsive form-first checkout, visible Donate/navigation controls, no horizontal overflow, and six responsive program cards.
   - Cloudflare production `7dec3a43-3832-474f-b3c5-4e00c33bb6f8` succeeded at `https://7dec3a43.trying-8o0.pages.dev` with source metadata `a505089` and Functions enabled.
   - Cache-bypassed exact-byte verification passed on the production deployment URL, `https://one-world-relief.org`, and `https://www.one-world-relief.org` for the homepage, Donate, Case 009, the catalog/client scripts, project data, CSS, service worker, and representative Case 009 media. Eight protected internal paths returned the public homepage fallback instead of repository content.
   - Safe integration checks returned `400` for an empty Checkout POST and an unsigned Stripe webhook on preview and production, without creating a Checkout Session or payment. `https://one-world-relief.com/donate` continues to return a `301` redirect to the canonical `.org` URL.
+
+#### 2026-08-17 Confirmed Case 009 Cost Correction (Pending Deployment)
+- The user confirmed that the completed 20-ceiling-fan project cost was `$1,650`.
+- The September 24, 2025 supplied record remains the source for the installation and 20-fan facts. The `$1,650` amount is separately attributed to the user's August 17, 2026 confirmation; the public page must not claim that the older supplied record contained the cost.
+- `project-data.js`, `projects/case-009.html`, and `assets/projects/README.md` now show `$1,650`. The page explicitly distinguishes the completed Case 009 cost from the separate `$1,000` future mosque-support option.
+- Private correspondence, the phone number, donor names, and source-photo metadata remain unpublished. The beneficiary count remains unconfirmed.
+- The offline cache advances from `owr-offline-v7` to `owr-offline-v8` for the corrected project data and page.
+- The updated regression suite passes `35/35`; JavaScript syntax and `git diff --check` pass.
+- At the time this correction note was written, the cost update had not yet been committed or deployed. Record the correction commit and new Cloudflare preview/production IDs here after release.
 
 ---
 
