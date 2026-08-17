@@ -68,7 +68,39 @@ The frontend never collects card numbers. Donors are redirected to Stripe-hosted
 5. Share the spreadsheet with the service account email as an editor.
 6. Store the service account email and private key in Cloudflare Pages environment variables.
 
-The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets in columns A:H. Session ID, payment status, payment intent, receipt URL, and receipt email status are stored together in the Notes column so the dashboard layout stays aligned. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
+The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets in columns A:H. Donor email, Session ID, payment status, payment intent, receipt URL, and receipt email status are stored together in the Notes column so the dashboard layout stays aligned without adding columns. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
+
+## Zakat calculator and donation metadata (2026-08-17 release pending)
+The dedicated Zakat experience is designed as an educational Zakat al-mal estimate, not a fatwa or a replacement for advice from a qualified scholar. Its language switcher supports English (`en`), Bangla (`bn`), Urdu (`ur`), and Arabic (`ar`); Urdu and Arabic render right-to-left. The calculation supports:
+
+- a `2.5%` rate for a lunar/Hijri year;
+- a `2.577%` rate when a donor deliberately uses a solar year;
+- a gold nisab based on the current value of `87.48 g` of gold;
+- a silver nisab based on the current value of `612.36 g` of silver; or
+- a donor-entered custom threshold where a qualified scholar or trusted authority provides a different applicable value.
+
+The donor supplies the current metal price or threshold. The site must not hard-code a supposedly current USD gold or silver price. The calculator compares net eligible assets with the selected nisab; it does not subtract the nisab from the assets before applying the rate.
+
+All asset, debt, net-asset, metal-price, and nisab-dollar values stay in the donor's browser. They must never be placed in a URL, Stripe metadata, a receipt, logs, or Google Sheets. Only the following exact, non-financial context object may accompany a Zakat checkout:
+
+```json
+{
+  "version": "owr-zakat-v1",
+  "language": "en",
+  "year_basis": "hijri",
+  "nisab_basis": "gold"
+}
+```
+
+The four keys are required and no extra keys are allowed. `language` must be `en`, `bn`, `ur`, or `ar`; `year_basis` must be `hijri` or `solar`; and `nisab_basis` must be `gold`, `silver`, or `custom`. The Checkout Function accepts this context only with `program_id: "zakat"`; malformed context, extra keys, or context attached to another program must be rejected before Stripe is called. A normal direct Zakat donation without calculator context remains valid. Zakat uses the existing minimum donation of `$5`.
+
+For a completed Zakat gift, the established Google Sheet contract remains exactly A:H:
+
+`Donation ID | Date | Donor Name | Amount ($) | Purpose/Fund | Method | Receipt ID | Notes`
+
+Column E (`Purpose/Fund`) is `Zakat`. Column H (`Notes`) adds the sanitized donor email plus safe labels for calculator version, language, year basis/rate, and nisab basis. It must not contain any raw calculator amounts. As with all donations, every A:H value is formula-neutralized before the `USER_ENTERED` append. No test payment or live Google Sheets row should be created merely to verify this feature; use mocked webhook coverage and safe invalid-request probes unless the owner explicitly authorizes a real donation.
+
+The public explanatory rules are grounded in Qur'an 9:60 and current guidance from Islamic Relief UK, National Zakat Foundation, and Muslim Hands. The owner's earlier Zakat note files were unavailable during this update; only cached topic titles such as eligible recipients, people who cannot receive Zakat, loans, and Zakat al-Fitr could be recovered. Do not represent the site's wording as a verbatim transcription of those notes, and do not copy any private personal calculations into the website.
 
 ## Custom receipt email template
 The webhook emails this plain-text receipt after `checkout.session.completed`:

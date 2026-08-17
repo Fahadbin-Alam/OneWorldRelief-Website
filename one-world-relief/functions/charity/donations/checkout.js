@@ -84,6 +84,66 @@ const donationPrograms = {
   },
 };
 
+const zakatContextKeys = ["version", "language", "year_basis", "nisab_basis"];
+
+const zakatLanguageLabels = {
+  en: "English",
+  bn: "Bangla",
+  ur: "Urdu",
+  ar: "Arabic",
+};
+
+const zakatYearBasisDetails = {
+  hijri: { label: "Hijri year", rate: "2.5%" },
+  solar: { label: "Solar year", rate: "2.577%" },
+};
+
+const zakatNisabBasisLabels = {
+  gold: "Gold",
+  silver: "Silver",
+  custom: "Custom",
+};
+
+const parseZakatContext = (value) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { error: "Please use a valid Zakat calculator context." };
+  }
+
+  const suppliedKeys = Object.keys(value);
+  if (suppliedKeys.length !== zakatContextKeys.length
+    || suppliedKeys.some((key) => !zakatContextKeys.includes(key))) {
+    return { error: "Please use a valid Zakat calculator context." };
+  }
+
+  if (zakatContextKeys.some((key) => typeof value[key] !== "string")) {
+    return { error: "Please use a valid Zakat calculator context." };
+  }
+
+  const version = value.version;
+  const language = value.language;
+  const yearBasis = value.year_basis;
+  const nisabBasis = value.nisab_basis;
+  const languageLabel = zakatLanguageLabels[language];
+  const yearBasisDetails = zakatYearBasisDetails[yearBasis];
+  const nisabBasisLabel = zakatNisabBasisLabels[nisabBasis];
+
+  if (version !== "owr-zakat-v1" || !languageLabel || !yearBasisDetails || !nisabBasisLabel) {
+    return { error: "Please use a valid Zakat calculator context." };
+  }
+
+  return {
+    context: {
+      calculator: "One World Relief Zakat Calculator",
+      version,
+      language: languageLabel,
+      yearBasis: yearBasisDetails.label,
+      rate: yearBasisDetails.rate,
+      nisabBasis: nisabBasisLabel,
+      summary: `${version} | ${languageLabel} | ${yearBasisDetails.label} ${yearBasisDetails.rate} | ${nisabBasisLabel} nisab`,
+    },
+  };
+};
+
 const waterProgramVariants = {
   water_station: {
     id: "water_station",
@@ -288,6 +348,7 @@ export const onRequestPost = async ({ request, env }) => {
   const requestedCampaign = String(body.campaign || "General Fund").trim() || "General Fund";
   const requestedProgramId = normalizeProgramToken(body.program_id);
   const requestedProgramVariant = normalizeProgramToken(body.program_variant);
+  const hasZakatContext = Object.prototype.hasOwnProperty.call(body, "zakat_context");
   const rawReferrerCase = String(body.referrer_case || "").trim();
   const referrerCase = normalizeReferrerCase(rawReferrerCase);
   const donorNote = String(body.donor_note || "").trim().slice(0, 180);
@@ -322,6 +383,19 @@ export const onRequestPost = async ({ request, env }) => {
 
   if (!program) {
     return json({ detail: requestedProgramId ? "Please choose a valid donation program." : "Please choose a valid donation destination." }, 400);
+  }
+
+  let zakatContext = null;
+  if (hasZakatContext) {
+    if (requestedProgramId !== "zakat" || program.id !== "zakat") {
+      return json({ detail: "Zakat calculator context can only be used for a Zakat donation." }, 400);
+    }
+
+    const parsedZakatContext = parseZakatContext(body.zakat_context);
+    if (parsedZakatContext.error) {
+      return json({ detail: parsedZakatContext.error }, 400);
+    }
+    zakatContext = parsedZakatContext.context;
   }
 
   // The public catalog is one-time. Existing recurring integrations omit program_id
@@ -437,6 +511,18 @@ export const onRequestPost = async ({ request, env }) => {
     recurring_interval: recurringInterval || "one_time",
     schedule_label: frequencyLabels[givingFrequency],
   };
+
+  if (zakatContext) {
+    Object.assign(metadata, {
+      zakat_calculator: zakatContext.calculator,
+      zakat_context_version: zakatContext.version,
+      zakat_language: zakatContext.language,
+      zakat_year_basis: zakatContext.yearBasis,
+      zakat_rate: zakatContext.rate,
+      zakat_nisab_basis: zakatContext.nisabBasis,
+      zakat_summary: zakatContext.summary,
+    });
+  }
 
   setFormMetadata(form, "metadata", metadata);
 

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Calculate Your Zakat | One World Relief</title>
+  <meta
+    name="description"
+    content="Estimate your Zakat al-mal privately in English, Bangla, Urdu, or Arabic, then continue to One World Relief's secure donation page."
+  />
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="one-world-relief.css" />
+</head>
+<body class="site-body zakat-page">
+  <div class="background-shape background-shape-top" aria-hidden="true"></div>
+  <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="container header-wrap zakat-header-wrap">
+      <a href="index.html" class="brand" aria-label="One World Relief Home" data-i18n-aria-label="homeAriaLabel">
+        <span class="brand-mark" aria-hidden="true"><img src="assets/one-world-relief-icon-192.png" alt="" /></span>
+        <span class="brand-text">One World Relief</span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation" data-i18n-aria-label="mainNavigation">
+        <a href="projects.html" data-i18n="navProjects">Projects</a>
+        <a href="zakat.html" aria-current="page" data-i18n="navZakat">Zakat</a>
+        <a href="about.html" data-i18n="navAbout">About</a>
+        <a href="contact.html" data-i18n="navContact">Contact</a>
+      </nav>
+      <div class="zakat-header-actions">
+        <label class="zakat-language-control" for="zakatLanguage">
+          <span data-i18n="language">Language</span>
+          <select id="zakatLanguage" autocomplete="off">
+            <option value="en">English</option>
+            <option value="bn">বাংলা</option>
+            <option value="ur">اردو</option>
+            <option value="ar">العربية</option>
+          </select>
+        </label>
+        <a class="button button-primary header-cta" href="donate.html" data-i18n="navDonate">Donate</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="zakat-hero">
+      <div class="container zakat-hero-grid">
+        <div class="zakat-hero-copy">
+          <p class="eyebrow" data-i18n="heroEyebrow">A private, simple estimate</p>
+          <h1 data-i18n="heroTitle">Calculate your Zakat</h1>
+          <p class="lead" data-i18n="heroIntro">
+            Zakat is an obligatory act of worship for Muslims who meet its conditions. If your zakatable wealth has reached the nisab and a full Hijri year has passed, Zakat al-mal is generally 2.5% of your net zakatable wealth.
+          </p>
+          <div class="zakat-hero-points" aria-label="Calculator features" data-i18n-aria-label="featureListLabel">
+            <span data-i18n="featurePrivate">Your financial entries stay on this device</span>
+            <span data-i18n="featureLanguages">English, Bangla, Urdu, and Arabic</span>
+            <span data-i18n="featureReturn">Continue directly to secure giving</span>
+          </div>
+          <aside class="zakat-obligation-note">
+            <strong data-i18n="importantTitle">Before you begin</strong>
+            <p data-i18n="importantCopy">
+              Use values from your Zakat due date. Gold and silver prices change daily, and scholars differ over which nisab standard applies, so choose the standard you follow or enter a trusted current threshold.
+            </p>
+          </aside>
+        </div>
+
+        <form id="zakatCalculator" class="zakat-calculator-card" novalidate>
+          <div class="zakat-card-heading">
+            <div>
+              <p class="eyebrow" data-i18n="calculatorEyebrow">Zakat al-mal calculator</p>
+              <h2 data-i18n="calculatorTitle">Enter your amounts in USD</h2>
+            </div>
+            <span class="zakat-local-badge" data-i18n="localBadge">Calculated privately</span>
+          </div>
+
+          <fieldset class="zakat-section zakat-settings">
+            <legend data-i18n="settingsLegend">Calculation settings</legend>
+            <div class="zakat-field-grid zakat-field-grid-two">
+              <label for="zakatYearBasis">
+                <span data-i18n="yearBasisLabel">Zakat year</span>
+                <select id="zakatYearBasis">
+                  <option value="hijri" data-i18n="yearHijri">Hijri / lunar year (2.5%)</option>
+                  <option value="solar" data-i18n="yearSolar">Gregorian / solar year (2.577%)</option>
+                </select>
+              </label>
+              <label for="zakatNisabBasis">
+                <span data-i18n="nisabBasisLabel">Nisab standard</span>
+                <select id="zakatNisabBasis" required aria-describedby="nisabGuidance">
+                  <option value="" data-i18n="nisabChoose">Choose a standard</option>
+                  <option value="silver" data-i18n="nisabSilver">Silver (612.36 g)</option>
+                  <option value="gold" data-i18n="nisabGold">Gold (87.48 g)</option>
+                  <option value="custom" data-i18n="nisabCustom">Enter a trusted threshold</option>
+                </select>
+              </label>
+            </div>
+
+            <p id="nisabGuidance" class="zakat-field-help" data-i18n="nisabGuidance">
+              The silver standard is commonly used in the Hanafi school; other scholarly approaches may use gold. Follow guidance you trust.
+            </p>
+
+            <label id="zakatMetalPriceField" for="zakatMetalPrice" hidden>
+              <span id="zakatMetalPriceLabel" data-i18n="metalPriceLabel">Today's metal price per gram in USD</span>
+              <span class="zakat-money-input">
+                <span aria-hidden="true">$</span>
+                <input id="zakatMetalPrice" type="number" min="0" step="0.01" inputmode="decimal" data-i18n-placeholder="amountPlaceholder" placeholder="0.00" />
+              </span>
+              <small data-i18n="metalPriceHelp">Use a current price from a source you trust; no live market price is built in.</small>
+            </label>
+
+            <label id="zakatCustomNisabField" for="zakatCustomNisab" hidden>
+              <span data-i18n="customNisabLabel">Trusted nisab threshold in USD</span>
+              <span class="zakat-money-input">
+                <span aria-hidden="true">$</span>
+                <input id="zakatCustomNisab" type="number" min="0" step="0.01" inputmode="decimal" data-i18n-placeholder="amountPlaceholder" placeholder="0.00" />
+              </span>
+            </label>
+          </fieldset>
+
+          <fieldset class="zakat-section">
+            <legend data-i18n="assetsLegend">Zakatable assets</legend>
+            <p class="zakat-section-intro" data-i18n="assetsIntro">Enter the current total value of each item on your Zakat due date.</p>
+            <div class="zakat-field-grid zakat-assets-grid">
+              <label for="cashSavings">
+                <span data-i18n="cashSavingsLabel">Cash and bank savings</span>
+                <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="cashSavings" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              </label>
+              <label for="goldSilver">
+                <span data-i18n="goldSilverLabel">Gold and silver value</span>
+                <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="goldSilver" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              </label>
+              <label for="investments">
+                <span data-i18n="investmentsLabel">Shares and investments</span>
+                <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="investments" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              </label>
+              <label for="moneyOwed">
+                <span data-i18n="moneyOwedLabel">Money owed to you that is expected back</span>
+                <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="moneyOwed" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              </label>
+              <label for="businessAssets">
+                <span data-i18n="businessAssetsLabel">Business cash and goods held for sale</span>
+                <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="businessAssets" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              </label>
+              <label for="otherAssets">
+                <span data-i18n="otherAssetsLabel">Other zakatable assets</span>
+                <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="otherAssets" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              </label>
+            </div>
+            <details class="zakat-help-details">
+              <summary data-i18n="assetsHelpTitle">What is usually left out?</summary>
+              <p data-i18n="assetsHelpCopy">Usually do not include your primary home, personal-use car, clothing, household goods, or tools used for work. Rules can differ for personal jewellery, pensions, investments, and business assets.</p>
+            </details>
+          </fieldset>
+
+          <fieldset class="zakat-section">
+            <legend data-i18n="liabilitiesLegend">Deductible short-term liabilities</legend>
+            <label for="shortTermLiabilities">
+              <span data-i18n="liabilitiesLabel">Debts and bills due now or within the coming 12 months</span>
+              <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="shortTermLiabilities" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
+              <small data-i18n="liabilitiesHelp">Do not enter an entire long-term mortgage or student-loan balance. Debt treatment differs, so seek guidance if unsure.</small>
+            </label>
+          </fieldset>
+
+          <section class="zakat-results" aria-labelledby="zakatResultsTitle" aria-live="polite">
+            <div class="zakat-results-heading">
+              <div>
+                <p class="eyebrow" data-i18n="resultsEyebrow">Your estimate</p>
+                <h3 id="zakatResultsTitle" data-i18n="resultsTitle">Estimated Zakat</h3>
+              </div>
+              <strong id="zakatDueResult">$0.00</strong>
+            </div>
+            <dl class="zakat-result-breakdown">
+              <div><dt data-i18n="totalAssetsResultLabel">Total assets</dt><dd id="totalAssetsResult">$0.00</dd></div>
+              <div><dt data-i18n="netWealthResultLabel">Net zakatable wealth</dt><dd id="netWealthResult">$0.00</dd></div>
+              <div><dt data-i18n="nisabResultLabel">Selected nisab</dt><dd id="nisabResult">—</dd></div>
+            </dl>
+            <p id="zakatResultStatus" class="zakat-result-status" data-i18n="resultNeedsNisab">Choose a nisab standard and enter its current value to see an estimate.</p>
+            <p class="zakat-minimum-note" id="zakatMinimumNote" hidden data-i18n="minimumDonationNote">Secure checkout accepts donations of $5 or more.</p>
+            <div class="zakat-result-actions">
+              <a id="donateCalculatedZakat" class="button button-primary" href="donate.html?program=zakat" aria-disabled="true" data-i18n="donateMyZakat">Donate my Zakat</a>
+              <button id="resetZakat" class="button button-outline" type="reset" data-i18n="startOver">Start over</button>
+            </div>
+            <p class="zakat-privacy-note" data-i18n="privacyNote">Only your estimated donation amount and non-sensitive calculator choices continue to the donation page. One World Relief does not save or send your asset and debt entries.</p>
+          </section>
+        </form>
+      </div>
+    </section>
+
+    <section class="zakat-learning-section">
+      <div class="container zakat-learning-grid">
+        <article class="zakat-info-card zakat-info-card-wide">
+          <p class="eyebrow" data-i18n="recipientsEyebrow">Where Zakat may go</p>
+          <h2 data-i18n="recipientsTitle">Eight recipient categories</h2>
+          <p data-i18n="recipientsIntro">The Qur'an (9:60) identifies eight categories. Eligibility must be assessed for each allocation.</p>
+          <ol class="zakat-recipient-grid">
+            <li data-i18n="recipientPoor">The poor</li>
+            <li data-i18n="recipientNeedy">The needy</li>
+            <li data-i18n="recipientAdministrators">Zakat administrators</li>
+            <li data-i18n="recipientReconciliation">Those whose hearts are to be reconciled</li>
+            <li data-i18n="recipientBondage">Those in bondage</li>
+            <li data-i18n="recipientDebt">Those burdened by qualifying debt</li>
+            <li data-i18n="recipientCause">In the cause of Allah</li>
+            <li data-i18n="recipientTraveller">The stranded traveller</li>
+          </ol>
+        </article>
+
+        <article class="zakat-info-card">
+          <p class="eyebrow" data-i18n="jewelleryEyebrow">An important difference</p>
+          <h2 data-i18n="jewelleryTitle">Personal jewellery</h2>
+          <p data-i18n="jewelleryCopy">Scholars differ about gold and silver jewellery kept for personal use. Enter it according to guidance from a scholar you trust.</p>
+        </article>
+
+        <article class="zakat-info-card">
+          <p class="eyebrow" data-i18n="fitrEyebrow">A separate obligation</p>
+          <h2 data-i18n="fitrTitle">Zakat al-Fitr is different</h2>
+          <p data-i18n="fitrCopy">This calculator covers Zakat al-mal only. It does not calculate Zakat al-Fitr, crops, livestock, minerals, or other categories with different rules.</p>
+        </article>
+
+        <article class="zakat-info-card zakat-info-card-wide zakat-disclaimer-card">
+          <div>
+            <p class="eyebrow" data-i18n="disclaimerEyebrow">Please read</p>
+            <h2 data-i18n="disclaimerTitle">An estimate, not a fatwa</h2>
+            <p data-i18n="disclaimerCopy">This calculator provides an educational estimate. Rules can vary according to your school of Islamic law and personal circumstances. Consult a qualified scholar or trusted Zakat specialist for complex or uncertain cases.</p>
+          </div>
+          <div class="zakat-source-list">
+            <strong data-i18n="sourcesTitle">Guidance sources</strong>
+            <a href="https://quran.com/9/60" target="_blank" rel="noopener noreferrer" data-i18n="sourceQuran">Qur'an 9:60: eligible recipient categories</a>
+            <a href="https://www.islamic-relief.org.uk/giving/islamic-giving/zakat/" target="_blank" rel="noopener noreferrer" data-i18n="sourceIslamicRelief">Islamic Relief UK: Zakat and nisab</a>
+            <a href="https://muslimhands.org.uk/islamic-resources/the-rules-for-calculating-and-paying-your-zakat" target="_blank" rel="noopener noreferrer" data-i18n="sourceMuslimHands">Muslim Hands: calculation rules</a>
+            <a href="https://nzf.org.uk/knowledge/can-a-solar-year-be-used-for-zakat-calculation/" target="_blank" rel="noopener noreferrer" data-i18n="sourceNzfSolar">National Zakat Foundation: solar-year rate</a>
+            <a href="https://nzf.org.uk/knowledge/what-is-nisab/" target="_blank" rel="noopener noreferrer" data-i18n="sourceNzfNisab">National Zakat Foundation: how nisab works</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bar">
+      <p>One World Relief &middot; one-world-relief.org</p>
+      <div class="footer-links">
+        <a href="index.html" data-i18n="footerHome">Home</a>
+        <a href="projects.html" data-i18n="navProjects">Projects</a>
+        <a href="zakat.html" data-i18n="navZakat">Zakat</a>
+        <a href="donate.html" data-i18n="navDonate">Donate</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="one-world-relief.js"></script>
+  <script src="zakat-calculator.js"></script>
+</body>
+</html>

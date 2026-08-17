@@ -6226,3 +6226,664 @@ ul {
     grid-column: auto;
   }
 }
+
+/* Zakat education and private calculator */
+.zakat-page {
+  background:
+    radial-gradient(circle at 92% 9%, rgba(170, 237, 214, 0.42), transparent 28rem),
+    linear-gradient(180deg, #e9faff 0%, #f7fcff 48%, #eef9f6 100%);
+}
+
+html[lang="bn"] .zakat-page {
+  font-family: "Noto Sans Bengali", "Manrope", sans-serif;
+}
+
+html[lang="ur"] .zakat-page,
+html[lang="ar"] .zakat-page {
+  font-family: "Noto Naskh Arabic", "Manrope", sans-serif;
+  font-size: 1.04rem;
+}
+
+html[lang="bn"] .zakat-page :is(h1, h2, h3),
+html[lang="ur"] .zakat-page :is(h1, h2, h3),
+html[lang="ar"] .zakat-page :is(h1, h2, h3) {
+  font-family: inherit;
+}
+
+.zakat-header-wrap {
+  gap: 1.2rem;
+}
+
+.zakat-header-actions,
+.zakat-language-control {
+  display: flex;
+  align-items: center;
+}
+
+.zakat-header-actions {
+  gap: 0.7rem;
+}
+
+.zakat-language-control {
+  gap: 0.45rem;
+  color: var(--blue-700);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.zakat-language-control select {
+  min-height: 42px;
+  padding: 0.45rem 2rem 0.45rem 0.72rem;
+  border: 1px solid rgba(33, 79, 113, 0.2);
+  border-radius: 12px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.zakat-language-control select:focus-visible,
+.zakat-calculator-card :is(input, select, summary, button, a):focus-visible,
+.zakat-source-list a:focus-visible {
+  outline: 3px solid var(--blue-700);
+  outline-offset: 2px;
+}
+
+.zakat-hero {
+  position: relative;
+  padding: clamp(2.2rem, 6vw, 5rem) 0 clamp(3rem, 7vw, 5.6rem);
+  overflow: clip;
+}
+
+.zakat-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(156deg, transparent 34%, rgba(255, 255, 255, 0.58) 34.2%, rgba(255, 255, 255, 0.12) 56%, transparent 56.2%),
+    radial-gradient(circle at 14% 20%, rgba(91, 210, 236, 0.26), transparent 25rem);
+}
+
+.zakat-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(540px, 1.2fr);
+  align-items: start;
+  gap: clamp(1.5rem, 4vw, 3.4rem);
+}
+
+.zakat-hero-copy {
+  position: sticky;
+  top: 110px;
+  min-width: 0;
+  padding-top: clamp(0.4rem, 2vw, 1.6rem);
+}
+
+.zakat-hero-copy h1 {
+  max-width: 10ch;
+  margin: 0 0 1rem;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+.zakat-hero-copy .lead {
+  max-width: 55ch;
+  color: #355e70;
+  font-size: clamp(1rem, 1.6vw, 1.16rem);
+  line-height: 1.7;
+}
+
+.zakat-hero-points {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.35rem 0;
+}
+
+.zakat-hero-points span {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.zakat-hero-points span::before {
+  content: "✓";
+  width: 1.3rem;
+  height: 1.3rem;
+  flex: 0 0 1.3rem;
+  display: grid;
+  place-items: center;
+  margin-top: 0.05rem;
+  border-radius: 50%;
+  color: #fff;
+  background: #197967;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.zakat-obligation-note {
+  max-width: 56ch;
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(25, 121, 103, 0.2);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 32px rgba(24, 52, 71, 0.08);
+}
+
+.zakat-obligation-note strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #126353;
+}
+
+.zakat-obligation-note p {
+  margin: 0;
+  color: #426579;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.zakat-calculator-card {
+  min-width: 0;
+  padding: clamp(1rem, 2.7vw, 1.7rem);
+  border: 1px solid rgba(33, 79, 113, 0.14);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 28px 64px rgba(24, 52, 71, 0.16);
+}
+
+.zakat-card-heading,
+.zakat-results-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.zakat-card-heading h2,
+.zakat-results-heading h3 {
+  margin: 0;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+
+.zakat-card-heading h2 {
+  font-size: clamp(1.3rem, 2.7vw, 1.7rem);
+}
+
+.zakat-card-heading .eyebrow,
+.zakat-results-heading .eyebrow {
+  margin-bottom: 0.25rem;
+}
+
+.zakat-local-badge {
+  flex: 0 0 auto;
+  padding: 0.38rem 0.62rem;
+  border-radius: 999px;
+  color: #126353;
+  background: #e3f7f0;
+  font-size: 0.68rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.zakat-section {
+  min-width: 0;
+  margin: 1rem 0 0;
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px solid rgba(33, 79, 113, 0.13);
+}
+
+.zakat-section legend {
+  width: 100%;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  color: var(--ink);
+  font-size: 0.94rem;
+  font-weight: 850;
+}
+
+.zakat-section-intro,
+.zakat-field-help {
+  margin: -0.25rem 0 0.75rem;
+  color: #527287;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.zakat-field-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.zakat-field-grid-two,
+.zakat-assets-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.zakat-section label {
+  min-width: 0;
+  display: grid;
+  gap: 0.38rem;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.zakat-section label > small {
+  color: #5d7b8d;
+  font-size: 0.7rem;
+  font-weight: 550;
+  line-height: 1.5;
+}
+
+.zakat-section select,
+.zakat-money-input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid rgba(33, 79, 113, 0.18);
+  border-radius: 13px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+
+.zakat-section select {
+  padding: 0.68rem 0.75rem;
+}
+
+.zakat-money-input {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+}
+
+.zakat-money-input > span {
+  display: grid;
+  place-items: center;
+  min-width: 42px;
+  align-self: stretch;
+  color: var(--blue-700);
+  background: var(--sky-50);
+  font-weight: 900;
+}
+
+.zakat-money-input input {
+  min-width: 0;
+  min-height: 48px;
+  padding: 0.7rem 0.75rem;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  direction: ltr;
+  text-align: left;
+}
+
+.zakat-money-input:focus-within {
+  outline: 3px solid var(--blue-700);
+  outline-offset: 2px;
+}
+
+.zakat-money-input input:focus-visible {
+  outline: 0;
+}
+
+.zakat-calculator-card [hidden] {
+  display: none !important;
+}
+
+.zakat-help-details {
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  background: var(--sky-50);
+}
+
+.zakat-help-details summary {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  color: var(--blue-700);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.zakat-help-details p {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.zakat-results {
+  margin-top: 1rem;
+  padding: clamp(1rem, 2.5vw, 1.35rem);
+  border: 1px solid rgba(25, 121, 103, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #eaf9f5, #f7fcff);
+}
+
+.zakat-results-heading h3 {
+  font-size: 1.1rem;
+}
+
+.zakat-results-heading > strong {
+  color: #126353;
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  line-height: 1;
+}
+
+.zakat-result-breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 1rem 0 0;
+}
+
+.zakat-result-breakdown div {
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid rgba(33, 79, 113, 0.11);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.zakat-result-breakdown dt {
+  color: #5d7b8d;
+  font-size: 0.66rem;
+  font-weight: 750;
+}
+
+.zakat-result-breakdown dd {
+  margin: 0.18rem 0 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.zakat-result-status,
+.zakat-minimum-note,
+.zakat-privacy-note {
+  margin: 0.75rem 0 0;
+  color: #426579;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.zakat-minimum-note {
+  color: #8a4f11;
+  font-weight: 750;
+}
+
+.zakat-result-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.zakat-result-actions .button {
+  min-height: 50px;
+}
+
+.zakat-result-actions .button[aria-disabled="true"],
+.zakat-result-actions .button.is-disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.zakat-learning-section {
+  padding: clamp(3rem, 7vw, 5rem) 0;
+  border-top: 1px solid rgba(33, 79, 113, 0.1);
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.zakat-learning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.zakat-info-card {
+  min-width: 0;
+  padding: clamp(1.1rem, 2.6vw, 1.5rem);
+  border: 1px solid rgba(33, 79, 113, 0.13);
+  border-radius: 21px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 40px rgba(24, 52, 71, 0.08);
+}
+
+.zakat-info-card-wide {
+  grid-column: 1 / -1;
+}
+
+.zakat-info-card h2 {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.zakat-info-card > p:last-child,
+.zakat-disclaimer-card > div > p:last-child {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.zakat-recipient-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: zakat-recipient;
+}
+
+.zakat-recipient-grid li {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--sky-50);
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.35;
+  counter-increment: zakat-recipient;
+}
+
+.zakat-recipient-grid li::before {
+  content: counter(zakat-recipient, decimal-leading-zero);
+  color: #197967;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.zakat-disclaimer-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 1.2rem;
+  border-color: rgba(25, 121, 103, 0.2);
+  background: linear-gradient(145deg, rgba(234, 249, 245, 0.96), rgba(255, 255, 255, 0.96));
+}
+
+.zakat-source-list {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+
+.zakat-source-list strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.zakat-source-list a {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(33, 79, 113, 0.12);
+  border-radius: 10px;
+  color: var(--blue-700);
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: rgba(33, 79, 113, 0.25);
+  text-underline-offset: 0.18em;
+}
+
+.donation-program-action:is(a) {
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+[dir="rtl"] .zakat-page :is(.zakat-hero-copy, .zakat-calculator-card, .zakat-info-card) {
+  text-align: right;
+}
+
+[dir="rtl"] .zakat-language-control select {
+  padding: 0.45rem 0.72rem 0.45rem 2rem;
+}
+
+@media (max-width: 980px) {
+  .zakat-header-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .zakat-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-hero-copy {
+    position: static;
+    max-width: 760px;
+    padding-top: 0;
+  }
+
+  .zakat-hero-copy h1 {
+    max-width: 12ch;
+  }
+
+  .zakat-recipient-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .zakat-header-wrap {
+    gap: 0.45rem 0.55rem;
+  }
+
+  .zakat-header-actions {
+    gap: 0.4rem;
+  }
+
+  .zakat-language-control > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .zakat-language-control select {
+    width: min(31vw, 118px);
+    min-height: 40px;
+    padding-inline: 0.55rem 1.5rem;
+    font-size: 0.74rem;
+  }
+
+  .zakat-header-actions .header-cta {
+    min-height: 40px;
+    padding: 0.52rem 0.72rem;
+    font-size: 0.76rem;
+  }
+
+  .zakat-hero {
+    padding: 1.5rem 0 3rem;
+  }
+
+  .zakat-hero-copy h1 {
+    font-size: clamp(2.6rem, 13vw, 3.8rem);
+  }
+
+  .zakat-calculator-card {
+    padding: 0.9rem;
+    border-radius: 20px;
+  }
+
+  .zakat-card-heading {
+    display: grid;
+  }
+
+  .zakat-local-badge {
+    width: fit-content;
+  }
+
+  .zakat-field-grid-two,
+  .zakat-assets-grid,
+  .zakat-learning-grid,
+  .zakat-disclaimer-card {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-result-breakdown {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-result-breakdown div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+  }
+
+  .zakat-result-breakdown dd {
+    margin: 0;
+  }
+
+  .zakat-result-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-info-card-wide {
+    grid-column: auto;
+  }
+
+  .zakat-recipient-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-disclaimer-card {
+    display: grid;
+  }
+}
+
+@media (max-width: 420px) {
+  .zakat-header-wrap .brand-text {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zakat-page *,
+  .zakat-page *::before,
+  .zakat-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

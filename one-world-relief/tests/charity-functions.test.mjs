@@ -493,8 +493,8 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.ok(customAmountInput, "custom amount should always be visible");
   assert.match(customAmountInput, /type="number"/);
   assert.match(customAmountInput, /min="5"/);
-  assert.match(customAmountInput, /step="1"/);
-  assert.match(customAmountInput, /inputmode="numeric"/);
+  assert.match(customAmountInput, /step="0\.01"/);
+  assert.match(customAmountInput, /inputmode="decimal"/);
   assert.match(customAmountInput, /aria-describedby="minimumDonationText"/);
   assert.doesNotMatch(customAmountInput, /hidden/);
   assert.match(donationForm, /id="minimumDonationText">Minimum donation is \$5\.<\/p>/);
@@ -624,7 +624,7 @@ test("donation catalog renders approved real-photo cards in responsive 3-2-1 col
   const programs = JSON.parse(JSON.stringify(context.window.ONE_WORLD_RELIEF_DONATION_PROGRAMS));
   const featured = programs.filter((program) => program.featured === true);
 
-  assert.equal(featured.length, 6);
+  assert.equal(featured.length, 7);
   assert.deepEqual(featured.map((program) => program.id), [
     "orphan_annual",
     "mosque_build",
@@ -632,11 +632,14 @@ test("donation catalog renders approved real-photo cards in responsive 3-2-1 col
     "orphan_feeding",
     "family_recovery",
     "emergency_aid",
+    "zakat",
   ]);
   assert.match(checkoutJs, /programs\.filter\(\(program\) => program\.featured === true\)\.forEach/);
   assert.match(checkoutJs, /card\.className = "donation-program-card"/);
   assert.match(checkoutJs, /image\.src = program\.imageUrl/);
   assert.match(checkoutJs, /caption\.textContent = program\.photoContext/);
+  assert.match(checkoutJs, /program\.detailUrl/);
+  assert.match(checkoutJs, /(?:href|\.href)\s*=\s*program\.detailUrl/);
 
   for (const program of featured) {
     assert.match(program.imageUrl, /^assets\/projects\/case-\d{3}\/[a-z0-9-]+\.jpg$/);
@@ -652,6 +655,237 @@ test("donation catalog renders approved real-photo cards in responsive 3-2-1 col
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.donation-program-grid\s*\{[^}]*grid-template-columns: 1fr/);
   const catalogRules = siteCss.slice(siteCss.indexOf(".donation-program-grid {"), siteCss.indexOf(".donation-program-action {"));
   assert.doesNotMatch(catalogRules, /animation\s*:/);
+});
+
+test("Zakat page explains eligibility with sources and offers four-language RTL access", async () => {
+  const [zakatHtml, zakatJs, programSource, donateHtml, homeHtml, siteCss] = await Promise.all([
+    readFile("zakat.html", "utf8"),
+    readFile("zakat-calculator.js", "utf8"),
+    readFile("donation-programs.js", "utf8"),
+    readFile("donate.html", "utf8"),
+    readFile("index.html", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+  const publicZakatSource = `${zakatHtml}\n${zakatJs}`;
+
+  assert.match(`${programSource}\n${donateHtml}\n${homeHtml}`, /zakat\.html/i, "a visible donation surface should link to the Zakat guide");
+  assert.match(zakatHtml, /<form id="zakatCalculator"/);
+  for (const id of [
+    "zakatYearBasis",
+    "zakatNisabBasis",
+    "zakatMetalPrice",
+    "zakatCustomNisab",
+    "cashSavings",
+    "goldSilver",
+    "investments",
+    "moneyOwed",
+    "businessAssets",
+    "otherAssets",
+    "shortTermLiabilities",
+    "totalAssetsResult",
+    "netWealthResult",
+    "nisabResult",
+    "zakatDueResult",
+    "zakatResultStatus",
+    "donateCalculatedZakat",
+    "resetZakat",
+  ]) {
+    assert.match(zakatHtml, new RegExp(`id="${id}"`), `${id} should be present`);
+  }
+
+  const languageSelect = zakatHtml.match(/<select id="zakatLanguage"[\s\S]*?<\/select>/)?.[0];
+  assert.ok(languageSelect, "Zakat page should include a language selector");
+  assert.deepEqual(
+    [...languageSelect.matchAll(/<option value="([^"]+)"/g)].map((match) => match[1]),
+    ["en", "bn", "ur", "ar"],
+  );
+  assert.match(zakatJs, /bn:\s*\{/);
+  assert.match(zakatJs, /ur:\s*\{/);
+  assert.match(zakatJs, /ar:\s*\{/);
+  assert.match(zakatJs, /বাংলা/);
+  assert.match(zakatJs, /اردو/);
+  assert.match(zakatJs, /العربية/);
+  assert.match(zakatJs, /document\.documentElement\.lang/);
+  assert.match(zakatJs, /document\.documentElement\.dir/);
+  assert.match(zakatJs, /const rtlLanguages = new Set\(\["ur", "ar"\]\)/);
+  assert.match(zakatJs, /(?:ur|ar)[\s\S]{0,160}(?:rtl|right-to-left)/i);
+
+  assert.match(zakatHtml, /Eight recipient categories/);
+  assert.match(zakatHtml, /Zakat is an obligatory act of worship for Muslims who meet its conditions/);
+  for (const recipient of [
+    /The poor/,
+    /The needy/,
+    /Zakat administrators/,
+    /hearts are to be reconciled/,
+    /Those in bondage/,
+    /qualifying debt/,
+    /cause of Allah/,
+    /stranded traveller/,
+  ]) {
+    assert.match(zakatHtml, recipient);
+  }
+  assert.match(zakatHtml, /Zakat al-Fitr is different/);
+  assert.match(zakatHtml, /calculator covers Zakat al-mal only\. It does not calculate Zakat al-Fitr/);
+  assert.match(zakatHtml, /educational estimate/);
+  assert.match(zakatHtml, /qualified scholar or trusted Zakat specialist/);
+  assert.match(zakatHtml, /One World Relief does not save or send your asset and debt entries/);
+  assert.doesNotMatch(publicZakatSource, /Shariah[- ]compliant/i);
+  assert.doesNotMatch(zakatJs, /scrollIntoView\(\{ behavior: "smooth"/);
+
+  for (const sourceUrl of [
+    "https://quran.com/9/60",
+    "https://www.islamic-relief.org.uk/giving/islamic-giving/zakat/",
+    "https://muslimhands.org.uk/islamic-resources/the-rules-for-calculating-and-paying-your-zakat",
+    "https://nzf.org.uk/knowledge/can-a-solar-year-be-used-for-zakat-calculation/",
+    "https://nzf.org.uk/knowledge/what-is-nisab/",
+  ]) {
+    assert.match(zakatHtml, new RegExp(sourceUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(zakatHtml, /no live market price is built in/i);
+  assert.doesNotMatch(zakatJs, /metals?-api|goldapi|metalpriceapi|api[_-]?key|fetch\s*\(/i);
+  assert.doesNotMatch(zakatJs, /\b(?:gold|silver)(?:Price|_PRICE)\s*[:=]\s*\d/i);
+  assert.doesNotMatch(zakatJs, /metalPrice\.value\s*=\s*["']?\d/i);
+  assert.doesNotMatch(zakatHtml.match(/<input id="zakatMetalPrice"[^>]*>/)?.[0] || "", /\bvalue=/);
+  assert.match(siteCss, /\.zakat-hero-grid\s*\{[\s\S]*?grid-template-columns:/);
+  assert.match(siteCss, /\[dir="rtl"\] \.zakat-page/);
+  assert.match(siteCss, /\.zakat-calculator-card :is\(input, select, summary, button, a\):focus-visible[\s\S]*?outline: 3px solid var\(--blue-700\)/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.zakat-field-grid-two,[\s\S]*?grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 420px\)[\s\S]*?\.zakat-header-wrap \.brand-text\s*\{[\s\S]*?display: none/);
+});
+
+test("Zakat calculator applies nisab thresholds and lunar or solar rates without deducting nisab", async () => {
+  const zakatJs = await readFile("zakat-calculator.js", "utf8");
+  const context = { window: {} };
+  runInNewContext(zakatJs, context);
+  const calculator = context.window.ONE_WORLD_RELIEF_ZAKAT_CALCULATOR;
+  assert.ok(calculator, "calculator should expose a pure browser API for verification");
+  assert.equal(calculator.VERSION, "owr-zakat-v1");
+  assert.deepEqual(JSON.parse(JSON.stringify(calculator.RATES)), { hijri: 0.025, solar: 0.02577 });
+  assert.deepEqual(JSON.parse(JSON.stringify(calculator.NISAB_GRAMS)), { gold: 87.48, silver: 612.36 });
+
+  assert.equal(calculator.calculateNisab("gold", 100), 8748);
+  assert.equal(calculator.calculateNisab("silver", 1), 612.36);
+  assert.equal(calculator.calculateNisab("custom", 5000), 5000);
+  assert.equal(calculator.calculateNisab("unknown", 100), 0);
+
+  const hijri = calculator.calculate({
+    assets: [7000, 2000, 1000],
+    liabilities: 2000,
+    yearBasis: "hijri",
+    nisabBasis: "custom",
+    nisabValue: 5000,
+  });
+  assert.deepEqual(JSON.parse(JSON.stringify(hijri)), {
+    totalAssets: 10000,
+    liabilities: 2000,
+    netWealth: 8000,
+    nisab: 5000,
+    yearBasis: "hijri",
+    rate: 0.025,
+    eligible: true,
+    zakatDue: 200,
+  });
+  assert.notEqual(hijri.zakatDue, (hijri.netWealth - hijri.nisab) * hijri.rate, "nisab is a threshold, not a deduction");
+
+  const solar = calculator.calculate({
+    assets: { cash: 7000, investments: 2000, business: 1000 },
+    liabilities: 2000,
+    yearBasis: "solar",
+    nisabBasis: "custom",
+    nisabValue: 5000,
+  });
+  assert.equal(solar.rate, 0.02577);
+  assert.equal(solar.netWealth, 8000);
+  assert.equal(solar.zakatDue, 206.16);
+
+  const belowNisab = calculator.calculate({
+    assets: [4999],
+    liabilities: 0,
+    yearBasis: "hijri",
+    nisabBasis: "custom",
+    nisabValue: 5000,
+  });
+  assert.equal(belowNisab.eligible, false);
+  assert.equal(belowNisab.zakatDue, 0);
+
+  const atGoldNisab = calculator.calculate({
+    assets: [8748],
+    liabilities: 0,
+    yearBasis: "hijri",
+    nisabBasis: "gold",
+    nisabValue: 100,
+  });
+  assert.equal(atGoldNisab.nisab, 8748);
+  assert.equal(atGoldNisab.eligible, true);
+  assert.equal(atGoldNisab.zakatDue, 218.7);
+
+  const atSilverNisab = calculator.calculate({
+    assets: [612.36],
+    liabilities: 0,
+    yearBasis: "hijri",
+    nisabBasis: "silver",
+    nisabValue: 1,
+  });
+  assert.equal(atSilverNisab.nisab, 612.36);
+  assert.equal(atSilverNisab.eligible, true);
+  assert.equal(atSilverNisab.zakatDue, 15.31);
+
+  const insolvent = calculator.calculate({
+    assets: [1000],
+    liabilities: 5000,
+    yearBasis: "hijri",
+    nisabBasis: "custom",
+    nisabValue: 5,
+  });
+  assert.equal(insolvent.netWealth, 0);
+  assert.equal(insolvent.zakatDue, 0);
+});
+
+test("Zakat calculator hands off only amount and non-sensitive context through URL and session storage", async () => {
+  const [zakatJs, checkoutJs, donateHtml] = await Promise.all([
+    readFile("zakat-calculator.js", "utf8"),
+    readFile("donation-checkout.js", "utf8"),
+    readFile("donate.html", "utf8"),
+  ]);
+
+  assert.match(zakatJs, /const HANDOFF_KEY = "owrZakatHandoff"/);
+  assert.match(zakatJs, /sessionStorage\.setItem\(HANDOFF_KEY, JSON\.stringify\(context\)\)/);
+  assert.match(zakatJs, /version: VERSION/);
+  assert.match(zakatJs, /language: currentLanguage/);
+  assert.match(zakatJs, /year_basis: yearBasis\?\.value === "solar" \? "solar" : "hijri"/);
+  assert.match(zakatJs, /nisab_basis: \["gold", "silver", "custom"\]\.includes/);
+  assert.match(zakatJs, /donate\.html\?program=zakat&amount=\$\{result\.zakatDue\.toFixed\(2\)\}&source=zakat-calculator#donationForm/);
+  assert.doesNotMatch(
+    zakatJs.match(/const storeHandoff = \(\) => \{[\s\S]*?\n  \};/)?.[0] || "",
+    /cashSavings|goldSilver|investments|moneyOwed|businessAssets|otherAssets|shortTermLiabilities|totalAssets|netWealth|nisabValue|zakatDue/,
+  );
+
+  assert.match(checkoutJs, /owrZakatHandoff/);
+  assert.match(checkoutJs, /params\.get\("source"\) !== "zakat-calculator" \|\| params\.get\("program"\) !== "zakat"/);
+  assert.match(checkoutJs, /Object\.keys\(parsed\)\.length === 4/);
+  assert.match(checkoutJs, /parsed\.version === "owr-zakat-v1"/);
+  assert.match(checkoutJs, /\["en", "bn", "ur", "ar"\]\.includes\(parsed\.language\)/);
+  assert.match(checkoutJs, /\["hijri", "solar"\]\.includes\(parsed\.year_basis\)/);
+  assert.match(checkoutJs, /\["gold", "silver", "custom"\]\.includes\(parsed\.nisab_basis\)/);
+  assert.match(checkoutJs, /zakat_context:|zakat_context\s*=/);
+  assert.match(checkoutJs, /year_basis/);
+  assert.match(checkoutJs, /nisab_basis/);
+  assert.match(checkoutJs, /program\.id === "zakat" && activeZakatContext && donationSourceInput\?\.value === "zakat-calculator"/);
+  assert.match(checkoutJs, /sessionStorage\.removeItem\(ZAKAT_HANDOFF_KEY\)/);
+  for (const id of [
+    "donationSource",
+    "zakatContextVersion",
+    "zakatContextLanguage",
+    "zakatContextYearBasis",
+    "zakatContextNisabBasis",
+  ]) {
+    assert.match(donateHtml, new RegExp(`id="${id}" type="hidden"`));
+  }
+  const combinedHandoffSource = `${zakatJs}\n${checkoutJs}`;
+  assert.doesNotMatch(
+    combinedHandoffSource,
+    /(?:searchParams|params)\.(?:set|append)\([^\n]*(?:cashSavings|goldSilver|investments|moneyOwed|businessAssets|otherAssets|shortTermLiabilities|totalAssets|netWealth|nisabValue)/,
+  );
 });
 
 test("donation page renders a static real-photo Case 004-006 collage beside checkout", async () => {
@@ -722,7 +956,7 @@ test(".com host redirects to .org", async () => {
 });
 
 test("pages include the supplied One World Relief logo and install icons", async () => {
-  const rootPageNames = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html"];
+  const rootPageNames = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html", "zakat.html"];
   const projectPageNames = Array.from({ length: 9 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
   const [rootPages, projectPages, offlineHtml, faviconPng, brandIcon, brandIconSmall, appleTouchIcon, webManifest, serviceWorker] = await Promise.all([
     Promise.all(rootPageNames.map((name) => readFile(name, "utf8"))),
@@ -759,8 +993,10 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v8/);
+  assert.match(serviceWorker, /owr-offline-v9/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
+  assert.match(serviceWorker, /\/zakat\.html/);
+  assert.match(serviceWorker, /\/zakat-calculator\.js/);
 });
 
 test("both checkout mirrors enforce every donation-program amount boundary", async () => {
@@ -783,6 +1019,7 @@ test("both checkout mirrors enforce every donation-program amount boundary", asy
     { label: "emergency aid minimum", body: { program_id: "emergency_aid", amount_usd: 25 } },
     { label: "emergency aid above minimum", body: { program_id: "emergency_aid", amount_usd: 25.01 } },
     { label: "Zakat minimum", body: { program_id: "zakat", amount_usd: 5 } },
+    { label: "Zakat calculated cents", body: { program_id: "zakat", amount_usd: 25.03 } },
   ];
   const invalidCases = [
     { label: "unrestricted below minimum", body: { program_id: "unrestricted", amount_usd: 4.99 } },
@@ -902,6 +1139,122 @@ test("checkout derives Stripe product details and metadata from its canonical ca
   }
 });
 
+test("both checkout mirrors accept only validated Zakat calculator context and derive safe metadata", async () => {
+  const contexts = [
+    {
+      input: { version: "owr-zakat-v1", language: "en", year_basis: "hijri", nisab_basis: "gold" },
+      expected: { language: "English", year: "Hijri year", rate: "2.5%", nisab: "Gold" },
+    },
+    {
+      input: { version: "owr-zakat-v1", language: "bn", year_basis: "solar", nisab_basis: "silver" },
+      expected: { language: "Bangla", year: "Solar year", rate: "2.577%", nisab: "Silver" },
+    },
+    {
+      input: { version: "owr-zakat-v1", language: "ur", year_basis: "hijri", nisab_basis: "custom" },
+      expected: { language: "Urdu", year: "Hijri year", rate: "2.5%", nisab: "Custom" },
+    },
+    {
+      input: { version: "owr-zakat-v1", language: "ar", year_basis: "solar", nisab_basis: "gold" },
+      expected: { language: "Arabic", year: "Solar year", rate: "2.577%", nisab: "Gold" },
+    },
+  ];
+
+  for (const modulePath of checkoutModulePaths) {
+    for (const { input, expected } of contexts) {
+      const result = await callCheckout(modulePath, {
+        program_id: "zakat",
+        amount_usd: 25,
+        zakat_context: input,
+        cash_savings: "987654.32",
+        gold_silver: "876543.21",
+        investments: "765432.10",
+        money_owed: "654321.09",
+        business_assets: "543210.98",
+        other_assets: "432109.87",
+        short_term_liabilities: "321098.76",
+        calculated_nisab: "210987.65",
+        net_zakatable_wealth: "109876.54",
+      });
+      assert.equal(result.response.status, 200, `${modulePath}: ${expected.language}`);
+      assert.equal(result.stripeCalls, 1, `${modulePath}: ${expected.language}`);
+      assert.equal(result.payload.program_id, "zakat");
+      assert.equal(result.payload.campaign, "Zakat");
+
+      const metadata = {
+        zakat_calculator: "One World Relief Zakat Calculator",
+        zakat_context_version: "owr-zakat-v1",
+        zakat_language: expected.language,
+        zakat_year_basis: expected.year,
+        zakat_rate: expected.rate,
+        zakat_nisab_basis: expected.nisab,
+        zakat_summary: `owr-zakat-v1 | ${expected.language} | ${expected.year} ${expected.rate} | ${expected.nisab} nisab`,
+      };
+      for (const [key, value] of Object.entries(metadata)) {
+        assert.equal(result.stripeForm.get(`metadata[${key}]`), value, `${modulePath}: session ${key}`);
+        assert.equal(result.stripeForm.get(`payment_intent_data[metadata][${key}]`), value, `${modulePath}: payment ${key}`);
+      }
+
+      const serializedStripeForm = result.stripeForm.toString();
+      for (const forbidden of [
+        "cash_savings",
+        "gold_silver",
+        "investments",
+        "money_owed",
+        "business_assets",
+        "other_assets",
+        "short_term_liabilities",
+        "calculated_nisab",
+        "net_zakatable_wealth",
+        "987654.32",
+        "876543.21",
+        "765432.10",
+        "654321.09",
+        "543210.98",
+        "432109.87",
+        "321098.76",
+        "210987.65",
+        "109876.54",
+      ]) {
+        assert.equal(serializedStripeForm.includes(encodeURIComponent(forbidden)), false, `${modulePath}: Stripe must not receive ${forbidden}`);
+        assert.equal(serializedStripeForm.includes(forbidden), false, `${modulePath}: Stripe must not receive ${forbidden}`);
+      }
+    }
+
+    const directZakat = await callCheckout(modulePath, { program_id: "zakat", amount_usd: 25 });
+    assert.equal(directZakat.response.status, 200, `${modulePath}: direct Zakat remains supported`);
+    assert.equal(directZakat.stripeForm.get("metadata[campaign]"), "Zakat");
+    assert.equal(directZakat.stripeForm.has("metadata[zakat_context_version]"), false);
+    assert.equal(directZakat.stripeForm.has("payment_intent_data[metadata][zakat_context_version]"), false);
+  }
+});
+
+test("both checkout mirrors reject forged, malformed, or misplaced Zakat calculator context", async () => {
+  const valid = { version: "owr-zakat-v1", language: "en", year_basis: "hijri", nisab_basis: "gold" };
+  const rejected = [
+    { label: "null context", program_id: "zakat", zakat_context: null },
+    { label: "array context", program_id: "zakat", zakat_context: ["owr-zakat-v1", "en", "hijri", "gold"] },
+    { label: "string context", program_id: "zakat", zakat_context: JSON.stringify(valid) },
+    { label: "missing key", program_id: "zakat", zakat_context: { version: "owr-zakat-v1", language: "en", year_basis: "hijri" } },
+    { label: "extra key", program_id: "zakat", zakat_context: { ...valid, total_assets: "10000" } },
+    { label: "non-string key", program_id: "zakat", zakat_context: { ...valid, language: 7 } },
+    { label: "wrong version", program_id: "zakat", zakat_context: { ...valid, version: "owr-zakat-v2" } },
+    { label: "unknown language", program_id: "zakat", zakat_context: { ...valid, language: "fr" } },
+    { label: "unknown year", program_id: "zakat", zakat_context: { ...valid, year_basis: "quarterly" } },
+    { label: "unknown nisab", program_id: "zakat", zakat_context: { ...valid, nisab_basis: "live-price-api" } },
+    { label: "context on unrestricted giving", program_id: "unrestricted", zakat_context: valid },
+    { label: "context without explicit Zakat program", campaign: "Zakat", zakat_context: valid },
+  ];
+
+  for (const modulePath of checkoutModulePaths) {
+    for (const { label, program_id, campaign, zakat_context } of rejected) {
+      const result = await callCheckout(modulePath, { program_id, campaign, amount_usd: 25, zakat_context });
+      assert.equal(result.response.status, 400, `${modulePath}: ${label}`);
+      assert.equal(result.stripeCalls, 0, `${modulePath}: ${label} must fail before Stripe`);
+      assert.match(result.payload.detail, /Zakat calculator context|valid Zakat calculator context/, `${modulePath}: ${label}`);
+    }
+  }
+});
+
 test("legacy campaign aliases resolve to canonical donation programs", async () => {
   const aliases = [
     { campaign: "General Fund", amount_usd: 5, program: "unrestricted", canonical: "General Fund" },
@@ -942,7 +1295,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v8/);
+  assert.match(serviceWorker, /owr-offline-v9/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1140,7 +1493,7 @@ test("home page renders a continuous completed-case photo flow from project data
 });
 
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
-  const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html"];
+  const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html", "zakat.html"];
   const casePageNames = Array.from({ length: 9 }, (_, index) => {
     return `projects/case-${String(index + 1).padStart(3, "0")}.html`;
   });
@@ -1155,7 +1508,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   ]);
 
   const publicPages = [...pages, { name: "offline.html", html: offlineHtml }];
-  assert.equal(publicPages.length, 16);
+  assert.equal(publicPages.length, 17);
   for (const { name, html } of publicPages) {
     assert.match(
       html,
@@ -1889,6 +2242,125 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(sheetPayload.values[0][7], /Referrer Case: case-009/);
     assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
     assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("both webhook mirrors keep Zakat donations in A:H with safe calculator context and donor email", async () => {
+  const [deployedSource, mirrorSource, privateKey] = await Promise.all([
+    readFile("functions/charity/webhooks/stripe.js", "utf8"),
+    readFile("../functions/charity/webhooks/stripe.js", "utf8"),
+    createGooglePrivateKey(),
+  ]);
+  assert.equal(deployedSource, mirrorSource, "Stripe webhook mirrors must remain byte-identical");
+
+  const secret = "whsec_zakat_test";
+  const timestamp = "1770000000";
+  const body = JSON.stringify({
+    id: "evt_zakat_test",
+    type: "checkout.session.completed",
+    data: {
+      object: {
+        id: "cs_zakat_test",
+        created: 1770000000,
+        amount_total: 2577,
+        payment_status: "paid",
+        customer_email: "zakat.donor@example.com",
+        client_reference_id: "don_zakat_test",
+        payment_intent: "pi_zakat_test",
+        metadata: {
+          donation_id: "don_zakat_test",
+          donor_name: "Zakat Donor",
+          donor_email: "zakat.donor@example.com",
+          campaign: "Zakat",
+          program_id: "zakat",
+          zakat_calculator: "One World Relief Zakat Calculator",
+          zakat_context_version: "owr-zakat-v1",
+          zakat_language: "Bangla",
+          zakat_year_basis: "Solar year",
+          zakat_rate: "2.577%",
+          zakat_nisab_basis: "Silver",
+          zakat_summary: "owr-zakat-v1 | Bangla | Solar year 2.577% | Silver nisab",
+          cash_savings: "987654.32",
+          short_term_liabilities: "876543.21",
+          net_zakatable_wealth: "765432.10",
+        },
+      },
+    },
+  });
+  const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+  const originalFetch = globalThis.fetch;
+
+  try {
+    for (const modulePath of ["functions/charity/webhooks/stripe.js", "../functions/charity/webhooks/stripe.js"]) {
+      const webhook = await importFunctionModule(modulePath);
+      const calls = [];
+      globalThis.fetch = async (url, options) => {
+        calls.push({ url: String(url), options });
+        if (String(url).includes("oauth2.googleapis.com")) {
+          return new Response(JSON.stringify({ access_token: "google-token" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        if (String(url).includes("sheets.googleapis.com") && !String(url).includes(":append")) {
+          return new Response(JSON.stringify({
+            values: [["Donation ID", "Date", "Donor Name", "Amount ($)", "Purpose/Fund", "Method", "Receipt ID", "Notes"]],
+          }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        if (String(url).includes("sheets.googleapis.com") && String(url).includes(":append")) {
+          return new Response(JSON.stringify({ updates: { updatedRows: 1 } }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        throw new Error(`Unexpected fetch ${url}`);
+      };
+
+      const response = await webhook.onRequestPost({
+        request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+          method: "POST",
+          headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+          body,
+        }),
+        env: {
+          OWR_STRIPE_WEBHOOK_SECRET: secret,
+          OWR_GOOGLE_SHEET_ID: "sheet_123",
+          OWR_GOOGLE_SHEET_TAB: "Donations (2026)",
+          OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.iam.gserviceaccount.com",
+          OWR_GOOGLE_PRIVATE_KEY: privateKey,
+        },
+      });
+      assert.equal(response.status, 200, modulePath);
+
+      const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com") && call.url.includes(":append"));
+      assert.ok(sheetCall, `${modulePath}: completed Zakat payment should append to Sheets`);
+      assert.match(sheetCall.url, /A%3AH/);
+      const sheetPayload = JSON.parse(sheetCall.options.body);
+      assert.equal(sheetPayload.values[0].length, 8, `${modulePath}: established A:H schema must remain unchanged`);
+      assert.deepEqual(sheetPayload.values[0].slice(0, 7), [
+        "don_zakat_test",
+        "2/2/2026",
+        "Zakat Donor",
+        25.77,
+        "Zakat",
+        "Stripe",
+        "R-2026-02-02-DONZAKATTE",
+      ]);
+      const notes = sheetPayload.values[0][7];
+      assert.match(notes, /Donor Email: zakat\.donor@example\.com/);
+      assert.match(notes, /Zakat Calculator: One World Relief Zakat Calculator \(owr-zakat-v1\)/);
+      assert.match(notes, /Zakat Language: Bangla/);
+      assert.match(notes, /Zakat Year Basis \/ Rate: Solar year \/ 2\.577%/);
+      assert.match(notes, /Zakat Nisab Basis: Silver/);
+      assert.match(notes, /Zakat Summary: owr-zakat-v1 \| Bangla \| Solar year 2\.577% \| Silver nisab/);
+      assert.doesNotMatch(notes, /cash_savings|short_term_liabilities|net_zakatable_wealth|987654\.32|876543\.21|765432\.10/i);
+      assert.doesNotMatch(JSON.stringify(sheetPayload), /987654\.32|876543\.21|765432\.10/);
+    }
   } finally {
     globalThis.fetch = originalFetch;
   }

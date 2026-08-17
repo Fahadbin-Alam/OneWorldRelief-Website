@@ -27,6 +27,48 @@
   const summaryPurpose = document.getElementById("selectedProgramPurpose");
   const summaryStewardship = document.getElementById("selectedProgramStewardship");
   const programGrid = document.getElementById("donationProgramGrid");
+  const donationSourceInput = document.getElementById("donationSource");
+  const zakatContextVersionInput = document.getElementById("zakatContextVersion");
+  const zakatContextLanguageInput = document.getElementById("zakatContextLanguage");
+  const zakatContextYearInput = document.getElementById("zakatContextYearBasis");
+  const zakatContextNisabInput = document.getElementById("zakatContextNisabBasis");
+  const params = new URLSearchParams(window.location.search);
+  const ZAKAT_HANDOFF_KEY = "owrZakatHandoff";
+  let activeZakatContext = null;
+
+  const getZakatHandoff = () => {
+    if (params.get("source") !== "zakat-calculator" || params.get("program") !== "zakat") {
+      try {
+        sessionStorage.removeItem(ZAKAT_HANDOFF_KEY);
+      } catch (_error) {
+        // Direct giving still works when session storage is unavailable.
+      }
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(sessionStorage.getItem(ZAKAT_HANDOFF_KEY) || "null");
+      const isValid = parsed
+        && !Array.isArray(parsed)
+        && Object.keys(parsed).length === 4
+        && parsed.version === "owr-zakat-v1"
+        && ["en", "bn", "ur", "ar"].includes(parsed.language)
+        && ["hijri", "solar"].includes(parsed.year_basis)
+        && ["gold", "silver", "custom"].includes(parsed.nisab_basis);
+      return isValid ? parsed : null;
+    } catch (_error) {
+      return null;
+    }
+  };
+
+  activeZakatContext = getZakatHandoff();
+  if (activeZakatContext) {
+    if (donationSourceInput) donationSourceInput.value = "zakat-calculator";
+    if (zakatContextVersionInput) zakatContextVersionInput.value = activeZakatContext.version;
+    if (zakatContextLanguageInput) zakatContextLanguageInput.value = activeZakatContext.language;
+    if (zakatContextYearInput) zakatContextYearInput.value = activeZakatContext.year_basis;
+    if (zakatContextNisabInput) zakatContextNisabInput.value = activeZakatContext.nisab_basis;
+  }
 
   const legacyAliases = {
     "General Fund": "unrestricted",
@@ -227,8 +269,14 @@
         : program.purposeSummary;
     }
     if (summaryStewardship) {
-      summaryStewardship.textContent = program.stewardship || "";
-      summaryStewardship.hidden = !program.stewardship;
+      const languageLabels = { en: "English", bn: "Bangla", ur: "Urdu", ar: "Arabic" };
+      const yearLabels = { hijri: "Hijri year · 2.5%", solar: "solar year · 2.577%" };
+      const nisabLabels = { gold: "gold nisab", silver: "silver nisab", custom: "custom nisab" };
+      const calculatorContext = program.id === "zakat" && activeZakatContext
+        ? ` Calculator estimate received: ${languageLabels[activeZakatContext.language]}, ${yearLabels[activeZakatContext.year_basis]}, ${nisabLabels[activeZakatContext.nisab_basis]}. Your asset and debt entries stayed on your device.`
+        : "";
+      summaryStewardship.textContent = `${program.stewardship || ""}${calculatorContext}`.trim();
+      summaryStewardship.hidden = !summaryStewardship.textContent;
     }
     if (formTitle) {
       formTitle.textContent = program.id === "unrestricted"
@@ -275,6 +323,13 @@
   };
 
   const createProgramAction = (program, variant = null) => {
+    if (program.detailUrl && !variant) {
+      const link = document.createElement("a");
+      link.className = "donation-program-action";
+      link.href = program.detailUrl;
+      link.textContent = program.detailActionLabel || `Learn about ${program.title}`;
+      return link;
+    }
     const button = document.createElement("button");
     button.type = "button";
     button.className = "donation-program-action";
@@ -389,7 +444,6 @@
     selectProgram(programSelect.value, { referrer: referrerInput?.value || "" });
   });
 
-  const params = new URLSearchParams(window.location.search);
   selectProgram(params.get("program") || params.get("campaign") || "unrestricted", {
     variant: params.get("variant") || "",
     amount: params.get("amount"),
@@ -422,22 +476,31 @@
     submitButton.textContent = "Preparing checkout...";
 
     try {
+      const checkoutData = {
+        donor_name: donorName,
+        donor_email: donorEmail,
+        amount_usd: amountUsd,
+        program_id: program.id,
+        program_variant: variant?.id || "",
+        referrer_case: referrerInput?.value || "",
+        campaign: program.campaign,
+        payment_method: "stripe",
+        giving_frequency: "one_time",
+        donor_note: donorNote,
+        anonymous_public: anonymous,
+      };
+      if (program.id === "zakat" && activeZakatContext && donationSourceInput?.value === "zakat-calculator") {
+        checkoutData.zakat_context = {
+          version: activeZakatContext.version,
+          language: activeZakatContext.language,
+          year_basis: activeZakatContext.year_basis,
+          nisab_basis: activeZakatContext.nisab_basis,
+        };
+      }
       const response = await fetch(`${API_BASE}/charity/donations/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          donor_name: donorName,
-          donor_email: donorEmail,
-          amount_usd: amountUsd,
-          program_id: program.id,
-          program_variant: variant?.id || "",
-          referrer_case: referrerInput?.value || "",
-          campaign: program.campaign,
-          payment_method: "stripe",
-          giving_frequency: "one_time",
-          donor_note: donorNote,
-          anonymous_public: anonymous,
-        }),
+        body: JSON.stringify(checkoutData),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -447,6 +510,11 @@
         throw new Error("Stripe did not return a secure checkout link. Please try again.");
       }
       setStatus("Redirecting to secure payment...");
+      try {
+        sessionStorage.removeItem(ZAKAT_HANDOFF_KEY);
+      } catch (_error) {
+        // Checkout is already ready to redirect.
+      }
       window.location.href = payload.redirect_url;
     } catch (error) {
       setStatus(error.message || "Secure checkout could not be started. Please try again.", true);

@@ -113,6 +113,11 @@
             <input id="selectedProgramId" type="hidden" value="unrestricted" />
             <input id="selectedProgramVariant" type="hidden" value="" />
             <input id="donationReferrerCase" type="hidden" value="" />
+            <input id="donationSource" type="hidden" value="" />
+            <input id="zakatContextVersion" type="hidden" value="" />
+            <input id="zakatContextLanguage" type="hidden" value="" />
+            <input id="zakatContextYearBasis" type="hidden" value="" />
+            <input id="zakatContextNisabBasis" type="hidden" value="" />
 
             <aside class="donation-program-summary" id="donationProgramSummary" aria-live="polite">
               <p class="eyebrow">Selected purpose</p>
@@ -142,7 +147,7 @@
                 Or enter another amount
                 <span class="custom-donation-input-wrap">
                   <span aria-hidden="true">$</span>
-                  <input id="customDonation" type="number" min="5" step="1" inputmode="numeric" placeholder="Enter $5 or more" aria-describedby="minimumDonationText" />
+                  <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter $5 or more" aria-describedby="minimumDonationText" />
                 </span>
               </label>
             </section>

@@ -135,6 +135,44 @@ const programVariantLabels = {
   community_well: "Community Well Support",
 };
 
+const zakatYearBasisRates = {
+  "Hijri year": "2.5%",
+  "Solar year": "2.577%",
+};
+
+const zakatLanguages = new Set(["English", "Bangla", "Urdu", "Arabic"]);
+const zakatNisabBases = new Set(["Gold", "Silver", "Custom"]);
+
+const getZakatSheetNotes = (metadata) => {
+  const calculator = metadata.zakat_calculator;
+  const version = metadata.zakat_context_version;
+  const language = metadata.zakat_language;
+  const yearBasis = metadata.zakat_year_basis;
+  const rate = metadata.zakat_rate;
+  const nisabBasis = metadata.zakat_nisab_basis;
+  const expectedSummary = `${version} | ${language} | ${yearBasis} ${rate} | ${nisabBasis} nisab`;
+
+  const isValid = metadata.program_id === "zakat"
+    && calculator === "One World Relief Zakat Calculator"
+    && version === "owr-zakat-v1"
+    && zakatLanguages.has(language)
+    && zakatYearBasisRates[yearBasis] === rate
+    && zakatNisabBases.has(nisabBasis)
+    && metadata.zakat_summary === expectedSummary;
+
+  if (!isValid) {
+    return [];
+  }
+
+  return [
+    `Zakat Calculator: ${calculator} (${version})`,
+    `Zakat Language: ${language}`,
+    `Zakat Year Basis / Rate: ${yearBasis} / ${rate}`,
+    `Zakat Nisab Basis: ${nisabBasis}`,
+    `Zakat Summary: ${expectedSummary}`,
+  ];
+};
+
 const getInvoiceMetadata = (invoice) => {
   return {
     ...(invoice.parent?.subscription_details?.metadata || {}),
@@ -305,6 +343,8 @@ const appendDonationToGoogleSheet = async (env, session) => {
   const programVariant = getSafeAttributionValue(metadata.program_variant);
   const programOption = getSafeAttributionValue(metadata.program_option_label || programVariantLabels[programVariant] || programVariant);
   const referrerCase = getSafeAttributionValue(metadata.referrer_case);
+  const donorEmail = getSafeAttributionValue(metadata.donor_email || receipt.donorEmail);
+  const zakatSheetNotes = getZakatSheetNotes(metadata);
   const notes = [
     session.payment_status ? `Status: ${session.payment_status}` : "",
     session.id ? `Stripe Session: ${session.id}` : "",
@@ -316,6 +356,8 @@ const appendDonationToGoogleSheet = async (env, session) => {
     programOption ? `Program Option: ${programOption}` : "",
     programVariant ? `Program Variant ID: ${programVariant}` : "",
     referrerCase ? `Referrer Case: ${referrerCase}` : "",
+    donorEmail ? `Donor Email: ${donorEmail}` : "",
+    ...zakatSheetNotes,
     receiptEmailStatus ? `Receipt Email: ${receiptEmailStatus}` : "",
     receiptUrl ? `Receipt URL: ${receiptUrl}` : "",
     metadata.anonymous_public === "yes" ? "Public Display: Anonymous" : "",
