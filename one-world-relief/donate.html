@@ -22,7 +22,7 @@
   />
   <link rel="stylesheet" href="one-world-relief.css" />
 </head>
-<body class="site-body">
+<body class="site-body donate-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -38,6 +38,15 @@
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
+      <details class="mobile-nav-menu">
+        <summary>Menu</summary>
+        <nav aria-label="Mobile navigation">
+          <a href="projects.html">Projects</a>
+          <a href="share.html">Share</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </details>
       <a class="button button-primary header-cta" href="donate.html" aria-current="page">Donate</a>
     </div>
   </header>
@@ -101,7 +110,8 @@
           <div class="donation-form-heading">
             <div>
               <p class="eyebrow">Secure Stripe checkout</p>
-              <h2 id="donationFormTitle" tabindex="-1">Give any amount</h2>
+              <h2 id="donationFormTitle" tabindex="-1">Start your donation</h2>
+              <p class="donation-form-intro">Choose a purpose and amount. You can review everything in Stripe before payment.</p>
             </div>
             <span class="donation-security-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" focusable="false">
@@ -119,7 +129,22 @@
             <input id="zakatContextYearBasis" type="hidden" value="" />
             <input id="zakatContextNisabBasis" type="hidden" value="" />
 
-            <aside class="donation-program-summary" id="donationProgramSummary" aria-live="polite">
+            <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
+              <div class="donation-step-heading">
+                <div>
+                  <h3 id="fundStepTitle">Where should your gift go?</h3>
+                </div>
+              </div>
+              <label class="custom-amount compact-select" for="campaignSelect">
+                <span class="sr-only">Donation destination</span>
+                <select id="campaignSelect" required>
+                  <option value="unrestricted">Where it's needed most</option>
+                  <option value="zakat">Zakat</option>
+                </select>
+              </label>
+            </section>
+
+            <aside class="donation-program-summary" id="donationProgramSummary" aria-live="polite" aria-atomic="true">
               <p class="eyebrow">Selected purpose</p>
               <div class="donation-program-summary-heading">
                 <h3 id="selectedProgramTitle">Give Where It’s Needed Most</h3>
@@ -152,21 +177,6 @@
               </label>
             </section>
 
-            <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
-              <div class="donation-step-heading">
-                <div>
-                  <h3 id="fundStepTitle">Choose a purpose</h3>
-                </div>
-              </div>
-              <label class="custom-amount compact-select" for="campaignSelect">
-                <span class="sr-only">Donation destination</span>
-                <select id="campaignSelect" required>
-                  <option value="unrestricted">Where it's needed most</option>
-                  <option value="zakat">Zakat</option>
-                </select>
-              </label>
-            </section>
-
             <section class="donation-step" aria-labelledby="receiptStepTitle">
               <div class="donation-step-heading">
                 <div>
@@ -186,29 +196,36 @@
               </div>
             </section>
 
-            <div class="donor-options">
-              <label for="donorNote">
-                Note for One World Relief <span>optional</span>
-                <textarea id="donorNote" rows="2" maxlength="180" placeholder="Add a short note or dedication"></textarea>
-              </label>
-              <label class="checkbox-line" for="anonymousDonation">
-                <input id="anonymousDonation" type="checkbox" />
-                Keep my name anonymous in public updates
-              </label>
-            </div>
+            <details class="donation-options-disclosure">
+              <summary>Add a note or donate anonymously <span>Optional</span></summary>
+              <div class="donor-options">
+                <label for="donorNote">
+                  Note for One World Relief
+                  <textarea id="donorNote" rows="2" maxlength="180" placeholder="Add a short note or dedication"></textarea>
+                </label>
+                <label class="checkbox-line" for="anonymousDonation">
+                  <input id="anonymousDonation" type="checkbox" />
+                  Keep my name anonymous in public updates
+                </label>
+              </div>
+            </details>
 
             <button class="button button-primary donate-button" type="submit">Continue to secure checkout <span aria-hidden="true">&rarr;</span></button>
+            <p class="donation-review-note">You will review your gift before payment.</p>
             <p class="donation-note donation-trust-note">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
               </svg>
               Stripe securely handles your payment. One World Relief never receives your card details.
             </p>
-            <p class="donation-stewardship-note">
-              Your gift is designated to the selected program. If a specific need is fully funded or cannot proceed,
-              One World Relief may apply it to the closest eligible need within that same program. Zakat remains
-              limited to Zakat-eligible uses.
-            </p>
+            <details class="donation-allocation-details">
+              <summary>How designated gifts are handled</summary>
+              <p class="donation-stewardship-note">
+                Your gift is designated to the selected program. If a specific need is fully funded or cannot proceed,
+                One World Relief may apply it to the closest eligible need within that same program. Zakat remains
+                limited to Zakat-eligible uses.
+              </p>
+            </details>
             <p class="donation-status" id="donationStatus" role="status" aria-live="polite"></p>
           </form>
         </article>
@@ -220,21 +237,21 @@
         <div class="donation-catalog-header">
           <div class="section-heading flow-heading">
             <p class="eyebrow">Purpose-based giving</p>
-            <h2 id="donationCatalogTitle">Choose the work that matters to you.</h2>
-            <p>See the amount, understand the purpose, and continue through secure Stripe checkout. Every photo comes from documented One World Relief work.</p>
+            <h2 id="donationCatalogTitle">Choose where your gift goes.</h2>
+            <p>Pick a verified purpose, see the giving amount up front, and continue through the same secure checkout.</p>
           </div>
           <ul class="donation-catalog-assurances" aria-label="What to expect when choosing a purpose">
             <li>
-              <span aria-hidden="true">01</span>
-              <div><strong>Clear amounts</strong><small>Know the minimum or fixed gift before checkout.</small></div>
+              <span aria-hidden="true">&#10003;</span>
+              <div><strong>Clear amounts</strong><small>Minimum or fixed cost shown first.</small></div>
             </li>
             <li>
-              <span aria-hidden="true">02</span>
-              <div><strong>Purpose recorded</strong><small>Your selected program follows the donation into our records.</small></div>
+              <span aria-hidden="true">&#10003;</span>
+              <div><strong>Purpose recorded</strong><small>Your selection follows the donation.</small></div>
             </li>
             <li>
-              <span aria-hidden="true">03</span>
-              <div><strong>Secure payment</strong><small>Card details stay inside Stripe&rsquo;s hosted checkout.</small></div>
+              <span aria-hidden="true">&#10003;</span>
+              <div><strong>Stripe checkout</strong><small>We never receive your card details.</small></div>
             </li>
           </ul>
         </div>

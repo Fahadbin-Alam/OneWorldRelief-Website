@@ -27,6 +27,7 @@
   const summaryPurpose = document.getElementById("selectedProgramPurpose");
   const summaryStewardship = document.getElementById("selectedProgramStewardship");
   const programGrid = document.getElementById("donationProgramGrid");
+  const formCard = form.closest(".donation-form-card-featured");
   const donationSourceInput = document.getElementById("donationSource");
   const zakatContextVersionInput = document.getElementById("zakatContextVersion");
   const zakatContextLanguageInput = document.getElementById("zakatContextLanguage");
@@ -86,11 +87,16 @@
     Zakat: "zakat",
   };
 
-  const formatUsd = (amount) => new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(Number(amount || 0));
+  const formatUsd = (amount) => {
+    const numericAmount = Number(amount || 0);
+    const hasCents = !Number.isInteger(numericAmount);
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: hasCents ? 2 : 0,
+      maximumFractionDigits: hasCents ? 2 : 0,
+    }).format(numericAmount);
+  };
 
   const getProgram = (value = "unrestricted") => {
     const requested = String(value || "unrestricted").trim();
@@ -108,6 +114,9 @@
   };
 
   const getDefaultVariant = (program) => {
+    if (program?.id === "water_support") {
+      return getVariant(program, "water_contribution");
+    }
     return Array.isArray(program?.variants) ? program.variants[0] || null : null;
   };
 
@@ -122,11 +131,16 @@
         presets: [fixedAmount],
       };
     }
+    const type = String(program.amountRule || "minimum");
     return {
-      type: String(program.amountRule || "minimum"),
+      type,
       min: Number(program.minAmount || 5),
       max: Number(program.maxAmount || 0),
-      defaultAmount: Number(variant?.amount || program.defaultAmount || program.minAmount || 5),
+      defaultAmount: Number(
+        type === "range"
+          ? program.defaultAmount || program.minAmount || 5
+          : variant?.amount || program.defaultAmount || program.minAmount || 5
+      ),
       presets: Array.isArray(program.presets) ? program.presets.map(Number) : [],
     };
   };
@@ -280,8 +294,19 @@
     }
     if (formTitle) {
       formTitle.textContent = program.id === "unrestricted"
-        ? "Give any amount"
-        : "Complete your purpose-based gift";
+        ? "Start your donation"
+        : "Complete your gift";
+    }
+  };
+
+  const positionCheckout = (focusHeading = false) => {
+    const stickyHeader = document.querySelector(".site-header");
+    const headerOffset = Number(stickyHeader?.getBoundingClientRect().height || 0) + 16;
+    const cardTop = Number(formCard?.getBoundingClientRect().top || 0) + window.scrollY - headerOffset;
+    document.documentElement.scrollTop = Math.max(0, cardTop);
+    document.body.scrollTop = Math.max(0, cardTop);
+    if (focusHeading) {
+      formTitle?.focus({ preventScroll: true });
     }
   };
 
@@ -315,14 +340,18 @@
     updateSummary(program, variant);
     renderAmountChoices(program, variant, options.amount);
     setStatus();
+    updateSubmitLabel();
+
+    programGrid?.querySelectorAll(".donation-program-card").forEach((card) => {
+      card.classList.toggle("is-selected", card.dataset.programId === program.id);
+    });
 
     if (options.focus) {
-      form.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
-      window.setTimeout(() => formTitle?.focus({ preventScroll: true }), prefersReducedMotion ? 0 : 360);
+      positionCheckout(true);
     }
   };
 
-  const createProgramAction = (program, variant = null) => {
+  const createProgramAction = (program, variant = null, options = {}) => {
     const addActionContent = (element, label) => {
       const text = document.createElement("span");
       text.textContent = label;
@@ -333,30 +362,33 @@
       element.append(text, arrow);
     };
 
-    if (program.detailUrl && !variant) {
+    if (program.detailUrl && !variant && !options.direct) {
       const link = document.createElement("a");
       link.className = "donation-program-action";
       link.href = program.detailUrl;
-      addActionContent(link, program.detailActionLabel || `Learn about ${program.title}`);
+      link.setAttribute("aria-label", `${program.detailActionLabel || `Learn about ${program.title}`} — ${program.title}`);
+      addActionContent(link, options.label || program.detailActionLabel || `Learn about ${program.title}`);
       return link;
     }
     const button = document.createElement("button");
     button.type = "button";
     button.className = "donation-program-action";
-    if (variant?.id === "water_contribution") {
+    if (variant?.id === "water_contribution" && !options.primary) {
       button.classList.add("donation-program-action-secondary");
     }
     button.dataset.programChoice = program.id;
-    button.dataset.programAmount = String(variant?.amount || program.defaultAmount);
+    button.dataset.programAmount = String(options.amount ?? variant?.amount ?? program.defaultAmount);
     if (variant) {
       button.dataset.programVariant = variant.id;
     }
     button.setAttribute("aria-controls", "donationForm");
-    addActionContent(button, variant?.actionLabel || variant?.label || program.actionLabel || `Give ${program.amountLabel}`);
+    const actionLabel = options.label || variant?.actionLabel || variant?.label || program.actionLabel || `Give ${program.amountLabel}`;
+    button.setAttribute("aria-label", `${actionLabel} for ${program.title}`);
+    addActionContent(button, actionLabel);
     button.addEventListener("click", () => {
       selectProgram(program.id, {
         variant: variant?.id || "",
-        amount: variant?.amount || program.defaultAmount,
+        amount: options.amount ?? variant?.amount ?? program.defaultAmount,
         focus: true,
       });
     });
@@ -371,6 +403,7 @@
     programs.filter((program) => program.featured === true).forEach((program, index) => {
       const card = document.createElement("article");
       card.className = "donation-program-card";
+      card.id = `donation-program-${program.id}`;
       card.dataset.programId = program.id;
       card.setAttribute("role", "listitem");
       card.style.setProperty("--program-index", String(index));
@@ -389,6 +422,8 @@
 
       const copy = document.createElement("div");
       copy.className = "donation-program-copy";
+      const header = document.createElement("header");
+      header.className = "donation-program-card-header";
       const amount = document.createElement("p");
       amount.className = "donation-program-amount";
       amount.textContent = program.amountLabel;
@@ -398,14 +433,22 @@
       card.setAttribute("aria-labelledby", title.id);
       const purpose = document.createElement("p");
       purpose.textContent = program.purposeSummary;
-      copy.append(amount, title, purpose);
+      header.append(amount, title);
+      copy.append(header, purpose);
+
+      if (program.cardNotice) {
+        const notice = document.createElement("p");
+        notice.className = "donation-program-notice";
+        notice.textContent = program.cardNotice;
+        copy.appendChild(notice);
+      }
 
       if (program.stewardship) {
         const details = document.createElement("details");
         const summary = document.createElement("summary");
         const detailCopy = document.createElement("p");
-        summary.textContent = "How this gift is attributed";
-        summary.setAttribute("aria-label", `How a gift to ${program.title} is attributed`);
+        summary.textContent = "Where your gift goes";
+        summary.setAttribute("aria-label", `Where a gift to ${program.title} goes`);
         detailCopy.textContent = program.stewardship;
         details.append(summary, detailCopy);
         copy.appendChild(details);
@@ -413,7 +456,26 @@
 
       const actions = document.createElement("div");
       actions.className = "donation-program-actions";
-      if (Array.isArray(program.variants) && program.variants.length) {
+      if (program.id === "water_support") {
+        const levels = document.createElement("div");
+        levels.className = "donation-water-levels";
+        levels.innerHTML = '<span><strong>$350</strong><small>Filtered water station</small></span><em aria-hidden="true">to</em><span><strong>$3,000</strong><small>Community well</small></span>';
+        copy.appendChild(levels);
+        const flexibleVariant = getVariant(program, program.catalogActionVariant || "water_contribution");
+        actions.appendChild(createProgramAction(program, flexibleVariant, {
+          amount: program.defaultAmount,
+          label: program.actionLabel || "Choose a water amount",
+          primary: true,
+        }));
+      } else if (program.detailUrl) {
+        actions.classList.add("donation-program-actions-split");
+        actions.appendChild(createProgramAction(program));
+        if (program.directActionLabel) {
+          const directAction = createProgramAction(program, null, { direct: true, label: program.directActionLabel });
+          directAction.classList.add("donation-program-action-secondary");
+          actions.appendChild(directAction);
+        }
+      } else if (Array.isArray(program.variants) && program.variants.length) {
         actions.classList.add("donation-program-actions-multiple");
         program.variants.forEach((variant) => actions.appendChild(createProgramAction(program, variant)));
       } else {
@@ -423,6 +485,21 @@
       card.append(photo, copy);
       programGrid.appendChild(card);
     });
+
+    const cards = [...programGrid.querySelectorAll(".donation-program-card")];
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      cards.forEach((card) => card.classList.add("is-in-view"));
+      return;
+    }
+    const cardObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-in-view");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14, rootMargin: "0px 0px -8% 0px" });
+    cards.forEach((card) => cardObserver.observe(card));
   };
 
   const getDonationAmount = () => {
@@ -433,6 +510,23 @@
     return selected ? Number(selected.value) : 0;
   };
 
+  const updateSubmitLabel = () => {
+    if (!submitButton) {
+      return;
+    }
+    const amount = getDonationAmount();
+    const program = getProgram(programIdInput?.value);
+    const variant = getVariant(program, variantInput?.value);
+    const label = program && isAllowedAmount(program, variant, amount)
+      ? `Continue to Stripe — ${formatUsd(amount)}`
+      : "Continue to secure checkout";
+    submitButton.replaceChildren(document.createTextNode(`${label} `));
+    const arrow = document.createElement("span");
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "→";
+    submitButton.appendChild(arrow);
+  };
+
   populateProgramSelect();
   renderProgramGrid();
 
@@ -441,6 +535,7 @@
       customAmount.value = "";
       customAmount.removeAttribute("aria-invalid");
       setStatus();
+      updateSubmitLabel();
     }
   });
 
@@ -457,6 +552,7 @@
       "aria-invalid",
       Boolean(customAmount.value) && !isAllowedAmount(program, variant, amount)
     );
+    updateSubmitLabel();
   });
 
   programSelect?.addEventListener("change", () => {
@@ -468,6 +564,10 @@
     amount: params.get("amount"),
     referrer: params.get("referrer") || "",
   });
+  updateSubmitLabel();
+  if (window.location.hash === "#donationForm") {
+    window.requestAnimationFrame(() => positionCheckout(false));
+  }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -492,6 +592,7 @@
     }
 
     submitButton.disabled = true;
+    submitButton.setAttribute("aria-busy", "true");
     submitButton.textContent = "Preparing checkout...";
 
     try {
@@ -539,7 +640,8 @@
       setStatus(error.message || "Secure checkout could not be started. Please try again.", true);
     } finally {
       submitButton.disabled = false;
-      submitButton.innerHTML = 'Continue to secure checkout <span aria-hidden="true">&rarr;</span>';
+      submitButton.removeAttribute("aria-busy");
+      updateSubmitLabel();
     }
   });
 })();

@@ -520,18 +520,30 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.match(donorEmailInput, /type="email"/);
   assert.match(donorEmailInput, /autocomplete="email"/);
   assert.match(donorEmailInput, /required/);
-  assert.match(donationForm, /Note for One World Relief <span>optional<\/span>/);
+  assert.match(donationForm, /<details class="donation-options-disclosure">[\s\S]*?<summary>Add a note or donate anonymously <span>Optional<\/span><\/summary>/);
   assert.match(donationForm, /<textarea id="donorNote"[^>]*maxlength="180"[^>]*placeholder="Add a short note or dedication"><\/textarea>/);
   assert.doesNotMatch(donationForm.match(/<textarea id="donorNote"[^>]*>/)?.[0] || "", /required/);
   assert.match(donationForm, /id="anonymousDonation"/);
   assert.match(donationForm, /Continue to secure checkout/);
+  assert.match(donationForm, /You will review your gift before payment\./);
   assert.match(donationForm, /Stripe securely handles your payment\. One World Relief never receives your card details\./);
+  assert.match(donationForm, /<details class="donation-allocation-details">[\s\S]*?How designated gifts are handled/);
+  assert.match(donationForm, /id="donationProgramSummary" aria-live="polite" aria-atomic="true"/);
+  assert.ok(
+    donationForm.indexOf('id="campaignSelect"') < donationForm.indexOf('id="donationAmountChoices"'),
+    "purpose should be chosen before amount",
+  );
 
   assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout\.js"><\/script>/);
   assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
   assert.match(checkoutJs, /if \(rule\.type === "fixed"\)/);
   assert.match(checkoutJs, /if \(rule\.type === "range"\)/);
   assert.match(checkoutJs, /return amount >= rule\.min/);
+  assert.match(checkoutJs, /program\?\.id === "water_support"[\s\S]*?getVariant\(program, "water_contribution"\)/);
+  assert.match(checkoutJs, /type === "range"[\s\S]*?program\.defaultAmount/);
+  assert.match(checkoutJs, /minimumFractionDigits: hasCents \? 2 : 0/);
+  assert.match(checkoutJs, /program && isAllowedAmount\(program, variant, amount\)/);
+  assert.match(checkoutJs, /Continue to Stripe — \$\{formatUsd\(amount\)\}/);
   assert.match(checkoutJs, /program_id: program\.id/);
   assert.match(checkoutJs, /program_variant: variant\?\.id \|\| ""/);
   assert.match(checkoutJs, /referrer_case: referrerInput\?\.value \|\| ""/);
@@ -544,6 +556,8 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
 
   assert.match(siteCss, /\.donation-form-card \.custom-donation-input-wrap/);
   assert.match(siteCss, /\.donation-trust-note/);
+  assert.match(siteCss, /\.donation-form-card \.amount-grid label:only-of-type\s*\{[^}]*grid-column: 1 \/ -1/);
+  assert.match(siteCss, /\.donation-options-disclosure \.checkbox-line\s*\{[^}]*min-height: 44px/);
   const donationFormCardRules = [...siteCss.matchAll(/\.donation-form-card\s*\{([^}]*)\}/g)].map((match) => match[1]);
   assert.ok(donationFormCardRules.some((rule) => /animation: none/.test(rule)), "checkout card should not keep the old decorative animation");
 
@@ -613,7 +627,7 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   }
 });
 
-test("donation catalog is a polished, accessible, animated 3-2-1 giving experience", async () => {
+test("donation catalog is a compact, accessible, responsive purpose-selection experience", async () => {
   const [donateHtml, programSource, checkoutJs, siteCss] = await Promise.all([
     readFile("donate.html", "utf8"),
     readFile("donation-programs.js", "utf8"),
@@ -637,23 +651,24 @@ test("donation catalog is a polished, accessible, animated 3-2-1 giving experien
   ]);
 
   assert.match(donateHtml, /<section class="flow-section flow-section-funds reveal" aria-labelledby="donationCatalogTitle">/);
-  assert.match(donateHtml, /<h2 id="donationCatalogTitle">Choose the work that matters to you\.<\/h2>/);
+  assert.match(donateHtml, /<h2 id="donationCatalogTitle">Choose where your gift goes\.<\/h2>/);
   assert.match(donateHtml, /<ul class="donation-catalog-assurances" aria-label="What to expect when choosing a purpose">/);
-  for (const assurance of ["Clear amounts", "Purpose recorded", "Secure payment"]) {
+  for (const assurance of ["Clear amounts", "Purpose recorded", "Stripe checkout"]) {
     assert.match(donateHtml, new RegExp(`<strong>${assurance}</strong>`));
   }
-  assert.match(donateHtml, /Your selected program follows the donation into our records\./);
-  assert.match(donateHtml, /Card details stay inside Stripe&rsquo;s hosted checkout\./);
+  assert.match(donateHtml, /Your selection follows the donation\./);
+  assert.match(donateHtml, /We never receive your card details\./);
   assert.match(donateHtml, /<div class="donation-program-grid" id="donationProgramGrid" role="list" aria-label="Donation programs"><\/div>/);
 
   assert.deepEqual(
     Object.fromEntries(featured.filter((program) => program.actionLabel).map((program) => [program.id, program.actionLabel])),
     {
-      orphan_annual: "Support an orphan — $300",
+      orphan_annual: "Provide one year of support — $300",
       mosque_build: "Support mosque work — $1,000",
-      orphan_feeding: "Feed orphan children — $100+",
-      family_recovery: "Help a family recover — $600",
-      emergency_aid: "Send emergency aid — $25+",
+      water_support: "Choose a water amount",
+      orphan_feeding: "Provide meals — from $100",
+      family_recovery: "Help a family restart — $600",
+      emergency_aid: "Send emergency aid — from $25",
     },
   );
   const water = featured.find((program) => program.id === "water_support");
@@ -665,17 +680,19 @@ test("donation catalog is a polished, accessible, animated 3-2-1 giving experien
       { id: "community_well", amount: 3000, actionLabel: "$3,000 community well" },
     ],
   );
-  assert.equal(featured.find((program) => program.id === "zakat").detailActionLabel, "Calculate and give Zakat");
+  assert.equal(featured.find((program) => program.id === "zakat").detailActionLabel, "Calculate my Zakat");
+  assert.equal(featured.find((program) => program.id === "zakat").directActionLabel, "I already know my amount");
 
   assert.match(checkoutJs, /programs\.filter\(\(program\) => program\.featured === true\)\.forEach/);
   assert.match(checkoutJs, /card\.className = "donation-program-card"/);
+  assert.match(checkoutJs, /card\.id = `donation-program-\$\{program\.id\}`/);
   assert.match(checkoutJs, /card\.dataset\.programId = program\.id/);
   assert.match(checkoutJs, /card\.setAttribute\("role", "listitem"\)/);
   assert.match(checkoutJs, /card\.style\.setProperty\("--program-index", String\(index\)\)/);
   assert.match(checkoutJs, /card\.style\.setProperty\("--program-delay", `\$\{index \* 70\}ms`\)/);
   assert.match(checkoutJs, /title\.id = `donation-program-title-\$\{program\.id\}`/);
   assert.match(checkoutJs, /card\.setAttribute\("aria-labelledby", title\.id\)/);
-  assert.match(checkoutJs, /summary\.setAttribute\("aria-label", `How a gift to \$\{program\.title\} is attributed`\)/);
+  assert.match(checkoutJs, /summary\.setAttribute\("aria-label", `Where a gift to \$\{program\.title\} goes`\)/);
   assert.match(checkoutJs, /image\.src = program\.imageUrl/);
   assert.match(checkoutJs, /caption\.textContent = program\.photoContext/);
   assert.match(checkoutJs, /program\.detailUrl/);
@@ -686,64 +703,42 @@ test("donation catalog is a polished, accessible, animated 3-2-1 giving experien
   assert.match(checkoutJs, /button\.setAttribute\("aria-controls", "donationForm"\)/);
   assert.match(checkoutJs, /variant\?\.actionLabel \|\| variant\?\.label \|\| program\.actionLabel/);
   assert.match(checkoutJs, /actions\.classList\.add\("donation-program-actions-multiple"\)/);
+  assert.match(checkoutJs, /document\.documentElement\.scrollTop = Math\.max\(0, cardTop\)/);
+  assert.match(checkoutJs, /window\.location\.hash === "#donationForm"/);
 
   for (const program of featured) {
     assert.match(program.imageUrl, /^assets\/projects\/case-\d{3}\/[a-z0-9-]+\.jpg$/);
-    assert.match(program.photoContext, /Photo|photo/);
+    assert.match(program.photoContext, /documented|photo|project/i);
     assert.ok(program.imageAlt.length > 20);
     const photo = await readFile(program.imageUrl);
     assert.ok(photo.byteLength > 50_000, `${program.id} should use a usable real project photo`);
     assert.deepEqual([...photo.subarray(0, 3)], [0xff, 0xd8, 0xff], `${program.id} photo should be a JPEG`);
   }
 
-  const desktopCatalog = siteCss.slice(
-    siteCss.indexOf(".donation-program-grid {"),
-    siteCss.indexOf(".secure-note {", siteCss.indexOf(".donation-program-grid {")),
-  );
-  const tabletCatalog = siteCss.slice(
-    siteCss.indexOf("@media (max-width: 980px)"),
-    siteCss.indexOf("@media (max-width: 720px)"),
-  );
-  const mobileCatalog = siteCss.slice(
-    siteCss.indexOf("@media (max-width: 720px)"),
-    siteCss.indexOf("@media (max-width: 540px)"),
-  );
+  const redesignedCatalog = siteCss.slice(siteCss.indexOf("/* Donation experience: compact, purpose-first, and conversion focused */"));
   const reducedMotionCatalog = siteCss.slice(siteCss.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
-  assert.match(desktopCatalog, /\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)[^}]*align-items: start/);
-  assert.match(desktopCatalog, /\.donation-program-card\s*\{[^}]*height: fit-content;[^}]*align-self: start;[^}]*grid-template-rows: 210px auto/);
-  assert.match(desktopCatalog, /\.donation-program-actions\s*\{[^}]*margin-top: 0\.18rem/);
-  assert.doesNotMatch(desktopCatalog.match(/\.donation-program-actions\s*\{[^}]*\}/)?.[0] || "", /margin-top: auto/);
-  assert.match(desktopCatalog, /\.donation-program-actions-multiple\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(redesignedCatalog, /\.donate-page \.donation-catalog-header\s*\{[^}]*grid-template-columns: 1fr;[^}]*text-align: center/);
+  assert.match(redesignedCatalog, /\.donate-page \.donation-catalog-assurances\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(redesignedCatalog, /\.donate-page \.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)[^}]*align-items: start/);
+  assert.match(redesignedCatalog, /\.donate-page \.donation-program-card\s*\{[^}]*height: auto;[^}]*align-self: start;[^}]*grid-template-columns: minmax\(170px, 0\.78fr\) minmax\(0, 1\.22fr\)/);
+  assert.match(redesignedCatalog, /data-program-id="water_support"[\s\S]*?data-program-id="emergency_aid"[\s\S]*?data-program-id="zakat"[\s\S]*?grid-column: 1 \/ -1/);
+  assert.match(redesignedCatalog, /\.donation-water-levels\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\) auto minmax\(0, 1fr\)/);
+  assert.match(redesignedCatalog, /\.donate-page \.donation-program-actions-split\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(redesignedCatalog, /\.donate-page \.donation-program-card\.is-in-view\s*\{[^}]*animation: donation-program-arrive-v2 0\.46s[^}]*backwards/);
+  assert.doesNotMatch(redesignedCatalog.match(/\.donate-page \.donation-program-card\.is-in-view\s*\{[^}]*\}/)?.[0] || "", /infinite/);
+  assert.match(redesignedCatalog, /@keyframes donation-program-arrive-v2\s*\{[\s\S]*?opacity: 0;[\s\S]*?translateY\(18px\)[\s\S]*?opacity: 1;[\s\S]*?translateY\(0\)/);
+  assert.match(redesignedCatalog, /@media \(max-width: 980px\)[\s\S]*?\.donate-page \.main-nav\s*\{[^}]*display: none/);
+  assert.match(redesignedCatalog, /@media \(max-width: 720px\)[\s\S]*?\.donate-page \.donation-program-grid\s*\{[^}]*grid-template-columns: 1fr/);
+  assert.match(redesignedCatalog, /\.donation-options-disclosure:focus-within,[\s\S]*?\.donation-program-copy details:focus-within\s*\{[^}]*outline: 3px solid/);
+  assert.match(redesignedCatalog, /\.donate-page #donationForm,[\s\S]*?scroll-margin-top: 96px/);
 
-  const zakatDesktopRule = desktopCatalog.match(/\.donation-program-card\[data-program-id="zakat"\]\s*\{[^}]*\}/)?.[0] || "";
-  assert.match(zakatDesktopRule, /grid-column: 1 \/ -1/);
-  assert.match(zakatDesktopRule, /grid-template-columns: minmax\(300px, 0\.88fr\) minmax\(0, 1\.12fr\)/);
-
-  assert.match(tabletCatalog, /\.donation-program-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(tabletCatalog, /\.donation-program-card\[data-program-id="zakat"\]\s*\{[^}]*grid-column: auto;[^}]*grid-template-columns: 1fr/);
-  assert.match(tabletCatalog, /\.donation-program-card\[data-program-id="water_support"\]\s*\{[^}]*grid-column: 1 \/ -1;[^}]*grid-template-columns: minmax\(280px, 0\.82fr\) minmax\(0, 1\.18fr\)/);
-
-  assert.match(mobileCatalog, /\.donation-program-grid\s*\{[^}]*grid-template-columns: 1fr/);
-  assert.match(mobileCatalog, /\.donation-program-card,[\s\S]*?\[data-program-id="water_support"\],[\s\S]*?\[data-program-id="zakat"\]\s*\{[^}]*grid-column: auto;[^}]*grid-template-columns: 1fr;[^}]*grid-template-rows: 205px auto/);
-  assert.match(mobileCatalog, /\.donation-program-actions-multiple\s*\{[^}]*grid-template-columns: 1fr/);
-
-  const entranceRule = desktopCatalog.match(/\.flow-section-funds\.is-visible \.donation-program-card\s*\{[^}]*\}/)?.[0] || "";
-  assert.match(entranceRule, /animation: donation-program-arrive 0\.64s/);
-  assert.match(entranceRule, /var\(--program-delay, 0ms\) backwards/);
-  assert.doesNotMatch(entranceRule, /infinite/);
-  assert.match(desktopCatalog, /@keyframes donation-program-arrive\s*\{[\s\S]*?opacity: 0;[\s\S]*?translateY\(26px\)[\s\S]*?opacity: 1;[\s\S]*?translateY\(0\)/);
-  assert.match(desktopCatalog, /\.donation-program-card:focus-within\s*\{[^}]*border-color:[^}]*box-shadow:/);
-  assert.match(desktopCatalog, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.donation-program-card:hover\s*\{[^}]*transform: translateY\(-6px\)/);
-  assert.match(desktopCatalog, /\.donation-program-card:hover \.donation-program-photo img\s*\{[^}]*transform: scale\(1\.045\)/);
-  assert.match(desktopCatalog, /\.donation-program-action:hover \.donation-program-action-arrow\s*\{[^}]*transform: translateX\(3px\)/);
-
-  assert.match(reducedMotionCatalog, /\.flow-section-funds\.is-visible \.donation-program-card,[\s\S]*?\.donation-program-copy details p\s*\{[^}]*animation: none/);
   for (const selector of [
+    ".button::after",
+    ".donate-impact-photo img",
+    ".amount-grid label",
     ".donation-program-card",
-    ".donation-program-card::before",
     ".donation-program-photo img",
-    ".donation-program-copy summary::after",
     ".donation-program-action",
     ".donation-program-action-arrow",
   ]) {
@@ -1088,7 +1083,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v10/);
+  assert.match(serviceWorker, /owr-offline-v11/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1390,7 +1385,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v10/);
+  assert.match(serviceWorker, /owr-offline-v11/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
