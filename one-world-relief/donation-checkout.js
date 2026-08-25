@@ -567,6 +567,7 @@
   updateSubmitLabel();
   if (window.location.hash === "#donationForm") {
     window.requestAnimationFrame(() => positionCheckout(false));
+    window.setTimeout(() => positionCheckout(false), 160);
   }
 
   form.addEventListener("submit", async (event) => {
