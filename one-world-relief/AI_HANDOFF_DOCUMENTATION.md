@@ -2887,6 +2887,31 @@ Additional DNS check later on May 4, 2026:
   - Eight protected internal paths returned the exact public homepage fallback on preview, production deployment, and canonical `.org`. Empty Checkout and unsigned webhook requests returned `400` on the production deployment, `.org`, and `www`, proving Functions remained active without creating a payment. `https://one-world-relief.com/donate` continued to redirect `301` to `.org`.
   - The required in-app rendered-browser surface had no connected browser, so this release does not claim a fresh screenshot/click inspection. Responsive layout behavior is covered by the explicit 980px/720px/420px rules, CSS parser validation, semantic source audit, and regression suite.
 
+### 2026-08-25 Donation Experience Redesign (Released)
+- Donor experience:
+  - Rebuilt `donate.html` around a compact, purpose-first Stripe flow. Donors choose the cause, see the exact amount rule and attribution, choose or enter the amount, provide name/email, optionally add a note or public-anonymity preference, and continue through one clear Stripe action.
+  - The submit label reflects the valid selected amount, including cents. Invalid custom amounts never appear as ready-to-pay totals, and fixed programs use one full-width amount choice.
+  - Reorganized the project catalog into tighter horizontal desktop cards and clean single-column mobile cards. Water, Emergency Aid, and Zakat are distinct feature cards; motion is finite, intersection-led, and disabled for `prefers-reduced-motion`.
+  - The mobile header now uses a compact native `details` menu, retains a visible Donate action, and removes the previous multi-row header crowding. Direct project/donation links receive a delayed scroll correction so the checkout title is not hidden under the sticky header.
+- Giving-program behavior:
+  - The established rules remain: unrestricted and Zakat `$5+`; orphan annual support `$300`; mosque construction `$1,000`; water `$350-$3,000`; orphan feeding `$100+`; family recovery `$600`; and emergency aid `$25+`.
+  - Fixed the generic water-selection error. `program=water_support` now defaults to the flexible `water_contribution` variant at `$350`, exposes `$350`, `$1,000`, and `$3,000` presets plus a valid custom range, and preserves canonical variants `water_station`, `water_contribution`, and `community_well`.
+  - Case pricing and project records remain unchanged: Case 004 `$400` Feeding Madrasa for Orphan Kids, Case 005 flood relief `$450`, Case 006 gate `$170`, and Case 009 fans `$1,650`.
+- Stripe and Google Sheets invariants:
+  - Checkout and webhook Functions were not changed in this release. Stripe still owns card/payment collection and server-side program/amount enforcement.
+  - The connected spreadsheet remains `OneWorldRelief_SUPER_TRACKER_DASHBOARD`, tab `Donations (2026)` (`sheetId 650022046`), with the exact A:H contract `Donation ID | Date | Donor Name | Amount ($) | Purpose/Fund | Method | Receipt ID | Notes`.
+  - Canonical program IDs, Stripe metadata, webhook duplicate protection, formula neutralization, Zakat context/privacy rules, and the A:H append mapping remain covered by the regression suite. No real Checkout Session, payment, signed webhook, or Google Sheets row was created for this release.
+- Verification and release:
+  - Feature commits `c3a3aea` (`feat: redesign donation experience`) and `e83378d` (`fix: keep direct donation links visible`) were pushed to `origin/charity-frontend-redesign`.
+  - `node --test one-world-relief/tests/charity-functions.test.mjs` passed `41/41`; `node --check one-world-relief/donation-checkout.js`, Functions compilation, and exact-byte asset checks passed.
+  - Offline cache advanced from `owr-offline-v10` to `owr-offline-v11`.
+  - Verified safe preview: deployment `a5542804-28dd-4932-b4e9-69d4474132dd` at `https://a5542804.trying-8o0.pages.dev`, branch `codex-donation-redesign-safe-20260825`, source `e83378d`.
+  - Production: deployment `196e10ba-8aff-430e-83e0-f200feb923dd` at `https://196e10ba.trying-8o0.pages.dev`, branch `main`, source `e83378d`. Cache-bypassed exact-byte checks passed on `https://one-world-relief.org` for Donate HTML, catalog/client scripts, CSS, and service worker. Empty Checkout and unsigned webhook probes returned safe `400` responses.
+  - Rendered QA covered desktop `1440px`, tablet `768px`, mobile `390px`, and narrow mobile `320px`. Live 390px verification confirmed the Emergency Aid deep link selected `$25` and placed the full checkout title below the sticky header without horizontal overflow.
+- Deployment safety:
+  - Cloudflare Pages Direct Upload did not honor `.assetsignore` for a source-directory upload during this release. Two affected preview deployments and one malformed intermediate preview were deleted; their Git source remains recoverable. Production was deployed only from the verified filtered artifact.
+  - Use repository-root `deploy-one-world-relief-pages.ps1` for future deployments. It stages only allowlisted public files plus the five Pages Function sources, verifies required routes, rejects known private files, invokes Wrangler from the clean stage so Functions compile, and safely removes the temporary artifact unless `-KeepStage` or `-StageOnly` is supplied. Its stage-only verification produced exactly `70` public assets plus `5` Function sources, no private markers, and an exact Donate-file hash.
+
 ---
 
 **End of AI Handoff Documentation**
