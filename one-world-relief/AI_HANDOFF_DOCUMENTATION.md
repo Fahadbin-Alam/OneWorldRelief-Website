@@ -2912,6 +2912,27 @@ Additional DNS check later on May 4, 2026:
   - Cloudflare Pages Direct Upload did not honor `.assetsignore` for a source-directory upload during this release. Two affected preview deployments and one malformed intermediate preview were deleted; their Git source remains recoverable. Production was deployed only from the verified filtered artifact.
   - Use repository-root `deploy-one-world-relief-pages.ps1` for future deployments. It stages only allowlisted public files plus the five Pages Function sources, verifies required routes, rejects known private files, invokes Wrangler from the clean stage so Functions compile, and safely removes the temporary artifact unless `-KeepStage` or `-StageOnly` is supplied. Its stage-only verification produced exactly `70` public assets plus `5` Function sources, no private markers, and an exact Donate-file hash.
 
+### 2026-08-26 Calm Donation Experience (Released)
+- Simplified donor journey:
+  - Replaced the visually dense donation page with one short intro, one focused Stripe form, one real completed-project proof photo from Case 004, and one closed-by-default comparison control. The page no longer presents a second visible donation interface, a three-photo collage, assurance tiles, repeated purpose disclosures, or the separate Share/After Checkout section.
+  - The main form now shows cause, one concise purpose sentence, amount, name, receipt email, a collapsed `Note or donate anonymously` control, one Stripe action, one trust line, and the collapsed donation policy. Cause names in the selector include their amount rule, so donors can compare pricing without opening the secondary list.
+  - The secondary cause catalog remains fully available behind `View causes and real project photos`. When opened, it uses compact photo rows with one primary action. Water and Zakat representative photos have explicit disclosure labels so past-project imagery is not presented as proof of a future Water or restricted-Zakat allocation.
+  - Mobile semantic, visual, and keyboard order is now intro -> form -> proof. Catalog selection performs an instant offset-aware return to the form title, so keyboard focus is never placed offscreen while a smooth scroll is still running.
+  - Empty donation status no longer reserves dead space. Mobile controls and disclosure targets are at least 44px; all donation inputs are 16px; helper text was raised to accessible contrast; and the open catalog uses a true minus state rather than rotating `+` into a close icon.
+- Stripe, Zakat, and Google Sheets invariants:
+  - This release changes presentation and client-side organization only. Server-owned program rules remain unrestricted/Zakat `$5+`, orphan `$300`, mosque `$1,000`, Water `$350-$3,000`, orphan feeding `$100+`, family recovery `$600`, and emergency aid `$25+`.
+  - Canonical `program_id`, Water `program_variant`, `referrer_case`, campaign derivation, donor name/email, optional note, anonymity, one-time frequency, and safe Zakat calculator context remain in the existing Checkout payload. Checkout and webhook Function source was not changed.
+  - Stripe remains the payment processor. The webhook continues the established Google Sheets A:H mapping, duplicate protection, formula neutralization, canonical Purpose/Fund attribution, and receipt behavior. No real Checkout Session, payment, signed webhook, or Google Sheets row was created for this release.
+- Verification and release record:
+  - Feature commit `7a01a98` (`feat: simplify donation experience`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - Offline app-shell cache advanced from `owr-offline-v11` to `owr-offline-v12` for the revised Donate HTML, catalog/client scripts, and shared CSS.
+  - Automated regression passed `41/41`; changed JavaScript passed syntax checks; the Pages Functions bundle compiled successfully with Wrangler `4.126.0`; and `git diff --check` passed.
+  - Rendered browser QA covered 1440, 1024, 980, 768, 600, 390, 360, and 320px widths. The live 390px page measured 1,748px tall with an 893px form, started with the cause catalog closed, had no horizontal overflow, preserved 16px inputs and 44px targets, and kept DOM/visual order aligned. Direct Water/Case 009 URLs preserved the `$3,000` `community_well` variant and placed the form title below the sticky header. Catalog buttons returned focus to a visible form title immediately.
+  - The filtered stage contained exactly `70` public assets plus `5` Pages Function files, rejected known private files, matched reviewed SHA-256 bytes for Donate, both donation scripts, CSS, and `sw.js`, and compiled from the staged Function directory.
+  - Preview deployment `687a4e81-daef-49ed-a5b5-b502a59b69bb` succeeded at `https://687a4e81.trying-8o0.pages.dev`, branch `codex-donation-simple-20260826`, source `7a01a98`.
+  - Production deployment `f9fc80e4-4e8e-41c9-9044-329a352f9725` succeeded at `https://f9fc80e4.trying-8o0.pages.dev`, branch `main`, source `7a01a98`.
+  - Exact-byte verification passed on `https://one-world-relief.org` for `donate.html`, `donation-checkout.js`, `donation-programs.js`, `one-world-relief.css`, and `sw.js`. Live desktop and 390px rendered checks passed. Empty Checkout and unsigned webhook probes returned `400`; representative internal handoff/setup/test URLs returned the public HTML fallback without private markers. No real payment or spreadsheet mutation was used for verification.
+
 ---
 
 **End of AI Handoff Documentation**
