@@ -504,7 +504,7 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.match(donationForm, /id="donationReferrerCase" type="hidden"/);
   assert.match(donationForm, /id="selectedProgramTitle">Give Where It.s Needed Most<\/h3>/);
   assert.match(donationForm, /id="selectedProgramAmount">Any amount from \$5\.<\/strong>/);
-  assert.match(donationForm, /<select id="campaignSelect" required>[\s\S]*?<option value="unrestricted">Where it's needed most — \$5\+<\/option>/);
+  assert.match(donationForm, /<select id="campaignSelect" required>[\s\S]*?<option value="unrestricted">Where it's needed most<\/option>/);
   assert.doesNotMatch(donationForm, /givingFrequencySelect|name="givingFrequency"|recurringDonationNote/);
   assert.doesNotMatch(donationForm, /id="paymentMethod"|donation-step-payment|aria-label="Supported payment methods"|class="payments"/);
   assert.doesNotMatch(donationForm, /Apple Pay|Cash App Pay|Mastercard|Venmo|Monthly recurring|Every Friday/);
@@ -543,7 +543,9 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.match(checkoutJs, /program\?\.id === "water_support"[\s\S]*?getVariant\(program, "water_contribution"\)/);
   assert.match(checkoutJs, /type === "range"[\s\S]*?program\.defaultAmount/);
   assert.match(checkoutJs, /minimumFractionDigits: hasCents \? 2 : 0/);
-  assert.match(checkoutJs, /option\.textContent = `\$\{program\.shortLabel \|\| program\.title\} — \$\{compactAmount\}`/);
+  assert.match(checkoutJs, /option\.textContent = program\.shortLabel \|\| program\.title/);
+  assert.match(checkoutJs, /programs\.forEach\(addOption\)/);
+  assert.doesNotMatch(checkoutJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
   assert.match(checkoutJs, /formTitle\.textContent = "Make a donation"/);
   assert.match(checkoutJs, /program && isAllowedAmount\(program, variant, amount\)/);
   assert.match(checkoutJs, /Continue to Stripe — \$\{formatUsd\(amount\)\}/);
@@ -687,7 +689,7 @@ test("donation options stay accessible in a compact, responsive disclosure", asy
   assert.equal(featured.find((program) => program.id === "zakat").detailActionLabel, "Calculate my Zakat");
   assert.equal(featured.find((program) => program.id === "zakat").directActionLabel, "I already know my amount");
 
-  assert.match(checkoutJs, /programs\.filter\(\(program\) => program\.featured === true\)\.forEach/);
+  assert.match(checkoutJs, /programs\.forEach\(addOption\)/);
   assert.match(checkoutJs, /card\.className = "donation-program-card"/);
   assert.match(checkoutJs, /card\.id = `donation-program-\$\{program\.id\}`/);
   assert.match(checkoutJs, /card\.dataset\.programId = program\.id/);
@@ -1064,7 +1066,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v12/);
+  assert.match(serviceWorker, /owr-offline-v13/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1366,7 +1368,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v12/);
+  assert.match(serviceWorker, /owr-offline-v13/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1398,6 +1400,7 @@ test("homepage checkout keeps accessible one-time amounts and sends unrestricted
   assert.doesNotMatch(quickForm, /quickFrequency|quick-frequency|<legend>Frequency<\/legend>|Monthly|One-time/);
   assert.doesNotMatch(quickForm, /quickCampaign|Donation destination|Choose a purpose/);
   assert.match(homeHtml, /<script src="donation-programs\.js"><\/script>\s*<script src="project-data\.js"><\/script>\s*<script src="one-world-relief\.js"><\/script>/);
+  assert.doesNotMatch(siteJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
 
   assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Start Donation<\/span><span aria-hidden="true">&rarr;<\/span>/);
   assert.match(quickForm, /class="quick-donation-trust"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure checkout[\s\S]*?Receipt provided/);

@@ -19,7 +19,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
   {
     id: "orphan_annual",
     title: "Support an Orphan for One Year",
-    shortLabel: "Orphan annual support",
+    shortLabel: "Support an orphan for one year",
     campaign: "Orphan Annual Support",
     amountRule: "fixed",
     minAmount: 300,
@@ -39,7 +39,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
   {
     id: "mosque_build",
     title: "Help Build a Mosque",
-    shortLabel: "Mosque construction",
+    shortLabel: "Help build a mosque",
     campaign: "Mosque Construction",
     amountRule: "fixed",
     minAmount: 1000,
@@ -59,7 +59,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
   {
     id: "water_support",
     title: "Help Build a Well or Water Station",
-    shortLabel: "Well & water support",
+    shortLabel: "Well or water station",
     campaign: "Water Support",
     amountRule: "range",
     minAmount: 350,
@@ -105,7 +105,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
   {
     id: "orphan_feeding",
     title: "Feed Orphan Children",
-    shortLabel: "Orphan feeding",
+    shortLabel: "Feed orphan children",
     campaign: "Orphan Feeding",
     amountRule: "minimum",
     minAmount: 100,
@@ -124,7 +124,7 @@ window.ONE_WORLD_RELIEF_DONATION_PROGRAMS = [
   {
     id: "family_recovery",
     title: "Help a Family Recover and Return to Work",
-    shortLabel: "Family recovery",
+    shortLabel: "Help a family recover",
     campaign: "Family Recovery",
     amountRule: "fixed",
     minAmount: 600,

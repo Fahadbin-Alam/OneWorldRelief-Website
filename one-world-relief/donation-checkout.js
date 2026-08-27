@@ -183,36 +183,14 @@
     }
     programSelect.replaceChildren();
 
-    const addOption = (parent, program) => {
+    const addOption = (program) => {
       const option = document.createElement("option");
-      const rule = getAmountRule(program, getDefaultVariant(program));
-      const compactAmount = rule.type === "fixed"
-        ? formatUsd(rule.min)
-        : rule.type === "range"
-          ? `${formatUsd(rule.min)}–${formatUsd(rule.max)}`
-          : `${formatUsd(rule.min)}+`;
       option.value = program.id;
-      option.textContent = `${program.shortLabel || program.title} — ${compactAmount}`;
-      parent.appendChild(option);
+      option.textContent = program.shortLabel || program.title;
+      programSelect.appendChild(option);
     };
 
-    const unrestricted = getProgram("unrestricted");
-    if (unrestricted) {
-      addOption(programSelect, unrestricted);
-    }
-
-    const purposeGroup = document.createElement("optgroup");
-    purposeGroup.label = "Purpose-based giving";
-    programs.filter((program) => program.featured === true).forEach((program) => addOption(purposeGroup, program));
-    programSelect.appendChild(purposeGroup);
-
-    const otherGroup = document.createElement("optgroup");
-    otherGroup.label = "Other giving";
-    programs.filter((program) => program.featured !== true && program.id !== "unrestricted")
-      .forEach((program) => addOption(otherGroup, program));
-    if (otherGroup.children.length) {
-      programSelect.appendChild(otherGroup);
-    }
+    programs.forEach(addOption);
   };
 
   const renderAmountChoices = (program, variant, requestedAmount) => {

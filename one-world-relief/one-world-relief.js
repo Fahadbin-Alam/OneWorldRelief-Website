@@ -106,37 +106,14 @@
     }
 
     select.replaceChildren();
-    const appendProgramOption = (parent, program) => {
+    const appendProgramOption = (program) => {
       const option = document.createElement("option");
       option.value = program.id;
       option.textContent = String(program.shortLabel || program.title || program.campaign);
-      parent.appendChild(option);
+      select.appendChild(option);
     };
 
-    const unrestricted = getDonationProgram("unrestricted");
-    if (unrestricted) {
-      appendProgramOption(select, unrestricted);
-    }
-
-    const featured = donationPrograms.filter((program) => program.featured === true);
-    if (featured.length) {
-      const group = document.createElement("optgroup");
-      group.label = "Purpose-based giving";
-      group.dataset.donationProgramGroup = "true";
-      featured.forEach((program) => appendProgramOption(group, program));
-      select.appendChild(group);
-    }
-
-    const secondary = donationPrograms.filter((program) => {
-      return program.featured !== true && program.id !== "unrestricted";
-    });
-    if (secondary.length) {
-      const group = document.createElement("optgroup");
-      group.label = "Other giving";
-      group.dataset.donationProgramGroup = "true";
-      secondary.forEach((program) => appendProgramOption(group, program));
-      select.appendChild(group);
-    }
+    donationPrograms.forEach(appendProgramOption);
   };
 
   const buildQuickDonationUrl = ({ amount, program = "unrestricted" }) => {
