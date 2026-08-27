@@ -1066,7 +1066,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v13/);
+  assert.match(serviceWorker, /owr-offline-v14/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1368,7 +1368,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v13/);
+  assert.match(serviceWorker, /owr-offline-v14/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1481,8 +1481,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /Why We Give/);
   assert.match(
     homeHtml,
-    /<blockquote class="hero-giving-quote" cite="https:\/\/sunnah\.com\/bukhari:6005">\s*<p>I and the person who looks after an orphan and provides for him, will be in Paradise like this\.<\/p>\s*<footer class="hero-quote-source">\s*Prophet Muhammad <span aria-label="peace and blessings be upon him">ﷺ<\/span>\s*<span aria-hidden="true">&middot;<\/span>\s*<cite><a href="https:\/\/sunnah\.com\/bukhari:6005" target="_blank" rel="noreferrer">Sahih al-Bukhari 6005<\/a><\/cite>\s*<\/footer>\s*<\/blockquote>/u,
+    /<blockquote class="hero-giving-quote" cite="https:\/\/sunnah\.com\/bukhari:5352">\s*<p>O son of Adam! Spend, and I shall spend on you\.<\/p>\s*<footer class="hero-quote-source">\s*Hadith Qudsi, narrated by Prophet Muhammad <span aria-label="peace and blessings be upon him">ﷺ<\/span>\s*<span aria-hidden="true">&middot;<\/span>\s*<cite><a href="https:\/\/sunnah\.com\/bukhari:5352" target="_blank" rel="noreferrer">Sahih al-Bukhari 5352<\/a><\/cite>\s*<\/footer>\s*<\/blockquote>/u,
   );
+  assert.doesNotMatch(homeHtml, /person who looks after an orphan and provides for him/);
   assert.doesNotMatch(homeHtml, /Direct aid, moving fast\./);
   assert.doesNotMatch(
     homeHtml,
