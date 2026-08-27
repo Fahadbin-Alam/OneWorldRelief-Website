@@ -2933,6 +2933,16 @@ Additional DNS check later on May 4, 2026:
   - Production deployment `f9fc80e4-4e8e-41c9-9044-329a352f9725` succeeded at `https://f9fc80e4.trying-8o0.pages.dev`, branch `main`, source `7a01a98`.
   - Exact-byte verification passed on `https://one-world-relief.org` for `donate.html`, `donation-checkout.js`, `donation-programs.js`, `one-world-relief.css`, and `sw.js`. Live desktop and 390px rendered checks passed. Empty Checkout and unsigned webhook probes returned `400`; representative internal handoff/setup/test URLs returned the public HTML fallback without private markers. No real payment or spreadsheet mutation was used for verification.
 
+### 2026-08-27 Normalized Donation Cause Menu (Released)
+- Replaced the native selector's bold `Purpose-based giving`/`Other giving` groups and indented choices with one familiar flat list. The eight choices now appear in plain order: unrestricted, orphan annual support, mosque, Water, orphan feeding, family recovery, emergency aid, and Zakat.
+- Reworded shortened donor-facing choices in natural language, including `Support an orphan for one year`, `Help build a mosque`, `Well or water station`, `Feed orphan children`, and `Help a family recover`. Duplicate prices were removed from the selector itself so labels do not clip against the native arrow on small phones; the exact fixed/minimum/range rule remains visible immediately below the selected cause and in the amount controls.
+- This is a presentation-only change. Canonical program IDs, server-enforced amount rules, Stripe payload and metadata, webhook behavior, Google Sheets A:H mapping, Zakat privacy boundary, and Case records are unchanged. No real Checkout Session, payment, signed webhook, or Sheets row was created.
+- Feature commit `77b8438bb9135b7a94a71122b6e8af0a3dd34424` (`feat: simplify donation cause menu`) was pushed to `origin/charity-frontend-redesign`. Offline cache advanced from `owr-offline-v12` to `owr-offline-v13`.
+- Regression passed `41/41`; both changed JavaScript files passed syntax checks; `git diff --check` passed; and Wrangler `4.127.0` compiled all five staged Pages Functions. The safe deploy workflow staged exactly `70` public assets and `5` Function source files.
+- Browser QA verified all eight labels, zero `optgroup` elements, correct `$100` orphan-feeding selection behavior, and no horizontal overflow at 390px. Desktop verification at 1440px confirmed the same flat menu and a clean selected state.
+- Preview deployment `c382bf6f-da54-434a-ba44-c6e6a24d233c` succeeded at `https://c382bf6f.trying-8o0.pages.dev`, branch `codex-cause-menu-20260827`, source `77b8438`.
+- Production deployment `f6418261-8189-4c9b-b501-371ff65c2110` succeeded at `https://f6418261.trying-8o0.pages.dev`, branch `main`, source `77b8438`. Cache-bypassed checks on `https://one-world-relief.org/donate` confirmed the flat list, natural labels, cache v13, and active Checkout Function with a safe empty-request `400` response.
+
 ---
 
 **End of AI Handoff Documentation**
