@@ -8000,3 +8000,734 @@ html {
     transition: none !important;
   }
 }
+
+/* Donation experience: calm, direct, and easy to scan */
+.donate-page .donate-flow-hero {
+  padding: clamp(1.8rem, 4vw, 3.2rem) 0 clamp(2.4rem, 5vw, 3.8rem);
+  background: linear-gradient(180deg, rgba(225, 247, 252, 0.92), rgba(249, 253, 255, 0.96));
+}
+
+.donate-page .donate-flow-hero::before {
+  display: none;
+}
+
+.donate-page .page-hero-content {
+  padding-block: 0;
+}
+
+.donate-page .donate-hero-grid {
+  grid-template-columns: minmax(300px, 0.82fr) minmax(430px, 1fr);
+  grid-template-areas:
+    "intro checkout"
+    "proof checkout";
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  column-gap: clamp(2rem, 5vw, 4.25rem);
+  row-gap: clamp(1.1rem, 2vw, 1.35rem);
+}
+
+.donate-page .donate-hero-grid > .donate-impact-intro {
+  grid-area: intro;
+}
+
+.donate-page .donate-hero-grid > .donation-form-card-featured {
+  grid-area: checkout;
+}
+
+.donate-page .donate-hero-grid > .donate-impact-panel {
+  grid-area: proof;
+}
+
+.donate-page .donate-impact-panel {
+  gap: 0.85rem;
+  padding-top: 0;
+}
+
+.donate-page .donate-impact-intro {
+  max-width: 500px;
+}
+
+.donate-page .donate-flow-hero .donate-impact-intro h1 {
+  max-width: 9ch;
+  margin-bottom: 0.55rem;
+  font-size: clamp(2.55rem, 4.4vw, 3.9rem);
+  line-height: 1;
+}
+
+.donate-page .donate-impact-intro .lead {
+  max-width: 36ch;
+  color: #476a7e;
+  font-size: clamp(0.96rem, 1.4vw, 1.08rem);
+  line-height: 1.55;
+}
+
+.donate-page .donate-impact-media {
+  display: block;
+}
+
+.donate-page .donate-impact-photo-main {
+  width: 100%;
+  max-height: 420px;
+  aspect-ratio: 4 / 3;
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(24, 52, 71, 0.14);
+}
+
+.donate-page .donate-impact-caption {
+  padding: 0.85rem 0.9rem;
+}
+
+.donate-page .donate-impact-link {
+  min-height: 44px;
+  padding: 0.2rem 0;
+  background: transparent;
+  font-size: 0.8rem;
+}
+
+.donate-page .donation-form-card {
+  width: 100%;
+  max-width: 540px;
+  justify-self: end;
+  overflow: visible;
+  border: 1px solid rgba(33, 79, 113, 0.13);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 46px rgba(24, 52, 71, 0.12);
+}
+
+.donate-page .donation-form-card::before,
+.donate-page .donation-form-card::after {
+  display: none;
+}
+
+.donate-page .donation-form-card-featured {
+  padding: clamp(1.15rem, 2.4vw, 1.45rem);
+  background: #fff;
+}
+
+.donate-page .donation-form-heading {
+  display: block;
+  margin: 0 0 0.35rem;
+}
+
+.donate-page .donation-form-heading .eyebrow {
+  margin-bottom: 0.22rem;
+}
+
+.donate-page .donation-form-heading h2 {
+  font-size: clamp(1.45rem, 2.2vw, 1.72rem);
+}
+
+.donate-page .donation-form-intro {
+  max-width: 46ch;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+}
+
+.donate-page .donation-form-card .donation-step,
+.donate-page .donation-form-card .donation-step-fund {
+  gap: 0.5rem;
+  margin-top: 0.78rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.donate-page .donation-form-card .donation-step-details {
+  margin-top: 0.9rem;
+}
+
+.donate-page .donation-form-card .donation-step-heading h3 {
+  font-size: 0.88rem;
+}
+
+.donate-page .donation-form-card .donation-minimum {
+  display: inline;
+  margin-left: 0.35rem;
+  color: #526f81;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.donate-page .donation-step-heading > div:has(.donation-minimum) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.donate-page .donation-form-card .custom-amount input,
+.donate-page .donation-form-card .custom-amount select,
+.donate-page .donation-form-card .donor-options textarea {
+  min-height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+}
+
+.donate-page .donation-program-summary {
+  display: block;
+  margin-top: 0.38rem;
+  padding: 0 0.05rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.donate-page .donation-program-summary-line {
+  margin: 0;
+  color: #527287;
+  font-size: 0.78rem;
+  line-height: 1.48;
+}
+
+.donate-page .donation-program-summary-line strong {
+  margin-right: 0.22rem;
+  color: var(--blue-700);
+  font-size: inherit;
+}
+
+.donate-page .donation-program-summary .donation-program-stewardship {
+  margin: 0.22rem 0 0;
+  padding-top: 0;
+  border-top: 0;
+  color: #526f81;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.donate-page .donation-form-card .amount-grid {
+  gap: 0.45rem;
+}
+
+.donate-page .donation-form-card .amount-grid label {
+  min-height: 48px;
+  border-radius: 11px;
+}
+
+.donate-page .donation-custom-field {
+  margin-top: 0.52rem;
+  font-size: 0.78rem;
+}
+
+.donate-page .donation-form-card .custom-donation-input-wrap {
+  border-radius: 12px;
+  background: #f8fbfd;
+}
+
+.donate-page .donor-grid {
+  gap: 0.65rem;
+}
+
+.donate-page .donation-options-disclosure {
+  margin-top: 0.75rem;
+  border-radius: 12px;
+  background: #f8fbfd;
+}
+
+.donate-page .donation-options-disclosure > summary {
+  min-height: 44px;
+  padding: 0.58rem 0.7rem;
+}
+
+.donate-page .donation-options-disclosure > summary span {
+  color: #526f81;
+  font-size: 0.75rem;
+}
+
+.donate-page .donation-form-card .donate-button {
+  min-height: 52px;
+  margin-top: 0.78rem;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(24, 52, 71, 0.16);
+}
+
+.donate-page .donation-trust-note {
+  align-items: center;
+  margin-top: 0.6rem;
+  color: #587587;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.donate-page .donation-allocation-details {
+  margin-top: 0.25rem;
+  border: 0;
+  background: transparent;
+}
+
+.donate-page .donation-allocation-details > summary {
+  min-height: 44px;
+  justify-content: center;
+  padding: 0.2rem;
+  color: #526f81;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.donate-page .donation-allocation-details > summary::before {
+  display: none;
+}
+
+.donate-page .donation-allocation-details .donation-stewardship-note {
+  padding: 0.45rem 0 0;
+  text-align: center;
+}
+
+.donate-page .donation-allocation-details .donation-program-stewardship {
+  margin: 0.45rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 10px;
+  color: #526f81;
+  background: #f5fafc;
+  font-size: 0.75rem;
+  line-height: 1.48;
+  text-align: left;
+}
+
+.donate-page .donation-status:empty {
+  display: none;
+}
+
+.donate-page .flow-section-funds {
+  padding: clamp(1.5rem, 4vw, 2.8rem) 0 clamp(2.8rem, 6vw, 4.2rem);
+  background: #f5fbfe;
+}
+
+.donate-page .flow-section-funds::after {
+  display: none;
+}
+
+.donation-catalog-disclosure {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.donation-catalog-disclosure > summary {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid rgba(33, 79, 113, 0.13);
+  border-radius: 17px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(24, 52, 71, 0.07);
+  cursor: pointer;
+  list-style: none;
+}
+
+.donation-catalog-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.donation-catalog-disclosure > summary:focus-visible {
+  outline: 3px solid var(--blue-700);
+  outline-offset: 3px;
+}
+
+.donation-catalog-disclosure > summary > span:first-child {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.donation-catalog-disclosure > summary small {
+  color: #526f81;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.donation-catalog-disclosure > summary strong {
+  color: var(--ink);
+  font-size: 1.02rem;
+}
+
+.donation-catalog-disclosure > summary > span:last-child {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--blue-700);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.donation-catalog-disclosure[open] > summary > span:last-child {
+  transform: none;
+  font-size: 0;
+}
+
+.donation-catalog-disclosure[open] > summary > span:last-child::before {
+  content: "−";
+  font-size: 1.15rem;
+}
+
+.donation-catalog-body {
+  padding-top: clamp(1.8rem, 4vw, 3rem);
+}
+
+.donate-page .donation-catalog-header {
+  width: 100%;
+  justify-items: start;
+  gap: 0;
+  text-align: left;
+}
+
+.donate-page .flow-section-funds .flow-heading {
+  max-width: 600px;
+}
+
+.donate-page .flow-section-funds .flow-heading h2 {
+  max-width: none;
+  margin: 0 0 0.45rem;
+  font-size: clamp(2rem, 3.8vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.donate-page .flow-section-funds .flow-heading > p:last-child {
+  max-width: 48ch;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.donate-page .donation-program-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 1.35rem;
+}
+
+.donate-page .donation-program-card,
+.donate-page .donation-program-card[data-program-id="water_support"],
+.donate-page .donation-program-card[data-program-id="emergency_aid"],
+.donate-page .donation-program-card[data-program-id="zakat"] {
+  grid-column: auto;
+  grid-template-columns: 138px minmax(0, 1fr);
+  grid-template-rows: auto;
+  min-height: 190px;
+  height: auto;
+  align-self: stretch;
+  overflow: hidden;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(24, 52, 71, 0.07);
+  animation: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.donate-page .donation-program-card[data-program-id="zakat"] {
+  background: #fff;
+}
+
+.donate-page .donation-program-card[data-program-id="zakat"] .donation-program-photo,
+.donate-page .donation-program-card[data-program-id="zakat"] .donation-program-copy {
+  order: initial;
+}
+
+.donate-page .donation-program-card .donation-program-photo,
+.donate-page .donation-program-card[data-program-id="water_support"] .donation-program-photo,
+.donate-page .donation-program-card[data-program-id="emergency_aid"] .donation-program-photo,
+.donate-page .donation-program-card[data-program-id="zakat"] .donation-program-photo {
+  min-height: 190px;
+}
+
+.donate-page .donation-program-photo::after,
+.donate-page .donation-program-photo figcaption {
+  display: none;
+}
+
+.donate-page .donation-program-copy,
+.donate-page .donation-program-card[data-program-id="water_support"] .donation-program-copy,
+.donate-page .donation-program-card[data-program-id="zakat"] .donation-program-copy {
+  justify-content: center;
+  gap: 0.42rem;
+  padding: 0.9rem;
+}
+
+.donate-page .donation-program-card-header {
+  gap: 0.35rem;
+}
+
+.donate-page .donation-program-copy .donation-program-amount {
+  padding: 0;
+  border: 0;
+  color: var(--blue-700);
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.7rem;
+}
+
+.donate-page .donation-program-copy h3 {
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.donate-page .donation-program-copy > p:not(.donation-program-amount) {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #557487;
+  font-size: 0.76rem;
+  line-height: 1.42;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.donate-page .donation-program-photo-disclosure {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #526f81;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.donate-page .donation-program-actions,
+.donate-page .donation-program-actions-split {
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+}
+
+.donate-page .donation-program-actions-split {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.donate-page .donation-program-action {
+  min-height: 44px;
+  padding: 0.52rem 0.62rem;
+  border-radius: 10px;
+  box-shadow: none;
+  font-size: 0.76rem;
+}
+
+.donate-page .donation-program-action:hover {
+  transform: none;
+  box-shadow: 0 8px 18px rgba(24, 52, 71, 0.12);
+}
+
+.donate-page .flow-section-funds.is-visible .donation-program-card,
+.donate-page .donation-program-card.is-in-view {
+  animation: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .donate-page .donation-program-card:hover {
+    transform: none;
+    border-color: rgba(33, 79, 113, 0.25);
+    box-shadow: 0 14px 34px rgba(24, 52, 71, 0.1);
+  }
+
+  .donate-page .donation-program-card:hover .donation-program-photo img {
+    transform: scale(1.02);
+  }
+}
+
+@media (max-width: 1049px) {
+  .donate-page .mobile-nav-menu > summary,
+  .donate-page .header-cta {
+    min-height: 44px;
+  }
+
+  .donate-page .donate-hero-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "intro"
+      "checkout"
+      "proof";
+    grid-template-rows: auto;
+    gap: 1.35rem;
+  }
+
+  .donate-page .donate-impact-intro,
+  .donate-page .donation-form-card,
+  .donate-page .donate-impact-panel {
+    width: 100%;
+    max-width: 620px;
+    justify-self: center;
+    margin-inline: auto;
+  }
+
+  .donate-page .donate-impact-panel {
+    padding-top: 0;
+  }
+
+  .donate-page .donate-impact-photo-main {
+    max-height: 280px;
+    aspect-ratio: 16 / 7;
+  }
+
+  .donate-page .donation-program-card,
+  .donate-page .donation-program-card[data-program-id="water_support"],
+  .donate-page .donation-program-card[data-program-id="emergency_aid"],
+  .donate-page .donation-program-card[data-program-id="zakat"] {
+    grid-column: auto;
+    grid-template-columns: 122px minmax(0, 1fr);
+    min-height: 188px;
+  }
+
+  .donate-page .donation-program-card .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="water_support"] .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="emergency_aid"] .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="zakat"] .donation-program-photo {
+    min-height: 188px;
+  }
+}
+
+@media (max-width: 720px) {
+  .donate-page .donate-flow-hero {
+    padding: 1rem 0 2rem;
+  }
+
+  .donate-page .donation-form-card-featured {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .donate-page .donation-form-heading h2 {
+    font-size: 1.45rem;
+  }
+
+  .donate-page .donate-impact-intro .eyebrow {
+    margin-bottom: 0.2rem;
+  }
+
+  .donate-page .donate-flow-hero .donate-impact-intro h1 {
+    max-width: 11ch;
+    font-size: clamp(2.1rem, 10vw, 2.7rem);
+  }
+
+  .donate-page .donate-impact-photo-main {
+    max-height: 260px;
+  }
+
+  .donate-page .flow-section-funds {
+    padding: 1.2rem 0 2.5rem;
+  }
+
+  .donation-catalog-disclosure > summary {
+    min-height: 70px;
+    padding: 0.85rem 0.9rem;
+    border-radius: 15px;
+  }
+
+  .donation-catalog-body {
+    padding-top: 1.7rem;
+  }
+
+  .donate-page .flow-section-funds .flow-heading h2 {
+    font-size: clamp(1.9rem, 9vw, 2.45rem);
+  }
+
+  .donate-page .donation-program-grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .donate-page .donation-program-card,
+  .donate-page .donation-program-card[data-program-id="water_support"],
+  .donate-page .donation-program-card[data-program-id="emergency_aid"],
+  .donate-page .donation-program-card[data-program-id="zakat"] {
+    grid-template-columns: 108px minmax(0, 1fr);
+    grid-template-rows: auto;
+    min-height: 176px;
+    border-radius: 15px;
+  }
+
+  .donate-page .donation-program-card .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="water_support"] .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="emergency_aid"] .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="zakat"] .donation-program-photo {
+    min-height: 176px;
+  }
+
+  .donate-page .donation-program-copy,
+  .donate-page .donation-program-card[data-program-id="water_support"] .donation-program-copy,
+  .donate-page .donation-program-card[data-program-id="zakat"] .donation-program-copy {
+    gap: 0.34rem;
+    padding: 0.72rem;
+  }
+
+  .donate-page .donation-program-copy h3 {
+    font-size: 0.92rem;
+  }
+
+  .donate-page .donation-program-copy > p:not(.donation-program-amount) {
+    font-size: 0.71rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .donate-page .donation-program-action {
+    min-height: 44px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 800px) {
+  .donate-page .donation-program-actions-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1049px) {
+  .donate-page .donor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 599px) {
+  .donate-page .donate-hero-grid {
+    gap: 1rem;
+  }
+
+  .donate-page .donate-impact-panel {
+    gap: 0.45rem;
+  }
+
+  .donate-page .donation-program-card,
+  .donate-page .donation-program-card[data-program-id="water_support"],
+  .donate-page .donation-program-card[data-program-id="emergency_aid"],
+  .donate-page .donation-program-card[data-program-id="zakat"] {
+    min-height: 124px;
+  }
+
+  .donate-page .donation-program-card .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="water_support"] .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="emergency_aid"] .donation-program-photo,
+  .donate-page .donation-program-card[data-program-id="zakat"] .donation-program-photo {
+    min-height: 124px;
+  }
+
+  .donate-page .donation-program-copy > p:not(.donation-program-amount) {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .donate-page .donation-program-card,
+  .donate-page .donation-program-card[data-program-id="water_support"],
+  .donate-page .donation-program-card[data-program-id="emergency_aid"],
+  .donate-page .donation-program-card[data-program-id="zakat"] {
+    grid-template-columns: 94px minmax(0, 1fr);
+  }
+
+  .donate-page .donation-program-actions-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donation-catalog-disclosure > summary > span:last-child,
+  .donate-page .donation-program-card,
+  .donate-page .donation-program-photo img,
+  .donate-page .donation-program-action {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}

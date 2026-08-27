@@ -52,72 +52,20 @@
   </header>
 
   <main>
-    <section class="page-hero donate-flow-hero reveal">
+    <section class="page-hero donate-flow-hero">
       <div class="container page-hero-content donate-hero-grid">
-        <section class="donate-impact-panel" aria-labelledby="donateImpactTitle">
-          <div class="donate-impact-intro">
-            <p class="eyebrow">Real project photos</p>
-            <h1 id="donateImpactTitle">Your gift joins work you can see.</h1>
-            <p class="lead">Explore documented costs, field photos, and completed work from One World Relief projects in Bangladesh.</p>
-          </div>
-
-          <div class="donate-impact-media" aria-label="Documented One World Relief projects">
-            <a class="donate-impact-photo donate-impact-photo-main" href="projects/case-004.html">
-              <img
-                src="assets/projects/case-004/korbani-meals-004-main.jpg"
-                alt="Orphan students at a madrasa share a meal provided through Case 004."
-                fetchpriority="high"
-                decoding="async"
-              />
-              <span class="donate-impact-caption">
-                <small>Completed &middot; Case 004</small>
-                <strong>Feeding Madrasa for Orphan Kids</strong>
-                <em>$400 delivered</em>
-              </span>
-            </a>
-
-            <a class="donate-impact-photo" href="projects/case-005.html">
-              <img
-                src="assets/projects/case-005/flood-relief-005-child-delivery.jpg"
-                alt="A child stands with a relief worker during a flood-relief food delivery."
-                loading="lazy"
-                decoding="async"
-              />
-              <span class="donate-impact-caption">
-                <small>Case 005</small>
-                <strong>$450 flood relief delivered</strong>
-              </span>
-            </a>
-
-            <a class="donate-impact-photo" href="projects/case-006.html">
-              <img
-                src="assets/projects/case-006/mosque-gate-006-main.jpg"
-                alt="The completed metal entrance gate installed for a community mosque."
-                loading="lazy"
-                decoding="async"
-              />
-              <span class="donate-impact-caption">
-                <small>Case 006</small>
-                <strong>$170 mosque gate completed</strong>
-              </span>
-            </a>
-          </div>
-
-          <a class="donate-impact-link" href="projects.html">See every documented project <span aria-hidden="true">&rarr;</span></a>
-        </section>
+        <header class="donate-impact-intro">
+          <p class="eyebrow">One World Relief</p>
+          <h1 id="donateImpactTitle">Give with confidence.</h1>
+          <p class="lead">Choose a cause, enter your gift, and continue securely through Stripe.</p>
+        </header>
 
         <article class="donation-card donation-form-card donation-form-card-featured">
           <div class="donation-form-heading">
             <div>
-              <p class="eyebrow">Secure Stripe checkout</p>
-              <h2 id="donationFormTitle" tabindex="-1">Start your donation</h2>
-              <p class="donation-form-intro">Choose a purpose and amount. You can review everything in Stripe before payment.</p>
+              <p class="eyebrow">Secure donation</p>
+              <h2 id="donationFormTitle" tabindex="-1">Make a donation</h2>
             </div>
-            <span class="donation-security-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
-              </svg>
-            </span>
           </div>
           <form id="donationForm" data-program-checkout="true">
             <input id="selectedProgramId" type="hidden" value="unrestricted" />
@@ -132,32 +80,28 @@
             <section class="donation-step donation-step-fund" aria-labelledby="fundStepTitle">
               <div class="donation-step-heading">
                 <div>
-                  <h3 id="fundStepTitle">Where should your gift go?</h3>
+                  <h3 id="fundStepTitle">Cause</h3>
                 </div>
               </div>
               <label class="custom-amount compact-select" for="campaignSelect">
                 <span class="sr-only">Donation destination</span>
                 <select id="campaignSelect" required>
-                  <option value="unrestricted">Where it's needed most</option>
+                  <option value="unrestricted">Where it's needed most — $5+</option>
                   <option value="zakat">Zakat</option>
                 </select>
               </label>
             </section>
 
-            <aside class="donation-program-summary" id="donationProgramSummary" aria-live="polite" aria-atomic="true">
-              <p class="eyebrow">Selected purpose</p>
-              <div class="donation-program-summary-heading">
-                <h3 id="selectedProgramTitle">Give Where It’s Needed Most</h3>
-                <strong id="selectedProgramAmount">Any amount from $5</strong>
-              </div>
-              <p id="selectedProgramPurpose">Your gift gives One World Relief flexibility to respond to the most urgent verified need.</p>
-              <p class="donation-program-stewardship" id="selectedProgramStewardship" hidden></p>
+            <aside class="donation-program-summary" id="donationProgramSummary" aria-label="Selected cause" aria-live="polite" aria-atomic="true">
+              <h3 class="sr-only" id="selectedProgramTitle">Give Where It’s Needed Most</h3>
+              <strong class="sr-only" id="selectedProgramAmount">Any amount from $5.</strong>
+              <p class="donation-program-summary-line" id="selectedProgramPurpose">Your gift gives One World Relief flexibility to respond to the most urgent verified need.</p>
             </aside>
 
             <section class="donation-step" aria-labelledby="amountStepTitle">
               <div class="donation-step-heading">
                 <div>
-                  <h3 id="amountStepTitle">Choose an amount</h3>
+                  <h3 id="amountStepTitle">Amount</h3>
                   <p class="donation-minimum" id="minimumDonationText">Minimum donation is $5.</p>
                 </div>
               </div>
@@ -177,12 +121,7 @@
               </label>
             </section>
 
-            <section class="donation-step" aria-labelledby="receiptStepTitle">
-              <div class="donation-step-heading">
-                <div>
-                  <h3 id="receiptStepTitle">Receipt details</h3>
-                </div>
-              </div>
+            <section class="donation-step donation-step-details" aria-label="Receipt details">
               <div class="donor-grid">
                 <label class="custom-amount" for="donorName">
                   Full name
@@ -197,7 +136,7 @@
             </section>
 
             <details class="donation-options-disclosure">
-              <summary>Add a note or donate anonymously <span>Optional</span></summary>
+              <summary>Note or donate anonymously <span>Optional</span></summary>
               <div class="donor-options">
                 <label for="donorNote">
                   Note for One World Relief
@@ -211,90 +150,68 @@
             </details>
 
             <button class="button button-primary donate-button" type="submit">Continue to secure checkout <span aria-hidden="true">&rarr;</span></button>
-            <p class="donation-review-note">You will review your gift before payment.</p>
             <p class="donation-note donation-trust-note">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
               </svg>
-              Stripe securely handles your payment. One World Relief never receives your card details.
+              Secure checkout by Stripe. Your receipt is sent by email.
             </p>
             <details class="donation-allocation-details">
-              <summary>How designated gifts are handled</summary>
+              <summary>Donation policy</summary>
               <p class="donation-stewardship-note">
                 Your gift is designated to the selected program. If a specific need is fully funded or cannot proceed,
                 One World Relief may apply it to the closest eligible need within that same program. Zakat remains
                 limited to Zakat-eligible uses.
               </p>
+              <p class="donation-program-stewardship" id="selectedProgramStewardship" hidden></p>
             </details>
             <p class="donation-status" id="donationStatus" role="status" aria-live="polite"></p>
           </form>
         </article>
+
+        <aside class="donate-impact-panel" aria-label="A completed One World Relief project">
+          <div class="donate-impact-media">
+            <a class="donate-impact-photo donate-impact-photo-main" href="projects/case-004.html">
+              <img
+                src="assets/projects/case-004/korbani-meals-004-main.jpg"
+                alt="Orphan students at a madrasa share a meal provided through Case 004."
+                fetchpriority="high"
+                decoding="async"
+              />
+              <span class="donate-impact-caption">
+                <small>Completed &middot; Case 004</small>
+                <strong>Feeding Madrasa for Orphan Kids</strong>
+                <em>$400 delivered</em>
+              </span>
+            </a>
+          </div>
+
+          <a class="donate-impact-link" href="projects.html">View documented projects <span aria-hidden="true">&rarr;</span></a>
+        </aside>
       </div>
     </section>
 
-    <section class="flow-section flow-section-funds reveal" aria-labelledby="donationCatalogTitle">
+    <section class="flow-section flow-section-funds" aria-labelledby="donationCatalogTitle">
       <div class="container">
-        <div class="donation-catalog-header">
-          <div class="section-heading flow-heading">
-            <p class="eyebrow">Purpose-based giving</p>
-            <h2 id="donationCatalogTitle">Choose where your gift goes.</h2>
-            <p>Pick a verified purpose, see the giving amount up front, and continue through the same secure checkout.</p>
+        <details class="donation-catalog-disclosure">
+          <summary>
+            <span>
+              <small>Want to compare causes?</small>
+              <strong>View causes and real project photos</strong>
+            </span>
+            <span aria-hidden="true">+</span>
+          </summary>
+          <div class="donation-catalog-body">
+            <div class="donation-catalog-header">
+              <div class="section-heading flow-heading">
+                <p class="eyebrow">Ways to give</p>
+                <h2 id="donationCatalogTitle">Choose a cause.</h2>
+                <p>Select a cause to load it into the donation form above.</p>
+              </div>
+            </div>
+            <div class="donation-program-grid" id="donationProgramGrid" role="list" aria-label="Donation programs"></div>
           </div>
-          <ul class="donation-catalog-assurances" aria-label="What to expect when choosing a purpose">
-            <li>
-              <span aria-hidden="true">&#10003;</span>
-              <div><strong>Clear amounts</strong><small>Minimum or fixed cost shown first.</small></div>
-            </li>
-            <li>
-              <span aria-hidden="true">&#10003;</span>
-              <div><strong>Purpose recorded</strong><small>Your selection follows the donation.</small></div>
-            </li>
-            <li>
-              <span aria-hidden="true">&#10003;</span>
-              <div><strong>Stripe checkout</strong><small>We never receive your card details.</small></div>
-            </li>
-          </ul>
-        </div>
-        <div class="donation-program-grid" id="donationProgramGrid" role="list" aria-label="Donation programs"></div>
-      </div>
-    </section>
-
-    <section class="flow-section flow-section-checkout reveal">
-      <div class="container">
-      <div class="section-heading">
-        <p class="eyebrow">After You Give</p>
-        <h2>Share it or follow what happens next.</h2>
-      </div>
-      <div class="donation-layout">
-        <article class="donate-share-card" aria-label="Share this donation page">
-          <div class="donate-share-copy">
-            <p class="eyebrow">Share</p>
-            <h3>Invite someone to give.</h3>
-            <p>Share the donation link or show the QR code during a conversation or presentation.</p>
-          </div>
-          <div class="donate-share-qr">
-            <img src="assets/one-world-relief-donate-qr.svg" alt="QR code linking to the One World Relief donation page" />
-          </div>
-          <div class="share-actions donate-share-actions">
-            <button class="button button-primary" id="nativeShareButton" type="button">Share Link</button>
-            <a class="button button-outline" href="share.html">Open QR</a>
-          </div>
-        </article>
-
-        <article class="donation-card donation-benefits">
-          <h3>What happens after checkout</h3>
-          <ul>
-            <li><strong>1.</strong> Stripe securely processes the payment.</li>
-            <li><strong>2.</strong> Your selected purpose is recorded with the donation.</li>
-            <li><strong>3.</strong> One World Relief sends a receipt to your email.</li>
-            <li><strong>4.</strong> New project proof is published when field work is documented.</li>
-          </ul>
-          <div class="secure-note">
-            <strong>Secure checkout</strong>
-            <p>After submitting, donors are redirected to secure Stripe Checkout.</p>
-          </div>
-        </article>
-      </div>
+        </details>
       </div>
     </section>
   </main>

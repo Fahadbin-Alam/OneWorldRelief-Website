@@ -10,7 +10,6 @@
   }
 
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || window.location.origin).replace(/\/$/, "");
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const status = document.getElementById("donationStatus");
   const submitButton = form.querySelector(".donate-button");
   const amountChoices = document.getElementById("donationAmountChoices");
@@ -186,8 +185,14 @@
 
     const addOption = (parent, program) => {
       const option = document.createElement("option");
+      const rule = getAmountRule(program, getDefaultVariant(program));
+      const compactAmount = rule.type === "fixed"
+        ? formatUsd(rule.min)
+        : rule.type === "range"
+          ? `${formatUsd(rule.min)}–${formatUsd(rule.max)}`
+          : `${formatUsd(rule.min)}+`;
       option.value = program.id;
-      option.textContent = program.shortLabel || program.title;
+      option.textContent = `${program.shortLabel || program.title} — ${compactAmount}`;
       parent.appendChild(option);
     };
 
@@ -274,13 +279,12 @@
       summaryTitle.textContent = program.title;
     }
     if (summaryAmount) {
-      summaryAmount.textContent = variant?.label
+      const amountSummary = variant?.label
         || (rule.type === "fixed" ? formatUsd(rule.min) : program.amountLabel);
+      summaryAmount.textContent = `${amountSummary}.`;
     }
     if (summaryPurpose) {
-      summaryPurpose.textContent = variant?.description
-        ? `${program.purposeSummary} ${variant.description}`
-        : program.purposeSummary;
+      summaryPurpose.textContent = program.purposeSummary;
     }
     if (summaryStewardship) {
       const languageLabels = { en: "English", bn: "Bangla", ur: "Urdu", ar: "Arabic" };
@@ -293,9 +297,7 @@
       summaryStewardship.hidden = !summaryStewardship.textContent;
     }
     if (formTitle) {
-      formTitle.textContent = program.id === "unrestricted"
-        ? "Start your donation"
-        : "Complete your gift";
+      formTitle.textContent = "Make a donation";
     }
   };
 
@@ -303,11 +305,16 @@
     const stickyHeader = document.querySelector(".site-header");
     const headerOffset = Number(stickyHeader?.getBoundingClientRect().height || 0) + 16;
     const cardTop = Number(formCard?.getBoundingClientRect().top || 0) + window.scrollY - headerOffset;
+    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
     document.documentElement.scrollTop = Math.max(0, cardTop);
     document.body.scrollTop = Math.max(0, cardTop);
     if (focusHeading) {
       formTitle?.focus({ preventScroll: true });
     }
+    window.requestAnimationFrame(() => {
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    });
   };
 
   const selectProgram = (programValue, options = {}) => {
@@ -400,14 +407,12 @@
       return;
     }
     programGrid.replaceChildren();
-    programs.filter((program) => program.featured === true).forEach((program, index) => {
+    programs.filter((program) => program.featured === true).forEach((program) => {
       const card = document.createElement("article");
       card.className = "donation-program-card";
       card.id = `donation-program-${program.id}`;
       card.dataset.programId = program.id;
       card.setAttribute("role", "listitem");
-      card.style.setProperty("--program-index", String(index));
-      card.style.setProperty("--program-delay", `${index * 70}ms`);
 
       const photo = document.createElement("figure");
       photo.className = "donation-program-photo";
@@ -416,9 +421,7 @@
       image.alt = program.imageAlt;
       image.loading = "lazy";
       image.decoding = "async";
-      const caption = document.createElement("figcaption");
-      caption.textContent = program.photoContext;
-      photo.append(image, caption);
+      photo.appendChild(image);
 
       const copy = document.createElement("div");
       copy.className = "donation-program-copy";
@@ -436,31 +439,16 @@
       header.append(amount, title);
       copy.append(header, purpose);
 
-      if (program.cardNotice) {
-        const notice = document.createElement("p");
-        notice.className = "donation-program-notice";
-        notice.textContent = program.cardNotice;
-        copy.appendChild(notice);
-      }
-
-      if (program.stewardship) {
-        const details = document.createElement("details");
-        const summary = document.createElement("summary");
-        const detailCopy = document.createElement("p");
-        summary.textContent = "Where your gift goes";
-        summary.setAttribute("aria-label", `Where a gift to ${program.title} goes`);
-        detailCopy.textContent = program.stewardship;
-        details.append(summary, detailCopy);
-        copy.appendChild(details);
+      if (program.photoDisclosure) {
+        const photoDisclosure = document.createElement("small");
+        photoDisclosure.className = "donation-program-photo-disclosure";
+        photoDisclosure.textContent = program.photoDisclosure;
+        copy.appendChild(photoDisclosure);
       }
 
       const actions = document.createElement("div");
       actions.className = "donation-program-actions";
       if (program.id === "water_support") {
-        const levels = document.createElement("div");
-        levels.className = "donation-water-levels";
-        levels.innerHTML = '<span><strong>$350</strong><small>Filtered water station</small></span><em aria-hidden="true">to</em><span><strong>$3,000</strong><small>Community well</small></span>';
-        copy.appendChild(levels);
         const flexibleVariant = getVariant(program, program.catalogActionVariant || "water_contribution");
         actions.appendChild(createProgramAction(program, flexibleVariant, {
           amount: program.defaultAmount,
@@ -469,15 +457,13 @@
         }));
       } else if (program.detailUrl) {
         actions.classList.add("donation-program-actions-split");
-        actions.appendChild(createProgramAction(program));
         if (program.directActionLabel) {
-          const directAction = createProgramAction(program, null, { direct: true, label: program.directActionLabel });
-          directAction.classList.add("donation-program-action-secondary");
+          const directAction = createProgramAction(program, null, { direct: true, label: "Give Zakat" });
           actions.appendChild(directAction);
         }
-      } else if (Array.isArray(program.variants) && program.variants.length) {
-        actions.classList.add("donation-program-actions-multiple");
-        program.variants.forEach((variant) => actions.appendChild(createProgramAction(program, variant)));
+        const calculatorAction = createProgramAction(program, null, { label: "Zakat calculator" });
+        calculatorAction.classList.add("donation-program-action-secondary");
+        actions.appendChild(calculatorAction);
       } else {
         actions.appendChild(createProgramAction(program));
       }
@@ -485,21 +471,6 @@
       card.append(photo, copy);
       programGrid.appendChild(card);
     });
-
-    const cards = [...programGrid.querySelectorAll(".donation-program-card")];
-    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
-      cards.forEach((card) => card.classList.add("is-in-view"));
-      return;
-    }
-    const cardObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-in-view");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.14, rootMargin: "0px 0px -8% 0px" });
-    cards.forEach((card) => cardObserver.observe(card));
   };
 
   const getDonationAmount = () => {
