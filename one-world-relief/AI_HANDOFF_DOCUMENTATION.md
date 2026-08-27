@@ -2943,6 +2943,16 @@ Additional DNS check later on May 4, 2026:
 - Preview deployment `c382bf6f-da54-434a-ba44-c6e6a24d233c` succeeded at `https://c382bf6f.trying-8o0.pages.dev`, branch `codex-cause-menu-20260827`, source `77b8438`.
 - Production deployment `f6418261-8189-4c9b-b501-371ff65c2110` succeeded at `https://f6418261.trying-8o0.pages.dev`, branch `main`, source `77b8438`. Cache-bypassed checks on `https://one-world-relief.org/donate` confirmed the flat list, natural labels, cache v13, and active Checkout Function with a safe empty-request `400` response.
 
+### 2026-08-27 Broader Homepage Giving Hadith (Released)
+- Replaced the homepage hero's orphan-specific hadith with the broader Hadith Qudsi: `O son of Adam! Spend, and I shall spend on you.` The visible attribution accurately reads `Hadith Qudsi, narrated by Prophet Muhammad ﷺ · Sahih al-Bukhari 5352` and links to `https://sunnah.com/bukhari:5352`.
+- The wording was verified against Sahih al-Bukhari 5352 and independently corroborated by Sahih Muslim 993a. This release intentionally changes only the prominent hero quotation; the separate faith-reminder marquee retains its existing mix of Quran and hadith reminders.
+- Stripe Checkout, server-owned donation rules, webhook handling, Google Sheets A:H mapping, Zakat handling, project data, and donor inputs are unchanged. No real Checkout Session, payment, signed webhook, or Sheets row was created.
+- Feature commit `953b3ac966c443a5b8bd743bf69e6878cd3d1845` (`feat: broaden homepage giving hadith`) was pushed to `origin/charity-frontend-redesign`. Offline cache advanced from `owr-offline-v13` to `owr-offline-v14`.
+- Regression passed `41/41`; the service worker passed syntax validation; `git diff --check` passed; Wrangler `4.127.0` compiled all five staged Pages Functions; and the safe deployment stage contained exactly `70` public assets plus `5` Function source files.
+- Browser verification covered 1440px and 390px. The quote card rendered at 480x186px on desktop and 322x152px on mobile, preserved the correct source URL and full attribution, and stayed legible beside/above the unchanged quick-donation panel.
+- Preview deployment `0e2fbecd-ba42-4511-b2e5-e7525e7c4d13` succeeded at `https://0e2fbecd.trying-8o0.pages.dev`, branch `codex-giving-hadith-20260827`, source `953b3ac`.
+- Production deployment `b84020d1-a759-4c4b-a850-b10eee4704eb` succeeded at `https://b84020d1.trying-8o0.pages.dev`, branch `main`, source `953b3ac`. Cache-bypassed checks on `https://one-world-relief.org` confirmed the new quote, Qudsi attribution, verified source link, cache v14, removal of the former full hero wording, and an active Checkout Function returning the expected safe `400` for an empty request.
+
 ---
 
 **End of AI Handoff Documentation**
