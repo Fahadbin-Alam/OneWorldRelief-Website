@@ -12,7 +12,6 @@
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || window.location.origin).replace(/\/$/, "");
   const status = document.getElementById("donationStatus");
   const submitButton = form.querySelector(".donate-button");
-  const amountChoices = document.getElementById("donationAmountChoices");
   const customAmount = document.getElementById("customDonation");
   const customAmountField = customAmount?.closest("label");
   const minimumText = document.getElementById("minimumDonationText");
@@ -127,8 +126,6 @@
         type: "fixed",
         min: fixedAmount,
         max: fixedAmount,
-        defaultAmount: fixedAmount,
-        presets: [fixedAmount],
       };
     }
     const type = String(program.amountRule || "minimum");
@@ -136,12 +133,6 @@
       type,
       min: Number(program.minAmount || 5),
       max: Number(program.maxAmount || 0),
-      defaultAmount: Number(
-        type === "range"
-          ? program.defaultAmount || program.minAmount || 5
-          : variant?.amount || program.defaultAmount || program.minAmount || 5
-      ),
-      presets: Array.isArray(program.presets) ? program.presets.map(Number) : [],
     };
   };
 
@@ -195,61 +186,45 @@
   };
 
   const renderAmountChoices = (program, variant, requestedAmount) => {
-    if (!amountChoices || !customAmount || !customAmountField) {
+    if (!customAmount || !customAmountField) {
       return;
     }
     const rule = getAmountRule(program, variant);
-    const requested = Number(requestedAmount);
-    const activeAmount = isAllowedAmount(program, variant, requested) ? requested : rule.defaultAmount;
-    const presets = rule.presets.filter((amount, index, values) => {
-      return Number.isFinite(amount)
-        && amount >= rule.min
-        && (!rule.max || amount <= rule.max)
-        && values.indexOf(amount) === index;
-    });
-    const matchesPreset = presets.includes(activeAmount);
-
-    amountChoices.replaceChildren();
-    const legend = document.createElement("legend");
-    legend.className = "sr-only";
-    legend.textContent = "Select an amount";
-    amountChoices.appendChild(legend);
-
-    presets.forEach((amount) => {
-      const label = document.createElement("label");
-      const input = document.createElement("input");
-      const value = document.createElement("strong");
-      input.type = "radio";
-      input.name = "amount";
-      input.value = String(amount);
-      input.checked = matchesPreset && amount === activeAmount;
-      value.textContent = formatUsd(amount);
-      label.append(input, value);
-      amountChoices.appendChild(label);
-    });
-
+    const hasRequestedAmount = requestedAmount !== undefined
+      && requestedAmount !== null
+      && String(requestedAmount).trim() !== "";
+    const requested = hasRequestedAmount ? Number(requestedAmount) : Number.NaN;
+    const hasAllowedRequestedAmount = isAllowedAmount(program, variant, requested);
     const isFixed = rule.type === "fixed";
-    customAmountField.hidden = isFixed;
+
+    customAmountField.hidden = false;
     customAmount.readOnly = isFixed;
+    customAmount.required = true;
     customAmount.min = String(rule.min);
     if (rule.max) {
       customAmount.max = String(rule.max);
     } else {
       customAmount.removeAttribute("max");
     }
-    customAmount.placeholder = rule.type === "range"
-      ? `${formatUsd(rule.min)}–${formatUsd(rule.max)}`
-      : "Enter an amount";
-    customAmount.value = !isFixed && !matchesPreset ? String(activeAmount) : "";
+    customAmount.placeholder = isFixed
+      ? formatUsd(rule.min)
+      : rule.type === "range"
+        ? `${formatUsd(rule.min)}–${formatUsd(rule.max)}`
+        : "Enter an amount";
+    customAmount.value = isFixed
+      ? String(rule.min)
+      : hasAllowedRequestedAmount
+        ? String(requested)
+        : "";
     customAmount.removeAttribute("aria-invalid");
 
     if (minimumText) {
-      const shouldExplainRule = rule.type === "fixed" || rule.type === "range";
+      const shouldExplainRule = rule.type === "fixed" || rule.type === "range" || rule.min > 5;
       minimumText.textContent = rule.type === "fixed"
         ? `This purpose is a fixed ${formatUsd(rule.min)} gift.`
         : rule.type === "range"
           ? `Choose from ${formatUsd(rule.min)} to ${formatUsd(rule.max)}.`
-          : "";
+          : `This cause accepts gifts of ${formatUsd(rule.min)} or more.`;
       minimumText.hidden = !shouldExplainRule;
       if (shouldExplainRule) {
         customAmount.setAttribute("aria-describedby", "minimumDonationText");
@@ -369,8 +344,13 @@
     if (variant?.id === "water_contribution" && !options.primary) {
       button.classList.add("donation-program-action-secondary");
     }
+    const actionAmount = options.amount ?? (
+      variant && variant.id !== "water_contribution" ? variant.amount : undefined
+    );
     button.dataset.programChoice = program.id;
-    button.dataset.programAmount = String(options.amount ?? variant?.amount ?? program.defaultAmount);
+    if (actionAmount !== undefined) {
+      button.dataset.programAmount = String(actionAmount);
+    }
     if (variant) {
       button.dataset.programVariant = variant.id;
     }
@@ -381,7 +361,7 @@
     button.addEventListener("click", () => {
       selectProgram(program.id, {
         variant: variant?.id || "",
-        amount: options.amount ?? variant?.amount ?? program.defaultAmount,
+        amount: actionAmount,
         focus: true,
       });
     });
@@ -437,7 +417,6 @@
       if (program.id === "water_support") {
         const flexibleVariant = getVariant(program, program.catalogActionVariant || "water_contribution");
         actions.appendChild(createProgramAction(program, flexibleVariant, {
-          amount: program.defaultAmount,
           label: program.actionLabel || "Choose a water amount",
           primary: true,
         }));
@@ -467,11 +446,7 @@
   };
 
   const getDonationAmount = () => {
-    if (customAmount?.value) {
-      return Number(customAmount.value);
-    }
-    const selected = form.querySelector('input[name="amount"]:checked');
-    return selected ? Number(selected.value) : 0;
+    return customAmount?.value ? Number(customAmount.value) : 0;
   };
 
   const updateSubmitLabel = () => {
@@ -497,21 +472,7 @@
     }, { once: true });
   }
 
-  amountChoices?.addEventListener("change", (event) => {
-    if (event.target.matches('input[name="amount"]:checked') && customAmount) {
-      customAmount.value = "";
-      customAmount.removeAttribute("aria-invalid");
-      setStatus();
-      updateSubmitLabel();
-    }
-  });
-
   customAmount?.addEventListener("input", () => {
-    if (customAmount.value) {
-      form.querySelectorAll('input[name="amount"]').forEach((radio) => {
-        radio.checked = false;
-      });
-    }
     const program = getProgram(programIdInput?.value);
     const variant = getVariant(program, variantInput?.value);
     const amount = Number(customAmount.value);

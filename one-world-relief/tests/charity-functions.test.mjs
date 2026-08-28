@@ -489,22 +489,23 @@ test("share QR points donors to the .org donation domain", async () => {
   assert.doesNotMatch(shareHtml, /<span class="share-icon"/);
 });
 
-test("donation page leads with unrestricted $5 giving and purpose-specific amount rules", async () => {
-  const [donateHtml, checkoutJs, programSource, siteCss, deployedCheckoutSource, mirrorCheckoutSource] = await Promise.all([
+test("donation page starts with one blank custom amount and preserves purpose-specific rules", async () => {
+  const [donateHtml, checkoutJs, programSource, siteCss, deployedCheckoutSource, mirrorCheckoutSource, redirectsSource] = await Promise.all([
     readFile("donate.html", "utf8"),
     readFile("donation-checkout.js", "utf8"),
     readFile("donation-programs.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
     readFile("functions/charity/donations/checkout.js", "utf8"),
     readFile("../functions/charity/donations/checkout.js", "utf8"),
+    readFile("_redirects", "utf8"),
   ]);
 
   const donationForm = donateHtml.match(/<form id="donationForm"[^>]*>[\s\S]*?<\/form>/)?.[0];
   assert.ok(donationForm, "donate page should contain the checkout form");
   const presetAmounts = [...donationForm.matchAll(/name="amount" value="([^"]+)"/g)].map((match) => match[1]);
-  assert.deepEqual(presetAmounts, ["5", "25", "50", "100"]);
-  assert.equal([...donationForm.matchAll(/name="amount"[^>]*checked/g)].length, 1);
-  assert.match(donationForm, /name="amount" value="25" checked/);
+  assert.deepEqual(presetAmounts, []);
+  assert.equal([...donationForm.matchAll(/name="amount"[^>]*checked/g)].length, 0);
+  assert.doesNotMatch(donationForm, /id="donationAmountChoices"/);
   assert.doesNotMatch(donationForm, /name="amount" value="custom"/);
 
   const customAmountInput = donationForm.match(/<input id="customDonation"[^>]*>/)?.[0];
@@ -514,6 +515,7 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.match(customAmountInput, /step="0\.01"/);
   assert.match(customAmountInput, /inputmode="decimal"/);
   assert.match(customAmountInput, /placeholder="Enter an amount"/);
+  assert.match(customAmountInput, /required/);
   assert.doesNotMatch(customAmountInput, /aria-describedby="minimumDonationText"/);
   assert.doesNotMatch(customAmountInput, /hidden/);
   assert.match(donationForm, /id="minimumDonationText" hidden><\/p>/);
@@ -523,7 +525,7 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.match(donationForm, /id="selectedProgramVariant" type="hidden"/);
   assert.match(donationForm, /id="donationReferrerCase" type="hidden"/);
   assert.match(donationForm, /id="selectedProgramTitle">Give Where It.s Needed Most<\/h3>/);
-  assert.match(donationForm, /id="selectedProgramAmount">Any amount from \$5\.<\/strong>/);
+  assert.match(donationForm, /id="selectedProgramAmount">Enter the amount you would like to give\.<\/strong>/);
   assert.match(donationForm, /<select id="campaignSelect" required>[\s\S]*?<option value="unrestricted">Where it's needed most<\/option>/);
   assert.doesNotMatch(donationForm, /givingFrequencySelect|name="givingFrequency"|recurringDonationNote/);
   assert.doesNotMatch(donationForm, /id="paymentMethod"|donation-step-payment|aria-label="Supported payment methods"|class="payments"/);
@@ -552,21 +554,25 @@ test("donation page leads with unrestricted $5 giving and purpose-specific amoun
   assert.match(donationForm, /id="donationProgramSummary"[^>]*aria-label="Selected cause"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
   assert.match(donateHtml, /<h2 id="donationFormTitle" tabindex="-1">Make a donation<\/h2>/);
   assert.ok(
-    donationForm.indexOf('id="campaignSelect"') < donationForm.indexOf('id="donationAmountChoices"'),
+    donationForm.indexOf('id="campaignSelect"') < donationForm.indexOf('id="customDonation"'),
     "purpose should be chosen before amount",
   );
 
-  assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout\.js"><\/script>/);
+  assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout-v2\.js"><\/script>/);
+  assert.doesNotMatch(donateHtml, /<script src="donation-checkout\.js"><\/script>/);
+  assert.match(redirectsSource, /^\/donation-checkout-v2\.js \/donation-checkout\.js 200$/m);
   assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
   assert.match(checkoutJs, /if \(rule\.type === "fixed"\)/);
   assert.match(checkoutJs, /if \(rule\.type === "range"\)/);
   assert.match(checkoutJs, /return amount >= rule\.min/);
   assert.match(checkoutJs, /program\?\.id === "water_support"[\s\S]*?getVariant\(program, "water_contribution"\)/);
-  assert.match(checkoutJs, /type === "range"[\s\S]*?program\.defaultAmount/);
+  assert.doesNotMatch(checkoutJs, /rule\.presets|matchesPreset|input\[name="amount"\]/);
   assert.match(checkoutJs, /minimumFractionDigits: hasCents \? 2 : 0/);
   assert.match(checkoutJs, /option\.textContent = program\.shortLabel \|\| program\.title/);
   assert.match(checkoutJs, /programs\.forEach\(addOption\)/);
   assert.doesNotMatch(checkoutJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
+  assert.match(checkoutJs, /customAmount\.value = isFixed[\s\S]*?hasAllowedRequestedAmount[\s\S]*?: ""/);
+  assert.doesNotMatch(checkoutJs, /input\.name = "amount"/);
   assert.match(checkoutJs, /formTitle\.textContent = "Make a donation"/);
   assert.match(checkoutJs, /replaceChildren\(document\.createTextNode\("Donate Now "\)\)/);
   assert.doesNotMatch(checkoutJs, /Continue to Stripe|Continue to secure checkout|Minimum for this purpose is/);
@@ -1117,7 +1123,8 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v30/);
+  assert.match(serviceWorker, /owr-offline-v31/);
+  assert.match(serviceWorker, /\/donation-checkout-v2\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1419,7 +1426,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v30/);
+  assert.match(serviceWorker, /owr-offline-v31/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);

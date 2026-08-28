@@ -94,7 +94,7 @@
 
             <aside class="donation-program-summary" id="donationProgramSummary" aria-label="Selected cause" aria-live="polite" aria-atomic="true">
               <h3 class="sr-only" id="selectedProgramTitle">Give Where It’s Needed Most</h3>
-              <strong class="sr-only" id="selectedProgramAmount">Any amount from $5.</strong>
+              <strong class="sr-only" id="selectedProgramAmount">Enter the amount you would like to give.</strong>
               <p class="donation-program-summary-line" id="selectedProgramPurpose">Your gift gives One World Relief flexibility to respond to the most urgent verified need.</p>
             </aside>
 
@@ -105,18 +105,11 @@
                   <p class="donation-minimum" id="minimumDonationText" hidden></p>
                 </div>
               </div>
-              <fieldset class="amount-grid amount-grid-impact" id="donationAmountChoices">
-                <legend class="sr-only">Select an amount</legend>
-                <label><input type="radio" name="amount" value="5" /><strong>$5</strong></label>
-                <label><input type="radio" name="amount" value="25" checked /><strong>$25</strong></label>
-                <label><input type="radio" name="amount" value="50" /><strong>$50</strong></label>
-                <label><input type="radio" name="amount" value="100" /><strong>$100</strong></label>
-              </fieldset>
               <label class="custom-amount custom-donation-field donation-custom-field" for="customDonation">
-                Or enter another amount
+                Donation amount
                 <span class="custom-donation-input-wrap">
                   <span aria-hidden="true">$</span>
-                  <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter an amount" />
+                  <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter an amount" required />
                 </span>
               </label>
             </section>
@@ -232,6 +225,6 @@
   <script src="donation-programs.js"></script>
   <script src="project-data.js"></script>
   <script src="one-world-relief.js"></script>
-  <script src="donation-checkout.js"></script>
+  <script src="donation-checkout-v2.js"></script>
 </body>
 </html>
