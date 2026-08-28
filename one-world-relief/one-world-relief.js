@@ -185,6 +185,47 @@
     window.addEventListener("resize", requestUpdate);
   };
 
+  const setupHeaderExperience = () => {
+    const header = document.querySelector(".site-header");
+    if (!header) {
+      return;
+    }
+
+    let headerFrame = 0;
+    const updateHeaderDepth = () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 8);
+      headerFrame = 0;
+    };
+    const requestHeaderUpdate = () => {
+      if (!headerFrame) {
+        headerFrame = window.requestAnimationFrame(updateHeaderDepth);
+      }
+    };
+
+    updateHeaderDepth();
+    window.addEventListener("scroll", requestHeaderUpdate, { passive: true });
+
+    const mobileMenu = header.querySelector(".mobile-nav-menu");
+    if (!mobileMenu) {
+      return;
+    }
+
+    mobileMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => mobileMenu.removeAttribute("open"));
+    });
+    mobileMenu.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && mobileMenu.open) {
+        mobileMenu.removeAttribute("open");
+        mobileMenu.querySelector("summary")?.focus();
+      }
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (mobileMenu.open && !mobileMenu.contains(event.target)) {
+        mobileMenu.removeAttribute("open");
+      }
+    });
+  };
+
   const setupFlowLayers = () => {
     if (!flowLayers.length || prefersReducedMotion) {
       return;
@@ -457,6 +498,7 @@
 
   registerOfflineFallback();
   setupReveals();
+  setupHeaderExperience();
   setupScrollProgress();
   setupFlowLayers();
   renderProjects();

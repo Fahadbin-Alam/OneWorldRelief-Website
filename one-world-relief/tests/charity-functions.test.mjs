@@ -1066,7 +1066,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v15/);
+  assert.match(serviceWorker, /owr-offline-v16/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1368,7 +1368,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v15/);
+  assert.match(serviceWorker, /owr-offline-v16/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1589,8 +1589,20 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.ok(nav, `${name} should retain its main navigation`);
     assert.equal([...nav.matchAll(/<a\s/g)].length, 4, `${name} should have all four navigation links`);
     assert.match(html, /class="button button-primary header-cta"[^>]*href="(?:\.\.\/)?donate\.html[^"]*"/, `${name} should retain the Donate CTA`);
+    assert.match(html, /family=Plus\+Jakarta\+Sans:wght@600;700;800/, `${name} should load the modern header typeface`);
     assert.match(html, /<footer class="site-footer/, `${name} should retain its footer`);
   }
+
+  assert.match(siteCss, /--header-sans: "Plus Jakarta Sans"/);
+  assert.match(siteCss, /\.main-nav\s*\{[^}]*border-radius: 999px;[^}]*font-family: var\(--header-sans\);/);
+  assert.match(siteCss, /\.main-nav a\s*\{[^}]*min-height: 44px;[^}]*border-radius: 999px;[^}]*color: #365d76;/);
+  assert.match(siteCss, /\.main-nav a\[aria-current="page"\]::after\s*\{[^}]*background: var\(--mint\);/);
+  assert.match(siteCss, /\.brand:focus-visible,[\s\S]*?\.mobile-nav-menu nav a:focus-visible\s*\{[^}]*outline: 3px solid #14688f;/);
+  assert.match(siteCss, /\.header-cta\.button::after\s*\{[^}]*content: "\\2192";/);
+  assert.match(siteJs, /const setupHeaderExperience = \(\) =>/);
+  assert.match(siteJs, /classList\.toggle\("is-scrolled", window\.scrollY > 8\)/);
+  assert.match(siteJs, /event\.key === "Escape"/);
+  assert.match(siteCss, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.header-cta\.button::after\s*\{[^}]*transition: none !important;/);
 
   assert.match(
     siteCss,

@@ -79,7 +79,7 @@
       navZakat: "Zakat",
       navAbout: "About",
       navContact: "Contact",
-      navDonate: "Donate",
+      navDonate: "Donate now",
       language: "Language",
       heroEyebrow: "A private, simple estimate",
       heroTitle: "Calculate your Zakat",
