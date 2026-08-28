@@ -9025,7 +9025,9 @@ html {
   .home-page .home-footer-links a,
   .home-page .home-footer-contact a,
   .home-page .home-quick-give-amounts a,
-  .home-page .home-quick-give-button {
+  .home-page .home-quick-give-button,
+  .home-page .home-impact-case,
+  .home-page .home-impact-link {
     transform: none !important;
     animation: none !important;
     transition: none !important;
@@ -9612,5 +9614,304 @@ html {
 
   .home-page .home-quick-give-amounts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Homepage verified orphan-impact lead */
+.home-page .home-impact-copy {
+  width: 100%;
+  max-width: 540px;
+  margin: 0;
+  text-align: left;
+  animation: none;
+}
+
+.home-page .home-impact-eyebrow {
+  margin-bottom: 0.7rem;
+  color: #286f9b;
+  font-family: var(--header-sans);
+  letter-spacing: 0.09em;
+}
+
+.home-page .home-impact-headline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(0.8rem, 2vw, 1.2rem);
+}
+
+.home-page .home-impact-number {
+  display: block;
+  color: #174a6d;
+  font-family: var(--header-sans);
+  font-size: clamp(6.4rem, 11vw, 9rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.78;
+  letter-spacing: -0.09em;
+  text-shadow: 0 12px 30px rgba(33, 79, 113, 0.14);
+}
+
+.home-page .home-impact-title-wrap {
+  padding-bottom: 0.15rem;
+}
+
+.home-page .home-impact-count-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #2f789f;
+  font-family: var(--header-sans);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-page .home-impact-title-wrap h1 {
+  max-width: 11ch;
+  margin: 0;
+  color: #17384f;
+  font-size: clamp(2rem, 4vw, 3.05rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.home-page .home-impact-summary {
+  max-width: 49ch;
+  margin: 1.05rem 0 0;
+  color: #4f7085;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.home-page .home-impact-cases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.home-page .home-impact-case {
+  position: relative;
+  min-width: 0;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.72rem 2rem 0.72rem 0.82rem;
+  border: 1px solid rgba(33, 79, 113, 0.12);
+  border-radius: 17px;
+  color: #173c56;
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 10px 24px rgba(33, 79, 113, 0.07);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.home-page .home-impact-case::after {
+  content: "\2192";
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  color: #2c739b;
+  font-family: var(--header-sans);
+  font-size: 1rem;
+  font-weight: 800;
+  transform: translateY(-50%);
+}
+
+.home-page .home-impact-case > span {
+  color: #2f789f;
+  font-family: var(--header-sans);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-page .home-impact-case strong {
+  overflow-wrap: anywhere;
+  color: #17384f;
+  font-family: var(--header-sans);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.home-page .home-impact-case small {
+  margin-top: 0.16rem;
+  color: #59778a;
+  font-size: 0.69rem;
+  font-weight: 650;
+}
+
+.home-page .home-impact-case:hover {
+  border-color: rgba(33, 79, 113, 0.25);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 30px rgba(33, 79, 113, 0.11);
+  transform: translateY(-2px);
+}
+
+.home-page .home-impact-case:focus-visible,
+.home-page .home-impact-link:focus-visible,
+.home-page .home-impact-hadith a:focus-visible {
+  border-radius: 10px;
+  outline: 3px solid #175f88;
+  outline-offset: 3px;
+}
+
+.home-page .home-impact-group-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+  margin: 0.75rem 0 0;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid rgba(47, 159, 137, 0.16);
+  border-radius: 16px;
+  color: #496b78;
+  background: rgba(235, 250, 247, 0.68);
+  font-size: 0.76rem;
+  line-height: 1.48;
+}
+
+.home-page .home-impact-group-note strong {
+  color: #1a6259;
+  font-family: var(--header-sans);
+}
+
+.home-page .home-impact-plus {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  background: #23806f;
+  font-family: var(--header-sans);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.home-page .home-impact-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem 1rem;
+  margin-top: 0.85rem;
+}
+
+.home-page .home-impact-link {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.66rem 0.9rem;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(145deg, #1d668f, #174a6d);
+  box-shadow: 0 10px 22px rgba(24, 82, 118, 0.18);
+  font-family: var(--header-sans);
+  font-size: 0.77rem;
+  font-weight: 800;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.home-page .home-impact-link:hover {
+  box-shadow: 0 14px 27px rgba(24, 82, 118, 0.25);
+  transform: translateY(-2px);
+}
+
+.home-page .home-impact-hadith {
+  min-width: 0;
+  margin: 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid rgba(33, 79, 113, 0.24);
+}
+
+.home-page .home-impact-hadith p {
+  margin: 0;
+  color: #365e74;
+  font-family: var(--serif);
+  font-size: 0.79rem;
+  font-weight: 650;
+  line-height: 1.38;
+}
+
+.home-page .home-impact-hadith cite {
+  display: block;
+  margin-top: 0.12rem;
+  color: #2f789f;
+  font-family: var(--header-sans);
+  font-size: 0.65rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.home-page .home-impact-hadith a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: underline;
+  text-decoration-color: rgba(47, 120, 159, 0.38);
+  text-underline-offset: 0.18em;
+}
+
+@media (max-width: 980px) {
+  .home-page .home-impact-copy {
+    max-width: 620px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-page .hero-donate-first {
+    padding-top: 1.6rem;
+  }
+
+  .home-page .home-impact-number {
+    font-size: clamp(5.3rem, 25vw, 7rem);
+  }
+
+  .home-page .home-impact-title-wrap h1 {
+    font-size: clamp(1.85rem, 8.8vw, 2.45rem);
+  }
+
+  .home-page .home-impact-summary {
+    font-size: 0.88rem;
+  }
+
+  .home-page .home-impact-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page .home-impact-link {
+    width: 100%;
+  }
+
+  .home-page .home-impact-hadith {
+    padding-left: 0;
+    padding-top: 0.62rem;
+    border-top: 1px solid rgba(33, 79, 113, 0.16);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 350px) {
+  .home-page .home-impact-headline {
+    gap: 0.65rem;
+  }
+
+  .home-page .home-impact-number {
+    font-size: 5rem;
+  }
+
+  .home-page .home-impact-title-wrap h1 {
+    font-size: 1.72rem;
+  }
+
+  .home-page .home-impact-cases {
+    grid-template-columns: 1fr;
   }
 }

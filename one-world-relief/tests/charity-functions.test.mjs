@@ -1117,7 +1117,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v25/);
+  assert.match(serviceWorker, /owr-offline-v26/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1419,7 +1419,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v25/);
+  assert.match(serviceWorker, /owr-offline-v26/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1427,6 +1427,59 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.doesNotMatch(serviceWorker, /cache\.put\(request/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
+});
+
+test("homepage leads with a scoped, source-backed orphan impact count", async () => {
+  const [homeHtml, projectData, siteJs, siteCss] = await Promise.all([
+    readFile("index.html", "utf8"),
+    readFile("project-data.js", "utf8"),
+    readFile("one-world-relief.js", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+
+  const impactStart = homeHtml.indexOf('<div class="hero-copy home-impact-copy"');
+  const donationStart = homeHtml.indexOf('<div class="home-action-panel">');
+  assert.ok(impactStart >= 0, "homepage should include the orphan impact lead");
+  assert.ok(donationStart > impactStart, "impact count should lead the hero before checkout");
+
+  const impactHtml = homeHtml.slice(impactStart, donationStart);
+  assert.match(impactHtml, /Our documented orphan impact/);
+  assert.match(impactHtml, /id="homeOrphanImpactCount" data-impact-count aria-hidden="true">2<\/strong>/);
+  assert.match(impactHtml, /id="homeImpactTitle">Orphan students directly supported\.<\/h1>/);
+  assert.match(impactHtml, /id="homeOrphanImpactAccessible">2 orphan students directly supported through completed, documented cases\.<\/p>/);
+  assert.match(impactHtml, /href="projects\/case-001\.html"/);
+  assert.match(impactHtml, /href="projects\/case-003\.html"/);
+  assert.match(impactHtml, /Also documented:/);
+  assert.match(impactHtml, /Its exact headcount was not recorded, so it is not included above\./);
+  assert.match(impactHtml, /href="projects\.html#projectBoard">See the documented work/);
+  assert.match(impactHtml, /class="home-impact-hadith" cite="https:\/\/sunnah\.com\/bukhari:5352"/);
+  assert.match(impactHtml, /O son of Adam! Spend, and I shall spend on you\./);
+  assert.doesNotMatch(impactHtml, /2 orphans helped|total orphans helped/i);
+
+  const projectContext = { window: {} };
+  runInNewContext(projectData, projectContext);
+  const projects = JSON.parse(JSON.stringify(projectContext.window.ONE_WORLD_RELIEF_PROJECTS));
+  const verifiedCount = projects.reduce((total, project) => {
+    if (!String(project.status || "").toLowerCase().includes("completed")) {
+      return total;
+    }
+    return total + (Number.isSafeInteger(project.verifiedOrphanBeneficiaries)
+      ? project.verifiedOrphanBeneficiaries
+      : 0);
+  }, 0);
+  assert.equal(verifiedCount, 2);
+  assert.equal(projects.find((project) => project.date === "Case 001").verifiedOrphanBeneficiaries, 1);
+  assert.equal(projects.find((project) => project.date === "Case 003").verifiedOrphanBeneficiaries, 1);
+  assert.equal(projects.find((project) => project.date === "Case 004").verifiedOrphanBeneficiaries, null);
+
+  assert.match(siteJs, /const renderHomeOrphanImpact = \(\) =>/);
+  assert.match(siteJs, /Number\.isSafeInteger\(beneficiaryCount\)/);
+  assert.match(siteJs, /renderHomeOrphanImpact\(\);\s*renderHomeCaseFlow\(\);/);
+  assert.match(siteJs, /\[data-impact-count\], \.flow-impact-stats strong/);
+  assert.match(siteCss, /\.home-page \.home-impact-number/);
+  assert.match(siteCss, /\.home-page \.home-impact-case:focus-visible/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-actions\s*\{\s*grid-template-columns: 1fr;/);
+  assert.match(siteCss, /@media \(max-width: 350px\)[\s\S]*?\.home-page \.home-impact-cases\s*\{\s*grid-template-columns: 1fr;/);
 });
 
 test("homepage checkout keeps accessible one-time amounts and sends unrestricted $5-plus gifts to the catalog checkout", async () => {
@@ -1537,10 +1590,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /<source data-src="assets\/projects\/case-002\/livelihood-support-002-primary\.mp4"/);
   assert.doesNotMatch(homeHtml, /<video class="faith-video-bg"[^>]*autoplay/);
   assert.match(homeHtml, /Why We Give/);
-  assert.match(
-    homeHtml,
-    /<blockquote class="hero-giving-quote" cite="https:\/\/sunnah\.com\/bukhari:5352">\s*<p>O son of Adam! Spend, and I shall spend on you\.<\/p>\s*<footer class="hero-quote-source">\s*Hadith Qudsi, narrated by Prophet Muhammad <span aria-label="peace and blessings be upon him">ﷺ<\/span>\s*<span aria-hidden="true">&middot;<\/span>\s*<cite><a href="https:\/\/sunnah\.com\/bukhari:5352" target="_blank" rel="noreferrer">Sahih al-Bukhari 5352<\/a><\/cite>\s*<\/footer>\s*<\/blockquote>/u,
-  );
+  assert.match(homeHtml, /<blockquote class="home-impact-hadith" cite="https:\/\/sunnah\.com\/bukhari:5352">/);
+  assert.match(homeHtml, /<p>“O son of Adam! Spend, and I shall spend on you\.”<\/p>/u);
+  assert.match(homeHtml, /<cite><a href="https:\/\/sunnah\.com\/bukhari:5352" target="_blank" rel="noreferrer">Sahih al-Bukhari 5352<\/a><\/cite>/);
   assert.doesNotMatch(homeHtml, /person who looks after an orphan and provides for him/);
   assert.doesNotMatch(homeHtml, /Direct aid, moving fast\./);
   assert.doesNotMatch(
@@ -1579,9 +1631,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteCss, /grid-template-columns: minmax\(0, 0\.95fr\) minmax\(380px, 460px\)/);
   assert.match(siteCss, /\.quick-donation-heading/);
   assert.match(siteCss, /\.quick-donation-trust/);
-  assert.match(siteCss, /\.hero-donate-first \.hero-quote-copy/);
-  assert.match(siteCss, /\.hero-giving-quote/);
-  assert.match(siteCss, /\.hero-quote-source a:focus-visible/);
+  assert.match(siteCss, /\.home-page \.home-impact-copy/);
+  assert.match(siteCss, /\.home-page \.home-impact-headline/);
+  assert.match(siteCss, /\.home-page \.home-impact-hadith a:focus-visible/);
   assert.match(siteCss, /content-visibility: auto/);
   assert.match(siteCss, /\.faith-video-section/);
   assert.match(siteCss, /\.faith-quote-track/);
@@ -1770,7 +1822,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.zakat-section select,\s*\.zakat-money-input input\s*\{\s*font-size: 16px;/);
   assert.match(mobileCss, /\.zakat-help-details summary,\s*\.zakat-source-list a\s*\{\s*min-height: 44px;/);
   assert.match(siteCss, /\.back-link\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
-  assert.match(siteCss, /\.hero-shell-home \.hero-quote-source a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
+  assert.match(siteCss, /\.home-page \.home-impact-hadith a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
 });
 
 test("contact page has a polished accessible mailto contact flow", async () => {

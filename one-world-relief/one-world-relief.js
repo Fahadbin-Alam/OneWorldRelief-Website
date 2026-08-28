@@ -14,6 +14,8 @@
   const projectBoard = document.getElementById("projectBoard");
   const projectStats = document.getElementById("projectStats");
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
+  const homeOrphanImpactCount = document.getElementById("homeOrphanImpactCount");
+  const homeOrphanImpactAccessible = document.getElementById("homeOrphanImpactAccessible");
   const faithVideo = document.querySelector(".faith-video-bg");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
@@ -315,7 +317,7 @@
       return;
     }
 
-    const numberItems = Array.from(document.querySelectorAll(".flow-impact-stats strong, #projectStats span"));
+    const numberItems = Array.from(document.querySelectorAll("[data-impact-count], .flow-impact-stats strong, #projectStats span"));
 
     const animateNumber = (element) => {
       if (element.dataset.counted === "true") {
@@ -498,6 +500,32 @@
     homeCaseFlowTrack.setAttribute("aria-live", "off");
   };
 
+  const renderHomeOrphanImpact = () => {
+    if (!homeOrphanImpactCount || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+      return;
+    }
+
+    const verifiedCount = window.ONE_WORLD_RELIEF_PROJECTS.reduce((total, project) => {
+      const isCompleted = String(project.status || "").toLowerCase().includes("completed");
+      const beneficiaryCount = Number(project.verifiedOrphanBeneficiaries);
+      if (!isCompleted || !Number.isSafeInteger(beneficiaryCount) || beneficiaryCount < 1) {
+        return total;
+      }
+      return total + beneficiaryCount;
+    }, 0);
+
+    if (!Number.isSafeInteger(verifiedCount) || verifiedCount < 1) {
+      return;
+    }
+
+    homeOrphanImpactCount.textContent = verifiedCount.toLocaleString("en-US");
+    if (homeOrphanImpactAccessible) {
+      const studentLabel = verifiedCount === 1 ? "student" : "students";
+      const caseLabel = verifiedCount === 1 ? "case" : "cases";
+      homeOrphanImpactAccessible.textContent = `${verifiedCount} orphan ${studentLabel} directly supported through completed, documented ${caseLabel}.`;
+    }
+  };
+
   const setupFaithVideo = () => {
     const source = faithVideo?.querySelector("source[data-src]");
     const section = faithVideo?.closest(".faith-video-section");
@@ -553,6 +581,7 @@
   setupScrollProgress();
   setupFlowLayers();
   renderProjects();
+  renderHomeOrphanImpact();
   renderHomeCaseFlow();
   setupFaithVideo();
   setupPointerMotion();
