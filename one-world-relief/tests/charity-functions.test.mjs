@@ -1584,6 +1584,7 @@ test("home page closes with useful action cards, verified details, and inline qu
 
   const quickGive = homeHtml.match(/<section class="home-quick-give"[\s\S]*?<\/section>/)?.[0];
   assert.ok(quickGive, "homepage footer should include inline quick giving");
+  assert.match(quickGive, /class="home-quick-give-amounts" role="group" aria-label="Choose a donation amount"/);
   for (const amount of [25, 50, 100]) {
     assert.match(quickGive, new RegExp(`donate\\.html\\?program=unrestricted&amp;amount=${amount}#donationForm`));
   }
@@ -1592,7 +1593,10 @@ test("home page closes with useful action cards, verified details, and inline qu
 
   assert.match(siteCss, /\.home-page \.home-action-hub-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(siteCss, /\.home-page \.home-action-card:hover\s*\{[^}]*translateY\(-5px\)/);
+  assert.match(siteCss, /\.home-page \.home-action-card-share\s*\{[^}]*#145b53[^}]*#1b7468/);
+  assert.match(siteCss, /\.home-page \.home-action-card-zakat:focus-visible\s*\{[^}]*outline-color: #173c56/);
   assert.match(siteCss, /\.home-page \.home-site-footer\s*\{[^}]*background: #102f43/);
+  assert.match(siteCss, /\.home-page \.home-footer-links a,[\s\S]*?\.home-page \.home-footer-contact a\s*\{[^}]*min-height: 44px/);
   assert.match(siteCss, /\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: minmax\(230px, 1fr\) auto auto/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: 1fr/);
   assert.match(siteCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-quick-give-amounts\s*\{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);

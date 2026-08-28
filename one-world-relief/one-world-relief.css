@@ -8860,7 +8860,7 @@ html {
 }
 
 .home-page .home-action-card-share {
-  background: linear-gradient(145deg, #176f65 0%, #2f9f89 100%);
+  background: linear-gradient(145deg, #145b53 0%, #1b7468 100%);
 }
 
 .home-page .home-action-card-zakat {
@@ -8912,7 +8912,7 @@ html {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.82;
+  opacity: 1;
 }
 
 .home-page .home-action-card h3 {
@@ -8929,7 +8929,7 @@ html {
   color: inherit;
   font-size: 0.93rem;
   line-height: 1.55;
-  opacity: 0.85;
+  opacity: 0.94;
 }
 
 .home-page .home-action-card-link {
@@ -8981,7 +8981,10 @@ html {
   outline-offset: 4px;
 }
 
-.home-page .home-action-card-zakat:focus-visible,
+.home-page .home-action-card-zakat:focus-visible {
+  outline-color: #173c56;
+}
+
 .home-page .home-quick-give-button:focus-visible {
   outline-color: #f6cf65;
 }
@@ -9066,7 +9069,7 @@ html {
 
 .home-page .home-footer-links a,
 .home-page .home-footer-contact a {
-  min-height: 38px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   color: #c6d8e2;
