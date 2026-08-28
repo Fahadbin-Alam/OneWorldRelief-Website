@@ -3026,6 +3026,30 @@ Additional DNS check later on May 4, 2026:
 - Preview deployment `23faa025-924a-42a3-845e-cd2e4a8d1a6a` succeeded at `https://23faa025.trying-8o0.pages.dev`, branch `codex-donate-now-20260828`, source `c0ddef0`.
 - Production deployment `f19acbb4-1fa1-4a9b-8ffc-f544b5943e65` succeeded at `https://f19acbb4.trying-8o0.pages.dev`, branch `main`, source `c0ddef0`. Cache-bypassed checks on `https://one-world-relief.org/donate` confirmed the new label, generic placeholder, removed visible minimum copy, cache v19, and active Checkout validation returning the expected safe `400` for an empty request.
 
+### 2026-08-28 Friendly Zakat Calculator Redesign (Released)
+- Calculator experience:
+  - Replaced the dense split-screen form with a calmer introduction and a single guided workspace. The calculator is now organized into three numbered steps: choose the calculation basis, add applicable assets, and subtract bills due soon.
+  - Core asset fields remain visible while less-common money owed, business, and other asset fields are grouped behind a clearly labeled optional disclosure. The nisab guidance and pre-calculation note sit next to the decision they explain instead of competing with the page introduction.
+  - A compact live estimate card stays visible beside the steps on desktop and follows the form in normal flow on phone/tablet layouts. It separately shows total assets, short-term liabilities, net zakatable wealth, selected nisab, and the estimated Zakat amount.
+  - The visual system now uses larger 54px form controls, stronger borders and text contrast, softer cards, restrained shadows, a concise `Start calculator` action, and consistent dollar-field direction in Arabic/Urdu. The result card's accent changes for waiting, eligible, below-nisab, and invalid states.
+- Accessibility, validation, and responsive behavior:
+  - `Start calculator` and `Start over` move focus to the calculator and return it below the sticky header. The focused calculator and all interactive controls have visible focus treatment, and reduced-motion rules remain respected.
+  - Negative values and amounts with more than two decimal places are no longer silently treated as zero or rounded. The affected input receives `aria-invalid="true"`, a translated inline explanation, an error style, and a disabled donation handoff until corrected.
+  - Replaced the two competing result live regions with one atomic polite status announcement. The disabled donation action references the visible result explanation.
+  - Phone QA passed at `390x844` and `320x700`: no horizontal overflow, all tested calculator controls are at least 44px, numeric controls remain 16px to avoid iOS focus zoom, the full `English` label fits at 320px, and the mobile result accent stays contained to its card.
+  - Arabic QA passed on desktop and phone with `dir="rtl"`, translated guidance, contained geometry, and left-to-right currency-entry wrappers. Desktop QA at `1440x900` confirmed the `711px / 319px` calculator/result workspace and sticky estimate card without overflow.
+- Calculation, Stripe, Sheets, and privacy invariants:
+  - Zakat version `owr-zakat-v1`, Hijri `2.5%`, solar `2.577%`, gold `87.48 g`, silver `612.36 g`, donor-provided metal prices, nisab threshold semantics, and the `$5` checkout handoff floor are unchanged.
+  - Raw asset, debt, metal-price, nisab-dollar, and net-wealth entries remain browser-only. The URL and `owrZakatHandoff` continue to carry only the calculated donation amount and the four approved non-sensitive context labels.
+  - Stripe Checkout Functions, webhook handling, receipts, canonical Zakat attribution, and the Google Sheets `Donations (2026)` A:H mapping were not changed. No real Checkout Session, payment, signed webhook, receipt, or spreadsheet row was created.
+- Verification and release:
+  - Feature commit `a42fca2` (`Redesign Zakat calculator experience`) was pushed to `origin/charity-frontend-redesign`. Offline cache advanced from `owr-offline-v19` to `owr-offline-v25` so returning visitors receive the revised Zakat HTML, CSS, and calculator script.
+  - The complete regression suite passed `42/42`; `zakat-calculator.js` and `sw.js` passed syntax checks; CSS parsed through esbuild; `git diff --check` passed; and contrast checks measured `5.24:1` for the revised eyebrow, `5.75:1` for helper text, and `3.23:1` for control borders.
+  - The safe deploy workflow staged exactly `70` public assets plus `5` Pages Function sources and compiled them with Wrangler `4.127.0`.
+  - Preview deployment `cac2c9ee-4749-41f7-a3bf-7ca6281fd950` succeeded at `https://cac2c9ee.trying-8o0.pages.dev`, branch `codex-zakat-friendly-20260828`, source `a42fca2`.
+  - Production deployment `0a5732b9-3e10-42e1-b479-8f5fb23dc310` succeeded at `https://0a5732b9.trying-8o0.pages.dev`, branch `main`, source `a42fca2`.
+  - Cache-bypassed canonical checks on `https://one-world-relief.org/zakat` confirmed the guided layout, inline validation, single live announcement, accessible borders, cache v25, and active Checkout Function returning the expected safe `400` for an empty request. Live production browser checks passed at 390px and 1440px with no horizontal overflow.
+
 ---
 
 **End of AI Handoff Documentation**
