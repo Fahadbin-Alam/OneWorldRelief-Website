@@ -1066,7 +1066,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v16/);
+  assert.match(serviceWorker, /owr-offline-v17/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1368,7 +1368,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v16/);
+  assert.match(serviceWorker, /owr-offline-v17/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1557,6 +1557,45 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.doesNotMatch(siteCss, /@keyframes case-shine/);
   assert.doesNotMatch(siteJs, /case-flow-shine/);
   assert.doesNotMatch(siteJs, /case-flow-card, \\.contact-message-card/);
+});
+
+test("home page closes with useful action cards, verified details, and inline quick giving", async () => {
+  const [homeHtml, siteCss] = await Promise.all([
+    readFile("index.html", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+  ]);
+
+  assert.match(homeHtml, /<body class="site-body home-page">/);
+
+  const actionHub = homeHtml.match(/<section class="home-action-hub reveal"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(actionHub, "homepage should include an action hub before the footer");
+  assert.equal((actionHub.match(/class="home-action-card home-action-card-/g) || []).length, 3);
+  assert.match(actionHub, /href="projects\.html"/);
+  assert.match(actionHub, /href="share\.html"/);
+  assert.match(actionHub, /href="zakat\.html"/);
+  assert.match(actionHub, /Turn compassion into action/);
+
+  assert.match(homeHtml, /<footer class="site-footer home-site-footer">/);
+  assert.match(homeHtml, /One World Relief is a 501\(c\)\(3\) nonprofit organization/);
+  assert.match(homeHtml, /EIN 41-5079927/);
+  assert.match(homeHtml, /href="mailto:Oneworldrelief\.fma@gmail\.com"/);
+  assert.match(homeHtml, /href="tel:\+18568707528"/);
+  assert.doesNotMatch(homeHtml, /href="[^"]*(?:reports|volunteer|privacy|terms)[^"]*"/i);
+
+  const quickGive = homeHtml.match(/<section class="home-quick-give"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(quickGive, "homepage footer should include inline quick giving");
+  for (const amount of [25, 50, 100]) {
+    assert.match(quickGive, new RegExp(`donate\\.html\\?program=unrestricted&amp;amount=${amount}#donationForm`));
+  }
+  assert.match(quickGive, /Secure Stripe checkout/);
+  assert.doesNotMatch(quickGive, /frequency|<select|position:\s*fixed/i);
+
+  assert.match(siteCss, /\.home-page \.home-action-hub-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /\.home-page \.home-action-card:hover\s*\{[^}]*translateY\(-5px\)/);
+  assert.match(siteCss, /\.home-page \.home-site-footer\s*\{[^}]*background: #102f43/);
+  assert.match(siteCss, /\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: minmax\(230px, 1fr\) auto auto/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-quick-give-amounts\s*\{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
 });
 
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
