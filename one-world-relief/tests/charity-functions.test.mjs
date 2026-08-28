@@ -1117,7 +1117,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v26/);
+  assert.match(serviceWorker, /owr-offline-v27/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1419,7 +1419,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v26/);
+  assert.match(serviceWorker, /owr-offline-v27/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1482,7 +1482,7 @@ test("homepage leads with a scoped, source-backed orphan impact count", async ()
   assert.match(siteCss, /@media \(max-width: 350px\)[\s\S]*?\.home-page \.home-impact-cases\s*\{\s*grid-template-columns: 1fr;/);
 });
 
-test("homepage checkout keeps accessible one-time amounts and sends unrestricted $5-plus gifts to the catalog checkout", async () => {
+test("homepage checkout stays simple and sends accessible unrestricted $5-plus gifts to the catalog checkout", async () => {
   const [homeHtml, siteJs, siteCss, programSource] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -1493,6 +1493,12 @@ test("homepage checkout keeps accessible one-time amounts and sends unrestricted
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
+  assert.match(quickForm, /aria-label="Choose a donation amount"/);
+  assert.match(quickForm, /<h2>Give where it’s needed most\.<\/h2>/u);
+  assert.match(quickForm, /class="quick-donation-subtitle">Choose an amount\. Every gift supports verified relief\.<\/p>/);
+  assert.match(quickForm, /<legend class="sr-only">Choose a donation amount<\/legend>/);
+  assert.doesNotMatch(quickForm, /quick-donation-kicker|quick-donation-mark/);
+
   const presetAmounts = [...quickForm.matchAll(/name="quickAmount" value="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(presetAmounts, ["5", "25", "50", "100"]);
   assert.equal([...quickForm.matchAll(/name="quickAmount"[^>]*checked/g)].length, 1);
@@ -1502,16 +1508,17 @@ test("homepage checkout keeps accessible one-time amounts and sends unrestricted
   assert.match(quickForm, /<label class="quick-custom-amount" for="quickCustomAmount">/);
   assert.match(quickForm, /<span class="sr-only">Enter another donation amount<\/span>/);
   assert.match(quickForm, /id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="1" inputmode="numeric"/);
-  assert.match(quickForm, /placeholder="Enter \$5 or more" aria-describedby="quickAmountHint"/);
-  assert.match(quickForm, /id="quickAmountHint">Minimum donation is \$5\. Entering an amount replaces the selected preset\.<\/small>/);
+  assert.match(quickForm, /placeholder="Other amount" aria-describedby="quickAmountHint"/);
+  assert.match(quickForm, /<small class="sr-only" id="quickAmountHint">The minimum donation is \$5\. Entering an amount replaces the selected choice\.<\/small>/);
   assert.doesNotMatch(quickForm, /quick-custom[^>]*hidden|id="quickCustomAmount"[^>]*hidden/);
   assert.doesNotMatch(quickForm, /quickFrequency|quick-frequency|<legend>Frequency<\/legend>|Monthly|One-time/);
   assert.doesNotMatch(quickForm, /quickCampaign|Donation destination|Choose a purpose/);
   assert.match(homeHtml, /<script src="donation-programs\.js"><\/script>\s*<script src="project-data\.js"><\/script>\s*<script src="one-world-relief\.js"><\/script>/);
   assert.doesNotMatch(siteJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
 
-  assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Start Donation<\/span><span aria-hidden="true">&rarr;<\/span>/);
-  assert.match(quickForm, /class="quick-donation-trust"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure checkout[\s\S]*?Receipt provided/);
+  assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Donate now<\/span><span aria-hidden="true">&rarr;<\/span>/);
+  assert.match(quickForm, /class="quick-donation-trust"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure Stripe checkout[\s\S]*?Receipt provided/);
+  assert.match(quickForm, /class="quick-donation-cause-link" href="donate\.html#donationForm">Choose a specific cause<\/a>/);
   assert.match(quickForm, /id="quickDonationStatus" role="status" aria-live="polite"/);
   assert.doesNotMatch(homeHtml, /Receipt emailed|quick-donation-topline/);
 
@@ -1566,6 +1573,9 @@ test("homepage checkout keeps accessible one-time amounts and sends unrestricted
   assert.match(siteCss, /\.quick-amounts input:checked \+ span/);
   assert.match(siteCss, /\.quick-donation-button:active/);
   assert.match(siteCss, /\.quick-donation-button:focus-visible/);
+  assert.match(siteCss, /\.quick-donation-cause-link:focus-visible/);
+  const quickAmountsRule = siteCss.slice(siteCss.indexOf(".quick-amounts {"), siteCss.indexOf(".quick-amounts legend"));
+  assert.match(quickAmountsRule, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.doesNotMatch(siteCss, /\.quick-donation-status:empty/);
   assert.doesNotMatch(siteCss, /@keyframes quick-card-(?:sheen|lift)/);
   const quickCardRule = siteCss.slice(siteCss.indexOf(".quick-donation {"), siteCss.indexOf(".quick-donation::before"));
@@ -1608,7 +1618,7 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /id="quickDonationForm"/);
   assert.match(homeHtml, /quick-donation-heading/);
   assert.doesNotMatch(homeHtml, /quickFrequency|quick-frequency-control/);
-  assert.match(homeHtml, /Secure checkout/);
+  assert.match(homeHtml, /Secure Stripe checkout/);
   assert.match(homeHtml, /Receipt provided/);
   assert.doesNotMatch(homeHtml, /home-case-panel-section|homeCompletedCases|homeGoalCases|home-trust-row/);
   assert.match(homeHtml, /<form class="quick-donation" id="quickDonationForm"[\s\S]*<\/form>\s*<\/div>\s*<\/div>\s*<\/section>\s*<section class="home-case-flow reveal"/);
