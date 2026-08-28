@@ -3087,6 +3087,17 @@ Additional DNS check later on May 4, 2026:
   - Final preview deployment `479c3454-085d-4f4c-8dae-bd55198478a8` succeeded at `https://479c3454.trying-8o0.pages.dev`, branch `codex-simple-home-donation-20260828`, source `0dd922f`.
   - Final production deployment `71f0a2da-39c1-4fde-88d2-739ccba0b941` succeeded at `https://71f0a2da.trying-8o0.pages.dev`, branch `main`, source `0dd922f`. Canonical checks on `https://one-world-relief.org` confirmed HTTP `200`, the versioned CSS rewrite with `text/css`, cache v28, the compact card, verified orphan count `2`, and active Checkout validation returning the expected safe `400` for an empty request.
 
+### 2026-08-28 Clearer Homepage Giving Hadith (Released)
+- Replaced the disliked `O son of Adam! Spend, and I shall spend on you` quotation with the shorter, direct authentic Hadith: `Charity does not decrease wealth.` The visible attribution now reads `Prophet Muhammad ﷺ · Sahih Muslim 2588` and links to `https://sunnah.com/muslim:2588`.
+- The source and exact wording were verified against Sahih Muslim 2588. The earlier Bukhari 5352 release record remains above as historical documentation, but that wording and source no longer appear in the active homepage markup.
+- The semantic `<blockquote>`, linked citation, keyboard focus treatment, and 44px source target remain unchanged. No CSS adjustment was needed; the shorter line fits the compact orphan-impact hero more naturally on desktop and phone.
+- This is a homepage-content-only release. Donation programs, Stripe Checkout Functions and metadata, webhook processing, receipts, Zakat handling, project records, and the Google Sheets `Donations (2026)` A:H mapping are unchanged. No real Checkout Session, payment, signed webhook, receipt, or spreadsheet row was created.
+- Feature commit `9b8bb09c4aded309be04bdf786ea42f2ce30f31c` (`Replace homepage giving quote`) was pushed to `origin/charity-frontend-redesign`. Offline app-shell cache advanced from `owr-offline-v28` to `owr-offline-v29`.
+- The complete regression suite passed `43/43`; JavaScript and service-worker syntax checks passed; CSS parsed through esbuild; and `git diff --check` passed. The safe Cloudflare workflow staged `71` public assets plus `5` Pages Function sources with Wrangler `4.127.1`.
+- Local, preview, and canonical production browser QA passed at 1440px and 390px, with an additional local 320px check. The quote remained contained, the full attribution stayed readable, the source link measured 44px high, and neither phone viewport had horizontal page overflow.
+- Preview deployment `01ea95a7-3ec5-410c-855a-7326486082b6` succeeded at `https://01ea95a7.trying-8o0.pages.dev`, branch `codex-charity-hadith-20260828`, source `9b8bb09`.
+- Production deployment `40f12a7b-97a0-4011-947e-4a81818a7339` succeeded at `https://40f12a7b.trying-8o0.pages.dev`, branch `main`, source `9b8bb09`. Canonical checks confirmed the new quote/source, removal of the old wording, cache v29, HTTP `200`, and active Checkout validation returning the expected safe `400` for an empty request.
+
 ---
 
 **End of AI Handoff Documentation**
