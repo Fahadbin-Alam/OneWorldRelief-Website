@@ -1117,7 +1117,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v27/);
+  assert.match(serviceWorker, /owr-offline-v28/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1419,7 +1419,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v27/);
+  assert.match(serviceWorker, /owr-offline-v28/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1483,16 +1483,21 @@ test("homepage leads with a scoped, source-backed orphan impact count", async ()
 });
 
 test("homepage checkout stays simple and sends accessible unrestricted $5-plus gifts to the catalog checkout", async () => {
-  const [homeHtml, siteJs, siteCss, programSource] = await Promise.all([
+  const [homeHtml, siteJs, siteCss, programSource, serviceWorker, redirectsSource] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
     readFile("one-world-relief.css", "utf8"),
     readFile("donation-programs.js", "utf8"),
+    readFile("sw.js", "utf8"),
+    readFile("_redirects", "utf8"),
   ]);
   const quickFormMatch = homeHtml.match(/<form class="quick-donation" id="quickDonationForm"[\s\S]*?<\/form>/);
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-home-v2\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-home-v2\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-home-v2\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Choose a donation amount"/);
   assert.match(quickForm, /<h2>Give where it’s needed most\.<\/h2>/u);
   assert.match(quickForm, /class="quick-donation-subtitle">Choose an amount\. Every gift supports verified relief\.<\/p>/);
