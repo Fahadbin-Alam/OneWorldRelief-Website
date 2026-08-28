@@ -1066,7 +1066,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v14/);
+  assert.match(serviceWorker, /owr-offline-v15/);
   assert.match(serviceWorker, /one-world-relief-icon\.png/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1368,7 +1368,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v14/);
+  assert.match(serviceWorker, /owr-offline-v15/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
@@ -1500,19 +1500,12 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.doesNotMatch(homeHtml, /quickFrequency|quick-frequency-control/);
   assert.match(homeHtml, /Secure checkout/);
   assert.match(homeHtml, /Receipt provided/);
-  assert.match(homeHtml, /Worked On/);
-  assert.match(homeHtml, /Goals/);
-  assert.match(homeHtml, /home-case-panel-section/);
-  assert.match(homeHtml, /id="homeCompletedCases"/);
-  assert.match(homeHtml, /id="homeGoalCases"/);
-  assert.match(homeHtml, /<form class="quick-donation" id="quickDonationForm"[\s\S]*<\/form>\s*<\/div>\s*<\/div>\s*<\/section>\s*<section class="container home-case-panel-section/);
+  assert.doesNotMatch(homeHtml, /home-case-panel-section|homeCompletedCases|homeGoalCases|home-trust-row/);
+  assert.match(homeHtml, /<form class="quick-donation" id="quickDonationForm"[\s\S]*<\/form>\s*<\/div>\s*<\/div>\s*<\/section>\s*<section class="home-case-flow reveal"/);
   assert.match(siteJs, /homeCaseFlowTrack/);
   assert.match(siteJs, /renderHomeCaseFlow/);
-  assert.match(siteJs, /renderHomeCaseLanes/);
-  assert.match(siteJs, /homeCompletedCases/);
-  assert.match(siteJs, /homeGoalCases/);
+  assert.doesNotMatch(siteJs, /renderHomeCaseLanes|homeCompletedCases|homeGoalCases|story-link|story-empty/);
   assert.match(siteJs, /includes\("completed"\)/);
-  assert.match(siteJs, /!String\(project\.status \|\| ""\)\.toLowerCase\(\)\.includes\("completed"\)/);
   assert.match(siteJs, /Array\.from\(\{ length: 4 \}, \(\) => projects\)\.flat\(\)/);
   assert.match(siteJs, /aria-hidden="true" tabindex="-1"/);
   assert.match(siteJs, /decoding="async"/);
@@ -1521,8 +1514,7 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteJs, /cancelAnimationFrame\(pointerFrame\)/);
   assert.match(siteJs, /case-flow-card/);
   assert.match(siteCss, /\.home-case-flow/);
-  assert.match(siteCss, /\.home-case-lanes/);
-  assert.match(siteCss, /\.home-case-panel-section/);
+  assert.doesNotMatch(siteCss, /\.home-case-panel-section|\.home-case-lanes|\.home-case-lane|\.home-trust-row|\.home-stories|\.story-link|\.story-empty/);
   assert.match(siteCss, /grid-template-columns: minmax\(0, 0\.95fr\) minmax\(380px, 460px\)/);
   assert.match(siteCss, /\.quick-donation-heading/);
   assert.match(siteCss, /\.quick-donation-trust/);
@@ -1622,8 +1614,6 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(revealRule, /transform: translateY\((?:18|20)px\)/);
   assert.doesNotMatch(revealRule, /translateX|scale\(/);
 
-  assert.match(mobileCss, /\.home-case-lane > div\s*\{[^}]*display: flex;[^}]*overflow-x: auto;[^}]*scroll-snap-type: x mandatory;/);
-  assert.match(mobileCss, /\.home-case-lane \.story-link,\s*\.home-case-lane \.story-empty\s*\{[^}]*flex: 0 0 min\(78vw, 280px\);[^}]*scroll-snap-align: start;/);
   assert.match(mobileCss, /\.case-flow-shell\s*\{[^}]*overflow-x: auto;[^}]*scroll-snap-type: x mandatory;/);
   assert.match(mobileCss, /\.case-flow-track\s*\{[^}]*transform: none;[^}]*animation: none;[^}]*will-change: auto;/);
   assert.match(mobileCss, /\.case-flow-card\s*\{[^}]*transform: none;[^}]*animation: none;[^}]*scroll-snap-align: start;/);
