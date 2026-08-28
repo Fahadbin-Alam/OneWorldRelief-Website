@@ -102,7 +102,7 @@
               <div class="donation-step-heading">
                 <div>
                   <h3 id="amountStepTitle">Amount</h3>
-                  <p class="donation-minimum" id="minimumDonationText">Minimum donation is $5.</p>
+                  <p class="donation-minimum" id="minimumDonationText" hidden></p>
                 </div>
               </div>
               <fieldset class="amount-grid amount-grid-impact" id="donationAmountChoices">
@@ -116,7 +116,7 @@
                 Or enter another amount
                 <span class="custom-donation-input-wrap">
                   <span aria-hidden="true">$</span>
-                  <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter $5 or more" aria-describedby="minimumDonationText" />
+                  <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter an amount" />
                 </span>
               </label>
             </section>
@@ -149,7 +149,7 @@
               </div>
             </details>
 
-            <button class="button button-primary donate-button" type="submit">Continue to secure checkout <span aria-hidden="true">&rarr;</span></button>
+            <button class="button button-primary donate-button" type="submit">Donate Now <span aria-hidden="true">&rarr;</span></button>
             <p class="donation-note donation-trust-note">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />

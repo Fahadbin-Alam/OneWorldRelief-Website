@@ -239,16 +239,23 @@
     }
     customAmount.placeholder = rule.type === "range"
       ? `${formatUsd(rule.min)}–${formatUsd(rule.max)}`
-      : `Enter ${formatUsd(rule.min)} or more`;
+      : "Enter an amount";
     customAmount.value = !isFixed && !matchesPreset ? String(activeAmount) : "";
     customAmount.removeAttribute("aria-invalid");
 
     if (minimumText) {
+      const shouldExplainRule = rule.type === "fixed" || rule.type === "range";
       minimumText.textContent = rule.type === "fixed"
         ? `This purpose is a fixed ${formatUsd(rule.min)} gift.`
         : rule.type === "range"
           ? `Choose from ${formatUsd(rule.min)} to ${formatUsd(rule.max)}.`
-          : `Minimum for this purpose is ${formatUsd(rule.min)}.`;
+          : "";
+      minimumText.hidden = !shouldExplainRule;
+      if (shouldExplainRule) {
+        customAmount.setAttribute("aria-describedby", "minimumDonationText");
+      } else {
+        customAmount.removeAttribute("aria-describedby");
+      }
     }
   };
 
@@ -471,13 +478,7 @@
     if (!submitButton) {
       return;
     }
-    const amount = getDonationAmount();
-    const program = getProgram(programIdInput?.value);
-    const variant = getVariant(program, variantInput?.value);
-    const label = program && isAllowedAmount(program, variant, amount)
-      ? `Continue to Stripe — ${formatUsd(amount)}`
-      : "Continue to secure checkout";
-    submitButton.replaceChildren(document.createTextNode(`${label} `));
+    submitButton.replaceChildren(document.createTextNode("Donate Now "));
     const arrow = document.createElement("span");
     arrow.setAttribute("aria-hidden", "true");
     arrow.textContent = "→";
