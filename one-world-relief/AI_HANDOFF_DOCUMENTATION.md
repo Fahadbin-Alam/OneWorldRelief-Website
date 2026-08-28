@@ -2990,6 +2990,32 @@ Additional DNS check later on May 4, 2026:
   - Production deployment `d5b3ca65-a299-4e31-a896-bb8faf6bbfc3` succeeded at `https://d5b3ca65.trying-8o0.pages.dev`, branch `main`, source `07a873d`.
   - Cache-bypassed checks on `https://one-world-relief.org` confirmed the modern header, all three action cards, expanded footer, labeled quick-give group, stronger green contrast, cache v17, and active Checkout Function. Rendered live QA passed at 1440px and 390px.
 
+### 2026-08-27 Mobile Layout and Performance Hardening (Released)
+- Phone layout and accessibility:
+  - Audited all 18 public routes: the homepage, Projects, Donate, Share, About, Contact, Zakat, both Stripe result routes, and Cases 001-009.
+  - Fixed the Stripe thank-you page's 69px horizontal overflow at 320px and its clipped 568x320 landscape layout. The page now uses safe-area-aware `100dvh`, responsive typography, recoverable vertical scrolling, finite motion, a concise confirmation message, and 48px `Back home` / `View projects` actions.
+  - Both Stripe result pages now include `viewport-fit=cover`.
+  - Zakat language and calculator controls now use 16px text on phones to prevent iOS focus zoom. The language control, Donate action, help disclosure, and source links meet the 44px touch-target baseline. Arabic RTL remained contained after switching languages.
+  - Project `Back to projects`, homepage hadith-source, shared Donate, and compact footer links now have larger phone-friendly targets. Footer links also receive a 44px minimum width.
+  - Mobile reveal motion was shortened from one second to 420ms and no longer blurs content. Decorative infinite hero/current/timeline motion, fixed blurred background shapes, and sticky-header backdrop blur are disabled under 720px for smoother scrolling and lower compositor work.
+- Mobile loading and cache behavior:
+  - The 3.24MB homepage background MP4 no longer receives a source on phones. On desktop it is attached only when the faith section approaches the viewport; the poster remains the mobile presentation.
+  - The homepage now creates one seven-card completed-case set on phones instead of creating 28 cards and hiding 21 duplicates.
+  - The closed Donate cause catalog now leaves all seven catalog image sources unset and assigns them only after the donor opens the disclosure. This removes roughly 1.43MB of invisible initial phone downloads while preserving the real photos when requested.
+  - Primary videos on Cases 001-006 now use `preload="none"`; posters remain visible until a visitor chooses to play a video.
+  - Offline cache advanced from `owr-offline-v17` to `owr-offline-v18`. The service worker now caches only the small same-origin app-shell allowlist, omits the unused 285KB 512px icon from install precache, and ignores Range, media, unrelated, and cross-origin requests instead of allowing Cache Storage to grow with large project files.
+- Stripe, Sheets, and data boundaries:
+  - Donation programs, amount rules, Stripe Checkout payload/metadata, webhook verification, receipt behavior, Google Sheets A:H mapping, duplicate protection, and formula neutralization are unchanged.
+  - No real Checkout Session, payment, signed webhook, receipt, or Google Sheets row was created. Empty Checkout and unsigned webhook probes returned the expected safe `400` on preview, the immutable production deployment, and `https://one-world-relief.org`.
+- Verification and release:
+  - Feature commit `013b9099c2ae11825a0832ceca58dc95d174f37b` (`fix: harden mobile layouts and loading`) was pushed to `origin/charity-frontend-redesign` before deployment.
+  - The full regression suite passed `42/42`; changed JavaScript, Pages Function, and service-worker files passed syntax checks; `git diff --check` passed; and the safe release workflow staged exactly `70` public assets plus `5` Pages Function sources with Wrangler `4.127.0`.
+  - Local rendered QA passed all 18 routes at 320x700 and 390x844 with zero horizontal-overflow, broken-loaded-image, or sub-16px form-control failures. The thank-you card also fit entirely inside 568x320 landscape. The same 18-route checks passed on preview at 320px and canonical production at both 320px and 390px; final browser logs were empty.
+  - Live performance checks confirmed the phone homepage video had no `src`, `currentSrc`, or buffered media and rendered seven case cards; the closed Donate catalog had zero assigned image sources. Opening the catalog assigned and successfully loaded all seven photos.
+  - Preview deployment `ddeb2ea8-e7c0-41de-ae7b-1f7fb21d8650` succeeded at `https://ddeb2ea8.trying-8o0.pages.dev`, branch `codex-mobile-20260827`, source `013b909`.
+  - Production deployment `b6b3e063-63cf-4c38-bade-1fdb2e7e8162` succeeded at `https://b6b3e063.trying-8o0.pages.dev`, branch `main`, source `013b909`. Cache-bypassed canonical checks confirmed the deferred homepage video, deferred Donate catalog, responsive Stripe result page, cache v18, active Functions, and HTTP 200 for the audited public routes.
+  - A throttled Core Web Vitals trace was not claimed because the required Chrome DevTools performance-trace connector was unavailable. The release used live rendered browser measurements, resource/source inspection, byte-size auditing, HTTP checks, and automated regressions instead.
+
 ---
 
 **End of AI Handoff Documentation**
