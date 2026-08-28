@@ -3144,6 +3144,18 @@ Additional DNS check later on May 4, 2026:
   - Production deployment `a6789954-9118-4078-9cda-e179f9ab3a1e` succeeded at `https://a6789954.trying-8o0.pages.dev`, branch `main`, source `8b9d97b`.
   - Canonical browser checks on `https://one-world-relief.org` confirmed the new cache-safe stylesheet path, compact header, first-screen homepage donation action at 390px, first-screen Donate action at 360px, zero overflow, zero broken loaded images, and the active Checkout Function's safe empty-request `400` response.
 
+### 2026-08-28 Simplified Homepage Impact and Giving Hero (Released)
+- Replaced the remaining count-card presentation with one quiet evidence line: `7 completed cases documented · 2 individual orphan students supported`. The `2` remains limited to completed Cases 001 and 003; no group headcount was inferred from the Case 004 meal photo.
+- The first message is now the direct two-line statement `Give what you can. See the work.` followed by one sentence explaining open-amount Stripe giving and the site's published project records. The hero no longer contains a giant number, stat tiles, mini case cards, a green caveat panel, or a Hadith quotation.
+- Kept one real Case 004 evidence photo and its completed `$400` record. Detailed counting methodology and links to Cases 001 and 003 are preserved in a collapsed `How we verify the student count` disclosure instead of competing with the first-screen donation action.
+- Simplified the homepage donation card to `Give any amount`, one amount input, one `Donate now` action, one Stripe/email-receipt trust line, and one organization-details/EIN link. The unrestricted `$5` technical floor remains enforced by browser and server validation but is not promoted as visible marketing copy.
+- All public HTML now requests `one-world-relief-simple-v1.css`, internally mapped to the reviewed shared stylesheet. The new path avoids an older service worker pairing stale hero CSS with the revised markup. Offline app-shell cache advanced from `owr-offline-v32` to `owr-offline-v33`; the prior stylesheet aliases remain valid for older cached pages.
+- Stripe Checkout Functions, webhook verification, receipts, donation-program rules, Zakat privacy, project data, and the Google Sheets `Donations (2026)` A:H mapping were not changed. Empty Checkout probes returned the expected safe `400` on preview and canonical production. No Checkout Session, payment, signed webhook, receipt email, or spreadsheet row was created.
+- Feature commit `ed8794b30b90871b3d352c2ed6a8d0f30c3383da` (`Simplify homepage giving hero`) was pushed to `origin/charity-frontend-redesign` before deployment. The full regression suite passed `43/43`; JavaScript and service-worker syntax checks, CSS parsing through esbuild, and `git diff --check` passed.
+- Browser QA passed on local, preview, and canonical production at desktop `1440x900`, phone `390x844`, and narrow phone `320x800`. The primary homepage donation action ends around `y=726` at 390px and `y=719` at 320px. Eight representative public routes loaded the new stylesheet at 320px with zero horizontal overflow; the collapsed methodology disclosure also opened without overflow and retained a 44px summary target.
+- Preview deployment `7e89e0c6` succeeded at `https://7e89e0c6.trying-8o0.pages.dev`, branch `charity-frontend-redesign`, source `ed8794b`.
+- Production deployment `40171719` succeeded at `https://40171719.trying-8o0.pages.dev`, branch `main`, source `ed8794b`. Cache-bypassed canonical checks on `https://one-world-relief.org` confirmed the two-line headline, compact evidence line, new stylesheet alias, removal of the old impact treatment, zero phone overflow, and active safe Checkout validation.
+
 ---
 
 **End of AI Handoff Documentation**
