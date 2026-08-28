@@ -20,7 +20,7 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="one-world-relief-responsive-v1.css" />
+  <link rel="stylesheet" href="one-world-relief-simple-v1.css" />
 </head>
 <body class="site-body home-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -55,31 +55,25 @@
     <section class="hero-shell hero-shell-home home-current-scene reveal">
       <div class="container hero hero-home hero-donate-first">
         <div class="hero-copy home-impact-copy" aria-labelledby="homeImpactTitle">
-          <p class="eyebrow home-impact-eyebrow">Small nonprofit. Documented work.</p>
-          <h1 id="homeImpactTitle">Give what you can. See where it goes.</h1>
+          <p class="eyebrow home-impact-eyebrow">Clear giving. Documented work.</p>
+          <h1 id="homeImpactTitle"><span>Give what you can.</span><span>See the work.</span></h1>
           <p class="home-impact-summary">
-            One World Relief supports practical projects in Bangladesh and publishes photos, videos, dates, and completed costs from the work.
+            Donate any amount through Stripe. We publish photos, videos, dates, and completed costs from projects in Bangladesh.
           </p>
 
-          <div class="home-proof-strip" aria-label="Documented One World Relief impact">
-            <div class="home-proof-stat">
-              <strong id="homeCompletedCaseCount">7</strong>
-              <span>completed cases documented</span>
-            </div>
-            <div class="home-proof-stat">
-              <strong id="homeOrphanImpactCount">2</strong>
-              <span>orphan students directly supported</span>
-            </div>
-          </div>
-          <p class="sr-only" id="homeOrphanImpactAccessible">2 orphan students directly supported through completed, documented cases.</p>
+          <p class="home-proof-line">
+            <span><strong id="homeCompletedCaseCount">7</strong> completed cases documented</span>
+            <span class="home-proof-divider" aria-hidden="true">&middot;</span>
+            <span><strong id="homeOrphanImpactCount">2</strong> individual orphan students supported</span>
+          </p>
         </div>
 
         <div class="home-action-panel">
           <form class="quick-donation" id="quickDonationForm" aria-label="Make a donation">
             <div class="quick-donation-heading">
               <p class="quick-donation-kicker">Donate securely</p>
-              <h2>Make a donation.</h2>
-              <p class="quick-donation-subtitle">Enter the amount you would like to give. You can review the cause before payment.</p>
+              <h2>Give any amount</h2>
+              <p class="quick-donation-subtitle">Choose the cause before payment.</p>
             </div>
 
             <label class="quick-custom-amount" for="quickCustomAmount">
@@ -94,17 +88,13 @@
             <button class="button button-primary quick-donation-button" type="submit">
               <span>Donate now</span><span aria-hidden="true">&rarr;</span>
             </button>
-            <div class="quick-donation-trust" aria-label="Donation checkout information">
-              <span>
-                <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
-                  <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
-                </svg>
-                Checkout handled by Stripe
-              </span>
-              <span>Receipt after successful payment</span>
-            </div>
-            <a class="quick-donation-identity" href="about.html#official-details">Organization details &mdash; EIN 41-5079927</a>
-            <a class="quick-donation-cause-link" href="donate.html#donationForm">Choose a specific cause instead</a>
+            <p class="quick-donation-trust" aria-label="Secure Stripe checkout with an email receipt">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
+              </svg>
+              Secure Stripe checkout <span aria-hidden="true">&middot;</span> Email receipt
+            </p>
+            <a class="quick-donation-identity" href="about.html#official-details">About One World Relief &middot; EIN 41-5079927</a>
             <p class="quick-donation-status" id="quickDonationStatus" role="status" aria-live="polite"></p>
           </form>
         </div>
@@ -128,15 +118,17 @@
         </a>
 
         <div class="home-evidence-details">
-          <p class="home-evidence-note">
-            The individual count above includes only cases where the records identify one beneficiary. The group meal pictured here is documented separately and is not added to that count.
-          </p>
-          <div class="home-impact-cases" aria-label="Cases included in the individual orphan count">
-            <span>Count sources:</span>
-            <a href="projects/case-001.html">Case 001 &middot; $600 delivered</a>
-            <a href="projects/case-003.html">Case 003 &middot; $400 delivered</a>
-          </div>
           <a class="home-impact-link" href="projects.html#projectBoard">View all documented projects <span aria-hidden="true">&rarr;</span></a>
+          <details class="home-count-method">
+            <summary>How we verify the student count</summary>
+            <p>
+              Cases 001 and 003 each document support for one student. Case 004 documents a group meal, but its exact headcount was not recorded, so it is not included in the individual count.
+            </p>
+            <div class="home-impact-cases" aria-label="Cases included in the individual orphan count">
+              <a href="projects/case-001.html">Case 001 &middot; $600 delivered</a>
+              <a href="projects/case-003.html">Case 003 &middot; $400 delivered</a>
+            </div>
+          </details>
         </div>
       </div>
     </section>

@@ -16,7 +16,6 @@
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
   const homeCompletedCaseCount = document.getElementById("homeCompletedCaseCount");
   const homeOrphanImpactCount = document.getElementById("homeOrphanImpactCount");
-  const homeOrphanImpactAccessible = document.getElementById("homeOrphanImpactAccessible");
   const faithVideo = document.querySelector(".faith-video-bg");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
@@ -527,11 +526,6 @@
     }
 
     homeOrphanImpactCount.textContent = verifiedCount.toLocaleString("en-US");
-    if (homeOrphanImpactAccessible) {
-      const studentLabel = verifiedCount === 1 ? "student" : "students";
-      const caseLabel = verifiedCount === 1 ? "case" : "cases";
-      homeOrphanImpactAccessible.textContent = `${verifiedCount} orphan ${studentLabel} directly supported through completed, documented ${caseLabel}.`;
-    }
   };
 
   const setupFaithVideo = () => {

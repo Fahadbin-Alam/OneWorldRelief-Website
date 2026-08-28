@@ -1124,8 +1124,8 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v32/);
-  assert.match(serviceWorker, /\/one-world-relief-responsive-v1\.css/);
+  assert.match(serviceWorker, /owr-offline-v33/);
+  assert.match(serviceWorker, /\/one-world-relief-simple-v1\.css/);
   assert.match(serviceWorker, /\/donation-checkout-v2\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
@@ -1428,7 +1428,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v32/);
+  assert.match(serviceWorker, /owr-offline-v33/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1438,7 +1438,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(siteCss, /@keyframes offline-dino-hop/);
 });
 
-test("homepage leads with restrained, source-backed project and orphan impact proof", async () => {
+test("homepage leads with a simple, source-backed project and orphan impact summary", async () => {
   const [homeHtml, projectData, siteJs, siteCss] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("project-data.js", "utf8"),
@@ -1451,27 +1451,28 @@ test("homepage leads with restrained, source-backed project and orphan impact pr
   const donationStart = homeHtml.indexOf('<div class="home-action-panel">');
   const flowStart = homeHtml.indexOf('<section class="home-case-flow reveal"');
   assert.ok(heroStart >= 0, "homepage should include its credibility-first hero");
-  assert.ok(impactStart >= 0, "homepage should include the orphan impact lead");
-  assert.ok(donationStart > impactStart, "impact count should lead the hero before checkout");
+  assert.ok(impactStart >= 0, "homepage should include its giving message");
+  assert.ok(donationStart > impactStart, "the giving message should lead the hero before checkout");
   assert.ok(flowStart > donationStart, "documentary evidence should remain inside the hero before the case flow");
 
   const impactHtml = homeHtml.slice(impactStart, donationStart);
   const heroHtml = homeHtml.slice(heroStart, flowStart);
-  assert.match(impactHtml, /Small nonprofit\. Documented work\./);
-  assert.match(impactHtml, /id="homeImpactTitle">Give what you can\. See where it goes\.<\/h1>/);
-  assert.match(impactHtml, /publishes photos, videos, dates, and completed costs from the work/);
-  assert.match(impactHtml, /class="home-proof-strip" aria-label="Documented One World Relief impact"/);
-  assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong>[\s\S]*?completed cases documented/);
-  assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong>[\s\S]*?orphan students directly supported/);
-  assert.match(impactHtml, /id="homeOrphanImpactAccessible">2 orphan students directly supported through completed, documented cases\.<\/p>/);
+  assert.match(impactHtml, /Clear giving\. Documented work\./);
+  assert.match(impactHtml, /id="homeImpactTitle"><span>Give what you can\.<\/span><span>See the work\.<\/span><\/h1>/);
+  assert.match(impactHtml, /Donate any amount through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
+  assert.match(impactHtml, /class="home-proof-line"/);
+  assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong> completed cases documented/);
+  assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong> individual orphan students supported/);
+  assert.doesNotMatch(impactHtml, /home-proof-strip|home-proof-stat|homeOrphanImpactAccessible/);
   assert.match(heroHtml, /class="home-evidence-project" href="projects\/case-004\.html"/);
   assert.match(heroHtml, /src="assets\/projects\/case-004\/korbani-meals-004-thumbnail\.jpg"/);
   assert.match(heroHtml, /alt="Meal service documented for orphan children at a madrasa in Bangladesh"/);
   assert.match(heroHtml, /Completed &middot; Case 004/);
   assert.match(heroHtml, /Feeding Madrasa for Orphan Kids/);
   assert.match(heroHtml, /\$400 delivered &middot; View photos and video/);
-  assert.match(heroHtml, /The individual count above includes only cases where the records identify one beneficiary\./);
-  assert.match(heroHtml, /The group meal pictured here is documented separately and is not added to that count\./);
+  assert.match(heroHtml, /<details class="home-count-method">/);
+  assert.match(heroHtml, /<summary>How we verify the student count<\/summary>/);
+  assert.match(heroHtml, /Case 004 documents a group meal, but its exact headcount was not recorded, so it is not included in the individual count\./);
   assert.match(heroHtml, /aria-label="Cases included in the individual orphan count"/);
   assert.match(heroHtml, /href="projects\/case-001\.html">Case 001 &middot; \$600 delivered<\/a>/);
   assert.match(heroHtml, /href="projects\/case-003\.html">Case 003 &middot; \$400 delivered<\/a>/);
@@ -1501,15 +1502,16 @@ test("homepage leads with restrained, source-backed project and orphan impact pr
 
   assert.match(siteJs, /const renderHomeOrphanImpact = \(\) =>/);
   assert.match(siteJs, /const homeCompletedCaseCount = document\.getElementById\("homeCompletedCaseCount"\)/);
+  assert.doesNotMatch(siteJs, /homeOrphanImpactAccessible/);
   assert.match(siteJs, /const completedCount = window\.ONE_WORLD_RELIEF_PROJECTS\.filter/);
   assert.match(siteJs, /homeCompletedCaseCount\.textContent = completedCount\.toLocaleString\("en-US"\)/);
   assert.match(siteJs, /Number\.isSafeInteger\(beneficiaryCount\)/);
   assert.match(siteJs, /renderHomeOrphanImpact\(\);\s*renderHomeCaseFlow\(\);/);
   assert.match(siteJs, /\[data-impact-count\], \.flow-impact-stats strong/);
-  assert.match(siteCss, /\.home-page \.home-proof-strip\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /\.home-page \.home-evidence-project img\s*\{[^}]*height: auto;[^}]*aspect-ratio: 4 \/ 3;[^}]*object-fit: cover/);
+  assert.match(siteCss, /\.home-page \.home-proof-line\s*\{[^}]*display: flex;[^}]*border-top: 1px solid #cad9e1/);
+  assert.match(siteCss, /\.home-page \.home-evidence-project img\s*\{[^}]*height: auto;[^}]*aspect-ratio: 16 \/ 9;[^}]*object-fit: cover/);
   assert.match(siteCss, /\.home-page \.home-evidence-project:focus-visible,[\s\S]*?\.home-page \.home-impact-link:focus-visible\s*\{[^}]*outline: 3px solid #174a6d/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-proof-stat\s*\{[^}]*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-proof-line\s*\{[^}]*display: grid/);
 });
 
 test("homepage checkout accepts one custom unrestricted amount with accessible Stripe handoff", async () => {
@@ -1525,13 +1527,13 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-responsive-v1\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-responsive-v1\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-responsive-v1\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-simple-v1\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-simple-v1\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-simple-v1\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
-  assert.match(quickForm, /<h2>Make a donation\.<\/h2>/);
-  assert.match(quickForm, /class="quick-donation-subtitle">Enter the amount you would like to give\. You can review the cause before payment\.<\/p>/);
+  assert.match(quickForm, /<h2>Give any amount<\/h2>/);
+  assert.match(quickForm, /class="quick-donation-subtitle">Choose the cause before payment\.<\/p>/);
   assert.doesNotMatch(quickForm, /class="quick-amounts"|name="quickAmount"|type="radio"|\$25|\$50|\$100/);
 
   assert.match(quickForm, /<label class="quick-custom-amount" for="quickCustomAmount">/);
@@ -1546,11 +1548,11 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.doesNotMatch(siteJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
 
   assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Donate now<\/span><span aria-hidden="true">&rarr;<\/span>/);
-  assert.match(quickForm, /class="quick-donation-trust" aria-label="Donation checkout information"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Checkout handled by Stripe[\s\S]*?Receipt after successful payment/);
-  assert.match(quickForm, /class="quick-donation-identity" href="about\.html#official-details">Organization details[\s\S]*?EIN 41-5079927<\/a>/);
-  assert.match(quickForm, /class="quick-donation-cause-link" href="donate\.html#donationForm">Choose a specific cause instead<\/a>/);
+  assert.match(quickForm, /class="quick-donation-trust" aria-label="Secure Stripe checkout with an email receipt"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure Stripe checkout[\s\S]*?Email receipt/);
+  assert.match(quickForm, /class="quick-donation-identity" href="about\.html#official-details">About One World Relief &middot; EIN 41-5079927<\/a>/);
+  assert.doesNotMatch(quickForm, /quick-donation-cause-link/);
   assert.match(quickForm, /id="quickDonationStatus" role="status" aria-live="polite"/);
-  assert.doesNotMatch(homeHtml, /Receipt emailed|quick-donation-topline/);
+  assert.doesNotMatch(quickForm, /Receipt emailed|quick-donation-topline|Checkout handled by Stripe/);
 
   assert.match(siteJs, /const clearQuickAmountError = \(\) =>/);
   assert.match(siteJs, /quickCustomInput\?\.removeAttribute\("aria-invalid"\);\s*setQuickStatus\(\);/);
@@ -1599,9 +1601,8 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok((siteCss.match(/outline: 3px solid var\(--blue-700\);/g) || []).length >= 4);
   assert.match(siteCss, /\.quick-donation-button:active/);
   assert.match(siteCss, /\.quick-donation-button:focus-visible/);
-  assert.match(siteCss, /\.quick-donation-cause-link:focus-visible/);
   assert.match(siteCss, /\.home-page \.quick-custom-input-wrap\s*\{[^}]*min-height: 62px/);
-  assert.match(siteCss, /\.home-page \.quick-donation-identity,[\s\S]*?\.home-page \.quick-donation-cause-link\s*\{[^}]*min-height: 44px/);
+  assert.match(siteCss, /\.home-page \.quick-donation-identity\s*\{[^}]*min-height: 44px/);
   assert.doesNotMatch(siteCss, /\.quick-amounts(?:\s|\{|\.|:)/);
   assert.doesNotMatch(siteCss, /\.quick-donation-status:empty/);
   assert.doesNotMatch(siteCss, /@keyframes quick-card-(?:sheen|lift)/);
@@ -1790,8 +1791,8 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.match(html, /<details class="mobile-nav-menu">[\s\S]*?<summary>Menu<\/summary>[\s\S]*?<\/details>/, `${name} should provide a compact phone navigation menu`);
     assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
     const expectedStylesheet = name.startsWith("projects/case-")
-      ? /href="\.\.\/one-world-relief-responsive-v1\.css"/
-      : /href="one-world-relief-responsive-v1\.css"/;
+      ? /href="\.\.\/one-world-relief-simple-v1\.css"/
+      : /href="one-world-relief-simple-v1\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
       assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
