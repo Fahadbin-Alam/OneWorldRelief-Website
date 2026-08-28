@@ -14,6 +14,7 @@
   const projectBoard = document.getElementById("projectBoard");
   const projectStats = document.getElementById("projectStats");
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
+  const faithVideo = document.querySelector(".faith-video-bg");
   const nativeShareButton = document.getElementById("nativeShareButton");
   const openQrPresentation = document.getElementById("openQrPresentation");
   const closeQrPresentation = document.getElementById("closeQrPresentation");
@@ -465,7 +466,8 @@
       `${projects.length * secondsPerProject}s`,
     );
 
-    const repeatedProjects = Array.from({ length: 4 }, () => projects).flat();
+    const mobileFlow = window.matchMedia("(max-width: 720px)").matches;
+    const repeatedProjects = Array.from({ length: mobileFlow ? 1 : 4 }, () => projects).flat();
 
     homeCaseFlowTrack.innerHTML = repeatedProjects.map((project, index) => {
       const isDuplicate = index >= projects.length;
@@ -496,6 +498,55 @@
     homeCaseFlowTrack.setAttribute("aria-live", "off");
   };
 
+  const setupFaithVideo = () => {
+    const source = faithVideo?.querySelector("source[data-src]");
+    const section = faithVideo?.closest(".faith-video-section");
+    if (!faithVideo || !source || !section || prefersReducedMotion) {
+      return;
+    }
+
+    const desktopQuery = window.matchMedia("(min-width: 721px)");
+    let observer;
+    let hasLoaded = false;
+
+    const loadAndPlay = () => {
+      if (!desktopQuery.matches || hasLoaded) {
+        return;
+      }
+      source.src = source.dataset.src;
+      source.removeAttribute("data-src");
+      faithVideo.load();
+      faithVideo.play().catch(() => {});
+      hasLoaded = true;
+      observer?.disconnect();
+    };
+
+    const watchSection = () => {
+      if (!desktopQuery.matches) {
+        faithVideo.pause();
+        return;
+      }
+      if (hasLoaded) {
+        faithVideo.play().catch(() => {});
+        return;
+      }
+      if (!("IntersectionObserver" in window)) {
+        loadAndPlay();
+        return;
+      }
+      observer?.disconnect();
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          loadAndPlay();
+        }
+      }, { rootMargin: "500px 0px" });
+      observer.observe(section);
+    };
+
+    watchSection();
+    desktopQuery.addEventListener?.("change", watchSection);
+  };
+
   registerOfflineFallback();
   setupReveals();
   setupHeaderExperience();
@@ -503,6 +554,7 @@
   setupFlowLayers();
   renderProjects();
   renderHomeCaseFlow();
+  setupFaithVideo();
   setupPointerMotion();
   setupAnimatedNumbers();
 

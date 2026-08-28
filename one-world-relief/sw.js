@@ -1,7 +1,7 @@
 // Author: Fahadbin Alam (fma52), 5/13/26
 // Mod by Codex, 5/13/26
 // One World Relief offline fallback cache.
-const CACHE_NAME = "owr-offline-v17";
+const CACHE_NAME = "owr-offline-v18";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -15,9 +15,9 @@ const APP_SHELL = [
   "/favicon.png",
   "/apple-touch-icon.png",
   "/site.webmanifest",
-  "/assets/one-world-relief-icon.png",
   "/assets/one-world-relief-icon-192.png",
 ];
+const APP_SHELL_PATHS = new Set(APP_SHELL);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -45,13 +45,29 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  const url = new URL(request.url);
+  const isSameOriginShell = url.origin === self.location.origin
+    && APP_SHELL_PATHS.has(url.pathname);
+  if (!isSameOriginShell || request.headers.has("range")) {
+    return;
+  }
+
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        const responseCopy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseCopy));
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cachedResponse = await cache.match(url.pathname);
+      const networkResponse = fetch(request).then(async (response) => {
+        if (response.ok && response.type === "basic") {
+          await cache.put(url.pathname, response.clone());
+        }
         return response;
-      })
-      .catch(() => caches.match(request))
+      });
+
+      if (cachedResponse) {
+        event.waitUntil(networkResponse.catch(() => {}));
+        return cachedResponse;
+      }
+
+      return networkResponse;
+    })
   );
 });

@@ -418,19 +418,37 @@ test("checkout redirects Venmo only when a Venmo URL is configured", async () =>
   assert.match(redirect.searchParams.get("note"), /One World Relief - Water Support/);
 });
 
-test("thank-you page renders polished animated donation thanks", async () => {
-  const thankYou = await importFunctionModule("functions/charity/thank-you.js");
+test("Stripe result pages stay useful and contained on narrow mobile screens", async () => {
+  const [thankYou, cancelled] = await Promise.all([
+    importFunctionModule("functions/charity/thank-you.js"),
+    importFunctionModule("functions/charity/cancelled.js"),
+  ]);
   const response = await thankYou.onRequestGet({
     request: new Request("https://one-world-relief.org/charity/thank-you?donation_id=don_123&session_id=cs_test_123"),
     env: { OWR_STRIPE_SECRET_KEY: "sk_test_mock" },
   });
   const html = await response.text();
+  const cancelledResponse = await cancelled.onRequestGet({
+    request: new Request("https://one-world-relief.org/charity/cancelled"),
+    env: {},
+  });
+  const cancelledHtml = await cancelledResponse.text();
 
   assert.equal(response.status, 200);
-  assert.match(html, /Thank you for your Donation/);
+  assert.equal(cancelledResponse.status, 200);
+  assert.match(html, /Thank you for your donation./);
   assert.match(html, /success-card/);
   assert.match(html, /check-wrap/);
   assert.match(html, /draw-check/);
+  assert.match(html, /viewport-fit=cover/);
+  assert.match(cancelledHtml, /viewport-fit=cover/);
+  assert.match(html, /overflow-x: hidden;\s*overflow-y: auto;/);
+  assert.doesNotMatch(html, /overflow: hidden;/);
+  assert.match(html, /min-height: 100dvh/);
+  assert.match(html, /href="\/">Back home<\/a>/);
+  assert.match(html, /href="\/projects\.html">View projects<\/a>/);
+  assert.match(html, /animation: ring-breathe 2\.4s ease-in-out 3;/);
+  assert.match(html, /@media \(max-height: 480px\) and \(orientation: landscape\)/);
   assert.doesNotMatch(html, /coin-gift/);
   assert.doesNotMatch(html, /story-scene/);
   assert.doesNotMatch(html, /class="person child"/);
@@ -696,9 +714,12 @@ test("donation options stay accessible in a compact, responsive disclosure", asy
   assert.match(checkoutJs, /card\.setAttribute\("role", "listitem"\)/);
   assert.match(checkoutJs, /title\.id = `donation-program-title-\$\{program\.id\}`/);
   assert.match(checkoutJs, /card\.setAttribute\("aria-labelledby", title\.id\)/);
-  assert.match(checkoutJs, /image\.src = program\.imageUrl/);
+  assert.match(checkoutJs, /image\.dataset\.src = program\.imageUrl/);
   assert.match(checkoutJs, /image\.alt = program\.imageAlt/);
   assert.match(checkoutJs, /image\.loading = "lazy"/);
+  assert.match(checkoutJs, /const loadProgramImages = \(\) =>/);
+  assert.match(checkoutJs, /querySelectorAll\("img\[data-src\]"\)/);
+  assert.match(checkoutJs, /programCatalogDisclosure\.addEventListener\("toggle"/);
   assert.match(checkoutJs, /program\.photoDisclosure/);
   assert.match(checkoutJs, /photoDisclosure\.className = "donation-program-photo-disclosure"/);
   assert.doesNotMatch(checkoutJs, /summaryPurpose\.textContent = variant\?\.description/);
@@ -1066,8 +1087,8 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v17/);
-  assert.match(serviceWorker, /one-world-relief-icon\.png/);
+  assert.match(serviceWorker, /owr-offline-v18/);
+  assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
 });
@@ -1368,8 +1389,12 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v17/);
+  assert.match(serviceWorker, /owr-offline-v18/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
+  assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
+  assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
+  assert.match(serviceWorker, /request\.headers\.has\("range"\)/);
+  assert.doesNotMatch(serviceWorker, /cache\.put\(request/);
   assert.match(siteCss, /\.offline-dino/);
   assert.match(siteCss, /@keyframes offline-dino-hop/);
 });
@@ -1478,6 +1503,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /Completed One World Relief cases/);
   assert.match(homeHtml, /faith-video-section/);
   assert.match(homeHtml, /faith-video-bg/);
+  assert.match(homeHtml, /<video class="faith-video-bg"[^>]*preload="none"/);
+  assert.match(homeHtml, /<source data-src="assets\/projects\/case-002\/livelihood-support-002-primary\.mp4"/);
+  assert.doesNotMatch(homeHtml, /<video class="faith-video-bg"[^>]*autoplay/);
   assert.match(homeHtml, /Why We Give/);
   assert.match(
     homeHtml,
@@ -1506,7 +1534,10 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteJs, /renderHomeCaseFlow/);
   assert.doesNotMatch(siteJs, /renderHomeCaseLanes|homeCompletedCases|homeGoalCases|story-link|story-empty/);
   assert.match(siteJs, /includes\("completed"\)/);
-  assert.match(siteJs, /Array\.from\(\{ length: 4 \}, \(\) => projects\)\.flat\(\)/);
+  assert.match(siteJs, /const mobileFlow = window\.matchMedia\("\(max-width: 720px\)"\)\.matches/);
+  assert.match(siteJs, /Array\.from\(\{ length: mobileFlow \? 1 : 4 \}, \(\) => projects\)\.flat\(\)/);
+  assert.match(siteJs, /const setupFaithVideo = \(\) =>/);
+  assert.match(siteJs, /rootMargin: "500px 0px"/);
   assert.match(siteJs, /aria-hidden="true" tabindex="-1"/);
   assert.match(siteJs, /decoding="async"/);
   assert.match(siteJs, /activateCustomAmount/);
@@ -1634,6 +1665,9 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.match(html, /class="button button-primary header-cta"[^>]*href="(?:\.\.\/)?donate\.html[^"]*"/, `${name} should retain the Donate CTA`);
     assert.match(html, /family=Plus\+Jakarta\+Sans:wght@600;700;800/, `${name} should load the modern header typeface`);
     assert.match(html, /<footer class="site-footer/, `${name} should retain its footer`);
+    if (name.startsWith("projects/case-")) {
+      assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
+    }
   }
 
   assert.match(siteCss, /--header-sans: "Plus Jakarta Sans"/);
@@ -1694,10 +1728,19 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.donate-page \.donate-impact-photo-main\s*\{[^}]*max-height: 260px;/);
   assert.match(mobileCss, /\.donation-form-card \.amount-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
 
-  assert.match(mobileCss, /\.header-cta\.button\s*\{[^}]*width: auto;[^}]*min-height: 42px;/);
-  assert.match(mobileCss, /\.footer-links a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
+  assert.match(mobileCss, /\.header-cta\.button\s*\{[^}]*width: auto;[^}]*min-height: 44px;/);
+  assert.match(mobileCss, /\.footer-links a\s*\{[^}]*min-width: 44px;[^}]*min-height: 44px;[^}]*display: inline-flex;/);
   assert.match(mobileCss, /#proof,\s*#case-timeline,\s*#donationForm\s*\{\s*scroll-margin-top: 148px;/);
   assert.match(mobileCss, /input,\s*select,\s*textarea\s*\{\s*font-size: 16px;/);
+  assert.match(mobileCss, /\.background-shape\s*\{\s*display: none;/);
+  assert.match(mobileCss, /\.site-header\s*\{[^}]*backdrop-filter: none;/);
+  assert.match(mobileCss, /\.motion-ready \.reveal,[\s\S]*?filter: none;[\s\S]*?opacity 420ms/);
+  assert.match(mobileCss, /\.hero-shell-home \.hero,[\s\S]*?\.project-timeline span::before\s*\{\s*animation: none;/);
+  assert.match(mobileCss, /\.zakat-language-control select\s*\{[^}]*min-height: 44px;[^}]*font-size: 16px;/);
+  assert.match(mobileCss, /\.zakat-section select,\s*\.zakat-money-input input\s*\{\s*font-size: 16px;/);
+  assert.match(mobileCss, /\.zakat-help-details summary,\s*\.zakat-source-list a\s*\{\s*min-height: 44px;/);
+  assert.match(siteCss, /\.back-link\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
+  assert.match(siteCss, /\.hero-shell-home \.hero-quote-source a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
 });
 
 test("contact page has a polished accessible mailto contact flow", async () => {

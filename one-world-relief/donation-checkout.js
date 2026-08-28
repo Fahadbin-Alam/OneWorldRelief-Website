@@ -26,6 +26,7 @@
   const summaryPurpose = document.getElementById("selectedProgramPurpose");
   const summaryStewardship = document.getElementById("selectedProgramStewardship");
   const programGrid = document.getElementById("donationProgramGrid");
+  const programCatalogDisclosure = document.querySelector(".donation-catalog-disclosure");
   const formCard = form.closest(".donation-form-card-featured");
   const donationSourceInput = document.getElementById("donationSource");
   const zakatContextVersionInput = document.getElementById("zakatContextVersion");
@@ -395,7 +396,7 @@
       const photo = document.createElement("figure");
       photo.className = "donation-program-photo";
       const image = document.createElement("img");
-      image.src = program.imageUrl;
+      image.dataset.src = program.imageUrl;
       image.alt = program.imageAlt;
       image.loading = "lazy";
       image.decoding = "async";
@@ -451,6 +452,13 @@
     });
   };
 
+  const loadProgramImages = () => {
+    programGrid?.querySelectorAll("img[data-src]").forEach((image) => {
+      image.src = image.dataset.src;
+      image.removeAttribute("data-src");
+    });
+  };
+
   const getDonationAmount = () => {
     if (customAmount?.value) {
       return Number(customAmount.value);
@@ -478,6 +486,15 @@
 
   populateProgramSelect();
   renderProgramGrid();
+  if (!programCatalogDisclosure || programCatalogDisclosure.open) {
+    loadProgramImages();
+  } else {
+    programCatalogDisclosure.addEventListener("toggle", () => {
+      if (programCatalogDisclosure.open) {
+        loadProgramImages();
+      }
+    }, { once: true });
+  }
 
   amountChoices?.addEventListener("change", (event) => {
     if (event.target.matches('input[name="amount"]:checked') && customAmount) {

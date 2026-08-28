@@ -4,7 +4,7 @@ export const onRequestGet = async () => {
     <html lang="en">
       <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <title>One World Relief | Donation Cancelled</title>
         <link rel="stylesheet" href="/one-world-relief.css" />
       </head>
