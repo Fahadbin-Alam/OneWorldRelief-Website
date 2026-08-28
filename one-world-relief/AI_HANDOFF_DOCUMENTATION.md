@@ -3050,6 +3050,27 @@ Additional DNS check later on May 4, 2026:
   - Production deployment `0a5732b9-3e10-42e1-b479-8f5fb23dc310` succeeded at `https://0a5732b9.trying-8o0.pages.dev`, branch `main`, source `a42fca2`.
   - Cache-bypassed canonical checks on `https://one-world-relief.org/zakat` confirmed the guided layout, inline validation, single live announcement, accessible borders, cache v25, and active Checkout Function returning the expected safe `400` for an empty request. Live production browser checks passed at 390px and 1440px with no horizontal overflow.
 
+### 2026-08-28 Verified Orphan Impact Hero (Released)
+- Public claim and evidence boundary:
+  - The homepage now leads with `2 orphan students directly supported`, scoped specifically to the two completed individual-beneficiary records: Case 001 and Case 003. Each source case is linked beside the count with its documented delivered amount.
+  - Case 004 is presented separately as a completed `$400` madrasa meal for a group of orphan children. Its exact beneficiary headcount was not recorded, so those children are not added to the displayed number. Do not estimate a count from photos, donation amounts, family members in other cases, or generic examples in this handoff.
+  - `project-data.js` now records `verifiedOrphanBeneficiaries: 1` for Cases 001 and 003 and `null` for Case 004. The homepage renderer sums only positive safe-integer values on completed records. Future increases require verified case documentation and an explicit numeric field; group work without a defensible count must remain uncounted.
+- Homepage experience:
+  - Replaced the former standalone top-left Hadith card with a compact impact lead inside the existing first hero, keeping the secure quick-donation form alongside it on desktop instead of adding another full-height section.
+  - The numeral uses a finite one-shot count animation while remaining `aria-hidden`; a static screen-reader sentence exposes the final verified total without live digit announcements. The giving Hadith and its source link remain as a compact supporting line.
+  - Added direct Case 001, Case 003, and project-board links, 44px-or-larger interactive targets, explicit keyboard focus, reduced-motion handling, and responsive one/two-column evidence cards. No new image or media request was added to the initial homepage load.
+- Stripe, Sheets, and data boundaries:
+  - This release changes homepage presentation and the public project-data evidence fields only. Donation programs, amount rules, Stripe Checkout/metadata, webhook processing, receipts, Zakat privacy, and the Google Sheets `Donations (2026)` A:H mapping are unchanged.
+  - No real Checkout Session, payment, signed webhook, receipt, or Google Sheets row was created. Empty Checkout probes returned the expected safe `400` on preview and canonical production.
+- Verification and release:
+  - Feature commit `936f3092ea7625ee3e08865df0111467ee2ca51c` (`Add verified orphan impact hero`) was pushed to `origin/charity-frontend-redesign`. Offline cache advanced from `owr-offline-v25` to `owr-offline-v26`.
+  - The complete regression suite passed `43/43`; changed JavaScript and service-worker files passed syntax checks; CSS parsed through esbuild; and `git diff --check` passed.
+  - Local rendered QA passed at 1440px, 768px, 390px, and 320px with no impact/form overlap and no mobile horizontal overflow. Live production QA passed at 1440px and 390px; every impact link measured at least 44px on phone.
+  - The safe deploy workflow staged `70` public assets plus `5` Pages Function sources and compiled the Functions bundle with Wrangler `4.127.1`.
+  - Preview deployment `03df1e4b-81cb-4ac9-8ad8-90384118f8de` succeeded at `https://03df1e4b.trying-8o0.pages.dev`, branch `codex-orphan-impact-20260828`, source `936f309`.
+  - Production deployment `e6b69b16-aed8-4135-ac16-6e4052fe4dd2` succeeded at `https://e6b69b16.trying-8o0.pages.dev`, branch `main`, source `936f309`.
+  - Cache-bypassed checks on `https://one-world-relief.org` confirmed the scoped `2`, both evidence links, Case 004 headcount caveat, renderer/data fields, responsive CSS, cache v26, HTTP `200`, and active Checkout validation.
+
 ---
 
 **End of AI Handoff Documentation**
