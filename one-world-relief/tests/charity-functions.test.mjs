@@ -1117,7 +1117,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v28/);
+  assert.match(serviceWorker, /owr-offline-v29/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1419,7 +1419,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v28/);
+  assert.match(serviceWorker, /owr-offline-v29/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1452,8 +1452,9 @@ test("homepage leads with a scoped, source-backed orphan impact count", async ()
   assert.match(impactHtml, /Also documented:/);
   assert.match(impactHtml, /Its exact headcount was not recorded, so it is not included above\./);
   assert.match(impactHtml, /href="projects\.html#projectBoard">See the documented work/);
-  assert.match(impactHtml, /class="home-impact-hadith" cite="https:\/\/sunnah\.com\/bukhari:5352"/);
-  assert.match(impactHtml, /O son of Adam! Spend, and I shall spend on you\./);
+  assert.match(impactHtml, /class="home-impact-hadith" cite="https:\/\/sunnah\.com\/muslim:2588"/);
+  assert.match(impactHtml, /Charity does not decrease wealth\./);
+  assert.doesNotMatch(impactHtml, /O son of Adam! Spend, and I shall spend on you\./);
   assert.doesNotMatch(impactHtml, /2 orphans helped|total orphans helped/i);
 
   const projectContext = { window: {} };
@@ -1605,9 +1606,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /<source data-src="assets\/projects\/case-002\/livelihood-support-002-primary\.mp4"/);
   assert.doesNotMatch(homeHtml, /<video class="faith-video-bg"[^>]*autoplay/);
   assert.match(homeHtml, /Why We Give/);
-  assert.match(homeHtml, /<blockquote class="home-impact-hadith" cite="https:\/\/sunnah\.com\/bukhari:5352">/);
-  assert.match(homeHtml, /<p>“O son of Adam! Spend, and I shall spend on you\.”<\/p>/u);
-  assert.match(homeHtml, /<cite><a href="https:\/\/sunnah\.com\/bukhari:5352" target="_blank" rel="noreferrer">Sahih al-Bukhari 5352<\/a><\/cite>/);
+  assert.match(homeHtml, /<blockquote class="home-impact-hadith" cite="https:\/\/sunnah\.com\/muslim:2588">/);
+  assert.match(homeHtml, /<p>“Charity does not decrease wealth\.”<\/p>/u);
+  assert.match(homeHtml, /<cite>Prophet Muhammad ﷺ · <a href="https:\/\/sunnah\.com\/muslim:2588" target="_blank" rel="noreferrer">Sahih Muslim 2588<\/a><\/cite>/u);
   assert.doesNotMatch(homeHtml, /person who looks after an orphan and provides for him/);
   assert.doesNotMatch(homeHtml, /Direct aid, moving fast\./);
   assert.doesNotMatch(
