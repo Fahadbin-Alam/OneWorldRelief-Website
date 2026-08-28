@@ -799,10 +799,12 @@ test("Zakat page explains eligibility with sources and offers four-language RTL 
     "otherAssets",
     "shortTermLiabilities",
     "totalAssetsResult",
+    "liabilitiesResult",
     "netWealthResult",
     "nisabResult",
     "zakatDueResult",
     "zakatResultStatus",
+    "zakatResultAnnouncement",
     "donateCalculatedZakat",
     "resetZakat",
   ]) {
@@ -825,6 +827,24 @@ test("Zakat page explains eligibility with sources and offers four-language RTL 
   assert.match(zakatJs, /document\.documentElement\.dir/);
   assert.match(zakatJs, /const rtlLanguages = new Set\(\["ur", "ar"\]\)/);
   assert.match(zakatJs, /(?:ur|ar)[\s\S]{0,160}(?:rtl|right-to-left)/i);
+
+  assert.match(zakatHtml, /class="zakat-calculator-layout"/);
+  assert.equal([...zakatHtml.matchAll(/class="zakat-step-number"/g)].length, 3);
+  assert.match(zakatHtml, /<details class="zakat-more-assets">[\s\S]*?id="moneyOwed"[\s\S]*?id="businessAssets"[\s\S]*?id="otherAssets"[\s\S]*?<\/details>/);
+  assert.doesNotMatch(zakatHtml.match(/<details class="zakat-more-assets"[^>]*>/)?.[0] || "", /\bopen\b/);
+  assert.match(zakatHtml, /class="zakat-results" data-state="waiting"/);
+  assert.doesNotMatch(zakatHtml.match(/id="zakatResultStatus"[^>]*>/)?.[0] || "", /aria-live/);
+  assert.match(zakatHtml, /id="zakatResultAnnouncement"[^>]*role="status"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
+  assert.doesNotMatch(zakatHtml.match(/id="zakatDueResult"[^>]*>/)?.[0] || "", /aria-live/);
+  assert.match(zakatHtml, /id="donateCalculatedZakat"[^>]*aria-disabled="true"/);
+  for (const key of ["startCalculator", "calculatorIntro", "optionalAssetsTitle", "optionalLabel", "liabilitiesResultLabel", "invalidAmount"]) {
+    assert.equal([...zakatJs.matchAll(new RegExp(`\\b${key}:`, "g"))].length, 4, `${key} should be translated in all four languages`);
+  }
+  assert.match(zakatHtml, /<form id="zakatCalculator"[^>]*tabindex="-1"/);
+  assert.match(zakatJs, /startLink\?\.addEventListener\("click"[\s\S]*?form\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(zakatJs, /input\.setAttribute\("aria-invalid", "true"\)/);
+  assert.match(zakatJs, /input\.removeAttribute\("aria-invalid"\)/);
+  assert.match(zakatJs, /resultState = "invalid"/);
 
   assert.match(zakatHtml, /Eight recipient categories/);
   assert.match(zakatHtml, /Zakat is an obligatory act of worship for Muslims who meet its conditions/);
@@ -863,6 +883,12 @@ test("Zakat page explains eligibility with sources and offers four-language RTL 
   assert.doesNotMatch(zakatJs, /metalPrice\.value\s*=\s*["']?\d/i);
   assert.doesNotMatch(zakatHtml.match(/<input id="zakatMetalPrice"[^>]*>/)?.[0] || "", /\bvalue=/);
   assert.match(siteCss, /\.zakat-hero-grid\s*\{[\s\S]*?grid-template-columns:/);
+  assert.match(siteCss, /\.zakat-calculator-layout\s*\{[^}]*grid-template-columns:/);
+  assert.match(siteCss, /\.zakat-results\s*\{[^}]*position: sticky;/);
+  assert.match(siteCss, /\.zakat-money-input\s*\{[^}]*direction: ltr;/);
+  assert.match(siteCss, /\.zakat-more-assets summary,[\s\S]*?min-height: 46px;/);
+  assert.match(siteCss, /\.zakat-money-input\.has-error\s*\{[^}]*border-color: #b42318;/);
+  assert.match(siteCss, /\.zakat-result-status\[data-state="invalid"\]/);
   assert.match(siteCss, /\[dir="rtl"\] \.zakat-page/);
   assert.match(siteCss, /\.zakat-calculator-card :is\(input, select, summary, button, a\):focus-visible[\s\S]*?outline: 3px solid var\(--blue-700\)/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.zakat-field-grid-two,[\s\S]*?grid-template-columns: 1fr/);
@@ -1091,7 +1117,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v19/);
+  assert.match(serviceWorker, /owr-offline-v25/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1393,7 +1419,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v19/);
+  assert.match(serviceWorker, /owr-offline-v25/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);

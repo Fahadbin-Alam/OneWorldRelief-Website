@@ -54,35 +54,42 @@
     <section class="zakat-hero">
       <div class="container zakat-hero-grid">
         <div class="zakat-hero-copy">
-          <p class="eyebrow" data-i18n="heroEyebrow">A private, simple estimate</p>
-          <h1 data-i18n="heroTitle">Calculate your Zakat</h1>
-          <p class="lead" data-i18n="heroIntro">
-            Zakat is an obligatory act of worship for Muslims who meet its conditions. If your zakatable wealth has reached the nisab and a full Hijri year has passed, Zakat al-mal is generally 2.5% of your net zakatable wealth.
-          </p>
-          <div class="zakat-hero-points" aria-label="Calculator features" data-i18n-aria-label="featureListLabel">
-            <span data-i18n="featurePrivate">Your financial entries stay on this device</span>
-            <span data-i18n="featureLanguages">English, Bangla, Urdu, and Arabic</span>
-            <span data-i18n="featureReturn">Continue directly to secure giving</span>
-          </div>
-          <aside class="zakat-obligation-note">
-            <strong data-i18n="importantTitle">Before you begin</strong>
-            <p data-i18n="importantCopy">
-              Use values from your Zakat due date. Gold and silver prices change daily, and scholars differ over which nisab standard applies, so choose the standard you follow or enter a trusted current threshold.
+          <div class="zakat-hero-intro">
+            <p class="eyebrow" data-i18n="heroEyebrow">A private, simple estimate</p>
+            <h1 data-i18n="heroTitle">Calculate your Zakat</h1>
+            <p class="lead" data-i18n="heroIntro">
+              Zakat is an obligatory act of worship for Muslims who meet its conditions. If your zakatable wealth has reached the nisab and a full Hijri year has passed, Zakat al-mal is generally 2.5% of your net zakatable wealth.
             </p>
-          </aside>
+            <a class="zakat-start-link" href="#zakatCalculator">
+              <span data-i18n="startCalculator">Start calculator</span>
+              <span aria-hidden="true">&darr;</span>
+            </a>
+          </div>
+          <div class="zakat-hero-guidance">
+            <div class="zakat-hero-points" aria-label="Calculator features" data-i18n-aria-label="featureListLabel">
+              <span data-i18n="featurePrivate">Your financial entries stay on this device</span>
+              <span data-i18n="featureLanguages">English, Bangla, Urdu, and Arabic</span>
+              <span data-i18n="featureReturn">Continue directly to secure giving</span>
+            </div>
+          </div>
         </div>
 
-        <form id="zakatCalculator" class="zakat-calculator-card" novalidate>
+        <form id="zakatCalculator" class="zakat-calculator-card" tabindex="-1" novalidate>
           <div class="zakat-card-heading">
             <div>
               <p class="eyebrow" data-i18n="calculatorEyebrow">Zakat al-mal calculator</p>
-              <h2 data-i18n="calculatorTitle">Enter your amounts in USD</h2>
+              <h2 data-i18n="calculatorTitle">Your Zakat, step by step</h2>
             </div>
             <span class="zakat-local-badge" data-i18n="localBadge">Calculated privately</span>
           </div>
+          <p class="zakat-card-intro" data-i18n="calculatorIntro">Three short steps. Enter only the amounts that apply to you.</p>
 
+          <div class="zakat-calculator-layout">
+            <div class="zakat-step-list">
           <fieldset class="zakat-section zakat-settings">
-            <legend data-i18n="settingsLegend">Calculation settings</legend>
+            <legend>
+              <span class="zakat-step-legend"><span class="zakat-step-number" aria-hidden="true">1</span><span data-i18n="settingsLegend">Choose your calculation basis</span></span>
+            </legend>
             <div class="zakat-field-grid zakat-field-grid-two">
               <label for="zakatYearBasis">
                 <span data-i18n="yearBasisLabel">Zakat year</span>
@@ -122,12 +129,21 @@
                 <input id="zakatCustomNisab" type="number" min="0" step="0.01" inputmode="decimal" data-i18n-placeholder="amountPlaceholder" placeholder="0.00" />
               </span>
             </label>
+
+            <details class="zakat-obligation-note zakat-obligation-details">
+              <summary data-i18n="importantTitle">Before you begin</summary>
+              <p data-i18n="importantCopy">
+                Use values from your Zakat due date. Gold and silver prices change daily, and scholars differ over which nisab standard applies, so choose the standard you follow or enter a trusted current threshold.
+              </p>
+            </details>
           </fieldset>
 
           <fieldset class="zakat-section">
-            <legend data-i18n="assetsLegend">Zakatable assets</legend>
-            <p class="zakat-section-intro" data-i18n="assetsIntro">Enter the current total value of each item on your Zakat due date.</p>
-            <div class="zakat-field-grid zakat-assets-grid">
+            <legend>
+              <span class="zakat-step-legend"><span class="zakat-step-number" aria-hidden="true">2</span><span data-i18n="assetsLegend">Add what you own</span></span>
+            </legend>
+            <p class="zakat-section-intro" data-i18n="assetsIntro">Enter only the totals that apply to you. Leave the rest blank.</p>
+            <div class="zakat-field-grid zakat-assets-grid zakat-assets-core">
               <label for="cashSavings">
                 <span data-i18n="cashSavingsLabel">Cash and bank savings</span>
                 <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="cashSavings" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
@@ -140,6 +156,11 @@
                 <span data-i18n="investmentsLabel">Shares and investments</span>
                 <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="investments" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
               </label>
+            </div>
+
+            <details class="zakat-more-assets">
+              <summary><span data-i18n="optionalAssetsTitle">More assets</span><span data-i18n="optionalLabel">Optional</span></summary>
+              <div class="zakat-field-grid zakat-assets-grid zakat-assets-extra">
               <label for="moneyOwed">
                 <span data-i18n="moneyOwedLabel">Money owed to you that is expected back</span>
                 <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="moneyOwed" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
@@ -152,7 +173,8 @@
                 <span data-i18n="otherAssetsLabel">Other zakatable assets</span>
                 <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="otherAssets" data-zakat-asset type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
               </label>
-            </div>
+              </div>
+            </details>
             <details class="zakat-help-details">
               <summary data-i18n="assetsHelpTitle">What is usually left out?</summary>
               <p data-i18n="assetsHelpCopy">Usually do not include your primary home, personal-use car, clothing, household goods, or tools used for work. Rules can differ for personal jewellery, pensions, investments, and business assets.</p>
@@ -160,35 +182,41 @@
           </fieldset>
 
           <fieldset class="zakat-section">
-            <legend data-i18n="liabilitiesLegend">Deductible short-term liabilities</legend>
+            <legend>
+              <span class="zakat-step-legend"><span class="zakat-step-number" aria-hidden="true">3</span><span data-i18n="liabilitiesLegend">Subtract bills due soon</span></span>
+            </legend>
             <label for="shortTermLiabilities">
               <span data-i18n="liabilitiesLabel">Debts and bills due now or within the coming 12 months</span>
               <span class="zakat-money-input"><span aria-hidden="true">$</span><input id="shortTermLiabilities" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></span>
               <small data-i18n="liabilitiesHelp">Do not enter an entire long-term mortgage or student-loan balance. Debt treatment differs, so seek guidance if unsure.</small>
             </label>
           </fieldset>
+            </div>
 
-          <section class="zakat-results" aria-labelledby="zakatResultsTitle" aria-live="polite">
+          <section class="zakat-results" data-state="waiting" aria-labelledby="zakatResultsTitle">
             <div class="zakat-results-heading">
               <div>
                 <p class="eyebrow" data-i18n="resultsEyebrow">Your estimate</p>
-                <h3 id="zakatResultsTitle" data-i18n="resultsTitle">Estimated Zakat</h3>
+                <h3 id="zakatResultsTitle" data-i18n="resultsTitle">Your estimated Zakat</h3>
               </div>
               <strong id="zakatDueResult">$0.00</strong>
             </div>
+            <p id="zakatResultStatus" class="zakat-result-status" data-state="waiting" data-i18n="resultNeedsNisab">Choose a nisab standard and enter its current value to see an estimate.</p>
+            <p id="zakatResultAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
             <dl class="zakat-result-breakdown">
               <div><dt data-i18n="totalAssetsResultLabel">Total assets</dt><dd id="totalAssetsResult">$0.00</dd></div>
+              <div><dt data-i18n="liabilitiesResultLabel">Short-term liabilities</dt><dd id="liabilitiesResult">$0.00</dd></div>
               <div><dt data-i18n="netWealthResultLabel">Net zakatable wealth</dt><dd id="netWealthResult">$0.00</dd></div>
               <div><dt data-i18n="nisabResultLabel">Selected nisab</dt><dd id="nisabResult">—</dd></div>
             </dl>
-            <p id="zakatResultStatus" class="zakat-result-status" data-i18n="resultNeedsNisab">Choose a nisab standard and enter its current value to see an estimate.</p>
             <p class="zakat-minimum-note" id="zakatMinimumNote" hidden data-i18n="minimumDonationNote">Secure checkout accepts donations of $5 or more.</p>
             <div class="zakat-result-actions">
-              <a id="donateCalculatedZakat" class="button button-primary" href="donate.html?program=zakat" aria-disabled="true" data-i18n="donateMyZakat">Donate my Zakat</a>
+              <a id="donateCalculatedZakat" class="button button-primary" href="donate.html?program=zakat" aria-disabled="true" aria-describedby="zakatResultStatus" data-i18n="donateMyZakat">Donate my Zakat</a>
               <button id="resetZakat" class="button button-outline" type="reset" data-i18n="startOver">Start over</button>
             </div>
             <p class="zakat-privacy-note" data-i18n="privacyNote">Only your estimated donation amount and non-sensitive calculator choices continue to the donation page. One World Relief does not save or send your asset and debt entries.</p>
           </section>
+          </div>
         </form>
       </div>
     </section>

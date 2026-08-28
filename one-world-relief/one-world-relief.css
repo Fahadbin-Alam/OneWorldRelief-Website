@@ -6601,8 +6601,8 @@ ul {
 /* Zakat education and private calculator */
 .zakat-page {
   background:
-    radial-gradient(circle at 92% 9%, rgba(170, 237, 214, 0.42), transparent 28rem),
-    linear-gradient(180deg, #e9faff 0%, #f7fcff 48%, #eef9f6 100%);
+    radial-gradient(circle at 88% 6%, rgba(182, 233, 218, 0.26), transparent 28rem),
+    linear-gradient(180deg, #f3fbfd 0%, #f8fbfc 52%, #f1f8f5 100%);
 }
 
 html[lang="bn"] .zakat-page {
@@ -6619,6 +6619,10 @@ html[lang="bn"] .zakat-page :is(h1, h2, h3),
 html[lang="ur"] .zakat-page :is(h1, h2, h3),
 html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   font-family: inherit;
+}
+
+.zakat-page .eyebrow {
+  color: #2f6f94;
 }
 
 .zakat-header-wrap {
@@ -6654,6 +6658,8 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 }
 
 .zakat-language-control select:focus-visible,
+.zakat-start-link:focus-visible,
+.zakat-calculator-card:focus-visible,
 .zakat-calculator-card :is(input, select, summary, button, a):focus-visible,
 .zakat-source-list a:focus-visible {
   outline: 3px solid var(--blue-700);
@@ -6662,7 +6668,7 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
 .zakat-hero {
   position: relative;
-  padding: clamp(2.2rem, 6vw, 5rem) 0 clamp(3rem, 7vw, 5.6rem);
+  padding: clamp(1.8rem, 4vw, 3.4rem) 0 clamp(3rem, 6vw, 5rem);
   overflow: clip;
 }
 
@@ -6672,43 +6678,76 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(156deg, transparent 34%, rgba(255, 255, 255, 0.58) 34.2%, rgba(255, 255, 255, 0.12) 56%, transparent 56.2%),
-    radial-gradient(circle at 14% 20%, rgba(91, 210, 236, 0.26), transparent 25rem);
+    linear-gradient(156deg, transparent 38%, rgba(255, 255, 255, 0.62) 38.2%, rgba(255, 255, 255, 0.12) 62%, transparent 62.2%),
+    radial-gradient(circle at 10% 14%, rgba(91, 210, 236, 0.18), transparent 24rem);
 }
 
 .zakat-hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(540px, 1.2fr);
-  align-items: start;
-  gap: clamp(1.5rem, 4vw, 3.4rem);
+  grid-template-columns: 1fr;
+  gap: clamp(1.35rem, 3vw, 2.2rem);
 }
 
 .zakat-hero-copy {
-  position: sticky;
-  top: 110px;
   min-width: 0;
-  padding-top: clamp(0.4rem, 2vw, 1.6rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+  align-items: center;
+  gap: clamp(1.4rem, 4vw, 3.5rem);
+  padding: 0.45rem clamp(0rem, 1vw, 0.6rem);
 }
 
 .zakat-hero-copy h1 {
-  max-width: 10ch;
-  margin: 0 0 1rem;
-  font-size: clamp(3rem, 6vw, 5.5rem);
-  line-height: 0.94;
+  max-width: 12ch;
+  margin: 0 0 0.8rem;
+  font-size: clamp(2.65rem, 5vw, 4.65rem);
+  line-height: 0.98;
   text-wrap: balance;
 }
 
 .zakat-hero-copy .lead {
-  max-width: 55ch;
+  max-width: 62ch;
+  margin-bottom: 1.1rem;
   color: #355e70;
-  font-size: clamp(1rem, 1.6vw, 1.16rem);
-  line-height: 1.7;
+  font-size: clamp(1rem, 1.4vw, 1.12rem);
+  line-height: 1.65;
+}
+
+.zakat-start-link {
+  min-height: 48px;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(33, 79, 113, 0.16);
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, #173c56, #246d8e);
+  box-shadow: 0 12px 24px rgba(23, 60, 86, 0.16);
+  font-size: 0.9rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.zakat-start-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(23, 60, 86, 0.2);
+}
+
+.zakat-hero-guidance {
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid rgba(33, 79, 113, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 40px rgba(24, 52, 71, 0.08);
 }
 
 .zakat-hero-points {
   display: grid;
-  gap: 0.55rem;
-  margin: 1.35rem 0;
+  gap: 0.75rem;
+  margin: 0;
 }
 
 .zakat-hero-points span {
@@ -6716,8 +6755,9 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   align-items: flex-start;
   gap: 0.55rem;
   color: var(--ink);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 750;
+  line-height: 1.45;
 }
 
 .zakat-hero-points span::before {
@@ -6736,18 +6776,10 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 }
 
 .zakat-obligation-note {
-  max-width: 56ch;
-  padding: 1rem 1.05rem;
+  padding: 0.78rem 0.9rem;
   border: 1px solid rgba(25, 121, 103, 0.2);
-  border-radius: 17px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 14px 32px rgba(24, 52, 71, 0.08);
-}
-
-.zakat-obligation-note strong {
-  display: block;
-  margin-bottom: 0.3rem;
-  color: #126353;
+  border-radius: 14px;
+  background: #f0faf7;
 }
 
 .zakat-obligation-note p {
@@ -6759,17 +6791,18 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
 .zakat-calculator-card {
   min-width: 0;
-  padding: clamp(1rem, 2.7vw, 1.7rem);
-  border: 1px solid rgba(33, 79, 113, 0.14);
+  padding: clamp(1.1rem, 2.8vw, 2rem);
+  scroll-margin-top: 104px;
+  border: 1px solid rgba(33, 79, 113, 0.12);
   border-radius: 26px;
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 28px 64px rgba(24, 52, 71, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 58px rgba(24, 52, 71, 0.12);
 }
 
 .zakat-card-heading,
 .zakat-results-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
@@ -6782,7 +6815,7 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 }
 
 .zakat-card-heading h2 {
-  font-size: clamp(1.3rem, 2.7vw, 1.7rem);
+  font-size: clamp(1.45rem, 2.7vw, 2rem);
 }
 
 .zakat-card-heading .eyebrow,
@@ -6792,43 +6825,86 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
 .zakat-local-badge {
   flex: 0 0 auto;
-  padding: 0.38rem 0.62rem;
+  padding: 0.48rem 0.7rem;
   border-radius: 999px;
   color: #126353;
   background: #e3f7f0;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 850;
   white-space: nowrap;
 }
 
+.zakat-card-intro {
+  max-width: 62ch;
+  margin: 0.45rem 0 1.25rem;
+  color: #496a7f;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.zakat-calculator-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(315px, 0.65fr);
+  align-items: start;
+  gap: clamp(1rem, 2.4vw, 1.5rem);
+}
+
+.zakat-step-list {
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+}
+
 .zakat-section {
   min-width: 0;
-  margin: 1rem 0 0;
-  padding: 1rem 0 0;
-  border: 0;
-  border-top: 1px solid rgba(33, 79, 113, 0.13);
+  margin: 0;
+  padding: clamp(1rem, 2vw, 1.25rem);
+  border: 1px solid rgba(33, 79, 113, 0.12);
+  border-radius: 18px;
+  background: #fbfdfe;
 }
 
 .zakat-section legend {
   width: 100%;
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.8rem;
   padding: 0;
   color: var(--ink);
-  font-size: 0.94rem;
+  font-size: 1rem;
   font-weight: 850;
+}
+
+.zakat-step-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  line-height: 1.35;
+}
+
+.zakat-step-number {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(135deg, #1c5879, #238071);
+  box-shadow: 0 6px 14px rgba(28, 88, 121, 0.16);
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .zakat-section-intro,
 .zakat-field-help {
-  margin: -0.25rem 0 0.75rem;
-  color: #527287;
-  font-size: 0.78rem;
+  margin: -0.15rem 0 0.85rem;
+  color: #496a7f;
+  font-size: 0.82rem;
   line-height: 1.55;
 }
 
 .zakat-field-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 
 .zakat-field-grid-two,
@@ -6839,15 +6915,16 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 .zakat-section label {
   min-width: 0;
   display: grid;
-  gap: 0.38rem;
+  gap: 0.45rem;
   color: var(--ink);
-  font-size: 0.8rem;
+  font-size: 0.86rem;
   font-weight: 750;
+  line-height: 1.4;
 }
 
 .zakat-section label > small {
-  color: #5d7b8d;
-  font-size: 0.7rem;
+  color: #496a7f;
+  font-size: 0.76rem;
   font-weight: 550;
   line-height: 1.5;
 }
@@ -6855,16 +6932,17 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 .zakat-section select,
 .zakat-money-input {
   width: 100%;
-  min-height: 50px;
-  border: 1px solid rgba(33, 79, 113, 0.18);
-  border-radius: 13px;
+  min-height: 54px;
+  border: 1px solid #7893a4;
+  border-radius: 14px;
   color: var(--ink);
   background: #fff;
   font: inherit;
 }
 
 .zakat-section select {
-  padding: 0.68rem 0.75rem;
+  padding: 0.72rem 0.8rem;
+  font-size: 0.9rem;
 }
 
 .zakat-money-input {
@@ -6872,6 +6950,7 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   overflow: hidden;
+  direction: ltr;
 }
 
 .zakat-money-input > span {
@@ -6886,12 +6965,13 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
 .zakat-money-input input {
   min-width: 0;
-  min-height: 48px;
+  min-height: 52px;
   padding: 0.7rem 0.75rem;
   border: 0;
   color: var(--ink);
   background: transparent;
   font: inherit;
+  font-size: 1rem;
   font-weight: 700;
   direction: ltr;
   text-align: left;
@@ -6902,91 +6982,206 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   outline-offset: 2px;
 }
 
+.zakat-money-input.has-error {
+  border-color: #b42318;
+  background: #fff8f7;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.1);
+}
+
 .zakat-money-input input:focus-visible {
   outline: 0;
+}
+
+.zakat-field-error {
+  display: block;
+  margin-top: -0.15rem;
+  color: #9f1c13;
+  font-size: 0.75rem;
+  font-weight: 750;
+  line-height: 1.45;
 }
 
 .zakat-calculator-card [hidden] {
   display: none !important;
 }
 
+.zakat-more-assets,
 .zakat-help-details {
-  margin-top: 0.75rem;
-  padding: 0.7rem 0.8rem;
-  border-radius: 12px;
-  background: var(--sky-50);
+  margin-top: 0.85rem;
+  border: 1px solid rgba(33, 79, 113, 0.11);
+  border-radius: 14px;
+  background: #f3f9fc;
 }
 
+.zakat-more-assets summary,
 .zakat-help-details summary {
-  min-height: 38px;
+  min-height: 46px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.8rem;
   color: var(--blue-700);
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 850;
 }
 
+.zakat-more-assets summary span:last-child {
+  padding: 0.25rem 0.48rem;
+  border-radius: 999px;
+  color: #527287;
+  background: #fff;
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.zakat-assets-extra {
+  padding: 0 0.8rem 0.85rem;
+}
+
 .zakat-help-details p {
-  margin: 0.35rem 0 0;
-  font-size: 0.76rem;
+  margin: 0;
+  padding: 0 0.8rem 0.8rem;
+  color: #426579;
+  font-size: 0.78rem;
   line-height: 1.55;
 }
 
+.zakat-obligation-details {
+  margin-top: 0.85rem;
+}
+
+.zakat-obligation-details summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: #126353;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.zakat-obligation-details p {
+  margin-top: 0.25rem;
+}
+
 .zakat-results {
-  margin-top: 1rem;
-  padding: clamp(1rem, 2.5vw, 1.35rem);
-  border: 1px solid rgba(25, 121, 103, 0.2);
-  border-radius: 18px;
-  background: linear-gradient(145deg, #eaf9f5, #f7fcff);
+  position: sticky;
+  top: 104px;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1.1rem, 2.4vw, 1.4rem);
+  overflow: hidden;
+  border: 1px solid rgba(33, 79, 113, 0.13);
+  border-radius: 20px;
+  background: linear-gradient(155deg, #f4fbf9 0%, #fff 56%, #f4faff 100%);
+  box-shadow: 0 18px 38px rgba(24, 52, 71, 0.1);
+}
+
+.zakat-results::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #5e9bb5;
+}
+
+.zakat-results[data-state="due"]::before {
+  background: #19806b;
+}
+
+.zakat-results[data-state="below"]::before {
+  background: #b67b2d;
+}
+
+.zakat-results[data-state="invalid"]::before {
+  background: #b42318;
+}
+
+.zakat-results-heading {
+  display: grid;
+  justify-content: stretch;
+  gap: 0.6rem;
 }
 
 .zakat-results-heading h3 {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 .zakat-results-heading > strong {
   color: #126353;
-  font-size: clamp(1.6rem, 4vw, 2.25rem);
-  line-height: 1;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  direction: ltr;
+  text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .zakat-result-breakdown {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
-  margin: 1rem 0 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0.85rem 0 0;
 }
 
 .zakat-result-breakdown div {
   min-width: 0;
-  padding: 0.7rem;
+  padding: 0.65rem;
   border: 1px solid rgba(33, 79, 113, 0.11);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.76);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .zakat-result-breakdown dt {
   color: #5d7b8d;
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-weight: 750;
 }
 
 .zakat-result-breakdown dd {
   margin: 0.18rem 0 0;
   color: var(--ink);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 850;
+  direction: ltr;
+  text-align: left;
   overflow-wrap: anywhere;
 }
 
 .zakat-result-status,
 .zakat-minimum-note,
 .zakat-privacy-note {
-  margin: 0.75rem 0 0;
+  margin: 0.8rem 0 0;
   color: #426579;
-  font-size: 0.75rem;
+  font-size: 0.77rem;
   line-height: 1.5;
+}
+
+.zakat-result-status {
+  padding: 0.72rem 0.78rem;
+  border: 1px solid rgba(33, 79, 113, 0.11);
+  border-radius: 12px;
+  background: #eef7fb;
+}
+
+.zakat-result-status[data-state="due"] {
+  color: #0f5e50;
+  border-color: rgba(25, 128, 107, 0.2);
+  background: #e7f7f1;
+}
+
+.zakat-result-status[data-state="below"] {
+  color: #704a16;
+  border-color: rgba(182, 123, 45, 0.2);
+  background: #fff7e9;
+}
+
+.zakat-result-status[data-state="invalid"] {
+  color: #8c1d14;
+  border-color: rgba(180, 35, 24, 0.28);
+  background: #fff0ee;
 }
 
 .zakat-minimum-note {
@@ -6996,20 +7191,26 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
 .zakat-result-actions {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+  grid-template-columns: 1fr;
   gap: 0.65rem;
-  margin-top: 0.85rem;
+  margin-top: 1rem;
 }
 
 .zakat-result-actions .button {
+  width: 100%;
   min-height: 50px;
 }
 
 .zakat-result-actions .button[aria-disabled="true"],
 .zakat-result-actions .button.is-disabled {
-  opacity: 0.48;
+  opacity: 0.46;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.zakat-privacy-note {
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(33, 79, 113, 0.1);
 }
 
 .zakat-learning-section {
@@ -7141,13 +7342,22 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   }
 
   .zakat-hero-copy {
-    position: static;
-    max-width: 760px;
+    grid-template-columns: 1fr;
+    max-width: none;
     padding-top: 0;
   }
 
   .zakat-hero-copy h1 {
     max-width: 12ch;
+  }
+
+  .zakat-calculator-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .zakat-results {
+    position: relative;
+    top: auto;
   }
 
   .zakat-recipient-grid {
@@ -7173,7 +7383,7 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   }
 
   .zakat-language-control select {
-    width: min(31vw, 118px);
+    width: min(35vw, 118px);
     min-height: 44px;
     padding-inline: 0.55rem 1.5rem;
     font-size: 16px;
@@ -7181,8 +7391,8 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
   .zakat-header-actions .header-cta {
     min-height: 44px;
-    padding: 0.52rem 0.72rem;
-    font-size: 0.76rem;
+    padding: 0.52rem 0.58rem;
+    font-size: 0.73rem;
   }
 
   .zakat-section select,
@@ -7196,15 +7406,30 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
   }
 
   .zakat-hero {
-    padding: 1.5rem 0 3rem;
+    padding: 1.2rem 0 2.5rem;
   }
 
   .zakat-hero-copy h1 {
-    font-size: clamp(2.6rem, 13vw, 3.8rem);
+    font-size: clamp(2.35rem, 12vw, 3.35rem);
+  }
+
+  .zakat-hero-copy .lead {
+    margin-bottom: 0.9rem;
+    font-size: 0.96rem;
+    line-height: 1.58;
+  }
+
+  .zakat-hero-guidance {
+    display: none;
+  }
+
+  .zakat-start-link {
+    min-height: 48px;
   }
 
   .zakat-calculator-card {
-    padding: 0.9rem;
+    padding: 0.85rem;
+    scroll-margin-top: 138px;
     border-radius: 20px;
   }
 
@@ -7214,6 +7439,17 @@ html[lang="ar"] .zakat-page :is(h1, h2, h3) {
 
   .zakat-local-badge {
     width: fit-content;
+  }
+
+  .zakat-section {
+    padding: 0.95rem;
+    border-radius: 16px;
+  }
+
+  .zakat-step-number {
+    width: 1.85rem;
+    height: 1.85rem;
+    flex-basis: 1.85rem;
   }
 
   .zakat-field-grid-two,
