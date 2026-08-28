@@ -2964,6 +2964,32 @@ Additional DNS check later on May 4, 2026:
 - Preview deployment `23972f29-63f2-4f24-a958-68170330c3d8` succeeded at `https://23972f29.trying-8o0.pages.dev`, branch `codex-home-flow-20260827`, source `5166894`.
 - Production deployment `2f1458da-539d-4b8e-b0de-fda6d47fe847` succeeded at `https://2f1458da.trying-8o0.pages.dev`, branch `main`, source `5166894`. Cache-bypassed checks on `https://one-world-relief.org` confirmed the removed panel/pills, retained photo reel and broader giving hadith, cache v15, and an active Checkout Function returning the expected safe `400` for an empty request.
 
+### 2026-08-27 Modern Navigation and Homepage Engagement Footer (Released)
+- Site navigation:
+  - Rebuilt the shared header with `Plus Jakarta Sans`, a centered segmented navigation capsule, stronger contrast, a visible current-page state, 44px navigation targets, and a deep-blue `Donate now` action with a restrained arrow cue.
+  - The sticky header gains a subtle depth state after scrolling. Keyboard focus is explicit, the mobile menu closes after navigation, outside interaction, or Escape, and Escape restores focus to its summary control.
+  - Responsive browser checks covered 1440px, 390px, and 320px. The header retains the brand, all four navigation destinations, and Donate action without collisions or horizontal overflow at phone widths.
+- Homepage action hub and footer:
+  - Added a three-card `Turn compassion into action` hub below the faith reminder. Its only destinations are real site features: documented Projects, Share tools, and the private multilingual Zakat calculator.
+  - Replaced the minimal homepage footer with a One World Relief-branded dark footer containing verified Explore links, canonical Ways to Give links, the public email and phone, mailing-address-on-request wording, 501(c)(3) status, EIN `41-5079927`, and conservative tax-deductibility wording.
+  - No unverified social profile, Reports, Volunteer, Privacy, Terms, or Safeguarding link was invented. The reference organization's colors, wording, and branding were not copied.
+  - Added an inline, non-sticky quick-give row for unrestricted `$25`, `$50`, `$100`, or another amount. Each amount hands off to the existing Donate form with canonical `program=unrestricted`; there is no duplicate frequency or payment UI in the footer.
+- Accessibility and responsive behavior:
+  - The green Share card was darkened after contrast review; white text measures at least `5.61:1` at the lightest gradient edge. Body copy is nearly opaque, the Zakat card uses a dark visible focus outline, and quick-give controls expose an explicitly labeled accessible group.
+  - Footer links use 44px minimum targets, quick-give buttons collapse to a two-column phone grid, and the footer becomes a single readable column at narrow widths. Live 390px checks confirmed no horizontal overflow and a 50px primary quick-give action.
+  - The quick-give strip remains in normal page flow on desktop and mobile, so it never covers project or footer content.
+- Stripe, Sheets, and data boundaries:
+  - This release changes presentation and navigation only. Stripe Checkout, server-owned donation rules and metadata, webhook processing, Google Sheets A:H mapping, receipt behavior, Zakat privacy handling, and project records are unchanged.
+  - Safe browser interaction confirmed `$50` and `$100` footer links reach the Donate form with the expected unrestricted program and amount. Empty Checkout POSTs returned `400` on preview and canonical production. No real Checkout Session, payment, signed webhook, receipt, or Google Sheets row was created.
+- Verification and release:
+  - Commits `d658c1e72b3d90c8de72cbc1b37bf81d2d32086a` (`feat: modernize site navigation header`), `4ba26ec` (`feat: expand homepage engagement footer`), and final accessibility fix `07a873d49f175404b2ab57b7fd2b71eab296548e` (`fix: strengthen homepage footer accessibility`) were pushed to `origin/charity-frontend-redesign`.
+  - Offline cache advanced from `owr-offline-v15` to `owr-offline-v17`. The complete regression suite passed `42/42`; JavaScript and service-worker syntax checks plus `git diff --check` passed.
+  - The safe deploy workflow staged exactly `70` public assets and `5` Pages Function sources and compiled the Functions bundle with Wrangler `4.127.0`.
+  - Header-only preview `53180ca8-66a5-4485-a04c-062c179df7ba` succeeded at `https://53180ca8.trying-8o0.pages.dev`, branch `codex-header-redesign-20260827`, source `d658c1e`.
+  - Final combined preview `82033cf3-62ee-45df-ab5e-30ecf37a0dae` succeeded at `https://82033cf3.trying-8o0.pages.dev`, branch `codex-home-footer-20260827`, source `07a873d`.
+  - Production deployment `d5b3ca65-a299-4e31-a896-bb8faf6bbfc3` succeeded at `https://d5b3ca65.trying-8o0.pages.dev`, branch `main`, source `07a873d`.
+  - Cache-bypassed checks on `https://one-world-relief.org` confirmed the modern header, all three action cards, expanded footer, labeled quick-give group, stronger green contrast, cache v17, and active Checkout Function. Rendered live QA passed at 1440px and 390px.
+
 ---
 
 **End of AI Handoff Documentation**
