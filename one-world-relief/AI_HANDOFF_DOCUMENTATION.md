@@ -2953,6 +2953,17 @@ Additional DNS check later on May 4, 2026:
 - Preview deployment `0e2fbecd-ba42-4511-b2e5-e7525e7c4d13` succeeded at `https://0e2fbecd.trying-8o0.pages.dev`, branch `codex-giving-hadith-20260827`, source `953b3ac`.
 - Production deployment `b84020d1-a759-4c4b-a850-b10eee4704eb` succeeded at `https://b84020d1.trying-8o0.pages.dev`, branch `main`, source `953b3ac`. Cache-bypassed checks on `https://one-world-relief.org` confirmed the new quote, Qudsi attribution, verified source link, cache v14, removal of the former full hero wording, and an active Checkout Function returning the expected safe `400` for an empty request.
 
+### 2026-08-27 Streamlined Homepage Project Flow (Released)
+- Removed the large `Worked On / Goals` text dashboard and the five non-interactive category pills from the homepage. They repeated information already communicated by the real-project photo reel and created unnecessary empty space, especially on mobile.
+- The homepage now moves directly from the donation hero into the completed-project photo reel, followed by the existing faith reminder. The seven original completed case cards remain available, animated on desktop and swipeable as a static, touch-friendly row on mobile.
+- Deleted the unused lane-rendering JavaScript, pointer-motion target, dashboard/card styles, and mobile lane-scroller rules instead of hiding dead UI. The reel's top spacing was tightened so completed work appears sooner below the hero.
+- This release is presentation-only. Project data, donation-program rules, Stripe Checkout and webhook Functions, Google Sheets A:H mapping, Zakat handling, receipts, and donor inputs are unchanged. No real Checkout Session, payment, signed webhook, or Google Sheets row was created.
+- Feature commit `516689464b82926d62877c9f222018954812ad17` (`feat: streamline homepage project flow`) was pushed to `origin/charity-frontend-redesign`. Offline cache advanced from `owr-offline-v14` to `owr-offline-v15`.
+- Regression passed `41/41`; `one-world-relief.js` and `sw.js` passed syntax checks; `git diff --check` passed; Wrangler `4.127.0` compiled all five staged Pages Functions; and the safe release workflow staged exactly `70` public assets plus `5` Function source files.
+- Browser QA covered 1440px and 390px on local, preview, and production builds. It confirmed no dashboard or pill nodes, seven accessible original project cards, desktop motion, mobile `overflow-x: auto` with no track transform, and the donation hero flowing directly into the photo reel.
+- Preview deployment `23972f29-63f2-4f24-a958-68170330c3d8` succeeded at `https://23972f29.trying-8o0.pages.dev`, branch `codex-home-flow-20260827`, source `5166894`.
+- Production deployment `2f1458da-539d-4b8e-b0de-fda6d47fe847` succeeded at `https://2f1458da.trying-8o0.pages.dev`, branch `main`, source `5166894`. Cache-bypassed checks on `https://one-world-relief.org` confirmed the removed panel/pills, retained photo reel and broader giving hadith, cache v15, and an active Checkout Function returning the expected safe `400` for an empty request.
+
 ---
 
 **End of AI Handoff Documentation**
