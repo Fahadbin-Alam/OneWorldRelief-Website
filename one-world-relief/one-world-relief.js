@@ -14,6 +14,7 @@
   const projectBoard = document.getElementById("projectBoard");
   const projectStats = document.getElementById("projectStats");
   const homeCaseFlowTrack = document.getElementById("homeCaseFlowTrack");
+  const homeCompletedCaseCount = document.getElementById("homeCompletedCaseCount");
   const homeOrphanImpactCount = document.getElementById("homeOrphanImpactCount");
   const homeOrphanImpactAccessible = document.getElementById("homeOrphanImpactAccessible");
   const faithVideo = document.querySelector(".faith-video-bg");
@@ -501,10 +502,13 @@
   };
 
   const renderHomeOrphanImpact = () => {
-    if (!homeOrphanImpactCount || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
+    if (!Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
       return;
     }
 
+    const completedCount = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => (
+      String(project.status || "").toLowerCase().includes("completed")
+    )).length;
     const verifiedCount = window.ONE_WORLD_RELIEF_PROJECTS.reduce((total, project) => {
       const isCompleted = String(project.status || "").toLowerCase().includes("completed");
       const beneficiaryCount = Number(project.verifiedOrphanBeneficiaries);
@@ -514,7 +518,11 @@
       return total + beneficiaryCount;
     }, 0);
 
-    if (!Number.isSafeInteger(verifiedCount) || verifiedCount < 1) {
+    if (homeCompletedCaseCount && Number.isSafeInteger(completedCount) && completedCount > 0) {
+      homeCompletedCaseCount.textContent = completedCount.toLocaleString("en-US");
+    }
+
+    if (!homeOrphanImpactCount || !Number.isSafeInteger(verifiedCount) || verifiedCount < 1) {
       return;
     }
 
@@ -686,9 +694,7 @@
 
   if (quickDonationForm) {
     const quickCustomInput = document.getElementById("quickCustomAmount");
-    const quickCampaignSelect = document.getElementById("quickCampaign");
     const quickStatus = document.getElementById("quickDonationStatus");
-    const presetAmountRadios = Array.from(quickDonationForm.querySelectorAll('input[name="quickAmount"]'));
 
     const setQuickStatus = (message = "", isError = false) => {
       if (!quickStatus) {
@@ -698,47 +704,25 @@
       quickStatus.classList.toggle("error", isError);
     };
 
-    const activateCustomAmount = () => {
-      if (!quickCustomInput?.value) {
-        return;
-      }
-      presetAmountRadios.forEach((radio) => {
-        radio.checked = false;
-      });
+    const clearQuickAmountError = () => {
       quickCustomInput?.removeAttribute("aria-invalid");
       setQuickStatus();
     };
 
-    populateDonationDestinations(quickCampaignSelect);
-
-    presetAmountRadios.forEach((radio) => {
-      radio.addEventListener("change", () => {
-        if (radio.checked && quickCustomInput) {
-          quickCustomInput.value = "";
-          quickCustomInput.removeAttribute("aria-invalid");
-        }
-        setQuickStatus();
-      });
-    });
-
     if (quickCustomInput) {
-      quickCustomInput.addEventListener("input", activateCustomAmount);
+      quickCustomInput.addEventListener("input", clearQuickAmountError);
     }
 
     quickDonationForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      const selectedAmount = quickDonationForm.querySelector('input[name="quickAmount"]:checked');
-      const customAmount = quickCustomInput ? Number(quickCustomInput.value) : 0;
-      const usesCustomAmount = !selectedAmount || Boolean(quickCustomInput?.value);
-      if (usesCustomAmount && (!Number.isFinite(customAmount) || customAmount < 5)) {
+      const amount = quickCustomInput ? Number(quickCustomInput.value) : 0;
+      if (!Number.isFinite(amount) || amount < 5) {
         quickCustomInput?.focus();
         quickCustomInput?.setAttribute("aria-invalid", "true");
         setQuickStatus("Please enter a donation amount of at least $5.", true);
         return;
       }
-      const amount = usesCustomAmount ? String(customAmount) : selectedAmount.value;
-      const program = quickCampaignSelect?.value || "unrestricted";
-      window.location.href = buildQuickDonationUrl({ amount, program });
+      window.location.href = buildQuickDonationUrl({ amount: String(amount), program: "unrestricted" });
     });
   }
 

@@ -20,7 +20,7 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="one-world-relief-home-v2.css" />
+  <link rel="stylesheet" href="one-world-relief-home-v3.css" />
 </head>
 <body class="site-body home-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -38,6 +38,15 @@
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
+      <details class="mobile-nav-menu">
+        <summary>Menu</summary>
+        <nav aria-label="Mobile navigation">
+          <a href="projects.html">Projects</a>
+          <a href="share.html">Share</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </details>
       <a class="button button-primary header-cta" href="donate.html">Donate now</a>
     </div>
   </header>
@@ -45,88 +54,89 @@
   <main>
     <section class="hero-shell hero-shell-home home-current-scene reveal">
       <div class="container hero hero-home hero-donate-first">
-        <div class="current-lines" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
         <div class="hero-copy home-impact-copy" aria-labelledby="homeImpactTitle">
-          <p class="eyebrow home-impact-eyebrow">Our documented orphan impact</p>
-          <div class="home-impact-headline">
-            <strong class="home-impact-number" id="homeOrphanImpactCount" data-impact-count aria-hidden="true">2</strong>
-            <div class="home-impact-title-wrap">
-              <span class="home-impact-count-label">Individual cases</span>
-              <h1 id="homeImpactTitle">Orphan students directly supported.</h1>
+          <p class="eyebrow home-impact-eyebrow">Small nonprofit. Documented work.</p>
+          <h1 id="homeImpactTitle">Give what you can. See where it goes.</h1>
+          <p class="home-impact-summary">
+            One World Relief supports practical projects in Bangladesh and publishes photos, videos, dates, and completed costs from the work.
+          </p>
+
+          <div class="home-proof-strip" aria-label="Documented One World Relief impact">
+            <div class="home-proof-stat">
+              <strong id="homeCompletedCaseCount">7</strong>
+              <span>completed cases documented</span>
+            </div>
+            <div class="home-proof-stat">
+              <strong id="homeOrphanImpactCount">2</strong>
+              <span>orphan students directly supported</span>
             </div>
           </div>
           <p class="sr-only" id="homeOrphanImpactAccessible">2 orphan students directly supported through completed, documented cases.</p>
-          <p class="home-impact-summary">
-            Two completed support cases, each backed by field photos and delivery records.
-          </p>
-
-          <div class="home-impact-cases" aria-label="Cases included in this count">
-            <a class="home-impact-case" href="projects/case-001.html">
-              <span>Case 001</span>
-              <strong>Hafiz student support</strong>
-              <small>$600 delivered</small>
-            </a>
-            <a class="home-impact-case" href="projects/case-003.html">
-              <span>Case 003</span>
-              <strong>Orphan education</strong>
-              <small>$400 delivered</small>
-            </a>
-          </div>
-
-          <p class="home-impact-group-note">
-            <span class="home-impact-plus" aria-hidden="true">+</span>
-            <span><strong>Also documented:</strong> a completed $400 madrasa meal for a group of orphan children. Its exact headcount was not recorded, so it is not included above.</span>
-          </p>
-
-          <div class="home-impact-actions">
-            <a class="home-impact-link" href="projects.html#projectBoard">See the documented work <span aria-hidden="true">&rarr;</span></a>
-            <blockquote class="home-impact-hadith" cite="https://sunnah.com/muslim:2588">
-              <p>“Charity does not decrease wealth.”</p>
-              <cite>Prophet Muhammad ﷺ · <a href="https://sunnah.com/muslim:2588" target="_blank" rel="noreferrer">Sahih Muslim 2588</a></cite>
-            </blockquote>
-          </div>
         </div>
 
         <div class="home-action-panel">
-          <form class="quick-donation" id="quickDonationForm" aria-label="Choose a donation amount">
+          <form class="quick-donation" id="quickDonationForm" aria-label="Make a donation">
             <div class="quick-donation-heading">
-              <h2>Give where it’s needed most.</h2>
-              <p class="quick-donation-subtitle">Choose an amount. Every gift supports verified relief.</p>
+              <p class="quick-donation-kicker">Donate securely</p>
+              <h2>Make a donation.</h2>
+              <p class="quick-donation-subtitle">Enter the amount you would like to give. You can review the cause before payment.</p>
             </div>
 
-            <fieldset class="quick-amounts">
-              <legend class="sr-only">Choose a donation amount</legend>
-              <label><input type="radio" name="quickAmount" value="5" /><span>$5</span></label>
-              <label><input type="radio" name="quickAmount" value="25" checked /><span>$25</span></label>
-              <label><input type="radio" name="quickAmount" value="50" /><span>$50</span></label>
-              <label><input type="radio" name="quickAmount" value="100" /><span>$100</span></label>
-            </fieldset>
-
             <label class="quick-custom-amount" for="quickCustomAmount">
-              <span class="sr-only">Enter another donation amount</span>
+              <span class="quick-amount-label">Donation amount <small>USD</small></span>
               <span class="quick-custom-input-wrap">
                 <span aria-hidden="true">$</span>
-                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="1" inputmode="numeric" placeholder="Other amount" aria-describedby="quickAmountHint" />
+                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="0.01" inputmode="decimal" placeholder="0.00" aria-describedby="quickAmountHint" required />
               </span>
-              <small class="sr-only" id="quickAmountHint">The minimum donation is $5. Entering an amount replaces the selected choice.</small>
+              <small class="sr-only" id="quickAmountHint">Enter a donation amount in U.S. dollars.</small>
             </label>
 
             <button class="button button-primary quick-donation-button" type="submit">
               <span>Donate now</span><span aria-hidden="true">&rarr;</span>
             </button>
-            <p class="quick-donation-trust">
-              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
-                <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
-              </svg>
-              Secure Stripe checkout <span aria-hidden="true">&middot;</span> Receipt provided
-            </p>
-            <a class="quick-donation-cause-link" href="donate.html#donationForm">Choose a specific cause</a>
+            <div class="quick-donation-trust" aria-label="Donation checkout information">
+              <span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                  <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10m-10 0h11a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-7A1.5 1.5 0 0 1 6.5 10Z" />
+                </svg>
+                Checkout handled by Stripe
+              </span>
+              <span>Receipt after successful payment</span>
+            </div>
+            <a class="quick-donation-identity" href="about.html#official-details">Organization details &mdash; EIN 41-5079927</a>
+            <a class="quick-donation-cause-link" href="donate.html#donationForm">Choose a specific cause instead</a>
             <p class="quick-donation-status" id="quickDonationStatus" role="status" aria-live="polite"></p>
           </form>
+        </div>
+
+        <a class="home-evidence-project" href="projects/case-004.html" aria-label="View completed Case 004, Feeding Madrasa for Orphan Kids">
+          <figure>
+            <img
+              src="assets/projects/case-004/korbani-meals-004-thumbnail.jpg"
+              width="1600"
+              height="1200"
+              alt="Meal service documented for orphan children at a madrasa in Bangladesh"
+              fetchpriority="high"
+              decoding="async"
+            />
+            <figcaption>
+              <span>Completed &middot; Case 004</span>
+              <strong>Feeding Madrasa for Orphan Kids</strong>
+              <small>$400 delivered &middot; View photos and video <span aria-hidden="true">&rarr;</span></small>
+            </figcaption>
+          </figure>
+        </a>
+
+        <div class="home-evidence-details">
+          <p class="home-evidence-note">
+            The individual count above includes only cases where the records identify one beneficiary. The group meal pictured here is documented separately and is not added to that count.
+          </p>
+          <div class="home-impact-cases" aria-label="Cases included in the individual orphan count">
+            <span>Count sources:</span>
+            <a href="projects/case-001.html">Case 001 &middot; $600 delivered</a>
+            <a href="projects/case-003.html">Case 003 &middot; $400 delivered</a>
+          </div>
+          <a class="home-impact-link" href="projects.html#projectBoard">View all documented projects <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>
     </section>
@@ -285,18 +295,12 @@
     <section class="home-quick-give" aria-labelledby="homeQuickGiveTitle">
       <div class="container home-quick-give-inner">
         <div class="home-quick-give-copy">
-          <p class="home-quick-give-kicker">Quick give</p>
-          <h2 id="homeQuickGiveTitle">Help where it is needed most.</h2>
-          <span>Secure Stripe checkout &middot; Receipt provided</span>
+          <p class="home-quick-give-kicker">Support the next need</p>
+          <h2 id="homeQuickGiveTitle">Choose an amount that works for you.</h2>
+          <span>Checkout handled by Stripe &middot; Receipt after successful payment</span>
         </div>
-        <div class="home-quick-give-amounts" role="group" aria-label="Choose a donation amount">
-          <a href="donate.html?program=unrestricted&amp;amount=25#donationForm">$25</a>
-          <a href="donate.html?program=unrestricted&amp;amount=50#donationForm">$50</a>
-          <a href="donate.html?program=unrestricted&amp;amount=100#donationForm">$100</a>
-          <a href="donate.html?program=unrestricted#donationForm">Other</a>
-        </div>
-        <a class="home-quick-give-button" href="donate.html?program=unrestricted&amp;amount=25#donationForm">
-          Continue securely <span aria-hidden="true">&rarr;</span>
+        <a class="home-quick-give-button" href="donate.html?program=unrestricted#donationForm">
+          Donate what you can <span aria-hidden="true">&rarr;</span>
         </a>
       </div>
     </section>

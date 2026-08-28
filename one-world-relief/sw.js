@@ -1,13 +1,14 @@
 // Author: Fahadbin Alam (fma52), 5/13/26
 // Mod by Codex, 5/13/26
 // One World Relief offline fallback cache.
-const CACHE_NAME = "owr-offline-v29";
+const CACHE_NAME = "owr-offline-v30";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/offline.html",
   "/one-world-relief.css",
   "/one-world-relief-home-v2.css",
+  "/one-world-relief-home-v3.css",
   "/one-world-relief.js",
   "/donation-programs.js",
   "/donation-checkout.js",

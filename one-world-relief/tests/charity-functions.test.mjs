@@ -1117,7 +1117,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v29/);
+  assert.match(serviceWorker, /owr-offline-v30/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1419,7 +1419,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v29/);
+  assert.match(serviceWorker, /owr-offline-v30/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1429,7 +1429,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(siteCss, /@keyframes offline-dino-hop/);
 });
 
-test("homepage leads with a scoped, source-backed orphan impact count", async () => {
+test("homepage leads with restrained, source-backed project and orphan impact proof", async () => {
   const [homeHtml, projectData, siteJs, siteCss] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("project-data.js", "utf8"),
@@ -1437,29 +1437,45 @@ test("homepage leads with a scoped, source-backed orphan impact count", async ()
     readFile("one-world-relief.css", "utf8"),
   ]);
 
+  const heroStart = homeHtml.indexOf('<section class="hero-shell hero-shell-home home-current-scene reveal">');
   const impactStart = homeHtml.indexOf('<div class="hero-copy home-impact-copy"');
   const donationStart = homeHtml.indexOf('<div class="home-action-panel">');
+  const flowStart = homeHtml.indexOf('<section class="home-case-flow reveal"');
+  assert.ok(heroStart >= 0, "homepage should include its credibility-first hero");
   assert.ok(impactStart >= 0, "homepage should include the orphan impact lead");
   assert.ok(donationStart > impactStart, "impact count should lead the hero before checkout");
+  assert.ok(flowStart > donationStart, "documentary evidence should remain inside the hero before the case flow");
 
   const impactHtml = homeHtml.slice(impactStart, donationStart);
-  assert.match(impactHtml, /Our documented orphan impact/);
-  assert.match(impactHtml, /id="homeOrphanImpactCount" data-impact-count aria-hidden="true">2<\/strong>/);
-  assert.match(impactHtml, /id="homeImpactTitle">Orphan students directly supported\.<\/h1>/);
+  const heroHtml = homeHtml.slice(heroStart, flowStart);
+  assert.match(impactHtml, /Small nonprofit\. Documented work\./);
+  assert.match(impactHtml, /id="homeImpactTitle">Give what you can\. See where it goes\.<\/h1>/);
+  assert.match(impactHtml, /publishes photos, videos, dates, and completed costs from the work/);
+  assert.match(impactHtml, /class="home-proof-strip" aria-label="Documented One World Relief impact"/);
+  assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong>[\s\S]*?completed cases documented/);
+  assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong>[\s\S]*?orphan students directly supported/);
   assert.match(impactHtml, /id="homeOrphanImpactAccessible">2 orphan students directly supported through completed, documented cases\.<\/p>/);
-  assert.match(impactHtml, /href="projects\/case-001\.html"/);
-  assert.match(impactHtml, /href="projects\/case-003\.html"/);
-  assert.match(impactHtml, /Also documented:/);
-  assert.match(impactHtml, /Its exact headcount was not recorded, so it is not included above\./);
-  assert.match(impactHtml, /href="projects\.html#projectBoard">See the documented work/);
-  assert.match(impactHtml, /class="home-impact-hadith" cite="https:\/\/sunnah\.com\/muslim:2588"/);
-  assert.match(impactHtml, /Charity does not decrease wealth\./);
-  assert.doesNotMatch(impactHtml, /O son of Adam! Spend, and I shall spend on you\./);
-  assert.doesNotMatch(impactHtml, /2 orphans helped|total orphans helped/i);
+  assert.match(heroHtml, /class="home-evidence-project" href="projects\/case-004\.html"/);
+  assert.match(heroHtml, /src="assets\/projects\/case-004\/korbani-meals-004-thumbnail\.jpg"/);
+  assert.match(heroHtml, /alt="Meal service documented for orphan children at a madrasa in Bangladesh"/);
+  assert.match(heroHtml, /Completed &middot; Case 004/);
+  assert.match(heroHtml, /Feeding Madrasa for Orphan Kids/);
+  assert.match(heroHtml, /\$400 delivered &middot; View photos and video/);
+  assert.match(heroHtml, /The individual count above includes only cases where the records identify one beneficiary\./);
+  assert.match(heroHtml, /The group meal pictured here is documented separately and is not added to that count\./);
+  assert.match(heroHtml, /aria-label="Cases included in the individual orphan count"/);
+  assert.match(heroHtml, /href="projects\/case-001\.html">Case 001 &middot; \$600 delivered<\/a>/);
+  assert.match(heroHtml, /href="projects\/case-003\.html">Case 003 &middot; \$400 delivered<\/a>/);
+  assert.match(heroHtml, /href="projects\.html#projectBoard">View all documented projects/);
+  assert.doesNotMatch(heroHtml, /home-impact-hadith|Charity does not decrease wealth|O son of Adam! Spend/);
+  assert.doesNotMatch(heroHtml, /2 orphans helped|total orphans helped/i);
 
   const projectContext = { window: {} };
   runInNewContext(projectData, projectContext);
   const projects = JSON.parse(JSON.stringify(projectContext.window.ONE_WORLD_RELIEF_PROJECTS));
+  const completedCount = projects.filter((project) => (
+    String(project.status || "").toLowerCase().includes("completed")
+  )).length;
   const verifiedCount = projects.reduce((total, project) => {
     if (!String(project.status || "").toLowerCase().includes("completed")) {
       return total;
@@ -1468,22 +1484,26 @@ test("homepage leads with a scoped, source-backed orphan impact count", async ()
       ? project.verifiedOrphanBeneficiaries
       : 0);
   }, 0);
+  assert.equal(completedCount, 7);
   assert.equal(verifiedCount, 2);
   assert.equal(projects.find((project) => project.date === "Case 001").verifiedOrphanBeneficiaries, 1);
   assert.equal(projects.find((project) => project.date === "Case 003").verifiedOrphanBeneficiaries, 1);
   assert.equal(projects.find((project) => project.date === "Case 004").verifiedOrphanBeneficiaries, null);
 
   assert.match(siteJs, /const renderHomeOrphanImpact = \(\) =>/);
+  assert.match(siteJs, /const homeCompletedCaseCount = document\.getElementById\("homeCompletedCaseCount"\)/);
+  assert.match(siteJs, /const completedCount = window\.ONE_WORLD_RELIEF_PROJECTS\.filter/);
+  assert.match(siteJs, /homeCompletedCaseCount\.textContent = completedCount\.toLocaleString\("en-US"\)/);
   assert.match(siteJs, /Number\.isSafeInteger\(beneficiaryCount\)/);
   assert.match(siteJs, /renderHomeOrphanImpact\(\);\s*renderHomeCaseFlow\(\);/);
   assert.match(siteJs, /\[data-impact-count\], \.flow-impact-stats strong/);
-  assert.match(siteCss, /\.home-page \.home-impact-number/);
-  assert.match(siteCss, /\.home-page \.home-impact-case:focus-visible/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-actions\s*\{\s*grid-template-columns: 1fr;/);
-  assert.match(siteCss, /@media \(max-width: 350px\)[\s\S]*?\.home-page \.home-impact-cases\s*\{\s*grid-template-columns: 1fr;/);
+  assert.match(siteCss, /\.home-page \.home-proof-strip\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /\.home-page \.home-evidence-project img\s*\{[^}]*height: auto;[^}]*aspect-ratio: 4 \/ 3;[^}]*object-fit: cover/);
+  assert.match(siteCss, /\.home-page \.home-evidence-project:focus-visible,[\s\S]*?\.home-page \.home-impact-link:focus-visible\s*\{[^}]*outline: 3px solid #174a6d/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-proof-stat\s*\{[^}]*grid-template-columns: 1fr/);
 });
 
-test("homepage checkout stays simple and sends accessible unrestricted $5-plus gifts to the catalog checkout", async () => {
+test("homepage checkout accepts one custom unrestricted amount with accessible Stripe handoff", async () => {
   const [homeHtml, siteJs, siteCss, programSource, serviceWorker, redirectsSource] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -1496,26 +1516,20 @@ test("homepage checkout stays simple and sends accessible unrestricted $5-plus g
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-home-v2\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-home-v2\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-home-v2\.css \/one-world-relief\.css 200$/m);
-  assert.match(quickForm, /aria-label="Choose a donation amount"/);
-  assert.match(quickForm, /<h2>Give where it’s needed most\.<\/h2>/u);
-  assert.match(quickForm, /class="quick-donation-subtitle">Choose an amount\. Every gift supports verified relief\.<\/p>/);
-  assert.match(quickForm, /<legend class="sr-only">Choose a donation amount<\/legend>/);
-  assert.doesNotMatch(quickForm, /quick-donation-kicker|quick-donation-mark/);
-
-  const presetAmounts = [...quickForm.matchAll(/name="quickAmount" value="([^"]+)"/g)].map((match) => match[1]);
-  assert.deepEqual(presetAmounts, ["5", "25", "50", "100"]);
-  assert.equal([...quickForm.matchAll(/name="quickAmount"[^>]*checked/g)].length, 1);
-  assert.match(quickForm, /name="quickAmount" value="25" checked/);
-  assert.doesNotMatch(quickForm, /name="quickAmount" value="custom"|quickCustomPanel|Custom Amount/);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-home-v3\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-home-v3\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-home-v3\.css \/one-world-relief\.css 200$/m);
+  assert.match(quickForm, /aria-label="Make a donation"/);
+  assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
+  assert.match(quickForm, /<h2>Make a donation\.<\/h2>/);
+  assert.match(quickForm, /class="quick-donation-subtitle">Enter the amount you would like to give\. You can review the cause before payment\.<\/p>/);
+  assert.doesNotMatch(quickForm, /class="quick-amounts"|name="quickAmount"|type="radio"|\$25|\$50|\$100/);
 
   assert.match(quickForm, /<label class="quick-custom-amount" for="quickCustomAmount">/);
-  assert.match(quickForm, /<span class="sr-only">Enter another donation amount<\/span>/);
-  assert.match(quickForm, /id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="1" inputmode="numeric"/);
-  assert.match(quickForm, /placeholder="Other amount" aria-describedby="quickAmountHint"/);
-  assert.match(quickForm, /<small class="sr-only" id="quickAmountHint">The minimum donation is \$5\. Entering an amount replaces the selected choice\.<\/small>/);
+  assert.match(quickForm, /<span class="quick-amount-label">Donation amount <small>USD<\/small><\/span>/);
+  assert.match(quickForm, /id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="0\.01" inputmode="decimal"/);
+  assert.match(quickForm, /placeholder="0\.00" aria-describedby="quickAmountHint" required/);
+  assert.match(quickForm, /<small class="sr-only" id="quickAmountHint">Enter a donation amount in U\.S\. dollars\.<\/small>/);
   assert.doesNotMatch(quickForm, /quick-custom[^>]*hidden|id="quickCustomAmount"[^>]*hidden/);
   assert.doesNotMatch(quickForm, /quickFrequency|quick-frequency|<legend>Frequency<\/legend>|Monthly|One-time/);
   assert.doesNotMatch(quickForm, /quickCampaign|Donation destination|Choose a purpose/);
@@ -1523,24 +1537,23 @@ test("homepage checkout stays simple and sends accessible unrestricted $5-plus g
   assert.doesNotMatch(siteJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
 
   assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Donate now<\/span><span aria-hidden="true">&rarr;<\/span>/);
-  assert.match(quickForm, /class="quick-donation-trust"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure Stripe checkout[\s\S]*?Receipt provided/);
-  assert.match(quickForm, /class="quick-donation-cause-link" href="donate\.html#donationForm">Choose a specific cause<\/a>/);
+  assert.match(quickForm, /class="quick-donation-trust" aria-label="Donation checkout information"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Checkout handled by Stripe[\s\S]*?Receipt after successful payment/);
+  assert.match(quickForm, /class="quick-donation-identity" href="about\.html#official-details">Organization details[\s\S]*?EIN 41-5079927<\/a>/);
+  assert.match(quickForm, /class="quick-donation-cause-link" href="donate\.html#donationForm">Choose a specific cause instead<\/a>/);
   assert.match(quickForm, /id="quickDonationStatus" role="status" aria-live="polite"/);
   assert.doesNotMatch(homeHtml, /Receipt emailed|quick-donation-topline/);
 
-  assert.match(siteJs, /const activateCustomAmount = \(\) =>/);
-  assert.match(siteJs, /if \(!quickCustomInput\?\.value\) \{\s*return;/);
-  assert.match(siteJs, /presetAmountRadios\.forEach\(\(radio\) => \{\s*radio\.checked = false;/);
-  assert.doesNotMatch(siteJs, /quickCustomInput\.addEventListener\("focus", activateCustomAmount\)/);
-  assert.match(siteJs, /quickCustomInput\.addEventListener\("input", activateCustomAmount\)/);
-  assert.match(siteJs, /radio\.checked && quickCustomInput[\s\S]*?quickCustomInput\.value = ""/);
+  assert.match(siteJs, /const clearQuickAmountError = \(\) =>/);
+  assert.match(siteJs, /quickCustomInput\?\.removeAttribute\("aria-invalid"\);\s*setQuickStatus\(\);/);
+  assert.match(siteJs, /quickCustomInput\.addEventListener\("input", clearQuickAmountError\)/);
+  assert.doesNotMatch(siteJs, /presetAmountRadios|input\[name="quickAmount"\]/);
+  assert.match(siteJs, /const amount = quickCustomInput \? Number\(quickCustomInput\.value\) : 0/);
   assert.match(siteJs, /quickCustomInput\?\.setAttribute\("aria-invalid", "true"\)/);
-  assert.match(siteJs, /!Number\.isFinite\(customAmount\) \|\| customAmount < 5/);
+  assert.match(siteJs, /!Number\.isFinite\(amount\) \|\| amount < 5/);
   assert.match(siteJs, /Please enter a donation amount of at least \$5\./);
   assert.match(siteJs, /const buildQuickDonationUrl = \(\{ amount, program = "unrestricted" \}\) =>/);
   assert.match(siteJs, /const params = new URLSearchParams\(\{[\s\S]*?amount: String\(amount\),[\s\S]*?program: String\(program \|\| "unrestricted"\),[\s\S]*?\}\)/);
-  assert.match(siteJs, /const program = quickCampaignSelect\?\.value \|\| "unrestricted"/);
-  assert.match(siteJs, /window\.location\.href = buildQuickDonationUrl\(\{ amount, program \}\)/);
+  assert.match(siteJs, /window\.location\.href = buildQuickDonationUrl\(\{ amount: String\(amount\), program: "unrestricted" \}\)/);
   assert.doesNotMatch(siteJs, /input\[name="quickFrequency"\]:checked|frequency: String\(frequency|params\.get\("frequency"\)/);
 
   const catalogContext = { window: {} };
@@ -1560,7 +1573,7 @@ test("homepage checkout stays simple and sends accessible unrestricted $5-plus g
     helperContext,
   );
 
-  for (const amount of [5, 25, 50, 100, 73]) {
+  for (const amount of [5, 5.01, 7.25, 73]) {
     const quickUrl = helperContext.__buildQuickDonationUrl({ amount });
     const parsed = new URL(quickUrl, "https://one-world-relief.org/");
     assert.equal(parsed.pathname, "/donate.html");
@@ -1572,16 +1585,15 @@ test("homepage checkout stays simple and sends accessible unrestricted $5-plus g
     assert.equal(parsed.searchParams.has("giving_frequency"), false);
   }
 
-  assert.match(siteCss, /\.quick-amounts input:focus-visible \+ span/);
   assert.match(siteCss, /\.quick-custom-input-wrap:focus-within/);
   assert.match(siteCss, /\.quick-category select:focus-visible/);
   assert.ok((siteCss.match(/outline: 3px solid var\(--blue-700\);/g) || []).length >= 4);
-  assert.match(siteCss, /\.quick-amounts input:checked \+ span/);
   assert.match(siteCss, /\.quick-donation-button:active/);
   assert.match(siteCss, /\.quick-donation-button:focus-visible/);
   assert.match(siteCss, /\.quick-donation-cause-link:focus-visible/);
-  const quickAmountsRule = siteCss.slice(siteCss.indexOf(".quick-amounts {"), siteCss.indexOf(".quick-amounts legend"));
-  assert.match(quickAmountsRule, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /\.home-page \.quick-custom-input-wrap\s*\{[^}]*min-height: 62px/);
+  assert.match(siteCss, /\.home-page \.quick-donation-identity,[\s\S]*?\.home-page \.quick-donation-cause-link\s*\{[^}]*min-height: 44px/);
+  assert.doesNotMatch(siteCss, /\.quick-amounts(?:\s|\{|\.|:)/);
   assert.doesNotMatch(siteCss, /\.quick-donation-status:empty/);
   assert.doesNotMatch(siteCss, /@keyframes quick-card-(?:sheen|lift)/);
   const quickCardRule = siteCss.slice(siteCss.indexOf(".quick-donation {"), siteCss.indexOf(".quick-donation::before"));
@@ -1606,9 +1618,9 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /<source data-src="assets\/projects\/case-002\/livelihood-support-002-primary\.mp4"/);
   assert.doesNotMatch(homeHtml, /<video class="faith-video-bg"[^>]*autoplay/);
   assert.match(homeHtml, /Why We Give/);
-  assert.match(homeHtml, /<blockquote class="home-impact-hadith" cite="https:\/\/sunnah\.com\/muslim:2588">/);
-  assert.match(homeHtml, /<p>“Charity does not decrease wealth\.”<\/p>/u);
-  assert.match(homeHtml, /<cite>Prophet Muhammad ﷺ · <a href="https:\/\/sunnah\.com\/muslim:2588" target="_blank" rel="noreferrer">Sahih Muslim 2588<\/a><\/cite>/u);
+  const heroEnd = homeHtml.indexOf('<section class="home-case-flow reveal"');
+  const heroHtml = homeHtml.slice(0, heroEnd);
+  assert.doesNotMatch(heroHtml, /home-impact-hadith|Charity does not decrease wealth|Sahih Muslim 2588/);
   assert.doesNotMatch(homeHtml, /person who looks after an orphan and provides for him/);
   assert.doesNotMatch(homeHtml, /Direct aid, moving fast\./);
   assert.doesNotMatch(
@@ -1624,10 +1636,13 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(homeHtml, /id="quickDonationForm"/);
   assert.match(homeHtml, /quick-donation-heading/);
   assert.doesNotMatch(homeHtml, /quickFrequency|quick-frequency-control/);
-  assert.match(homeHtml, /Secure Stripe checkout/);
-  assert.match(homeHtml, /Receipt provided/);
+  assert.match(homeHtml, /Checkout handled by Stripe/);
+  assert.match(homeHtml, /Receipt after successful payment/);
   assert.doesNotMatch(homeHtml, /home-case-panel-section|homeCompletedCases|homeGoalCases|home-trust-row/);
-  assert.match(homeHtml, /<form class="quick-donation" id="quickDonationForm"[\s\S]*<\/form>\s*<\/div>\s*<\/div>\s*<\/section>\s*<section class="home-case-flow reveal"/);
+  const quickFormIndex = homeHtml.indexOf('id="quickDonationForm"');
+  const evidenceIndex = homeHtml.indexOf('class="home-evidence-project"');
+  const caseFlowIndex = homeHtml.indexOf('class="home-case-flow reveal"');
+  assert.ok(quickFormIndex >= 0 && evidenceIndex > quickFormIndex && caseFlowIndex > evidenceIndex);
   assert.match(siteJs, /homeCaseFlowTrack/);
   assert.match(siteJs, /renderHomeCaseFlow/);
   assert.doesNotMatch(siteJs, /renderHomeCaseLanes|homeCompletedCases|homeGoalCases|story-link|story-empty/);
@@ -1638,7 +1653,7 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.match(siteJs, /rootMargin: "500px 0px"/);
   assert.match(siteJs, /aria-hidden="true" tabindex="-1"/);
   assert.match(siteJs, /decoding="async"/);
-  assert.match(siteJs, /activateCustomAmount/);
+  assert.match(siteJs, /clearQuickAmountError/);
   assert.match(siteJs, /populateDonationDestinations/);
   assert.match(siteJs, /cancelAnimationFrame\(pointerFrame\)/);
   assert.match(siteJs, /case-flow-card/);
@@ -1713,11 +1728,11 @@ test("home page closes with useful action cards, verified details, and inline qu
 
   const quickGive = homeHtml.match(/<section class="home-quick-give"[\s\S]*?<\/section>/)?.[0];
   assert.ok(quickGive, "homepage footer should include inline quick giving");
-  assert.match(quickGive, /class="home-quick-give-amounts" role="group" aria-label="Choose a donation amount"/);
-  for (const amount of [25, 50, 100]) {
-    assert.match(quickGive, new RegExp(`donate\\.html\\?program=unrestricted&amp;amount=${amount}#donationForm`));
-  }
-  assert.match(quickGive, /Secure Stripe checkout/);
+  assert.match(quickGive, /Choose an amount that works for you\./);
+  assert.match(quickGive, /href="donate\.html\?program=unrestricted#donationForm">\s*Donate what you can/);
+  assert.match(quickGive, /Checkout handled by Stripe/);
+  assert.match(quickGive, /Receipt after successful payment/);
+  assert.doesNotMatch(quickGive, /home-quick-give-amounts|[?&](?:amp;)?amount=|>\$(?:5|25|50|100)</);
   assert.doesNotMatch(quickGive, /frequency|<select|position:\s*fixed/i);
 
   assert.match(siteCss, /\.home-page \.home-action-hub-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
@@ -1726,9 +1741,9 @@ test("home page closes with useful action cards, verified details, and inline qu
   assert.match(siteCss, /\.home-page \.home-action-card-zakat:focus-visible\s*\{[^}]*outline-color: #173c56/);
   assert.match(siteCss, /\.home-page \.home-site-footer\s*\{[^}]*background: #102f43/);
   assert.match(siteCss, /\.home-page \.home-footer-links a,[\s\S]*?\.home-page \.home-footer-contact a\s*\{[^}]*min-height: 44px/);
-  assert.match(siteCss, /\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: minmax\(230px, 1fr\) auto auto/);
+  assert.match(siteCss, /\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\) auto/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: 1fr/);
-  assert.match(siteCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-quick-give-amounts\s*\{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: 1fr/);
 });
 
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
@@ -1768,6 +1783,16 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     }
   }
 
+  const homePage = pages.find(({ name }) => name === "index.html")?.html || "";
+  const mobileMenu = homePage.match(/<details class="mobile-nav-menu">[\s\S]*?<\/details>/)?.[0];
+  assert.ok(mobileMenu, "homepage should provide a compact phone navigation menu");
+  assert.match(mobileMenu, /<summary>Menu<\/summary>/);
+  assert.match(mobileMenu, /<nav aria-label="Mobile navigation">/);
+  assert.equal([...mobileMenu.matchAll(/<a\s/g)].length, 4);
+  for (const destination of ["projects.html", "share.html", "about.html", "contact.html"]) {
+    assert.match(mobileMenu, new RegExp(`href="${destination.replace(".", "\\.")}"`));
+  }
+
   assert.match(siteCss, /--header-sans: "Plus Jakarta Sans"/);
   assert.match(siteCss, /\.main-nav\s*\{[^}]*border-radius: 999px;[^}]*font-family: var\(--header-sans\);/);
   assert.match(siteCss, /\.main-nav a\s*\{[^}]*min-height: 44px;[^}]*border-radius: 999px;[^}]*color: #365d76;/);
@@ -1777,6 +1802,9 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(siteJs, /const setupHeaderExperience = \(\) =>/);
   assert.match(siteJs, /classList\.toggle\("is-scrolled", window\.scrollY > 8\)/);
   assert.match(siteJs, /event\.key === "Escape"/);
+  assert.match(siteJs, /mobileMenu\.querySelectorAll\("a"\)\.forEach/);
+  assert.match(siteJs, /link\.addEventListener\("click", \(\) => mobileMenu\.removeAttribute\("open"\)\)/);
+  assert.match(siteJs, /mobileMenu\.open && !mobileMenu\.contains\(event\.target\)/);
   assert.match(siteCss, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.header-cta\.button::after\s*\{[^}]*transition: none !important;/);
 
   assert.match(
@@ -1827,6 +1855,11 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.donation-form-card \.amount-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
 
   assert.match(mobileCss, /\.header-cta\.button\s*\{[^}]*width: auto;[^}]*min-height: 44px;/);
+  assert.match(mobileCss, /\.home-page \.main-nav\s*\{\s*display: none;/);
+  assert.match(mobileCss, /\.home-page \.mobile-nav-menu\s*\{[^}]*display: block;/);
+  assert.match(mobileCss, /\.home-page \.mobile-nav-menu > summary\s*\{[^}]*min-height: 44px/);
+  assert.match(mobileCss, /\.home-page \.mobile-nav-menu nav\s*\{[^}]*width: min\(220px, calc\(100vw - 2rem\)\)/);
+  assert.match(mobileCss, /\.home-page \.mobile-nav-menu nav a\s*\{[^}]*min-height: 44px/);
   assert.match(mobileCss, /\.footer-links a\s*\{[^}]*min-width: 44px;[^}]*min-height: 44px;[^}]*display: inline-flex;/);
   assert.match(mobileCss, /#proof,\s*#case-timeline,\s*#donationForm\s*\{\s*scroll-margin-top: 148px;/);
   assert.match(mobileCss, /input,\s*select,\s*textarea\s*\{\s*font-size: 16px;/);
@@ -1838,7 +1871,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.zakat-section select,\s*\.zakat-money-input input\s*\{\s*font-size: 16px;/);
   assert.match(mobileCss, /\.zakat-help-details summary,\s*\.zakat-source-list a\s*\{\s*min-height: 44px;/);
   assert.match(siteCss, /\.back-link\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
-  assert.match(siteCss, /\.home-page \.home-impact-hadith a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
+  assert.match(siteCss, /\.home-page \.home-impact-cases a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
 });
 
 test("contact page has a polished accessible mailto contact flow", async () => {
