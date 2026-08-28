@@ -1,5 +1,5 @@
 # One World Relief - AI Handoff Documentation
-**Last Updated**: August 9, 2026
+**Last Updated**: August 28, 2026
 **Created By**: Codex AI  
 **For**: Future AI Sessions & Development  
 
@@ -3097,6 +3097,29 @@ Additional DNS check later on May 4, 2026:
 - Local, preview, and canonical production browser QA passed at 1440px and 390px, with an additional local 320px check. The quote remained contained, the full attribution stayed readable, the source link measured 44px high, and neither phone viewport had horizontal page overflow.
 - Preview deployment `01ea95a7-3ec5-410c-855a-7326486082b6` succeeded at `https://01ea95a7.trying-8o0.pages.dev`, branch `codex-charity-hadith-20260828`, source `9b8bb09`.
 - Production deployment `40f12a7b-97a0-4011-947e-4a81818a7339` succeeded at `https://40f12a7b.trying-8o0.pages.dev`, branch `main`, source `9b8bb09`. Canonical checks confirmed the new quote/source, removal of the old wording, cache v29, HTTP `200`, and active Checkout validation returning the expected safe `400` for an empty request.
+
+### 2026-08-28 Trust-First Open-Amount Homepage and Donation Flow (Released)
+- Feedback addressed:
+  - A direct reviewer described the former first impression as scam-like, overly generated, and too dependent on fixed donation buttons. This release treats that as a trust and clarity problem, not a cosmetic wording problem.
+  - The homepage now opens with `Small nonprofit. Documented work.` and `Give what you can. See where it goes.` in a restrained off-white layout. The former giant count-led treatment, hero Hadith card, glass panel, decorative current lines, floating motion, and preset donation buttons were removed from the first screen.
+  - One real Case 004 field photo now anchors the hero with its actual title, completed status, `$400 delivered` amount, and direct photos/video link. The page separately states `7 completed cases documented` and the evidence-scoped `2 orphan students directly supported`; it retains the explicit caveat that Case 004's group meal is not added to the individual count because no exact headcount was recorded. Case 001 and Case 003 remain linked as the two count sources.
+  - Trust information is plain and inspectable: checkout handled by Stripe, receipt after successful payment, and a direct organization-details link showing EIN `41-5079927`. The About page wording now says `public project records` rather than implying a public donor-record database.
+- Open-amount donation behavior:
+  - The homepage has one required decimal amount field and one `Donate now` action. It has no `$5 / $25 / $50 / $100` presets, selected default, cause selector, or visible minimum promotion. The footer's preset quick-give grid was also replaced with one `Donate what you can` link.
+  - The full Donate form now also starts with one blank amount field. Its initial `$25` default and all generated amount radios were removed. A valid amount passed from the homepage or a project link is preserved; a direct visit remains blank.
+  - The unrestricted `$5` technical floor remains enforced by browser validation and both Cloudflare Checkout Function copies, but it is only explained after an invalid amount. Existing designated-purpose contracts remain honest and unchanged: fixed purposes display a prefilled read-only value, range purposes display their allowed range, and cause-specific minimums are disclosed after that cause is selected.
+  - `donation-checkout-v2.js` is served through `_redirects` from the reviewed source file and is included in app-shell cache v31. This new pathname prevents an older service worker from serving the former preset/default logic alongside the new HTML on a returning visitor's first load. The homepage similarly uses `one-world-relief-home-v3.css` for cache-safe trust-first styling.
+- Stripe, Sheets, and data boundaries:
+  - Checkout and webhook Functions were not changed. Server-owned program validation, Stripe product/metadata derivation, webhook signature checks, receipt behavior, Google Sheets `Donations (2026)` A:H mapping, duplicate protection, formula neutralization, and Zakat context privacy remain intact.
+  - A live browser safely carried `$37.25` from the canonical homepage to `/donate?amount=37.25&program=unrestricted#donationForm`, where the single amount field retained `37.25`. Testing stopped before the form was submitted to Stripe. No real Checkout Session, payment, signed webhook, receipt email, or Google Sheets row was created.
+- Verification and release:
+  - Feature commits `02dc264d270e61b77ce0594e53bcae710fe428af` (`Rebuild homepage around documented giving`) and `a04e5e690cc527d97db584e7a2be481f105b38b0` (`Make general donations fully open amount`) were pushed to `origin/charity-frontend-redesign`.
+  - The complete regression suite passed `43/43`; homepage, donation, service-worker, Stripe, webhook, receipt, Google Sheets, Zakat, accessibility, and mobile assertions passed. Changed JavaScript and service-worker files passed syntax checks, CSS parsed through esbuild, and `git diff --check` passed.
+  - The safe deployment workflow staged `71` public assets plus `5` Pages Function sources and compiled the Function bundle with Wrangler `4.127.1`.
+  - Final preview deployment `731ba004-ec81-4d35-b8f4-ce0b6a8f0ad1` succeeded at `https://731ba004.trying-8o0.pages.dev`, branch `codex-trust-home-20260828`, source `a04e5e6`.
+  - Production deployment `47599a43-8e72-4bc1-816c-88e6e615c5eb` succeeded at `https://47599a43.trying-8o0.pages.dev`, branch `main`, source `a04e5e6`.
+  - Canonical HTTP checks confirmed the new headline, real Case 004 photo, no homepage or Donate presets, cache-safe v3 CSS/v2 checkout paths, app-shell cache `owr-offline-v31`, and an active Checkout Function returning safe `400` validation for an empty request.
+  - Rendered browser QA passed at desktop `1440x1000`, phone `390x844`, and narrow phone `320x700`. Homepage and Donate content had zero horizontal overflow at both phone widths. At 320px, the open menu remained fully contained and all four navigation links measured 44px high.
 
 ---
 
