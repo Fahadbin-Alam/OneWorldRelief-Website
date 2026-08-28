@@ -3071,6 +3071,22 @@ Additional DNS check later on May 4, 2026:
   - Production deployment `e6b69b16-aed8-4135-ac16-6e4052fe4dd2` succeeded at `https://e6b69b16.trying-8o0.pages.dev`, branch `main`, source `936f309`.
   - Cache-bypassed checks on `https://one-world-relief.org` confirmed the scoped `2`, both evidence links, Case 004 headcount caveat, renderer/data fields, responsive CSS, cache v26, HTTP `200`, and active Checkout validation.
 
+### 2026-08-28 Compact Homepage Donation Card (Released)
+- Simplified the homepage's first donation step to match the requested low-friction pattern without copying the reference organization's branding. The card now has one short `Give where it’s needed most` heading, a two-by-two `$5 / $25 / $50 / $100` amount grid, one `Other amount` field, one `Donate now` action, a quiet Stripe/receipt trust line, and a secondary `Choose a specific cause` link.
+- Removed the decorative duplicate logo, `Secure Donation` eyebrow, visible minimum sentence, and four-across desktop amount row. The existing `$25` default, native radio semantics, screen-reader amount legend and minimum guidance, live status, keyboard focus, reduced-motion behavior, and custom/preset mutual exclusion remain intact.
+- The homepage remains a first step rather than a second payment form. Preset or custom values still hand off as canonical `program=unrestricted` data to the full Donate form; live verification carried `$73` to `/donate?amount=73&program=unrestricted#donationForm`, where `selectedProgramId=unrestricted` and `customDonation=73` were preserved before Stripe.
+- Stripe Checkout Functions, server-owned amount/program validation, webhook processing, receipts, Zakat privacy/context, duplicate protection, formula neutralization, and the connected Google Sheets `Donations (2026)` A:H mapping are unchanged. No real Checkout Session, payment, signed webhook, receipt, or spreadsheet row was created.
+- Returning-visitor cache safety:
+  - A live browser deliberately retaining the prior service-worker cache exposed a one-load HTML/CSS mismatch. The new markup could otherwise receive the former stylesheet and render the heading incorrectly.
+  - The homepage now requests `one-world-relief-home-v2.css`; `_redirects` internally serves the reviewed shared stylesheet at that unique pathname, bypassing older service workers that only intercept `/one-world-relief.css`. The new path is included in the app shell, and offline cache advanced from v26 through the feature revision to final `owr-offline-v28`.
+  - The same returning-visitor browser was retested after release and immediately rendered the correct 420px card, centered heading, and two-by-two 58px amount controls without requiring a second refresh.
+- Verification and release:
+  - Commits `44cb6dbb5e3b61b9d691f11c265faf21748dbbe5` (`Simplify homepage donation card`) and cache-safety follow-up `0dd922fee68de0285fb80f1d6e663cebaded151e` (`Version homepage stylesheet for existing visitors`) were pushed to `origin/charity-frontend-redesign`.
+  - The complete regression suite passed `43/43`; `one-world-relief.js` and `sw.js` passed syntax checks; CSS parsed through esbuild; `_redirects` returned `text/css`; `git diff --check` passed; and the safe deploy workflow staged `71` public assets plus `5` Pages Function sources with Wrangler `4.127.1`.
+  - Browser QA covered desktop 1440px and phones at 390px and 320px. The phone card remained a two-column amount grid with no horizontal page overflow; every tested amount, custom field, primary action, and cause link measured at least 44px. Preset selection cleared the custom field, custom entry cleared presets, and the handoff preserved its amount and unrestricted purpose.
+  - Final preview deployment `479c3454-085d-4f4c-8dae-bd55198478a8` succeeded at `https://479c3454.trying-8o0.pages.dev`, branch `codex-simple-home-donation-20260828`, source `0dd922f`.
+  - Final production deployment `71f0a2da-39c1-4fde-88d2-739ccba0b941` succeeded at `https://71f0a2da.trying-8o0.pages.dev`, branch `main`, source `0dd922f`. Canonical checks on `https://one-world-relief.org` confirmed HTTP `200`, the versioned CSS rewrite with `text/css`, cache v28, the compact card, verified orphan count `2`, and active Checkout validation returning the expected safe `400` for an empty request.
+
 ---
 
 **End of AI Handoff Documentation**
