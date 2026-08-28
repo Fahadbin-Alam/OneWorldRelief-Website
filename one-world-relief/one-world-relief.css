@@ -10552,3 +10552,385 @@ html {
     align-items: flex-start;
   }
 }
+
+/* Mobile fit-and-finish: compact navigation, earlier giving, and shorter content paths. */
+@media (max-width: 720px) {
+  .donate-page .donate-impact-intro .eyebrow {
+    display: none;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .header-wrap {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.45rem;
+    padding-top: 0.52rem;
+    padding-bottom: 0.52rem;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .main-nav {
+    display: none;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    display: block;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu > summary {
+    min-width: 52px;
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid #c8d9e2;
+    border-radius: 7px;
+    color: #214f71;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 800;
+    list-style: none;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu[open] > summary {
+    color: #fff;
+    border-color: #174a6d;
+    background: #174a6d;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu nav {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.55rem);
+    right: 0;
+    width: min(220px, calc(100vw - 2rem));
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.55rem;
+    border: 1px solid #cbdce5;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 12px 28px rgba(24, 52, 71, 0.13);
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu nav a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0.55rem 0.65rem;
+    border-radius: 5px;
+    color: #17384f;
+    font-size: 0.86rem;
+    font-weight: 750;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu nav a:hover,
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu nav a[aria-current="page"] {
+    background: #eff6f9;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .header-cta {
+    grid-column: 3;
+    grid-row: 1;
+    min-height: 44px;
+    padding: 0.6rem 0.72rem;
+    font-size: 0.78rem;
+  }
+
+  .zakat-page .header-wrap {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  .zakat-page .zakat-header-actions {
+    grid-column: 3;
+    grid-row: 1;
+    min-width: 0;
+    justify-self: end;
+  }
+
+  .zakat-page .mobile-nav-menu nav {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 4.2rem);
+    right: 0.6rem;
+    left: 0.6rem;
+    width: auto;
+  }
+
+  .home-page .hero-shell-home .hero {
+    grid-template-areas:
+      "intro"
+      "donate"
+      "photo"
+      "details";
+  }
+
+  .home-page .faith-video-section {
+    min-height: 450px;
+  }
+
+  .home-page .faith-reminder-content {
+    gap: 1.15rem;
+    padding-block: 2.5rem;
+  }
+
+  .home-page .home-action-hub {
+    padding: 2.75rem 0;
+  }
+
+  .home-page .home-action-hub-heading {
+    margin-bottom: 1.45rem;
+  }
+
+  .home-page .home-action-hub-heading h2 {
+    max-width: 15ch;
+    font-size: clamp(2rem, 9vw, 2.55rem);
+  }
+
+  .home-page .home-action-hub-heading > p:last-child {
+    margin-top: 0.65rem;
+    font-size: 0.92rem;
+  }
+
+  .home-page .home-action-hub-grid {
+    gap: 0.75rem;
+  }
+
+  .home-page .home-action-card,
+  .home-page .home-action-card-projects,
+  .home-page .home-action-card-share,
+  .home-page .home-action-card-zakat {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    gap: 0.15rem 0.85rem;
+    padding: 1.05rem;
+    border: 1px solid #cfe0e8;
+    border-radius: 16px;
+    color: #17384f;
+    background: #fff;
+    box-shadow: 0 8px 22px rgba(24, 52, 71, 0.08);
+  }
+
+  .home-page .home-action-card::before,
+  .home-page .home-action-card::after {
+    display: none;
+  }
+
+  .home-page .home-action-card-icon,
+  .home-page .home-action-card-zakat .home-action-card-icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 48px;
+    height: 48px;
+    margin: 0;
+    border: 1px solid #cfe0e8;
+    border-radius: 13px;
+    color: #174a6d;
+    background: #edf6fa;
+    box-shadow: none;
+  }
+
+  .home-page .home-action-card-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .home-page .home-action-card-kicker {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    margin: 0;
+    color: #397899;
+    font-size: 0.64rem;
+  }
+
+  .home-page .home-action-card h3 {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+    margin: 0.08rem 0 0;
+    font-size: 1.22rem;
+    line-height: 1.16;
+  }
+
+  .home-page .home-action-card > p {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    max-width: none;
+    margin: 0.68rem 0 0.72rem;
+    color: #536f80;
+    font-size: 0.83rem;
+    line-height: 1.48;
+    opacity: 1;
+  }
+
+  .home-page .home-action-card-link,
+  .home-page .home-action-card-zakat .home-action-card-link {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    width: 100%;
+    min-height: 44px;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0.62rem 0.75rem;
+    border: 1px solid #d5e3ea;
+    border-radius: 10px;
+    color: #174a6d;
+    background: #f3f8fa;
+  }
+
+  .home-page .home-action-card:hover,
+  .home-page .home-action-card-zakat:hover {
+    transform: none;
+    box-shadow: 0 10px 24px rgba(24, 52, 71, 0.1);
+  }
+
+  .home-page .home-footer-grid {
+    gap: 1.6rem 1rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .home-page .home-footer-brand > p {
+    margin: 0.85rem 0 1rem;
+  }
+
+  .home-page .home-footer-donate {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .home-page .home-footer-links h2,
+  .home-page .home-footer-contact h2 {
+    margin-bottom: 0.48rem;
+  }
+
+  .home-page .home-footer-links a,
+  .home-page .home-footer-contact a {
+    font-size: 0.8rem;
+  }
+
+  .home-page .home-footer-contact a {
+    overflow-wrap: anywhere;
+  }
+
+  .home-page .home-footer-legal {
+    gap: 0.55rem;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .project-filter-section {
+    overflow: hidden;
+    padding-top: 0.75rem;
+  }
+
+  .project-filter-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.45rem;
+    scrollbar-width: none;
+  }
+
+  .project-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .project-filter-row span {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 350px) and (max-width: 599px) {
+  .donate-page .donor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .home-page .home-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-page .home-footer-brand,
+  .home-page .home-footer-contact {
+    grid-column: 1 / -1;
+  }
+
+  .site-body:not(.home-page):not(.donate-page):not(.zakat-page) .mobile-nav-menu nav {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 4.2rem);
+    right: 0.6rem;
+    left: 0.6rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-page .brand-text,
+  .donate-page .brand-text,
+  .site-body:not(.home-page):not(.donate-page) .brand-text {
+    display: none;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .mobile-nav-menu > summary {
+    min-width: 48px;
+    padding-inline: 0.5rem;
+  }
+
+  .site-body:not(.home-page):not(.donate-page) .header-cta {
+    padding-inline: 0.65rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .zakat-page .header-wrap {
+    grid-template-columns: 44px 48px minmax(0, 1fr);
+  }
+
+  .zakat-page .mobile-nav-menu > summary {
+    width: 48px;
+    min-width: 48px;
+    padding-inline: 0;
+  }
+
+  .zakat-page .zakat-language-control select {
+    width: 104px;
+    padding-left: 0.48rem;
+    padding-right: 1.25rem;
+  }
+
+  .zakat-page .zakat-header-actions .header-cta {
+    padding-inline: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .zakat-page .zakat-header-actions .header-cta::after {
+    display: none;
+  }
+
+  .contact-method-card {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 0.65rem;
+  }
+
+  .contact-method-arrow {
+    display: none;
+  }
+
+  .contact-method-card :is(strong, span) {
+    overflow-wrap: anywhere;
+  }
+
+  .contact-method-card[href^="mailto:"] strong {
+    font-size: 0.86rem;
+    letter-spacing: -0.015em;
+  }
+}

@@ -519,6 +519,7 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
   assert.doesNotMatch(customAmountInput, /aria-describedby="minimumDonationText"/);
   assert.doesNotMatch(customAmountInput, /hidden/);
   assert.match(donationForm, /id="minimumDonationText" hidden><\/p>/);
+  assert.match(donationForm, /<h3 class="sr-only" id="amountStepTitle">Amount<\/h3>/);
   assert.doesNotMatch(donationForm, /Minimum donation is \$5\.|Enter \$5 or more/);
   assert.match(donationForm, /data-program-checkout="true"/);
   assert.match(donationForm, /id="selectedProgramId" type="hidden" value="unrestricted"/);
@@ -1123,7 +1124,8 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v31/);
+  assert.match(serviceWorker, /owr-offline-v32/);
+  assert.match(serviceWorker, /\/one-world-relief-responsive-v1\.css/);
   assert.match(serviceWorker, /\/donation-checkout-v2\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
@@ -1426,7 +1428,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v31/);
+  assert.match(serviceWorker, /owr-offline-v32/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1523,9 +1525,9 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-home-v3\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-home-v3\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-home-v3\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-responsive-v1\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-responsive-v1\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-responsive-v1\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
   assert.match(quickForm, /<h2>Make a donation\.<\/h2>/);
@@ -1785,6 +1787,12 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.match(html, /class="button button-primary header-cta"[^>]*href="(?:\.\.\/)?donate\.html[^"]*"/, `${name} should retain the Donate CTA`);
     assert.match(html, /family=Plus\+Jakarta\+Sans:wght@600;700;800/, `${name} should load the modern header typeface`);
     assert.match(html, /<footer class="site-footer/, `${name} should retain its footer`);
+    assert.match(html, /<details class="mobile-nav-menu">[\s\S]*?<summary>Menu<\/summary>[\s\S]*?<\/details>/, `${name} should provide a compact phone navigation menu`);
+    assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
+    const expectedStylesheet = name.startsWith("projects/case-")
+      ? /href="\.\.\/one-world-relief-responsive-v1\.css"/
+      : /href="one-world-relief-responsive-v1\.css"/;
+    assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
       assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
     }
@@ -1867,6 +1875,14 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.home-page \.mobile-nav-menu > summary\s*\{[^}]*min-height: 44px/);
   assert.match(mobileCss, /\.home-page \.mobile-nav-menu nav\s*\{[^}]*width: min\(220px, calc\(100vw - 2rem\)\)/);
   assert.match(mobileCss, /\.home-page \.mobile-nav-menu nav a\s*\{[^}]*min-height: 44px/);
+  assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.main-nav\s*\{\s*display: none;/);
+  assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.mobile-nav-menu\s*\{[^}]*display: block;/);
+  assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.mobile-nav-menu nav a\s*\{[^}]*min-height: 44px/);
+  assert.match(mobileCss, /\.home-page \.hero-shell-home \.hero\s*\{[^}]*grid-template-areas:\s*"intro"\s*"donate"\s*"photo"\s*"details"/);
+  assert.match(mobileCss, /\.home-page \.home-action-card,[\s\S]*?\.home-page \.home-action-card-zakat\s*\{[^}]*min-height: 0;[^}]*background: #fff;/);
+  assert.match(mobileCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-footer-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(mobileCss, /@media \(max-width: 380px\)[\s\S]*?\.home-page \.brand-text,[\s\S]*?\.donate-page \.brand-text,[\s\S]*?display: none;/);
+  assert.match(mobileCss, /@media \(min-width: 350px\) and \(max-width: 599px\)[\s\S]*?\.donate-page \.donor-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(mobileCss, /\.footer-links a\s*\{[^}]*min-width: 44px;[^}]*min-height: 44px;[^}]*display: inline-flex;/);
   assert.match(mobileCss, /#proof,\s*#case-timeline,\s*#donationForm\s*\{\s*scroll-margin-top: 148px;/);
   assert.match(mobileCss, /input,\s*select,\s*textarea\s*\{\s*font-size: 16px;/);
