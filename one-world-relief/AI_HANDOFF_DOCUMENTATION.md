@@ -3016,6 +3016,16 @@ Additional DNS check later on May 4, 2026:
   - Production deployment `b6b3e063-63cf-4c38-bade-1fdb2e7e8162` succeeded at `https://b6b3e063.trying-8o0.pages.dev`, branch `main`, source `013b909`. Cache-bypassed canonical checks confirmed the deferred homepage video, deferred Donate catalog, responsive Stripe result page, cache v18, active Functions, and HTTP 200 for the audited public routes.
   - A throttled Core Web Vitals trace was not claimed because the required Chrome DevTools performance-trace connector was unavailable. The release used live rendered browser measurements, resource/source inspection, byte-size auditing, HTTP checks, and automated regressions instead.
 
+### 2026-08-28 Simplified Donation Action (Released)
+- Replaced the Donate form's dynamic `Continue to Stripe — $amount` / `Continue to secure checkout` label with one direct donor-facing action: `Donate Now`.
+- Removed the visible unrestricted/minimum-program `$5 minimum` helper and changed the custom-amount placeholder to `Enter an amount`. Fixed and ranged programs still receive useful rule explanations where the donor must choose an exact amount or stay inside a range.
+- This is a presentation-only change. The browser input and both Cloudflare Checkout Function copies still enforce the established amount rules, including the unrestricted `$5` floor, before Stripe is called. Stripe metadata, webhook processing, Google Sheets A:H mapping, receipts, Zakat context, and project records are unchanged. No real Checkout Session, payment, signed webhook, receipt, or Sheets row was created.
+- Feature commit `c0ddef0` (`Simplify donation call to action`) was pushed to `origin/charity-frontend-redesign`. Offline cache advanced from `owr-offline-v18` to `owr-offline-v19` so returning visitors receive the revised Donate HTML and script.
+- Automated regression passed `42/42`; changed JavaScript and the service worker passed syntax checks; `git diff --check` passed; and the safe deployment workflow staged exactly `70` public assets plus `5` Pages Function sources with Wrangler `4.127.0`.
+- Rendered browser QA passed at `390x844` and `320x700`. The minimum sentence was absent, the custom field read `Enter an amount`, the full-width action read `Donate Now`, and neither viewport had horizontal page overflow.
+- Preview deployment `23faa025-924a-42a3-845e-cd2e4a8d1a6a` succeeded at `https://23faa025.trying-8o0.pages.dev`, branch `codex-donate-now-20260828`, source `c0ddef0`.
+- Production deployment `f19acbb4-1fa1-4a9b-8ffc-f544b5943e65` succeeded at `https://f19acbb4.trying-8o0.pages.dev`, branch `main`, source `c0ddef0`. Cache-bypassed checks on `https://one-world-relief.org/donate` confirmed the new label, generic placeholder, removed visible minimum copy, cache v19, and active Checkout validation returning the expected safe `400` for an empty request.
+
 ---
 
 **End of AI Handoff Documentation**
