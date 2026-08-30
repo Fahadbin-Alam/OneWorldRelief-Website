@@ -9908,7 +9908,9 @@ html {
 .home-page .hero-shell-home {
   padding: clamp(2.25rem, 5vw, 4.5rem) 0 clamp(2.75rem, 6vw, 5rem);
   border-bottom: 1px solid #d5e3ea;
-  background: #f4f9fb;
+  background:
+    radial-gradient(circle at 84% 12%, rgba(102, 210, 235, 0.24), transparent 25rem),
+    linear-gradient(135deg, #e9f9fe 0%, #f7fcfd 52%, #e4f5fb 100%);
 }
 
 .home-page .hero-shell-home .hero {
@@ -9952,24 +9954,50 @@ html {
 }
 
 .home-page .home-impact-copy h1 {
-  max-width: none;
+  max-width: 15ch;
   margin: 0;
   color: #17384f;
   font-family: "Source Serif 4", Georgia, serif;
-  font-size: clamp(3.25rem, 5.9vw, 4.45rem);
+  font-size: clamp(2.85rem, 4.8vw, 3.8rem);
   font-weight: 650;
-  line-height: 0.98;
-  letter-spacing: -0.035em;
+  line-height: 1.02;
+  letter-spacing: -0.027em;
   text-wrap: balance;
 }
 
-.home-page .home-impact-copy h1 > span {
+.home-page .home-verse-citation {
   display: block;
+  font-style: normal;
+}
+
+.home-page .home-verse-source {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  margin-top: 0.35rem;
+  border-radius: 4px;
+  color: #155c7a;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: rgba(29, 111, 152, 0.36);
+  text-underline-offset: 0.2em;
+}
+
+.home-page .home-verse-source:hover {
+  color: #124d70;
+  text-decoration-color: currentColor;
+}
+
+.home-page .home-verse-source:focus-visible {
+  outline: 3px solid #1b7fa8;
+  outline-offset: 3px;
 }
 
 .home-page .home-impact-summary {
   max-width: 60ch;
-  margin: 1.15rem 0 0;
+  margin: 0.55rem 0 0;
   color: #4d6879;
   font-size: 1rem;
   line-height: 1.65;
@@ -10018,11 +10046,13 @@ html {
   gap: 0.85rem;
   width: 100%;
   padding: clamp(1.4rem, 3vw, 1.8rem);
-  border: 1px solid #c7d7df;
-  border-top: 4px solid #174a6d;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 10px 28px rgba(24, 52, 71, 0.08);
+  border: 1px solid #92cee0;
+  border-top: 5px solid #228db8;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #f8fdff 0%, #e6f7fc 100%);
+  box-shadow:
+    0 16px 36px rgba(32, 112, 150, 0.14),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset;
   overflow: visible;
 }
 
@@ -10032,7 +10062,7 @@ html {
 
 .home-page .quick-donation-kicker {
   margin: 0 0 0.38rem;
-  color: #2b6f96;
+  color: #155c7a;
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.09em;
@@ -10040,7 +10070,7 @@ html {
 }
 
 .home-page .quick-donation-heading h2 {
-  color: #17384f;
+  color: #123f5d;
   font-family: "Source Serif 4", Georgia, serif;
   font-size: clamp(1.75rem, 3vw, 2.15rem);
   font-weight: 650;
@@ -10050,7 +10080,7 @@ html {
 .home-page .quick-donation-subtitle {
   max-width: 38ch;
   margin: 0.42rem 0 0;
-  color: #526b7b;
+  color: #456b7f;
   font-size: 0.82rem;
   line-height: 1.55;
   text-align: left;
@@ -10079,15 +10109,15 @@ html {
 
 .home-page .quick-custom-input-wrap {
   min-height: 62px;
-  border: 1px solid #9eb4c0;
-  border-radius: 6px;
+  border: 1px solid #76b9d1;
+  border-radius: 10px;
   background: #fff;
-  box-shadow: none;
+  box-shadow: 0 6px 18px rgba(26, 103, 140, 0.08);
 }
 
 .home-page .quick-custom-input-wrap:focus-within {
-  border-color: #174a6d;
-  outline: 3px solid rgba(23, 74, 109, 0.2);
+  border-color: #1579a5;
+  outline: 3px solid rgba(21, 121, 165, 0.2);
   outline-offset: 1px;
   background: #fff;
   box-shadow: none;
@@ -10113,19 +10143,19 @@ html {
 
 .home-page .quick-donation-button {
   min-height: 54px;
-  border-radius: 6px;
-  background: #174a6d;
-  box-shadow: none;
+  border-radius: 10px;
+  background: #155b7f;
+  box-shadow: 0 9px 20px rgba(21, 91, 127, 0.2);
   font-size: 0.92rem;
 }
 
 .home-page .quick-donation-button:hover {
-  background: #103e5c;
-  box-shadow: none;
+  background: #104765;
+  box-shadow: 0 11px 24px rgba(16, 71, 101, 0.23);
 }
 
 .home-page .quick-donation-button:active {
-  background: #0c334d;
+  background: #0c3b56;
   transform: none;
 }
 
@@ -10142,9 +10172,9 @@ html {
   gap: 0.35rem;
   margin: 0;
   padding: 0.72rem 0;
-  border-top: 1px solid #e0e8ec;
-  border-bottom: 1px solid #e0e8ec;
-  color: #526b7b;
+  border-top: 1px solid #b9dce8;
+  border-bottom: 1px solid #b9dce8;
+  color: #3f677b;
   font-size: 0.72rem;
   font-weight: 650;
   text-align: left;
@@ -10494,14 +10524,13 @@ html {
   }
 
   .home-page .home-impact-copy h1 {
-    max-width: 12ch;
-    font-size: clamp(2.55rem, 12.5vw, 3.45rem);
+    max-width: 15ch;
+    font-size: clamp(2.15rem, 10.5vw, 2.85rem);
+    line-height: 1.02;
   }
 
   .home-page .home-impact-summary {
-    margin-top: 0.9rem;
-    font-size: 0.9rem;
-    line-height: 1.58;
+    display: none;
   }
 
   .home-page .home-proof-line {
@@ -10519,7 +10548,7 @@ html {
   .home-page .quick-donation {
     gap: 0.88rem;
     padding: 1.2rem;
-    border-radius: 8px;
+    border-radius: 16px;
   }
 
   .home-page .quick-donation-heading h2 {
@@ -10582,7 +10611,7 @@ html {
   }
 
   .home-page .home-impact-copy h1 {
-    font-size: 2.42rem;
+    font-size: 2.08rem;
   }
 
   .home-page .home-impact-cases {

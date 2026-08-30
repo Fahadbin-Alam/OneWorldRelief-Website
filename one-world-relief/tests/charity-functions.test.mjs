@@ -1124,8 +1124,8 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v33/);
-  assert.match(serviceWorker, /\/one-world-relief-simple-v1\.css/);
+  assert.match(serviceWorker, /owr-offline-v34/);
+  assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/donation-checkout-v2\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
@@ -1428,7 +1428,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v33/);
+  assert.match(serviceWorker, /owr-offline-v34/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1457,8 +1457,9 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
 
   const impactHtml = homeHtml.slice(impactStart, donationStart);
   const heroHtml = homeHtml.slice(heroStart, flowStart);
-  assert.match(impactHtml, /Clear giving\. Documented work\./);
-  assert.match(impactHtml, /id="homeImpactTitle"><span>Give what you can\.<\/span><span>See the work\.<\/span><\/h1>/);
+  assert.match(impactHtml, /A reminder from the Qur&rsquo;an/);
+  assert.match(impactHtml, /id="homeImpactTitle">&ldquo;And whatever you spend in charity, He will compensate you for it\.&rdquo;<\/h1>/);
+  assert.match(impactHtml, /<cite class="home-verse-citation">[\s\S]*?class="home-verse-source"[\s\S]*?href="https:\/\/quran\.com\/34\/39"[\s\S]*?target="_blank"[\s\S]*?rel="noopener noreferrer"[\s\S]*?aria-label="Read Qur'an 34:39 on Quran\.com"[\s\S]*?Qur&rsquo;an 34:39 &middot; The Clear Quran/);
   assert.match(impactHtml, /Donate any amount through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
   assert.match(impactHtml, /class="home-proof-line"/);
   assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong> completed cases documented/);
@@ -1509,9 +1510,14 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
   assert.match(siteJs, /renderHomeOrphanImpact\(\);\s*renderHomeCaseFlow\(\);/);
   assert.match(siteJs, /\[data-impact-count\], \.flow-impact-stats strong/);
   assert.match(siteCss, /\.home-page \.home-proof-line\s*\{[^}]*display: flex;[^}]*border-top: 1px solid #cad9e1/);
+  assert.match(siteCss, /\.home-page \.home-verse-source\s*\{[^}]*min-height: 44px/);
+  assert.match(siteCss, /\.home-page \.hero-shell-home\s*\{[^}]*linear-gradient\(135deg, #e9f9fe/);
+  assert.match(siteCss, /\.home-page \.quick-donation\s*\{[^}]*border: 1px solid #92cee0;[^}]*border-top: 5px solid #228db8;[^}]*background: linear-gradient\(150deg, #f8fdff 0%, #e6f7fc 100%\)/);
+  assert.match(siteCss, /\.home-page \.quick-donation-button\s*\{[^}]*background: #155b7f/);
   assert.match(siteCss, /\.home-page \.home-evidence-project img\s*\{[^}]*height: auto;[^}]*aspect-ratio: 16 \/ 9;[^}]*object-fit: cover/);
   assert.match(siteCss, /\.home-page \.home-evidence-project:focus-visible,[\s\S]*?\.home-page \.home-impact-link:focus-visible\s*\{[^}]*outline: 3px solid #174a6d/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-proof-line\s*\{[^}]*display: grid/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-summary\s*\{[^}]*display: none/);
 });
 
 test("homepage checkout accepts one custom unrestricted amount with accessible Stripe handoff", async () => {
@@ -1527,13 +1533,13 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-simple-v1\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-simple-v1\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-simple-v1\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-blue-v1\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-blue-v1\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-blue-v1\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
-  assert.match(quickForm, /<h2>Give any amount<\/h2>/);
-  assert.match(quickForm, /class="quick-donation-subtitle">Choose the cause before payment\.<\/p>/);
+  assert.match(quickForm, /<h2>Choose your amount<\/h2>/);
+  assert.match(quickForm, /class="quick-donation-subtitle">Enter an amount, then choose its purpose before Stripe checkout\.<\/p>/);
   assert.doesNotMatch(quickForm, /class="quick-amounts"|name="quickAmount"|type="radio"|\$25|\$50|\$100/);
 
   assert.match(quickForm, /<label class="quick-custom-amount" for="quickCustomAmount">/);
@@ -1791,8 +1797,8 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.match(html, /<details class="mobile-nav-menu">[\s\S]*?<summary>Menu<\/summary>[\s\S]*?<\/details>/, `${name} should provide a compact phone navigation menu`);
     assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
     const expectedStylesheet = name.startsWith("projects/case-")
-      ? /href="\.\.\/one-world-relief-simple-v1\.css"/
-      : /href="one-world-relief-simple-v1\.css"/;
+      ? /href="\.\.\/one-world-relief-blue-v1\.css"/
+      : /href="one-world-relief-blue-v1\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
       assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
