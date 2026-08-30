@@ -1460,7 +1460,7 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
   assert.match(impactHtml, /A reminder from the Qur&rsquo;an/);
   assert.match(impactHtml, /id="homeImpactTitle">&ldquo;And whatever you spend in charity, He will compensate you for it\.&rdquo;<\/h1>/);
   assert.match(impactHtml, /<cite class="home-verse-citation">[\s\S]*?class="home-verse-source"[\s\S]*?href="https:\/\/quran\.com\/34\/39"[\s\S]*?target="_blank"[\s\S]*?rel="noopener noreferrer"[\s\S]*?aria-label="Read Qur'an 34:39 on Quran\.com"[\s\S]*?Qur&rsquo;an 34:39 &middot; The Clear Quran/);
-  assert.match(impactHtml, /Donate any amount through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
+  assert.match(impactHtml, /Choose an amount and continue securely through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
   assert.match(impactHtml, /class="home-proof-line"/);
   assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong> completed cases documented/);
   assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong> individual orphan students supported/);
