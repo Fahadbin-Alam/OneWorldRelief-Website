@@ -96,11 +96,11 @@ Canonical project donation URL:
 
 Example:
 
-`donate.html?program=emergency_aid&amount=25&referrer=case-010#donationForm`
+`donate.html?program=emergency_aid&amount=25&referrer=case-011#donationForm`
 
 For water, add the stable browser query field `variant`, for example:
 
-`donate.html?program=water_support&variant=water_station&amount=350&referrer=case-010#donationForm`
+`donate.html?program=water_support&variant=water_station&amount=350&referrer=case-011#donationForm`
 
 The browser sends the canonical values to the server as `program_id`, optional `program_variant`, and `referrer_case`. The server owns the campaign label, Stripe description, and amount enforcement. Adding a truly new program requires coordinated updates to `donation-programs.js`, both mirrored Checkout Functions, tests, and the AI handoff; changing only a URL is not enough.
 
@@ -116,15 +116,15 @@ Each project becomes one object in `project-data.js` with:
   category: "Emergency Relief",
   status: "Active",
   location: "Bangladesh",
-  date: "Case 010",
+  date: "Case 011",
   amountRaised: "Goal not publicly listed",
   impact: "Verified emergency supplies planned for affected families",
   summary: "Two-sentence, source-grounded donor-facing summary.",
   update: "Latest verified project update.",
-  thumbnailUrl: "assets/projects/case-010/flood-relief-010-thumbnail.jpg",
+  thumbnailUrl: "assets/projects/case-011/flood-relief-011-thumbnail.jpg",
   mediaLabel: "View story",
-  mediaUrl: "projects/case-010.html",
-  donationUrl: "donate.html?program=emergency_aid&amount=25&referrer=case-010#donationForm"
+  mediaUrl: "projects/case-011.html",
+  donationUrl: "donate.html?program=emergency_aid&amount=25&referrer=case-011#donationForm"
 }
 ```
 

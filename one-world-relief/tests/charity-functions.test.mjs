@@ -1088,7 +1088,7 @@ test(".com host redirects to .org", async () => {
 
 test("pages include the supplied One World Relief logo and install icons", async () => {
   const rootPageNames = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html", "zakat.html"];
-  const projectPageNames = Array.from({ length: 9 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
+  const projectPageNames = Array.from({ length: 10 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
   const [rootPages, projectPages, offlineHtml, faviconPng, brandIcon, brandIconSmall, appleTouchIcon, webManifest, serviceWorker] = await Promise.all([
     Promise.all(rootPageNames.map((name) => readFile(name, "utf8"))),
     Promise.all(projectPageNames.map((name) => readFile(name, "utf8"))),
@@ -1232,7 +1232,7 @@ test("checkout derives Stripe product details and metadata from its canonical ca
     const result = await callCheckout(modulePath, {
       program_id: "water_support",
       program_variant: "water_station",
-      referrer_case: "Case 9",
+      referrer_case: "Case 10",
       campaign: "Forged Campaign",
       program_label: "Forged Label",
       purpose_summary: "Forged purpose",
@@ -1260,7 +1260,7 @@ test("checkout derives Stripe product details and metadata from its canonical ca
       program_variant: "water_station",
       program_option_label: "Filtered Water Station",
       purpose_summary: "A $350 gift that helps fund a filtered water cooler or station for hot-weather drinking water.",
-      referrer_case: "case-009",
+      referrer_case: "case-010",
       donor_note: "In memory of a friend",
       anonymous_public: "yes",
     };
@@ -1696,10 +1696,10 @@ test("home page renders a continuous completed-case photo flow from project data
   const comingSoonCaseCount = [...projectData.matchAll(/status:\s*"Coming Soon"/g)].length;
   const activeCaseCount = totalCaseCount - completedCaseCount - comingSoonCaseCount;
   assert.equal(secondsPerProject, 14);
-  assert.equal(totalCaseCount, 9);
+  assert.equal(totalCaseCount, 10);
   assert.equal(completedCaseCount, 7);
   assert.equal(activeCaseCount, 0);
-  assert.equal(comingSoonCaseCount, 2);
+  assert.equal(comingSoonCaseCount, 3);
   assert.equal(completedCaseCount * secondsPerProject, 98);
   assert.match(siteCss, /will-change: transform/);
   assert.match(siteCss, /--case-flow-start-offset: clamp\(-3rem, -2\.5vw, -1\.25rem\)/);
@@ -1764,7 +1764,7 @@ test("home page closes with useful action cards, verified details, and inline qu
 
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
   const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html", "zakat.html"];
-  const casePageNames = Array.from({ length: 9 }, (_, index) => {
+  const casePageNames = Array.from({ length: 10 }, (_, index) => {
     return `projects/case-${String(index + 1).padStart(3, "0")}.html`;
   });
   const [pages, offlineHtml, siteJs, siteCss] = await Promise.all([
@@ -1778,7 +1778,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   ]);
 
   const publicPages = [...pages, { name: "offline.html", html: offlineHtml }];
-  assert.equal(publicPages.length, 17);
+  assert.equal(publicPages.length, 18);
   for (const { name, html } of publicPages) {
     assert.match(
       html,
@@ -2021,6 +2021,7 @@ test("project cards publish approved cases with embedded local media", async () 
     caseSevenPage,
     caseEightPage,
     caseNinePage,
+    caseTenPage,
   ] = await Promise.all([
     readFile("project-data.js", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -2034,6 +2035,7 @@ test("project cards publish approved cases with embedded local media", async () 
     readFile("projects/case-007.html", "utf8"),
     readFile("projects/case-008.html", "utf8"),
     readFile("projects/case-009.html", "utf8"),
+    readFile("projects/case-010.html", "utf8"),
   ]);
 
   assert.doesNotMatch(projectData, /drive\.google\.com/);
@@ -2047,6 +2049,7 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /projects\/case-007\.html/);
   assert.match(projectData, /projects\/case-008\.html/);
   assert.match(projectData, /projects\/case-009\.html/);
+  assert.match(projectData, /projects\/case-010\.html/);
   assert.doesNotMatch(projectData, /Village Qurbani Meal Support/);
   assert.doesNotMatch(projectData, /Two-Year Orphan Education Support/);
   assert.doesNotMatch(projectData, /Food Stand for a Father/);
@@ -2064,6 +2067,7 @@ test("project cards publish approved cases with embedded local media", async () 
   assert.match(projectData, /Water for a Madrasa Mosque/);
   assert.match(projectData, /Tiles to Help Finish a Mosque/);
   assert.match(projectData, /Twenty Ceiling Fans for a New Mosque/);
+  assert.match(projectData, /A Safer Elder-Care Home/);
   assert.match(projectData, /orphan-support-001-thumbnail\.jpg/);
   assert.match(projectData, /livelihood-support-002-thumbnail\.jpg/);
   assert.match(projectData, /orphan-education-003-thumbnail\.jpg/);
@@ -2218,11 +2222,14 @@ test("project cards publish approved cases with embedded local media", async () 
 
   const caseSevenData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 007"/.test(entry));
   const caseEightData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 008"/.test(entry));
+  const caseTenData = projectData.split(/\r?\n  \},\r?\n  \{/).find((entry) => /date: "Case 010"/.test(entry));
   assert.ok(caseSevenData);
   assert.ok(caseEightData);
+  assert.ok(caseTenData);
   for (const [entry, title, page] of [
     [caseSevenData, "Water for a Madrasa Mosque", caseSevenPage],
     [caseEightData, "Tiles to Help Finish a Mosque", caseEightPage],
+    [caseTenData, "A Safer Elder-Care Home", caseTenPage],
   ]) {
     assert.ok(entry.includes(`title: "${title}"`));
     assert.match(entry, /status: "Coming Soon"/);
@@ -2237,11 +2244,14 @@ test("project cards publish approved cases with embedded local media", async () 
   }
   assert.match(caseSevenPage, /Water for a madrasa mosque/);
   assert.match(caseEightPage, /Tiles to help finish a mosque/);
+  assert.match(caseTenPage, /A safer elder-care home/);
   assert.match(caseSevenData, /program=water_support&variant=water_station&amount=350&referrer=case-007/);
   assert.match(caseEightData, /program=mosque_build&amount=1000&referrer=case-008/);
+  assert.match(caseTenData, /program=unrestricted&referrer=case-010/);
   assert.match(caseSevenPage, /program=water_support&amp;variant=water_station&amp;amount=350&amp;referrer=case-007/);
   assert.match(caseEightPage, /program=mosque_build&amp;amount=1000&amp;referrer=case-008/);
-  assert.doesNotMatch(`${caseSevenData}\n${caseEightData}`, /campaign=General%20Fund/);
+  assert.match(caseTenPage, /program=unrestricted&amp;referrer=case-010/);
+  assert.doesNotMatch(`${caseSevenData}\n${caseEightData}\n${caseTenData}`, /campaign=General%20Fund/);
   assert.match(caseNinePage, /<h1>Twenty Ceiling Fans for a New Mosque<\/h1>/);
   assert.match(caseNinePage, /Case 009/);
   assert.match(siteJs, /const comingSoon =/);
@@ -2281,7 +2291,7 @@ test("Case 009 publishes verified mosque-fan proof without private correspondenc
   const projects = JSON.parse(JSON.stringify(projectContext.window.ONE_WORLD_RELIEF_PROJECTS));
   const caseNine = projects.find((project) => project.date === "Case 009");
 
-  assert.equal(projects.length, 9);
+  assert.equal(projects.length, 10);
   assert.equal(projects.filter((project) => project.status === "Completed").length, 7);
   assert.ok(caseNine, "Case 009 should be present in shared project data");
   assert.deepEqual(
@@ -2470,7 +2480,7 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
           campaign: "Water Support",
           program_id: "water_support",
           program_variant: "water_station",
-          referrer_case: "case-009",
+          referrer_case: "case-010",
           donor_note: "For school supplies",
           anonymous_public: "yes",
         },
@@ -2563,7 +2573,7 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(sheetPayload.values[0][7], /Program ID: water_support/);
     assert.match(sheetPayload.values[0][7], /Program Option: Filtered Water Station/);
     assert.match(sheetPayload.values[0][7], /Program Variant ID: water_station/);
-    assert.match(sheetPayload.values[0][7], /Referrer Case: case-009/);
+    assert.match(sheetPayload.values[0][7], /Referrer Case: case-010/);
     assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
     assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
   } finally {

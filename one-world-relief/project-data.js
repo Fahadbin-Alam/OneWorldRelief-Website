@@ -159,5 +159,23 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     mediaLabel: "View story",
     mediaUrl: "projects/case-009.html",
     donationUrl: "donate.html?program=mosque_build&amount=1000&referrer=case-009#donationForm"
+  },
+  {
+    title: "A Safer Elder-Care Home",
+    donationLabel: "Elder Care",
+    acceptsDonations: false,
+    category: "Elder Care",
+    status: "Coming Soon",
+    location: "",
+    date: "Case 010",
+    amountRaised: "Budget coming soon",
+    impact: "Renovation support planned for a residential elder-care home",
+    summary: "Case 010 is a planned renovation to improve the safety, comfort, and dignity of a residential home serving vulnerable older adults without reliable family support. The location, assessment, repair scope, budget, schedule, and approved project media will be added when confirmed.",
+    update: "Project announced. The building assessment and renovation details are coming soon.",
+    thumbnailType: "banner",
+    thumbnailLabel: "Coming Soon",
+    mediaLabel: "View project",
+    mediaUrl: "projects/case-010.html",
+    donationUrl: "donate.html?program=unrestricted&referrer=case-010#donationForm"
   }
 ];
