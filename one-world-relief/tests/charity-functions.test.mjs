@@ -143,6 +143,62 @@ test("checkout creates a one-time Stripe session with a $5 minimum and configure
   }
 });
 
+test("supporter board checkout metadata requires explicit consent and a safe public name", async () => {
+  for (const modulePath of checkoutModulePaths) {
+    const privateGift = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+    });
+    assert.equal(privateGift.response.status, 200, modulePath);
+    assert.equal(privateGift.stripeForm.get("metadata[supporter_board_opt_in]"), "no", modulePath);
+    assert.equal(privateGift.stripeForm.get("metadata[public_display_name]"), "", modulePath);
+    assert.equal(privateGift.stripeForm.get("payment_intent_data[metadata][supporter_board_opt_in]"), "no", modulePath);
+
+    const stringFalse = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+      supporter_board_opt_in: "false",
+      public_display_name: "Should Stay Private",
+    });
+    assert.equal(stringFalse.response.status, 200, modulePath);
+    assert.equal(stringFalse.stripeForm.get("metadata[supporter_board_opt_in]"), "no", modulePath);
+    assert.equal(stringFalse.stripeForm.get("metadata[public_display_name]"), "", modulePath);
+
+    const publicGift = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+      supporter_board_opt_in: true,
+      public_display_name: "  Mercy   Builder  ",
+    });
+    assert.equal(publicGift.response.status, 200, modulePath);
+    for (const prefix of ["metadata", "payment_intent_data[metadata]"]) {
+      assert.equal(publicGift.stripeForm.get(`${prefix}[supporter_board_opt_in]`), "yes", `${modulePath}: ${prefix}`);
+      assert.equal(publicGift.stripeForm.get(`${prefix}[public_display_name]`), "Mercy Builder", `${modulePath}: ${prefix}`);
+    }
+
+    const anonymousConflict = await callCheckout(modulePath, {
+      program_id: "unrestricted",
+      amount_usd: 25,
+      supporter_board_opt_in: true,
+      public_display_name: "Mercy Builder",
+      anonymous_public: true,
+    });
+    assert.equal(anonymousConflict.response.status, 400, modulePath);
+    assert.equal(anonymousConflict.stripeCalls, 0, modulePath);
+
+    for (const publicName of ["A", "name@example.com", "https://example.com", "Name | Donor Email: leak", "<img src=x>", "a".repeat(41)]) {
+      const invalid = await callCheckout(modulePath, {
+        program_id: "unrestricted",
+        amount_usd: 25,
+        supporter_board_opt_in: true,
+        public_display_name: publicName,
+      });
+      assert.equal(invalid.response.status, 400, `${modulePath}: ${publicName}`);
+      assert.equal(invalid.stripeCalls, 0, `${modulePath}: ${publicName}`);
+    }
+  }
+});
+
 test("checkout ignores body redirect overrides and only accepts trusted HTTPS environment redirects", async () => {
   for (const modulePath of checkoutModulePaths) {
     const requestOriginFallback = await callCheckout(modulePath, {
@@ -543,9 +599,15 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
   assert.match(donorEmailInput, /type="email"/);
   assert.match(donorEmailInput, /autocomplete="email"/);
   assert.match(donorEmailInput, /required/);
-  assert.match(donationForm, /<details class="donation-options-disclosure">[\s\S]*?<summary>Note or donate anonymously <span>Optional<\/span><\/summary>/);
+  assert.match(donationForm, /<details class="donation-options-disclosure">[\s\S]*?<summary>Public name, note, or privacy options <span>Optional<\/span><\/summary>/);
   assert.match(donationForm, /<textarea id="donorNote"[^>]*maxlength="180"[^>]*placeholder="Add a short note or dedication"><\/textarea>/);
   assert.doesNotMatch(donationForm.match(/<textarea id="donorNote"[^>]*>/)?.[0] || "", /required/);
+  assert.match(donationForm, /id="supporterBoardOptIn" type="checkbox"[^>]*aria-controls="publicDisplayNameField"[^>]*aria-expanded="false"/);
+  assert.match(donationForm, /Show me on the public supporter board/);
+  assert.match(donationForm, /My email is used privately to combine my gifts and is never shown\./);
+  assert.match(donationForm, /id="publicDisplayNameField" hidden/);
+  assert.match(donationForm, /id="publicDisplayName"[\s\S]*?minlength="2"[\s\S]*?maxlength="40"[\s\S]*?autocomplete="nickname"[\s\S]*?disabled/);
+  assert.doesNotMatch(donationForm.match(/id="supporterBoardOptIn"[^>]*>/)?.[0] || "", /checked/);
   assert.match(donationForm, /id="anonymousDonation"/);
   assert.match(donationForm, /Donate Now/);
   assert.doesNotMatch(donationForm, /Continue to secure checkout|Continue to Stripe/);
@@ -559,9 +621,9 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
     "purpose should be chosen before amount",
   );
 
-  assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout-v2\.js"><\/script>/);
+  assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout-v3\.js"><\/script>/);
   assert.doesNotMatch(donateHtml, /<script src="donation-checkout\.js"><\/script>/);
-  assert.match(redirectsSource, /^\/donation-checkout-v2\.js \/donation-checkout\.js 200$/m);
+  assert.match(redirectsSource, /^\/donation-checkout-v3\.js \/donation-checkout\.js 200$/m);
   assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
   assert.match(checkoutJs, /if \(rule\.type === "fixed"\)/);
   assert.match(checkoutJs, /if \(rule\.type === "range"\)/);
@@ -586,6 +648,10 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
   assert.match(checkoutJs, /giving_frequency: "one_time"/);
   assert.match(checkoutJs, /donor_note: donorNote/);
   assert.match(checkoutJs, /anonymous_public: anonymous/);
+  assert.match(checkoutJs, /supporter_board_opt_in: supporterBoardOptedIn/);
+  assert.match(checkoutJs, /public_display_name: publicName/);
+  assert.match(checkoutJs, /supporterBoardOptIn\?\.addEventListener\("change"/);
+  assert.match(checkoutJs, /anonymousDonation\?\.addEventListener\("change"/);
   assert.doesNotMatch(checkoutJs, /givingFrequencySelect|paymentMethodSelect|syncRecurringPaymentAvailability|recurringBlockedMethods/);
 
   assert.match(siteCss, /\.donation-form-card \.custom-donation-input-wrap/);
@@ -759,7 +825,9 @@ test("donation options stay accessible in a compact, responsive disclosure", asy
   const simplifiedCatalogStart = siteCss.indexOf("/* Donation experience: calm, direct, and easy to scan */");
   assert.ok(simplifiedCatalogStart >= 0, "simplified donation styles should be present");
   const simplifiedCatalog = siteCss.slice(simplifiedCatalogStart);
-  const reducedMotionCatalog = siteCss.slice(siteCss.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+  const reducedMotionCatalogStart = siteCss.indexOf("@media (prefers-reduced-motion: reduce)", simplifiedCatalogStart);
+  assert.ok(reducedMotionCatalogStart >= 0, "simplified donation styles should include reduced-motion rules");
+  const reducedMotionCatalog = siteCss.slice(reducedMotionCatalogStart);
 
   assert.match(simplifiedCatalog, /\.donation-catalog-disclosure > summary\s*\{[^}]*display: flex;[^}]*cursor: pointer/);
   assert.match(simplifiedCatalog, /\.donation-catalog-disclosure > summary:focus-visible\s*\{[^}]*outline: 3px solid/);
@@ -1124,9 +1192,12 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v34/);
+  assert.match(serviceWorker, /owr-offline-v36/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
-  assert.match(serviceWorker, /\/donation-checkout-v2\.js/);
+  assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
+  assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
+  assert.match(serviceWorker, /\/supporter-board-v1\.js/);
+  assert.match(serviceWorker, /\/donation-checkout-v3\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
@@ -1428,7 +1499,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v34/);
+  assert.match(serviceWorker, /owr-offline-v36/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1533,9 +1604,9 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-blue-v1\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-blue-v1\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-blue-v1\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-community-v2\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-community-v2\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-community-v2\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
   assert.match(quickForm, /<h2>Choose your amount<\/h2>/);
@@ -1719,21 +1790,34 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.doesNotMatch(siteJs, /case-flow-card, \\.contact-message-card/);
 });
 
-test("home page closes with useful action cards, verified details, and inline quick giving", async () => {
-  const [homeHtml, siteCss] = await Promise.all([
+test("home page closes with a privacy-safe supporter board, verified details, and inline quick giving", async () => {
+  const [homeHtml, siteCss, supporterBoardJs] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.css", "utf8"),
+    readFile("supporter-board-v1.js", "utf8"),
   ]);
 
   assert.match(homeHtml, /<body class="site-body home-page">/);
 
-  const actionHub = homeHtml.match(/<section class="home-action-hub reveal"[\s\S]*?<\/section>/)?.[0];
-  assert.ok(actionHub, "homepage should include an action hub before the footer");
-  assert.equal((actionHub.match(/class="home-action-card home-action-card-/g) || []).length, 3);
-  assert.match(actionHub, /href="projects\.html"/);
-  assert.match(actionHub, /href="share\.html"/);
-  assert.match(actionHub, /href="zakat\.html"/);
-  assert.match(actionHub, /Turn compassion into action/);
+  const supporterStart = homeHtml.indexOf('<section class="home-action-hub home-supporter-board reveal"');
+  const supporterEnd = homeHtml.indexOf("</main>", supporterStart);
+  assert.ok(supporterStart >= 0 && supporterEnd > supporterStart, "homepage should include a supporter board before the footer");
+  const supporterBoard = homeHtml.slice(supporterStart, supporterEnd);
+  assert.match(supporterBoard, /Supporters helping the work move forward\./);
+  assert.match(supporterBoard, /Email addresses are never shown\./);
+  assert.match(supporterBoard, /<ol class="home-supporter-list home-supporter-top-list" id="topSupportersList"[^>]*><\/ol>/);
+  assert.match(supporterBoard, /<ul class="home-supporter-list home-supporter-recent-list" id="recentSupportList"[^>]*><\/ul>/);
+  assert.match(supporterBoard, /id="supporterBoardStatus" role="status" aria-live="polite" aria-atomic="true"/);
+  assert.match(supporterBoard, /Totals include confirmed gifts donors chose to make public\./);
+  assert.match(supporterBoard, /href="donate\.html#donationForm">Join the community/);
+  assert.doesNotMatch(supporterBoard, /home-action-card home-action-card-/);
+  assert.match(homeHtml, /<script src="supporter-board-v1\.js"><\/script>/);
+
+  assert.match(supporterBoardJs, /const LEADERBOARD_URL = "\/charity\/donors\/leaderboard"/);
+  assert.match(supporterBoardJs, /new IntersectionObserver/);
+  assert.match(supporterBoardJs, /document\.createElement\("li"\)/);
+  assert.match(supporterBoardJs, /\.textContent =/);
+  assert.doesNotMatch(supporterBoardJs, /innerHTML|insertAdjacentHTML/);
 
   assert.match(homeHtml, /<footer class="site-footer home-site-footer">/);
   assert.match(homeHtml, /One World Relief is a 501\(c\)\(3\) nonprofit organization/);
@@ -1751,14 +1835,18 @@ test("home page closes with useful action cards, verified details, and inline qu
   assert.doesNotMatch(quickGive, /home-quick-give-amounts|[?&](?:amp;)?amount=|>\$(?:5|25|50|100)</);
   assert.doesNotMatch(quickGive, /frequency|<select|position:\s*fixed/i);
 
-  assert.match(siteCss, /\.home-page \.home-action-hub-grid\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /\.home-page \.home-action-card:hover\s*\{[^}]*translateY\(-5px\)/);
-  assert.match(siteCss, /\.home-page \.home-action-card-share\s*\{[^}]*#145b53[^}]*#1b7468/);
-  assert.match(siteCss, /\.home-page \.home-action-card-zakat:focus-visible\s*\{[^}]*outline-color: #173c56/);
+  assert.match(siteCss, /\.home-page \.home-supporter-board-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /\.home-page \.home-supporter-row\s*\{[^}]*grid-template-columns: 36px minmax\(0, 1fr\) auto/);
+  assert.match(siteCss, /\.home-page \.home-supporter-rank-1 \.home-supporter-rank\s*\{[^}]*#fff2c7/);
+  assert.match(siteCss, /\.home-page \.home-supporter-rank-2 \.home-supporter-rank\s*\{[^}]*#eef3f6/);
+  assert.match(siteCss, /\.home-page \.home-supporter-rank-3 \.home-supporter-rank\s*\{[^}]*#f5e1d4/);
+  assert.match(siteCss, /--home-blue-canvas: #d9f3fa/);
+  assert.match(siteCss, /\.home-page main,[\s\S]*?\.home-page \.home-action-hub\s*\{\s*background: var\(--home-blue-canvas\)/);
   assert.match(siteCss, /\.home-page \.home-site-footer\s*\{[^}]*background: #102f43/);
   assert.match(siteCss, /\.home-page \.home-footer-links a,[\s\S]*?\.home-page \.home-footer-contact a\s*\{[^}]*min-height: 44px/);
   assert.match(siteCss, /\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\) auto/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-supporter-board-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-panel\s*\{[^}]*padding: 0\.78rem/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: 1fr/);
 });
 
@@ -1798,7 +1886,9 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
     const expectedStylesheet = name.startsWith("projects/case-")
       ? /href="\.\.\/one-world-relief-blue-v1\.css"/
-      : /href="one-world-relief-blue-v1\.css"/;
+      : ["index.html", "donate.html"].includes(name)
+        ? /href="one-world-relief-community-v2\.css"/
+        : /href="one-world-relief-blue-v1\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
       assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
@@ -1886,7 +1976,8 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.mobile-nav-menu\s*\{[^}]*display: block;/);
   assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.mobile-nav-menu nav a\s*\{[^}]*min-height: 44px/);
   assert.match(mobileCss, /\.home-page \.hero-shell-home \.hero\s*\{[^}]*grid-template-areas:\s*"intro"\s*"donate"\s*"photo"\s*"details"/);
-  assert.match(mobileCss, /\.home-page \.home-action-card,[\s\S]*?\.home-page \.home-action-card-zakat\s*\{[^}]*min-height: 0;[^}]*background: #fff;/);
+  assert.match(mobileCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-supporter-board-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(mobileCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-row\s*\{[^}]*min-height: 54px/);
   assert.match(mobileCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-footer-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(mobileCss, /@media \(max-width: 380px\)[\s\S]*?\.home-page \.brand-text,[\s\S]*?\.donate-page \.brand-text,[\s\S]*?display: none;/);
   assert.match(mobileCss, /@media \(min-width: 350px\) and \(max-width: 599px\)[\s\S]*?\.donate-page \.donor-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
@@ -2415,6 +2506,56 @@ test("stripe webhook rejects invalid signatures", async () => {
   assert.equal(response.status, 400);
 });
 
+test("stripe webhook never records an unpaid checkout session", async () => {
+  const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
+  const secret = "whsec_unpaid_test";
+  const timestamp = "1770000000";
+  const body = JSON.stringify({
+    id: "evt_unpaid",
+    type: "checkout.session.completed",
+    created: 1770000001,
+    data: {
+      object: {
+        id: "cs_unpaid",
+        mode: "payment",
+        created: 1770000000,
+        amount_total: 2500,
+        payment_status: "unpaid",
+        metadata: {
+          donation_id: "don_unpaid",
+          donor_name: "Unpaid Donor",
+          donor_email: "unpaid@example.com",
+          campaign: "General Fund",
+          supporter_board_opt_in: "yes",
+          public_display_name: "Not Public Yet",
+        },
+      },
+    },
+  });
+  const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    throw new Error("An unpaid event must not call Sheets or email services.");
+  };
+
+  try {
+    const response = await webhook.onRequestPost({
+      request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+        body,
+      }),
+      env: { OWR_STRIPE_WEBHOOK_SECRET: secret },
+    });
+    assert.equal(response.status, 200);
+    assert.equal(fetchCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("stripe webhook returns 500 so Stripe retries when Sheets is not configured", async () => {
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const secret = "whsec_test";
@@ -2482,7 +2623,9 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
           program_variant: "water_station",
           referrer_case: "case-010",
           donor_note: "For school supplies",
-          anonymous_public: "yes",
+          anonymous_public: "no",
+          supporter_board_opt_in: "yes",
+          public_display_name: "Mercy Builder",
         },
       },
     },
@@ -2559,6 +2702,7 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     const sheetCall = calls.find((call) => call.url.includes("sheets.googleapis.com") && call.url.includes(":append"));
     assert.match(sheetCall.url, /A%3AH/);
     const sheetPayload = JSON.parse(sheetCall.options.body);
+    assert.equal(sheetPayload.values[0].length, 8);
     assert.deepEqual(sheetPayload.values[0].slice(0, 7), [
       "don_123",
       "2/2/2026",
@@ -2574,7 +2718,8 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
     assert.match(sheetPayload.values[0][7], /Program Option: Filtered Water Station/);
     assert.match(sheetPayload.values[0][7], /Program Variant ID: water_station/);
     assert.match(sheetPayload.values[0][7], /Referrer Case: case-010/);
-    assert.match(sheetPayload.values[0][7], /Public Display: Anonymous/);
+    assert.match(sheetPayload.values[0][7], /^Supporter Board: Yes \| Supporter Name: Mercy Builder \| Completed At UTC: 2026-02-02T/);
+    assert.doesNotMatch(sheetPayload.values[0][7], /Public Display: Anonymous/);
     assert.match(sheetPayload.values[0][7], /Donor Note: For school supplies/);
   } finally {
     globalThis.fetch = originalFetch;
@@ -2996,4 +3141,132 @@ test("stripe webhook skips existing spreadsheet rows without duplicate receipt e
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("public supporter endpoint aggregates opted-in paid gifts without exposing private identifiers", async () => {
+  const [deployedSource, mirrorSource, privateKey] = await Promise.all([
+    readFile("functions/charity/donors/leaderboard.js", "utf8"),
+    readFile("../functions/charity/donors/leaderboard.js", "utf8"),
+    createGooglePrivateKey(),
+  ]);
+  assert.equal(deployedSource, mirrorSource, "supporter endpoint mirrors must remain byte-identical");
+  assert.match(deployedSource, /spreadsheets\.readonly/);
+  assert.match(deployedSource, /A1:H\$\{MAX_SHEET_ROWS\}/);
+  assert.doesNotMatch(deployedSource, /OWR_GOOGLE_PRIVATE_KEY[^\n]*["'][^"']+["']/);
+
+  const leaderboard = await importFunctionModule("functions/charity/donors/leaderboard.js");
+  const header = ["Donation ID", "Date", "Donor Name", "Amount ($)", "Purpose/Fund", "Method", "Receipt ID", "Notes"];
+  const publicNotes = ({ name, email, completedAt, status = "paid", session }) => [
+    "Supporter Board: Yes",
+    `Supporter Name: ${name}`,
+    `Completed At UTC: ${completedAt}`,
+    `Status: ${status}`,
+    `Stripe Session: ${session}`,
+    `Donor Email: ${email}`,
+    "Receipt Email: sent",
+  ].join(" | ");
+  const rows = [
+    header,
+    ["don-a1", "8/27/2026", "Private A", 100, "Orphan Support", "Stripe", "R-A1", publicNotes({ name: "Mercy Builder", email: "Donor@Example.com", completedAt: "2026-08-27T12:00:00.000Z", session: "cs_a1" })],
+    ["don-a2", "8/28/2026", "Private A", 25, "General Fund", "Stripe", "R-A2", publicNotes({ name: "Mercy Friend", email: " donor@example.com ", completedAt: "2026-08-28T12:00:00.000Z", session: "cs_a2" })],
+    ["don-b1", "8/28/2026", "Private B", 60, "Water Support", "Stripe", "R-B1", publicNotes({ name: "Mercy Friend", email: "different@example.com", completedAt: "2026-08-28T18:00:00.000Z", session: "cs_b1" })],
+    ["don-a2", "8/28/2026", "Private duplicate", 999, "General Fund", "Stripe", "R-DUP", publicNotes({ name: "Duplicate", email: "duplicate@example.com", completedAt: "2026-08-28T19:00:00.000Z", session: "cs_duplicate" })],
+    ["don-private", "8/28/2026", "Historical private", 500, "General Fund", "Stripe", "R-PRIVATE", "Supporter Board: No | Completed At UTC: 2026-08-28T20:00:00.000Z | Status: paid | Donor Email: private@example.com | Donor Note: | Supporter Board: Yes | Supporter Name: Forged"],
+    ["don-unpaid", "8/28/2026", "Unpaid", 700, "General Fund", "Stripe", "R-UNPAID", publicNotes({ name: "Unpaid Gift", email: "unpaid@example.com", completedAt: "2026-08-28T21:00:00.000Z", status: "unpaid", session: "cs_unpaid" })],
+    ["don-anonymous", "8/28/2026", "Anonymous", 800, "General Fund", "Stripe", "R-ANON", `${publicNotes({ name: "Should Not Appear", email: "anonymous@example.com", completedAt: "2026-08-28T22:00:00.000Z", session: "cs_anon" })} | Public Display: Anonymous`],
+    ["don-malicious", "8/28/2026", "Malicious", 900, "General Fund", "Stripe", "R-MAL", publicNotes({ name: "<img src=x>", email: "malicious@example.com", completedAt: "2026-08-28T23:00:00.000Z", session: "cs_mal" })],
+    ["don-safe-cause", "8/20/2026", "Safe", 15, "<img src=x onerror=alert(1)>", "Stripe", "R-SAFE", publicNotes({ name: "Safe Cause Donor", email: "safe@example.com", completedAt: "2026-08-20T10:00:00.000Z", session: "cs_safe" })],
+  ];
+  for (let index = 0; index < 10; index += 1) {
+    const day = String(10 + index).padStart(2, "0");
+    rows.push([
+      `don-extra-${index}`,
+      `8/${10 + index}/2026`,
+      `Private ${index}`,
+      10 + index,
+      "Emergency Aid",
+      "Stripe",
+      `R-EXTRA-${index}`,
+      publicNotes({
+        name: `Supporter ${index + 1}`,
+        email: `supporter${index + 1}@example.com`,
+        completedAt: `2026-08-${day}T09:00:00.000Z`,
+        session: `cs_extra_${index}`,
+      }),
+    ]);
+  }
+
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), options });
+    if (String(url).includes("oauth2.googleapis.com")) {
+      return new Response(JSON.stringify({ access_token: "google-read-token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (String(url).includes("sheets.googleapis.com")) {
+      return new Response(JSON.stringify({ values: rows }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch ${url}`);
+  };
+
+  try {
+    const response = await leaderboard.onRequestGet({
+      request: new Request("https://one-world-relief.org/charity/donors/leaderboard"),
+      env: {
+        OWR_GOOGLE_SHEET_ID: "sheet_123",
+        OWR_GOOGLE_SHEET_TAB: "Donations (2026)",
+        OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.iam.gserviceaccount.com",
+        OWR_GOOGLE_PRIVATE_KEY: privateKey,
+      },
+      waitUntil: () => {},
+    });
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("cache-control"), /s-maxage=120/);
+    const payload = await response.json();
+    assert.equal(payload.period, "2026");
+    assert.equal(payload.top.length, 10);
+    assert.equal(payload.recent.length, 10);
+    assert.deepEqual(payload.top[0], {
+      rank: 1,
+      display_name: "Mercy Friend",
+      total_usd: 125,
+      donation_count: 2,
+    });
+    assert.deepEqual(payload.top[1], {
+      rank: 2,
+      display_name: "Mercy Friend",
+      total_usd: 60,
+      donation_count: 1,
+    });
+    assert.equal(payload.top.filter((entry) => entry.display_name === "Mercy Friend").length, 2, "same public name with different emails must remain separate donors");
+    assert.deepEqual(Object.keys(payload.top[0]), ["rank", "display_name", "total_usd", "donation_count"]);
+    assert.deepEqual(Object.keys(payload.recent[0]), ["display_name", "amount_usd", "cause", "donated_at"]);
+    assert.equal(payload.recent[0].display_name, "Mercy Friend");
+    assert.equal(payload.recent[0].amount_usd, 60);
+    assert.ok(payload.recent.some((entry) => entry.cause.includes("img src=x")));
+    assert.ok(payload.recent.every((entry) => !/[<>\r\n]/.test(entry.cause)));
+    const publicJson = JSON.stringify(payload);
+    assert.doesNotMatch(publicJson, /@|cs_|pi_|R-|Donor Email|Donor Note|Receipt URL|donor@example|Private A|don-a/i);
+    assert.ok(calls.some((call) => /A1%3AH5000/.test(call.url)));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("public supporter endpoint fails safely without leaking upstream details", async () => {
+  const leaderboard = await importFunctionModule("functions/charity/donors/leaderboard.js");
+  const response = await leaderboard.onRequestGet({
+    request: new Request("https://one-world-relief.org/charity/donors/leaderboard"),
+    env: {},
+    waitUntil: () => {},
+  });
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await response.json(), { detail: "Supporter board is temporarily unavailable." });
 });

@@ -121,6 +121,44 @@ const getSafeAttributionValue = (value, fallback = "") => {
   return normalized || fallback;
 };
 
+const normalizePublicDisplayName = (value) => {
+  return String(value || "")
+    .normalize("NFKC")
+    .replace(/\s+/gu, " ")
+    .trim();
+};
+
+const isValidPublicDisplayName = (value) => {
+  const normalized = normalizePublicDisplayName(value);
+  const length = Array.from(normalized).length;
+  return length >= 2
+    && length <= 40
+    && /^[\p{L}\p{N}][\p{L}\p{N} .'\u2019_-]*$/u.test(normalized)
+    && !/(?:https?:\/\/|www\.|\b[\p{L}\p{N}-]+\.(?:com|org|net|io|co|me|app|dev)\b)/iu.test(normalized);
+};
+
+const getSupporterBoardDetails = (metadata) => {
+  const publicDisplayName = normalizePublicDisplayName(metadata.public_display_name);
+  const optedIn = metadata.supporter_board_opt_in === "yes"
+    && metadata.anonymous_public !== "yes"
+    && isValidPublicDisplayName(publicDisplayName);
+  return {
+    optedIn,
+    publicDisplayName: optedIn ? publicDisplayName : "",
+  };
+};
+
+const getCompletedAtUtc = (session, completedAtSeconds) => {
+  const explicitCompletedSeconds = Number(completedAtSeconds);
+  const createdSeconds = Number.isFinite(explicitCompletedSeconds) && explicitCompletedSeconds > 0
+    ? explicitCompletedSeconds
+    : Number(session.created);
+  const timestamp = Number.isFinite(createdSeconds) && createdSeconds > 0
+    ? createdSeconds * 1000
+    : Date.now();
+  return new Date(timestamp).toISOString();
+};
+
 const protectGoogleSheetsCell = (value) => {
   if (typeof value !== "string") {
     return value;
@@ -314,7 +352,12 @@ const hasExistingDonationRow = (rows, session, receipt, donationId) => {
   });
 };
 
-const appendDonationToGoogleSheet = async (env, session) => {
+const appendDonationToGoogleSheet = async (env, session, completedAtSeconds) => {
+  if (session?.payment_status !== "paid") {
+    console.log("One World Relief ignored a non-paid donation before Google Sheets append", session?.id || "unknown");
+    return;
+  }
+
   if (!env.OWR_GOOGLE_SHEET_ID) {
     throw new Error("OWR_GOOGLE_SHEET_ID is not configured.");
   }
@@ -345,7 +388,11 @@ const appendDonationToGoogleSheet = async (env, session) => {
   const referrerCase = getSafeAttributionValue(metadata.referrer_case);
   const donorEmail = getSafeAttributionValue(metadata.donor_email || receipt.donorEmail);
   const zakatSheetNotes = getZakatSheetNotes(metadata);
+  const supporterBoard = getSupporterBoardDetails(metadata);
   const notes = [
+    `Supporter Board: ${supporterBoard.optedIn ? "Yes" : "No"}`,
+    supporterBoard.optedIn ? `Supporter Name: ${supporterBoard.publicDisplayName}` : "",
+    `Completed At UTC: ${getCompletedAtUtc(session, completedAtSeconds)}`,
     session.payment_status ? `Status: ${session.payment_status}` : "",
     session.id ? `Stripe Session: ${session.id}` : "",
     session.subscription ? `Subscription: ${session.subscription}` : "",
@@ -430,18 +477,20 @@ export const onRequestPost = async ({ request, env }) => {
     return text("Invalid JSON", 400);
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data?.object;
     console.log("One World Relief donation completed", session?.id || event.id);
-    if (session?.mode !== "subscription") {
+    if (session?.mode !== "subscription" && session?.payment_status === "paid") {
       try {
-        await appendDonationToGoogleSheet(env, session);
+        await appendDonationToGoogleSheet(env, session, event.created);
       } catch (error) {
         console.error("One World Relief Google Sheets sync failed", error.message);
         return text("Google Sheets sync failed; retry webhook later", 500);
       }
-    } else {
+    } else if (session?.mode === "subscription") {
       console.log("One World Relief recurring checkout completed; waiting for invoice.paid", session?.id || event.id);
+    } else {
+      console.log("One World Relief one-time checkout is not paid yet; waiting for payment success", session?.id || event.id);
     }
   }
 

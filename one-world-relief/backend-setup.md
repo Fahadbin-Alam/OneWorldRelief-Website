@@ -47,6 +47,7 @@ This local machine currently has Python 3.14, which can fail while installing pi
    - Deployed site: `https://your-domain.com/charity/webhooks/stripe`
 4. Listen for these events:
    - `checkout.session.completed`
+   - `checkout.session.async_payment_succeeded`
    - `checkout.session.expired`
    - `payment_intent.payment_failed`
 5. Put the webhook signing secret in `OWR_STRIPE_WEBHOOK_SECRET`.
@@ -69,6 +70,20 @@ The frontend never collects card numbers. Donors are redirected to Stripe-hosted
 6. Store the service account email and private key in Cloudflare Pages environment variables.
 
 The Stripe webhook sends the custom receipt email and appends completed checkout sessions to Google Sheets in columns A:H. Donor email, Session ID, payment status, payment intent, receipt URL, and receipt email status are stored together in the Notes column so the dashboard layout stays aligned without adding columns. If Sheets has an outage or credentials are missing, the webhook returns `500` so Stripe retries the event instead of silently losing a dashboard row.
+
+## Public supporter board (released 2026-08-30)
+The homepage supporter board reads confirmed, explicitly public Stripe donations from the existing `Donations (2026)` tab. The spreadsheet contract remains exactly A:H; no public-board columns were added. For new Stripe rows, the webhook puts these trusted markers at the beginning of column H (`Notes`):
+
+- `Supporter Board: Yes` or `Supporter Board: No`
+- `Supporter Name: [validated public name]`
+- `Completed At UTC: [ISO timestamp]`
+- `Status: paid`
+
+The Donate form starts with public recognition unchecked. Opting in requires a separate 2-40 character public display name. Public recognition and `Keep my name anonymous` are mutually exclusive. Only a literal JSON boolean `supporter_board_opt_in: true` is accepted as consent; missing values, strings such as `"true"`, and historical rows without the trusted marker stay private.
+
+`GET /charity/donors/leaderboard` returns at most ten top supporters and ten recent public gifts. Email is read from the private Notes field only to combine opted-in gifts from the same normalized address. It is never returned, hashed, or placed in the browser. The public response is limited to display name, public total/count, recent amount, cause, and completion time. Past donor rows do not appear automatically because they have no explicit consent marker.
+
+Operational limits: refunds and chargebacks are not currently subtracted automatically. To remove a supporter, change the row marker to `Supporter Board: No`; the public cache can take about two minutes to expire. Email ownership is not verified, so this is public recognition rather than an authenticated donor account system.
 
 ## Zakat calculator and donation metadata (released 2026-08-17)
 The dedicated Zakat experience is designed as an educational Zakat al-mal estimate, not a fatwa or a replacement for advice from a qualified scholar. Its language switcher supports English (`en`), Bangla (`bn`), Urdu (`ur`), and Arabic (`ar`); Urdu and Arabic render right-to-left. The calculation supports:
@@ -146,6 +161,7 @@ After DNS is active, set:
 - `POST /charity/paypal/capture/{order_id}`
 - `POST /charity/webhooks/stripe`
 - `POST /charity/webhooks/paypal`
+- `GET /charity/donors/leaderboard` (public, opted-in Stripe gifts only)
 - `POST /charity/donations/{donation_id}/mock-complete` (admin/testing)
 - `GET /charity/donations` (admin)
 - `GET /charity/donations/export.csv` (admin)

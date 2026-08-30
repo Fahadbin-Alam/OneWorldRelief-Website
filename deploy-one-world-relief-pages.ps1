@@ -88,6 +88,7 @@ try {
         'one-world-relief.css',
         'functions\_middleware.js',
         'functions\charity\donations\checkout.js',
+        'functions\charity\donors\leaderboard.js',
         'functions\charity\webhooks\stripe.js'
     )
     foreach ($requiredFile in $requiredFiles) {

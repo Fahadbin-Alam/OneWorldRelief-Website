@@ -32,8 +32,14 @@
   const zakatContextLanguageInput = document.getElementById("zakatContextLanguage");
   const zakatContextYearInput = document.getElementById("zakatContextYearBasis");
   const zakatContextNisabInput = document.getElementById("zakatContextNisabBasis");
+  const supporterBoardOptIn = document.getElementById("supporterBoardOptIn");
+  const publicDisplayNameField = document.getElementById("publicDisplayNameField");
+  const publicDisplayName = document.getElementById("publicDisplayName");
+  const anonymousDonation = document.getElementById("anonymousDonation");
   const params = new URLSearchParams(window.location.search);
   const ZAKAT_HANDOFF_KEY = "owrZakatHandoff";
+  const PUBLIC_DISPLAY_NAME_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} .'\u2019_-]*$/u;
+  const PUBLIC_DISPLAY_NAME_URL_PATTERN = /(?:https?:\/\/|www\.|\b[\p{L}\p{N}-]+\.(?:com|org|net|io|co|me|app|dev)\b)/iu;
   let activeZakatContext = null;
 
   const getZakatHandoff = () => {
@@ -492,6 +498,46 @@
     amount: params.get("amount"),
     referrer: params.get("referrer") || "",
   });
+
+  const syncSupporterBoardChoice = () => {
+    const isOptedIn = Boolean(supporterBoardOptIn?.checked) && !Boolean(anonymousDonation?.checked);
+    if (supporterBoardOptIn) {
+      supporterBoardOptIn.checked = isOptedIn;
+      supporterBoardOptIn.setAttribute("aria-expanded", String(isOptedIn));
+    }
+    if (publicDisplayNameField) {
+      publicDisplayNameField.hidden = !isOptedIn;
+    }
+    if (publicDisplayName) {
+      publicDisplayName.disabled = !isOptedIn;
+      publicDisplayName.required = isOptedIn;
+      if (!isOptedIn) {
+        publicDisplayName.removeAttribute("aria-invalid");
+        publicDisplayName.setCustomValidity("");
+      }
+    }
+  };
+
+  supporterBoardOptIn?.addEventListener("change", () => {
+    if (supporterBoardOptIn.checked && anonymousDonation) {
+      anonymousDonation.checked = false;
+    }
+    syncSupporterBoardChoice();
+  });
+
+  anonymousDonation?.addEventListener("change", () => {
+    if (anonymousDonation.checked && supporterBoardOptIn) {
+      supporterBoardOptIn.checked = false;
+    }
+    syncSupporterBoardChoice();
+  });
+
+  publicDisplayName?.addEventListener("input", () => {
+    publicDisplayName.removeAttribute("aria-invalid");
+    publicDisplayName.setCustomValidity("");
+  });
+
+  syncSupporterBoardChoice();
   updateSubmitLabel();
   if (window.location.hash === "#donationForm") {
     window.requestAnimationFrame(() => positionCheckout(false));
@@ -508,10 +554,24 @@
     const variant = getVariant(program, variantInput?.value);
     const amountUsd = getDonationAmount();
     const donorNote = document.getElementById("donorNote")?.value.trim() || "";
-    const anonymous = Boolean(document.getElementById("anonymousDonation")?.checked);
+    const anonymous = Boolean(anonymousDonation?.checked);
+    const supporterBoardOptedIn = Boolean(supporterBoardOptIn?.checked) && !anonymous;
+    const publicName = supporterBoardOptedIn ? publicDisplayName?.value.trim() || "" : "";
 
     if (!donorName || !donorEmail) {
       setStatus("Please enter your name and email.", true);
+      return;
+    }
+    const isValidPublicName = publicName.length >= 2
+      && publicName.length <= 40
+      && PUBLIC_DISPLAY_NAME_PATTERN.test(publicName)
+      && !PUBLIC_DISPLAY_NAME_URL_PATTERN.test(publicName);
+    if (supporterBoardOptedIn && !isValidPublicName) {
+      publicDisplayName?.setAttribute("aria-invalid", "true");
+      publicDisplayName?.setCustomValidity("Use 2 to 40 letters, numbers, spaces, periods, apostrophes, hyphens, or underscores.");
+      publicDisplayName?.focus();
+      publicDisplayName?.reportValidity();
+      setStatus("Enter a valid public supporter name using 2 to 40 characters.", true);
       return;
     }
     if (!program || !isAllowedAmount(program, variant, amountUsd)) {
@@ -537,6 +597,8 @@
         giving_frequency: "one_time",
         donor_note: donorNote,
         anonymous_public: anonymous,
+        supporter_board_opt_in: supporterBoardOptedIn,
+        public_display_name: publicName,
       };
       if (program.id === "zakat" && activeZakatContext && donationSourceInput?.value === "zakat-calculator") {
         checkoutData.zakat_context = {

@@ -203,6 +203,33 @@ const normalizeCampaignAlias = (value) => {
   return String(value || "").trim().toLowerCase().replace(/\u2019/g, "'").replace(/\s+/g, " ");
 };
 
+const normalizePublicDisplayName = (value) => {
+  return String(value || "")
+    .normalize("NFKC")
+    .replace(/\s+/gu, " ")
+    .trim();
+};
+
+const isValidPublicDisplayName = (value) => {
+  const normalized = normalizePublicDisplayName(value);
+  const length = Array.from(normalized).length;
+  if (length < 2 || length > 40) {
+    return false;
+  }
+
+  if (!/^[\p{L}\p{N}][\p{L}\p{N} .'\u2019_-]*$/u.test(normalized)) {
+    return false;
+  }
+
+  return !/(?:https?:\/\/|www\.|\b[\p{L}\p{N}-]+\.(?:com|org|net|io|co|me|app|dev)\b)/iu.test(normalized);
+};
+
+const isValidDonorEmail = (value) => {
+  const normalized = String(value || "").trim();
+  return normalized.length <= 254
+    && /^[^\s@|]{1,64}@[^\s@|]{1,189}\.[^\s@|]{2,}$/u.test(normalized);
+};
+
 const formatUsdFromCents = (amountCents) => {
   const amount = amountCents / 100;
   return `$${Number.isInteger(amount) ? amount.toLocaleString("en-US") : amount.toFixed(2)}`;
@@ -352,13 +379,24 @@ export const onRequestPost = async ({ request, env }) => {
   const rawReferrerCase = String(body.referrer_case || "").trim();
   const referrerCase = normalizeReferrerCase(rawReferrerCase);
   const donorNote = String(body.donor_note || "").trim().slice(0, 180);
-  const anonymousPublic = Boolean(body.anonymous_public);
+  const anonymousPublic = body.anonymous_public === true;
+  const supporterBoardOptIn = body.supporter_board_opt_in === true;
+  const requestedPublicDisplayName = normalizePublicDisplayName(body.public_display_name);
+  const publicDisplayName = supporterBoardOptIn ? requestedPublicDisplayName : "";
   const givingFrequency = normalizeGivingFrequency(body.giving_frequency);
   const recurringInterval = getRecurringInterval(givingFrequency);
   const isRecurring = givingFrequency !== "one_time";
 
-  if (donorName.length < 2 || !donorEmail.includes("@")) {
+  if (donorName.length < 2 || !isValidDonorEmail(donorEmail)) {
     return json({ detail: "Please enter a valid donor name and email." }, 400);
+  }
+
+  if (supporterBoardOptIn && anonymousPublic) {
+    return json({ detail: "Please choose either a public supporter name or an anonymous donation, not both." }, 400);
+  }
+
+  if (supporterBoardOptIn && !isValidPublicDisplayName(publicDisplayName)) {
+    return json({ detail: "Please enter a public supporter name using 2 to 40 letters, numbers, spaces, periods, apostrophes, hyphens, or underscores." }, 400);
   }
 
   if (!frequencyLabels[givingFrequency]) {
@@ -507,6 +545,8 @@ export const onRequestPost = async ({ request, env }) => {
     donor_email: donorEmail,
     donor_note: donorNote,
     anonymous_public: anonymousPublic ? "yes" : "no",
+    supporter_board_opt_in: supporterBoardOptIn ? "yes" : "no",
+    public_display_name: publicDisplayName,
     giving_frequency: givingFrequency,
     recurring_interval: recurringInterval || "one_time",
     schedule_label: frequencyLabels[givingFrequency],

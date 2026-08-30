@@ -20,7 +20,7 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="one-world-relief-blue-v1.css" />
+  <link rel="stylesheet" href="one-world-relief-community-v2.css" />
 </head>
 <body class="site-body home-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -196,57 +196,56 @@
       </div>
     </section>
 
-    <section class="home-action-hub reveal" aria-labelledby="homeActionHubTitle">
+    <section class="home-action-hub home-supporter-board reveal" id="supporterBoard" aria-labelledby="homeSupporterBoardTitle">
       <div class="container">
-        <header class="home-action-hub-heading">
-          <p class="eyebrow">Choose your next step</p>
-          <h2 id="homeActionHubTitle">Turn compassion into action.</h2>
-          <p>See the work, invite someone else to help, or calculate your Zakat privately.</p>
+        <header class="home-action-hub-heading home-supporter-board-heading">
+          <p class="eyebrow">Community support</p>
+          <h2 id="homeSupporterBoardTitle">Supporters helping the work move forward.</h2>
+          <p>A thank-you to donors who chose to be recognized publicly. Email addresses are never shown.</p>
         </header>
 
-        <div class="home-action-hub-grid">
-          <a class="home-action-card home-action-card-projects" href="projects.html">
-            <span class="home-action-card-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" focusable="false">
-                <path d="M14 7h17l7 7v27H14z" />
-                <path d="M31 7v8h7M20 23h12M20 29h12" />
-                <path d="m20 35 3 3 7-8" />
-              </svg>
-            </span>
-            <span class="home-action-card-kicker">Documented projects</span>
-            <h3>See where support went.</h3>
-            <p>Explore completed cases, real field photos, project costs, and work still ahead.</p>
-            <span class="home-action-card-link">Explore projects <span aria-hidden="true">&rarr;</span></span>
-          </a>
+        <div class="home-supporter-board-grid" id="homeSupporterBoardGrid" aria-busy="false">
+          <section class="home-supporter-panel home-supporter-panel-top" aria-labelledby="topSupportersTitle">
+            <header class="home-supporter-panel-heading">
+              <div>
+                <p>Public giving</p>
+                <h3 id="topSupportersTitle">Top supporters</h3>
+              </div>
+              <span class="home-supporter-period" id="topSupportersPeriod">2026</span>
+            </header>
+            <div class="home-supporter-loading" id="topSupportersLoading" aria-hidden="true"></div>
+            <ol class="home-supporter-list home-supporter-top-list" id="topSupportersList" role="list" aria-label="Top ten public supporters" hidden></ol>
+            <div class="home-supporter-empty" id="topSupportersEmpty" hidden>
+              <strong>No public supporters yet.</strong>
+              <p>Choose to join the supporter board when you make a donation.</p>
+            </div>
+          </section>
 
-          <a class="home-action-card home-action-card-share" href="share.html">
-            <span class="home-action-card-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" focusable="false">
-                <circle cx="14" cy="24" r="5" />
-                <circle cx="34" cy="13" r="5" />
-                <circle cx="34" cy="35" r="5" />
-                <path d="m18.5 21.5 11-6M18.5 26.5l11 6" />
-              </svg>
-            </span>
-            <span class="home-action-card-kicker">Share the work</span>
-            <h3>Help the mission reach further.</h3>
-            <p>Open a ready-to-share message, QR code, or link and invite others to take part.</p>
-            <span class="home-action-card-link">Open share tools <span aria-hidden="true">&rarr;</span></span>
-          </a>
-
-          <a class="home-action-card home-action-card-zakat" href="zakat.html">
-            <span class="home-action-card-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" focusable="false">
-                <rect x="10" y="7" width="28" height="34" rx="4" />
-                <path d="M16 13h16v7H16zM17 27h2M24 27h2M31 27h2M17 34h2M24 34h2M31 34h2" />
-              </svg>
-            </span>
-            <span class="home-action-card-kicker">Private Zakat estimate</span>
-            <h3>Calculate your Zakat simply.</h3>
-            <p>Use the guided calculator in English, Bangla, Urdu, or Arabic, then return to donate.</p>
-            <span class="home-action-card-link">Calculate my Zakat <span aria-hidden="true">&rarr;</span></span>
-          </a>
+          <section class="home-supporter-panel home-supporter-panel-recent" aria-labelledby="recentSupportTitle">
+            <header class="home-supporter-panel-heading">
+              <div>
+                <p>Latest confirmed gifts</p>
+                <h3 id="recentSupportTitle">Recent public support</h3>
+              </div>
+              <span class="home-supporter-live-label"><span aria-hidden="true"></span><span id="supporterBoardUpdateLabel">Loading</span></span>
+            </header>
+            <div class="home-supporter-loading" id="recentSupportLoading" aria-hidden="true"></div>
+            <ul class="home-supporter-list home-supporter-recent-list" id="recentSupportList" role="list" aria-label="Ten most recent public donations" hidden></ul>
+            <div class="home-supporter-empty" id="recentSupportEmpty" hidden>
+              <strong>No recent public gifts yet.</strong>
+              <p>Only gifts donors chose to share publicly appear here.</p>
+            </div>
+          </section>
         </div>
+
+        <p class="home-supporter-status" id="supporterBoardStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="home-supporter-board-footer">
+          <p>Totals include confirmed gifts donors chose to make public. Email is used privately to combine gifts from the same supporter.</p>
+          <a href="donate.html#donationForm">Join the community <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <noscript>
+          <p class="home-supporter-noscript">Public supporter activity needs JavaScript to load. Donations still work through the Donate page.</p>
+        </noscript>
       </div>
     </section>
   </main>
@@ -315,5 +314,6 @@
   <script src="donation-programs.js"></script>
   <script src="project-data.js"></script>
   <script src="one-world-relief.js"></script>
+  <script src="supporter-board-v1.js"></script>
 </body>
 </html>
