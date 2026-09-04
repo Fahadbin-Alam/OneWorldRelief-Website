@@ -1192,10 +1192,11 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v36/);
+  assert.match(serviceWorker, /owr-offline-v37/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
+  assert.match(serviceWorker, /\/one-world-relief-community-v3\.css/);
   assert.match(serviceWorker, /\/supporter-board-v1\.js/);
   assert.match(serviceWorker, /\/donation-checkout-v3\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
@@ -1499,7 +1500,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v36/);
+  assert.match(serviceWorker, /owr-offline-v37/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1520,21 +1521,25 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
   const heroStart = homeHtml.indexOf('<section class="hero-shell hero-shell-home home-current-scene reveal">');
   const impactStart = homeHtml.indexOf('<div class="hero-copy home-impact-copy"');
   const donationStart = homeHtml.indexOf('<div class="home-action-panel">');
+  const evidenceStart = homeHtml.indexOf('<a class="home-evidence-project"');
+  const detailsStart = homeHtml.indexOf('<div class="home-evidence-details">');
   const flowStart = homeHtml.indexOf('<section class="home-case-flow reveal"');
   assert.ok(heroStart >= 0, "homepage should include its credibility-first hero");
   assert.ok(impactStart >= 0, "homepage should include its giving message");
   assert.ok(donationStart > impactStart, "the giving message should lead the hero before checkout");
-  assert.ok(flowStart > donationStart, "documentary evidence should remain inside the hero before the case flow");
+  assert.ok(evidenceStart > donationStart, "the primary action should precede the documentary project in the DOM");
+  assert.ok(detailsStart > evidenceStart, "project details should follow the documentary project");
+  assert.ok(flowStart > detailsStart, "documentary evidence should remain inside the hero before the case flow");
 
   const impactHtml = homeHtml.slice(impactStart, donationStart);
   const heroHtml = homeHtml.slice(heroStart, flowStart);
   assert.match(impactHtml, /A reminder from the Qur&rsquo;an/);
   assert.match(impactHtml, /id="homeImpactTitle">&ldquo;And whatever you spend in charity, He will compensate you for it\.&rdquo;<\/h1>/);
   assert.match(impactHtml, /<cite class="home-verse-citation">[\s\S]*?class="home-verse-source"[\s\S]*?href="https:\/\/quran\.com\/34\/39"[\s\S]*?target="_blank"[\s\S]*?rel="noopener noreferrer"[\s\S]*?aria-label="Read Qur'an 34:39 on Quran\.com"[\s\S]*?Qur&rsquo;an 34:39 &middot; The Clear Quran/);
-  assert.match(impactHtml, /Choose an amount and continue securely through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
+  assert.match(impactHtml, /Donate securely through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
   assert.match(impactHtml, /class="home-proof-line"/);
-  assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong> completed cases documented/);
-  assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong> individual orphan students supported/);
+  assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong> completed cases/);
+  assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong> orphan students supported/);
   assert.doesNotMatch(impactHtml, /home-proof-strip|home-proof-stat|homeOrphanImpactAccessible/);
   assert.match(heroHtml, /class="home-evidence-project" href="projects\/case-004\.html"/);
   assert.match(heroHtml, /src="assets\/projects\/case-004\/korbani-meals-004-thumbnail\.jpg"/);
@@ -1581,6 +1586,7 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
   assert.match(siteJs, /renderHomeOrphanImpact\(\);\s*renderHomeCaseFlow\(\);/);
   assert.match(siteJs, /\[data-impact-count\], \.flow-impact-stats strong/);
   assert.match(siteCss, /\.home-page \.home-proof-line\s*\{[^}]*display: flex;[^}]*border-top: 1px solid #cad9e1/);
+  assert.match(siteCss, /\.home-page \.home-impact-copy h1\s*\{[^}]*max-width: 18ch;[^}]*font-size: clamp\(2\.3rem, 3\.6vw, 3\.1rem\);[^}]*line-height: 1\.08/);
   assert.match(siteCss, /\.home-page \.home-verse-source\s*\{[^}]*min-height: 44px/);
   assert.match(siteCss, /\.home-page \.hero-shell-home\s*\{[^}]*linear-gradient\(135deg, #e9f9fe/);
   assert.match(siteCss, /\.home-page \.quick-donation\s*\{[^}]*border: 1px solid #92cee0;[^}]*border-top: 5px solid #228db8;[^}]*background: linear-gradient\(150deg, #f8fdff 0%, #e6f7fc 100%\)/);
@@ -1589,6 +1595,11 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
   assert.match(siteCss, /\.home-page \.home-evidence-project:focus-visible,[\s\S]*?\.home-page \.home-impact-link:focus-visible\s*\{[^}]*outline: 3px solid #174a6d/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-proof-line\s*\{[^}]*display: grid/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-summary\s*\{[^}]*display: none/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-copy h1\s*\{[^}]*font-size: clamp\(1\.85rem, 8\.1vw, 2\.2rem\);[^}]*line-height: 1\.09/);
+  assert.match(siteCss, /\.home-page \.home-impact-copy\s*\{[^}]*min-width: 0/);
+  assert.match(siteCss, /\.home-page \.home-action-panel\s*\{[^}]*min-width: 0/);
+  assert.match(siteCss, /\.home-page \.home-evidence-project\s*\{[^}]*min-width: 0/);
+  assert.match(siteCss, /\.home-page \.home-evidence-details\s*\{[^}]*min-width: 0/);
 });
 
 test("homepage checkout accepts one custom unrestricted amount with accessible Stripe handoff", async () => {
@@ -1604,13 +1615,13 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-community-v2\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-community-v2\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-community-v2\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-community-v3\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-community-v3\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-community-v3\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
   assert.match(quickForm, /<h2>Choose your amount<\/h2>/);
-  assert.match(quickForm, /class="quick-donation-subtitle">Enter an amount, then choose its purpose before Stripe checkout\.<\/p>/);
+  assert.match(quickForm, /class="quick-donation-subtitle">Enter an amount, then choose a cause before payment\.<\/p>/);
   assert.doesNotMatch(quickForm, /class="quick-amounts"|name="quickAmount"|type="radio"|\$25|\$50|\$100/);
 
   assert.match(quickForm, /<label class="quick-custom-amount" for="quickCustomAmount">/);
@@ -1678,7 +1689,7 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok((siteCss.match(/outline: 3px solid var\(--blue-700\);/g) || []).length >= 4);
   assert.match(siteCss, /\.quick-donation-button:active/);
   assert.match(siteCss, /\.quick-donation-button:focus-visible/);
-  assert.match(siteCss, /\.home-page \.quick-custom-input-wrap\s*\{[^}]*min-height: 62px/);
+  assert.match(siteCss, /\.home-page \.quick-custom-input-wrap\s*\{[^}]*min-height: 58px/);
   assert.match(siteCss, /\.home-page \.quick-donation-identity\s*\{[^}]*min-height: 44px/);
   assert.doesNotMatch(siteCss, /\.quick-amounts(?:\s|\{|\.|:)/);
   assert.doesNotMatch(siteCss, /\.quick-donation-status:empty/);
@@ -1887,7 +1898,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     const expectedStylesheet = name.startsWith("projects/case-")
       ? /href="\.\.\/one-world-relief-blue-v1\.css"/
       : ["index.html", "donate.html"].includes(name)
-        ? /href="one-world-relief-community-v2\.css"/
+        ? /href="one-world-relief-community-v3\.css"/
         : /href="one-world-relief-blue-v1\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
@@ -1976,6 +1987,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.mobile-nav-menu\s*\{[^}]*display: block;/);
   assert.match(mobileCss, /\.site-body:not\(\.home-page\):not\(\.donate-page\) \.mobile-nav-menu nav a\s*\{[^}]*min-height: 44px/);
   assert.match(mobileCss, /\.home-page \.hero-shell-home \.hero\s*\{[^}]*grid-template-areas:\s*"intro"\s*"donate"\s*"photo"\s*"details"/);
+  assert.match(mobileCss, /@media \(max-width: 980px\)[\s\S]*?grid-template-areas:\s*"intro"\s*"donate"\s*"photo"\s*"details"/);
   assert.match(mobileCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-supporter-board-grid\s*\{\s*grid-template-columns: 1fr/);
   assert.match(mobileCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-row\s*\{[^}]*min-height: 54px/);
   assert.match(mobileCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-footer-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
