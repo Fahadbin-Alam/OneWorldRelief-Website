@@ -85,7 +85,9 @@ try {
     $requiredFiles = @(
         'index.html',
         'donate.html',
+        'supporters.html',
         'one-world-relief.css',
+        'supporter-board-v1.js',
         'functions\_middleware.js',
         'functions\charity\donations\checkout.js',
         'functions\charity\donors\leaderboard.js',

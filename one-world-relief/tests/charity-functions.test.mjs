@@ -1155,7 +1155,7 @@ test(".com host redirects to .org", async () => {
 });
 
 test("pages include the supplied One World Relief logo and install icons", async () => {
-  const rootPageNames = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html", "zakat.html"];
+  const rootPageNames = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html", "supporters.html", "zakat.html"];
   const projectPageNames = Array.from({ length: 10 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
   const [rootPages, projectPages, offlineHtml, faviconPng, brandIcon, brandIconSmall, appleTouchIcon, webManifest, serviceWorker] = await Promise.all([
     Promise.all(rootPageNames.map((name) => readFile(name, "utf8"))),
@@ -1192,15 +1192,17 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v37/);
+  assert.match(serviceWorker, /owr-offline-v38/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v3\.css/);
+  assert.match(serviceWorker, /\/one-world-relief-community-v4\.css/);
   assert.match(serviceWorker, /\/supporter-board-v1\.js/);
   assert.match(serviceWorker, /\/donation-checkout-v3\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
+  assert.match(serviceWorker, /\/supporters\.html/);
   assert.match(serviceWorker, /\/zakat-calculator\.js/);
 });
 
@@ -1500,7 +1502,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v37/);
+  assert.match(serviceWorker, /owr-offline-v38/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1615,9 +1617,9 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-community-v3\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-community-v3\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-community-v3\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-community-v4\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-community-v4\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-community-v4\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
   assert.match(quickForm, /<h2>Choose your amount<\/h2>/);
@@ -1801,40 +1803,35 @@ test("home page renders a continuous completed-case photo flow from project data
   assert.doesNotMatch(siteJs, /case-flow-card, \\.contact-message-card/);
 });
 
-test("home page closes with a privacy-safe supporter board, verified details, and inline quick giving", async () => {
-  const [homeHtml, siteCss, supporterBoardJs] = await Promise.all([
+test("home page offers quick project access, four blue next steps, and inline quick giving", async () => {
+  const [homeHtml, siteCss] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.css", "utf8"),
-    readFile("supporter-board-v1.js", "utf8"),
   ]);
 
   assert.match(homeHtml, /<body class="site-body home-page">/);
+  assert.match(homeHtml, /class="home-projects-shortcut" href="projects\.html#projectBoard">\s*View all projects/);
 
-  const supporterStart = homeHtml.indexOf('<section class="home-action-hub home-supporter-board reveal"');
-  const supporterEnd = homeHtml.indexOf("</main>", supporterStart);
-  assert.ok(supporterStart >= 0 && supporterEnd > supporterStart, "homepage should include a supporter board before the footer");
-  const supporterBoard = homeHtml.slice(supporterStart, supporterEnd);
-  assert.match(supporterBoard, /Supporters helping the work move forward\./);
-  assert.match(supporterBoard, /Email addresses are never shown\./);
-  assert.match(supporterBoard, /<ol class="home-supporter-list home-supporter-top-list" id="topSupportersList"[^>]*><\/ol>/);
-  assert.match(supporterBoard, /<ul class="home-supporter-list home-supporter-recent-list" id="recentSupportList"[^>]*><\/ul>/);
-  assert.match(supporterBoard, /id="supporterBoardStatus" role="status" aria-live="polite" aria-atomic="true"/);
-  assert.match(supporterBoard, /Totals include confirmed gifts donors chose to make public\./);
-  assert.match(supporterBoard, /href="donate\.html#donationForm">Join the community/);
-  assert.doesNotMatch(supporterBoard, /home-action-card home-action-card-/);
-  assert.match(homeHtml, /<script src="supporter-board-v1\.js"><\/script>/);
-
-  assert.match(supporterBoardJs, /const LEADERBOARD_URL = "\/charity\/donors\/leaderboard"/);
-  assert.match(supporterBoardJs, /new IntersectionObserver/);
-  assert.match(supporterBoardJs, /document\.createElement\("li"\)/);
-  assert.match(supporterBoardJs, /\.textContent =/);
-  assert.doesNotMatch(supporterBoardJs, /innerHTML|insertAdjacentHTML/);
+  const actionStart = homeHtml.indexOf('<section class="home-action-hub reveal"');
+  const actionEnd = homeHtml.indexOf("</main>", actionStart);
+  assert.ok(actionStart >= 0 && actionEnd > actionStart, "homepage should include the action hub before the footer");
+  const actionHub = homeHtml.slice(actionStart, actionEnd);
+  assert.match(actionHub, /Keep the good moving\./);
+  assert.equal((actionHub.match(/class="home-action-card home-action-card-/g) || []).length, 4);
+  assert.match(actionHub, /home-action-card-projects" href="projects\.html#projectBoard"/);
+  assert.match(actionHub, /home-action-card-share" href="share\.html"/);
+  assert.match(actionHub, /home-action-card-zakat" href="zakat\.html"/);
+  assert.match(actionHub, /home-action-card-supporters" href="supporters\.html"/);
+  assert.match(actionHub, /Calculate your Zakat\./);
+  assert.match(actionHub, /Meet our supporters\./);
+  assert.doesNotMatch(homeHtml, /id="supporterBoard"|supporter-board-v1\.js/);
 
   assert.match(homeHtml, /<footer class="site-footer home-site-footer">/);
   assert.match(homeHtml, /One World Relief is a 501\(c\)\(3\) nonprofit organization/);
   assert.match(homeHtml, /EIN 41-5079927/);
   assert.match(homeHtml, /href="mailto:Oneworldrelief\.fma@gmail\.com"/);
   assert.match(homeHtml, /href="tel:\+18568707528"/);
+  assert.match(homeHtml, /href="supporters\.html">Supporters<\/a>/);
   assert.doesNotMatch(homeHtml, /href="[^"]*(?:reports|volunteer|privacy|terms)[^"]*"/i);
 
   const quickGive = homeHtml.match(/<section class="home-quick-give"[\s\S]*?<\/section>/)?.[0];
@@ -1846,23 +1843,61 @@ test("home page closes with a privacy-safe supporter board, verified details, an
   assert.doesNotMatch(quickGive, /home-quick-give-amounts|[?&](?:amp;)?amount=|>\$(?:5|25|50|100)</);
   assert.doesNotMatch(quickGive, /frequency|<select|position:\s*fixed/i);
 
-  assert.match(siteCss, /\.home-page \.home-supporter-board-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /\.home-page \.home-supporter-row\s*\{[^}]*grid-template-columns: 36px minmax\(0, 1fr\) auto/);
-  assert.match(siteCss, /\.home-page \.home-supporter-rank-1 \.home-supporter-rank\s*\{[^}]*#fff2c7/);
-  assert.match(siteCss, /\.home-page \.home-supporter-rank-2 \.home-supporter-rank\s*\{[^}]*#eef3f6/);
-  assert.match(siteCss, /\.home-page \.home-supporter-rank-3 \.home-supporter-rank\s*\{[^}]*#f5e1d4/);
+  assert.match(siteCss, /\.home-page \.home-projects-shortcut\s*\{[^}]*min-height: 44px/);
+  assert.match(siteCss, /\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /\.home-page \.home-action-card-supporters\s*\{[\s\S]*?background: linear-gradient\(145deg, #174a6d 0%, #2b739d 100%\)/);
+  assert.match(siteCss, /@media \(min-width: 721px\) and \(max-width: 980px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-projects-shortcut\s*\{[^}]*width: 100%/);
   assert.match(siteCss, /--home-blue-canvas: #d9f3fa/);
   assert.match(siteCss, /\.home-page main,[\s\S]*?\.home-page \.home-action-hub\s*\{\s*background: var\(--home-blue-canvas\)/);
   assert.match(siteCss, /\.home-page \.home-site-footer\s*\{[^}]*background: #102f43/);
   assert.match(siteCss, /\.home-page \.home-footer-links a,[\s\S]*?\.home-page \.home-footer-contact a\s*\{[^}]*min-height: 44px/);
   assert.match(siteCss, /\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\) auto/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-supporter-board-grid\s*\{\s*grid-template-columns: 1fr/);
-  assert.match(siteCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-panel\s*\{[^}]*padding: 0\.78rem/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-quick-give-inner\s*\{[^}]*grid-template-columns: 1fr/);
 });
 
+test("public supporter activity lives on a dedicated privacy-safe page", async () => {
+  const [supportersHtml, siteCss, supporterBoardJs] = await Promise.all([
+    readFile("supporters.html", "utf8"),
+    readFile("one-world-relief.css", "utf8"),
+    readFile("supporter-board-v1.js", "utf8"),
+  ]);
+
+  assert.match(supportersHtml, /<body class="site-body supporters-page">/);
+  assert.match(supportersHtml, /class="home-page supporters-board-scope"/);
+  const supporterStart = supportersHtml.indexOf('<section class="home-action-hub home-supporter-board reveal"');
+  const supporterEnd = supportersHtml.indexOf("</main>", supporterStart);
+  assert.ok(supporterStart >= 0 && supporterEnd > supporterStart, "supporters page should include the public board");
+  const supporterBoard = supportersHtml.slice(supporterStart, supporterEnd);
+  assert.match(supporterBoard, /<h1 id="homeSupporterBoardTitle">Supporters helping the work move forward\.<\/h1>/);
+  assert.match(supporterBoard, /Email addresses are never shown\./);
+  assert.match(supporterBoard, /<ol class="home-supporter-list home-supporter-top-list" id="topSupportersList"[^>]*><\/ol>/);
+  assert.match(supporterBoard, /<ul class="home-supporter-list home-supporter-recent-list" id="recentSupportList"[^>]*><\/ul>/);
+  assert.match(supporterBoard, /id="supporterBoardStatus" role="status" aria-live="polite" aria-atomic="true"/);
+  assert.match(supporterBoard, /Totals include confirmed gifts donors chose to make public\./);
+  assert.match(supporterBoard, /href="donate\.html#donationForm">Join the community/);
+  assert.match(supportersHtml, /<script src="one-world-relief\.js"><\/script>\s*<script src="supporter-board-v1\.js"><\/script>/);
+
+  assert.match(supporterBoardJs, /const LEADERBOARD_URL = "\/charity\/donors\/leaderboard"/);
+  assert.match(supporterBoardJs, /new IntersectionObserver/);
+  assert.match(supporterBoardJs, /document\.createElement\("li"\)/);
+  assert.match(supporterBoardJs, /\.textContent =/);
+  assert.doesNotMatch(supporterBoardJs, /innerHTML|insertAdjacentHTML/);
+
+  assert.match(siteCss, /\.home-page \.home-supporter-board-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(siteCss, /\.home-page \.home-supporter-row\s*\{[^}]*grid-template-columns: 36px minmax\(0, 1fr\) auto/);
+  assert.match(siteCss, /\.home-page \.home-supporter-rank-1 \.home-supporter-rank\s*\{[^}]*#fff2c7/);
+  assert.match(siteCss, /\.home-page \.home-supporter-rank-2 \.home-supporter-rank\s*\{[^}]*#eef3f6/);
+  assert.match(siteCss, /\.home-page \.home-supporter-rank-3 \.home-supporter-rank\s*\{[^}]*#f5e1d4/);
+  assert.match(siteCss, /\.supporters-page \.home-supporter-board-heading h1\s*\{[^}]*font-size: clamp\(2\.4rem, 5vw, 4rem\)/);
+  assert.match(siteCss, /\.supporters-page \.supporter-site-footer\s*\{[^}]*background: #102f43/);
+  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-supporter-board-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(siteCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-panel\s*\{[^}]*padding: 0\.78rem/);
+});
+
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
-  const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html", "zakat.html"];
+  const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html", "supporters.html", "zakat.html"];
   const casePageNames = Array.from({ length: 10 }, (_, index) => {
     return `projects/case-${String(index + 1).padStart(3, "0")}.html`;
   });
@@ -1877,7 +1912,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   ]);
 
   const publicPages = [...pages, { name: "offline.html", html: offlineHtml }];
-  assert.equal(publicPages.length, 18);
+  assert.equal(publicPages.length, 19);
   for (const { name, html } of publicPages) {
     assert.match(
       html,
@@ -1897,8 +1932,8 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
     const expectedStylesheet = name.startsWith("projects/case-")
       ? /href="\.\.\/one-world-relief-blue-v1\.css"/
-      : ["index.html", "donate.html"].includes(name)
-        ? /href="one-world-relief-community-v3\.css"/
+      : ["index.html", "donate.html", "supporters.html"].includes(name)
+        ? /href="one-world-relief-community-v4\.css"/
         : /href="one-world-relief-blue-v1\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
