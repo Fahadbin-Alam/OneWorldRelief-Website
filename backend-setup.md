@@ -3,104 +3,55 @@
 <!-- From One World Relief donation backend integration, 4/19/26 -->
 # One World Relief Backend Setup
 
-## What this backend now does
-- Stores donors in SQLite (`charity_donors`)
-- Stores donation transactions with date and status (`charity_donations`)
-- Auto-generates receipts after successful payment (`charity_receipts`)
-- Stores an audit log for payment events (`charity_audit_logs`)
-- Supports checkout creation for:
-  - PayPal
-  - Credit card (via Stripe Checkout)
-  - Stripe
-- Supports tax CSV export by date/status/email
+The site is static HTML, CSS, and JS hosted on Cloudflare Pages. The donation backend is a set of Cloudflare Pages Functions in `functions/`. There is no separate server or database to run.
 
-## Local runtime
-Use Python 3.11 for the backend. The Dockerfile already uses Python 3.11.
+## How a donation works
+1. The donor fills in the form on `donate.html` (or starts from the quick form on the homepage).
+2. `one-world-relief.js` posts the donation to `POST /charity/donations/checkout`.
+3. That function creates a Stripe Checkout Session and returns its URL. The donor is redirected to Stripe-hosted Checkout, so the site never sees card numbers.
+4. Stripe sends the donor back to `/charity/thank-you` on success or `/charity/cancelled` if they back out.
+5. Stripe calls `POST /charity/webhooks/stripe`. On `checkout.session.completed`, the webhook adds a row to the Google Sheet donation log. Rows whose Stripe Session ID is already in the Sheet are skipped, so resent events don't create duplicates.
 
-This local machine currently has Python 3.14, which can fail while installing pinned FastAPI/Pydantic dependencies because some native wheels are not available for that version yet.
+Online donations must be between $1 and $10,000. The limits are set in `functions/charity/donations/checkout.js` and repeated in `one-world-relief.js` for the in-page error message.
 
-## Required env vars (payment providers)
-- `OWR_STRIPE_SECRET_KEY` - your Stripe secret key from the Stripe Dashboard
-- `OWR_STRIPE_WEBHOOK_SECRET` - your Stripe webhook signing secret for `/charity/webhooks/stripe`
-- `OWR_GOOGLE_SHEET_ID` - Google Sheet ID for the donation log
-- `OWR_GOOGLE_SHEET_TAB` - Google Sheet tab name, currently `Donations (2026)`
-- `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email shared on the Sheet
-- `OWR_GOOGLE_PRIVATE_KEY` - Google service account private key, stored as a secret
-- `OWR_PAYPAL_CLIENT_ID`
-- `OWR_PAYPAL_CLIENT_SECRET`
-- `OWR_PAYPAL_BASE_URL` (default sandbox)
-- `OWR_SUCCESS_URL` (default: `http://localhost:8000/charity/thank-you`)
-- `OWR_CANCEL_URL` (default: `http://localhost:8000/charity/cancelled`)
-- `OWR_ADMIN_API_KEY` (optional but recommended for tax/report endpoints)
+PayPal is not live yet. The checkout function rejects any payment method other than Stripe/card.
+
+## Functions
+| Route | File | Purpose |
+| --- | --- | --- |
+| `POST /charity/donations/checkout` | `functions/charity/donations/checkout.js` | Validates the donation and creates a Stripe Checkout Session |
+| `POST /charity/webhooks/stripe` | `functions/charity/webhooks/stripe.js` | Verifies the Stripe signature and logs completed donations to Google Sheets |
+| `GET /charity/thank-you` | `functions/charity/thank-you.js` | Success page after checkout |
+| `GET /charity/cancelled` | `functions/charity/cancelled.js` | Page shown when the donor cancels checkout |
+
+## Environment variables (Cloudflare Pages > Settings > Variables and Secrets)
+- `OWR_STRIPE_SECRET_KEY`: Stripe secret key. Store it as a secret.
+- `OWR_STRIPE_WEBHOOK_SECRET`: Stripe webhook signing secret. A comma-separated list is accepted while you rotate secrets.
+- `OWR_GOOGLE_SHEET_ID`: ID of the donation log spreadsheet. If this isn't set, the Sheets sync is skipped.
+- `OWR_GOOGLE_SHEET_TAB`: Tab name, currently `Donations (2026)`. Defaults to `Donations`.
+- `OWR_GOOGLE_SERVICE_ACCOUNT_EMAIL`: Google service account email that has edit access to the Sheet.
+- `OWR_GOOGLE_PRIVATE_KEY`: That service account's private key. Store it as a secret.
 
 ## Stripe setup checklist
-1. In Stripe, use Checkout Sessions for One World Relief donations.
-2. Put your test secret key in `OWR_STRIPE_SECRET_KEY`.
-3. Add a webhook endpoint pointing to:
-   - Local testing with Stripe CLI: `http://localhost:8000/charity/webhooks/stripe`
-   - Deployed site: `https://your-domain.com/charity/webhooks/stripe`
-4. Listen for these events:
-   - `checkout.session.completed`
-   - `checkout.session.expired`
-   - `payment_intent.payment_failed`
-5. Put the webhook signing secret in `OWR_STRIPE_WEBHOOK_SECRET`.
-6. Set `OWR_SUCCESS_URL` and `OWR_CANCEL_URL` to your real deployed domain before going live.
-
-The frontend never collects card numbers. Donors are redirected to Stripe-hosted Checkout.
+1. Put the secret key in `OWR_STRIPE_SECRET_KEY`. Use a test key until you're ready to go live.
+2. In the Stripe Dashboard, add a webhook endpoint at `https://<your-domain>/charity/webhooks/stripe`.
+3. Subscribe it to `checkout.session.completed`.
+4. Put the endpoint's signing secret in `OWR_STRIPE_WEBHOOK_SECRET`.
+5. Redeploy the Pages project so the functions pick up the new variables.
 
 ## Google Sheets donation log setup
-1. Use the tab named `Donations (2026)` in the spreadsheet.
-2. Add these headers in row 1:
+1. In the spreadsheet, use the tab named in `OWR_GOOGLE_SHEET_TAB`.
+2. Add these headers in row 1 (columns A to J):
    `Donation ID | Date | Donor Name | Donor Email | Amount | Campaign | Stripe Session ID | Payment Status | Payment Intent ID | Stripe Checkout URL`
 3. In Google Cloud Console, enable the Google Sheets API.
-4. Create a service account and JSON key.
+4. Create a service account and a JSON key.
 5. Share the spreadsheet with the service account email as an editor.
-6. Store the service account email and private key in Cloudflare Pages environment variables.
+6. Store the service account email and private key in the Cloudflare Pages variables above.
 
-The Stripe webhook appends completed checkout sessions to Google Sheets. If Sheets has an outage or credentials are missing, the webhook still returns success to Stripe and logs the sync error.
+Keep the Stripe Session ID in column G, because the duplicate check reads that column. If Sheets is down or the credentials are missing, the webhook still returns success to Stripe and logs the error in the Cloudflare function logs.
 
-## API endpoints added
-- `POST /charity/donations/checkout`
-- `POST /charity/paypal/capture/{order_id}`
-- `POST /charity/webhooks/stripe`
-- `POST /charity/webhooks/paypal`
-- `POST /charity/donations/{donation_id}/mock-complete` (admin/testing)
-- `GET /charity/donations` (admin)
-- `GET /charity/donations/export.csv` (admin)
-- `GET /charity/receipts/{receipt_number}` (admin)
+## Adding projects
+Project cards on `projects.html` are generated from `project-data.js`. Use `PROJECT_INTAKE_TEMPLATE.md` to collect the details. Leave `mediaUrl` empty until a real photo or video link is ready, and the card won't show a media link. Set `status` to `Completed`, `Active`, or `Planned`, and the counts at the top of the page will update to match.
 
-## Frontend page routes
-- `GET /charity`
-- `GET /charity/index.html`
-- `GET /charity/about.html`
-- `GET /charity/projects.html`
-- `GET /charity/donate.html`
-- `GET /charity/contact.html`
-- `GET /one-world-relief.css`
-- `GET /one-world-relief.js`
-- `GET /project-data.js`
-
-## Adding project photos and videos
-Project cards are powered by `project-data.js`. To add a new project, create a new object with:
-- `title`
-- `category`
-- `status`
-- `location`
-- `date`
-- `amountRaised`
-- `impact`
-- `summary`
-- `update`
-- `thumbnailUrl`
-- `mediaUrl`
-- `donationUrl`
-
-For videos, the easiest workflow is to upload to YouTube as public or unlisted and paste the video URL into `mediaUrl`.
-For photos, place optimized images in an assets folder later, or use a hosted image URL in `thumbnailUrl`.
-
-## Cloudflare path later (free plan)
-1. Keep your schema from `one-world-relief/cloudflare-d1-schema.sql` for D1.
-2. Keep using the same table names so migration stays straightforward.
-3. Move these backend routes into Cloudflare Workers (or Pages Functions).
-4. Replace `sqlite3` calls with D1 prepared statements.
-5. Keep webhook endpoints public and protect admin endpoints with `OWR_ADMIN_API_KEY`.
+## Not built yet
+`cloudflare-d1-schema.sql` sketches tables for donors, donations, receipts, and an audit log. It isn't connected to anything yet. If you add a D1 database later, bind it to the Pages project and write to it from the webhook alongside the Sheets log.

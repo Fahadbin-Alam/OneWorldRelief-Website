@@ -743,7 +743,7 @@ ul {
   transition: transform 0.25s ease;
 }
 
-.project-media:hover img {
+a.project-media:hover img {
   transform: scale(1.03);
 }
 

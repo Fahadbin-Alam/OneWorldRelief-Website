@@ -14,7 +14,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     update: "Photos, videos, and proof of support can be added here once they are ready and safe to share publicly.",
     thumbnailUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
     mediaLabel: "Photos/video coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaUrl: "",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
   },
   {
@@ -29,7 +29,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     update: "Add Qurbani photos, distribution clips, and any receipt/proof photos here once the media is ready.",
     thumbnailUrl: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
     mediaLabel: "Photos/video coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaUrl: "",
     donationUrl: "donate.html?campaign=Feeding#donationForm"
   },
   {
@@ -44,7 +44,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     update: "When this project begins, updates can show the support plan, progress, and safe donor-facing proof.",
     thumbnailUrl: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80",
     mediaLabel: "Project details coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaUrl: "",
     donationUrl: "donate.html?campaign=Orphan%20Support#donationForm"
   },
   {
@@ -59,7 +59,7 @@ window.ONE_WORLD_RELIEF_PROJECTS = [
     update: "Once funding starts, this page can show the stand setup, receipts, progress photos, and follow-up updates.",
     thumbnailUrl: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1200&q=80",
     mediaLabel: "Project details coming soon",
-    mediaUrl: "https://www.youtube.com/",
+    mediaUrl: "",
     donationUrl: "donate.html?campaign=General%20Fund#donationForm"
   }
 ];

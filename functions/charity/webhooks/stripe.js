@@ -114,6 +114,24 @@ const appendDonationToGoogleSheet = async (env, session) => {
     session.url || "",
   ];
   const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
+
+  // Stripe can deliver the same event more than once, so skip sessions already logged (column G).
+  if (session.id) {
+    const sessionColumn = encodeURIComponent(`'${tabName}'!G:G`);
+    const existingResponse = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${sessionColumn}`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (existingResponse.ok) {
+      const existing = await existingResponse.json();
+      const loggedIds = (existing.values || []).map((cells) => cells[0]);
+      if (loggedIds.includes(session.id)) {
+        console.log("One World Relief donation already logged", session.id);
+        return;
+      }
+    }
+  }
+
   const range = encodeURIComponent(`'${tabName}'!A:J`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
