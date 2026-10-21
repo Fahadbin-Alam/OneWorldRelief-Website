@@ -1,3 +1,7 @@
+// Stripe rejects USD charges under $0.50; the cap catches typos like 50000 instead of 500.
+const MIN_DONATION_USD = 1;
+const MAX_DONATION_USD = 10000;
+
 const json = (payload, status = 200) => {
   return new Response(JSON.stringify(payload), {
     status,
@@ -36,8 +40,14 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Please enter a valid donor name and email." }, 400);
   }
 
-  if (!amountUsd || amountUsd <= 0) {
-    return json({ detail: "Donation amount must be greater than zero." }, 400);
+  if (!Number.isFinite(amountUsd) || amountUsd < MIN_DONATION_USD) {
+    return json({ detail: `The minimum donation is $${MIN_DONATION_USD}.` }, 400);
+  }
+
+  if (amountUsd > MAX_DONATION_USD) {
+    return json({
+      detail: `Online donations are limited to $${MAX_DONATION_USD.toLocaleString("en-US")}. For a larger gift, please contact us.`,
+    }, 400);
   }
 
   if (!["stripe", "credit_card", "card"].includes(paymentMethod)) {

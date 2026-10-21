@@ -54,7 +54,7 @@ Each project becomes one object in `project-data.js` with:
   update: "Latest project update.",
   thumbnailUrl: "assets/projects/example/example-thumbnail.jpg",
   mediaLabel: "View project media",
-  mediaUrl: "https://www.youtube.com/",
+  mediaUrl: "", // YouTube link, or leave empty until media is ready
   donationUrl: "donate.html?campaign=Wells#donationForm"
 }
 ```

@@ -2,6 +2,8 @@
 // Mod by Codex, 4/23/26
 // From One World Relief donation backend integration and multi-page project rendering, 4/23/26
 (function () {
+  const MIN_DONATION_USD = 1;
+  const MAX_DONATION_USD = 10000;
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || window.location.origin).replace(/\/$/, "");
   const donationForm = document.getElementById("donationForm");
   const quickDonationForm = document.getElementById("quickDonationForm");
@@ -33,11 +35,15 @@
       const completed = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
         return String(project.status || "").toLowerCase().includes("completed");
       }).length;
-      const active = window.ONE_WORLD_RELIEF_PROJECTS.length - completed;
+      const planned = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
+        return String(project.status || "").toLowerCase().includes("planned");
+      }).length;
+      const active = window.ONE_WORLD_RELIEF_PROJECTS.length - completed - planned;
       projectStats.innerHTML = `
         <span>${formatProjectCount(window.ONE_WORLD_RELIEF_PROJECTS.length)}</span>
         <span>${completed} completed</span>
-        <span>${active} active</span>
+        ${active > 0 ? `<span>${active} active</span>` : ""}
+        ${planned > 0 ? `<span>${planned} planned</span>` : ""}
       `;
     }
 
@@ -53,15 +59,21 @@
       const update = escapeHtml(project.update);
       const mediaLabel = escapeHtml(project.mediaLabel || "View update");
       const thumbnailUrl = escapeHtml(project.thumbnailUrl);
-      const mediaUrl = escapeHtml(project.mediaUrl || "#");
+      const hasMedia = Boolean(project.mediaUrl);
+      const mediaUrl = escapeHtml(project.mediaUrl);
       const donationUrl = escapeHtml(project.donationUrl || "donate.html#donationForm");
 
       return `
         <article class="project-card">
-          <a class="project-media" href="${mediaUrl}" target="_blank" rel="noreferrer" aria-label="${mediaLabel} for ${title}">
+          ${hasMedia
+            ? `<a class="project-media" href="${mediaUrl}" target="_blank" rel="noreferrer" aria-label="${mediaLabel} for ${title}">
             <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
             <span>${mediaLabel}</span>
-          </a>
+          </a>`
+            : `<div class="project-media">
+            <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
+            <span>${mediaLabel}</span>
+          </div>`}
           <div class="project-meta">
             <span>${category}</span>
             <span>${status}</span>
@@ -78,7 +90,7 @@
           <p class="project-update">${update}</p>
           <div class="project-actions">
             <a class="button button-primary" href="${donationUrl}">Donate</a>
-            <a class="button button-outline" href="${mediaUrl}" target="_blank" rel="noreferrer">${mediaLabel}</a>
+            ${hasMedia ? `<a class="button button-outline" href="${mediaUrl}" target="_blank" rel="noreferrer">${mediaLabel}</a>` : ""}
           </div>
         </article>
       `;
@@ -173,8 +185,15 @@
       setStatus("Please enter your name and email.", true);
       return;
     }
-    if (!amountUsd || amountUsd <= 0) {
-      setStatus("Please select or enter a valid donation amount.", true);
+    if (!amountUsd || amountUsd < MIN_DONATION_USD) {
+      setStatus(`Please select or enter a donation of at least $${MIN_DONATION_USD}.`, true);
+      return;
+    }
+    if (amountUsd > MAX_DONATION_USD) {
+      setStatus(
+        `Online donations are limited to $${MAX_DONATION_USD.toLocaleString("en-US")}. For a larger gift, please contact us.`,
+        true
+      );
       return;
     }
 
