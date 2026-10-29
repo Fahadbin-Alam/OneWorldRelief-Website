@@ -29,7 +29,7 @@ const donationPrograms = {
     id: "orphan_annual",
     campaign: "Orphan Annual Support",
     label: "Orphan Annual Support",
-    purposeSummary: "A $300 gift designated toward one year of food and education support for an orphan.",
+    purposeSummary: "A $300 gift designated toward one year of education, food, and housing support for an orphan.",
     amountRule: "fixed",
     fixedCents: 30000,
   },

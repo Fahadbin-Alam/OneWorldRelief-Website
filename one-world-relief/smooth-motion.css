@@ -1,0 +1,87 @@
+/* Shared, lightweight motion. Native links and scrolling keep their normal behavior. */
+:root {
+  --motion-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+.motion-ready .reveal,
+.motion-ready .reveal[data-reveal-variant="slide-left"],
+.motion-ready .reveal[data-reveal-variant="slide-right"],
+.motion-ready .reveal[data-reveal-variant="scale"] {
+  transform: translateY(16px);
+  filter: none;
+  transition:
+    opacity 460ms var(--motion-ease) var(--reveal-delay, 0ms),
+    transform 460ms var(--motion-ease) var(--reveal-delay, 0ms);
+}
+
+.motion-ready .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.motion-ready .reveal[data-reveal-immediate="true"] {
+  transition: none;
+}
+
+.button,
+.main-nav a,
+.contact-submit,
+.zakat-start-link,
+.contact-method-card-link {
+  transition-timing-function: var(--motion-ease);
+  transition-duration: 240ms;
+}
+
+.mobile-nav-menu[open] nav {
+  transform-origin: top center;
+  animation: menu-settle 180ms var(--motion-ease) both;
+}
+
+@keyframes menu-settle {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* No artificial navigation delay; browsers without support use normal navigation. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+
+  ::view-transition-group(root) { animation-duration: 180ms; }
+  ::view-transition-old(root) { animation-duration: 120ms; }
+  ::view-transition-new(root) {
+    animation-duration: 180ms;
+    animation-timing-function: ease-out;
+  }
+}
+
+@media (max-width: 720px) {
+  .motion-ready .reveal,
+  .motion-ready .reveal[data-reveal-variant="slide-left"],
+  .motion-ready .reveal[data-reveal-variant="slide-right"],
+  .motion-ready .reveal[data-reveal-variant="scale"] {
+    transform: translateY(12px);
+    transition-duration: 360ms;
+  }
+
+  .motion-ready .reveal.is-visible { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+
+  .motion-ready .reveal,
+  .motion-ready .reveal[data-reveal-variant] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  .mobile-nav-menu[open] nav { animation: none; }
+
+  .button,
+  .main-nav a,
+  .contact-submit,
+  .zakat-start-link,
+  .contact-method-card-link { transition: none; }
+}

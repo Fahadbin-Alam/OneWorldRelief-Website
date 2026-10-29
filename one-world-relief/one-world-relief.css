@@ -11849,3 +11849,92 @@ html {
     text-align: center;
   }
 }
+
+/* Keep the shared phone header within its grid, including narrow browser panels. */
+@media (max-width: 720px) {
+  .site-body .site-header .container.header-wrap {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    column-gap: 8px;
+    min-height: 64px;
+    padding-block: 8px;
+  }
+
+  .site-body .site-header .container.header-wrap .brand {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    gap: 8px;
+  }
+
+  .site-body .site-header .container.header-wrap .brand-mark {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+    border-radius: 12px;
+  }
+
+  .site-body .site-header .container.header-wrap .brand-text {
+    display: block;
+    min-width: 0;
+    white-space: normal;
+    text-wrap: wrap;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .site-body .site-header .container.header-wrap .mobile-nav-menu {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .site-body .site-header .container.header-wrap .mobile-nav-menu > summary {
+    width: auto;
+    min-width: 52px;
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  .site-body .site-header .container.header-wrap .header-cta.button {
+    grid-column: 3;
+    grid-row: 1;
+    width: auto;
+    min-height: 44px;
+    padding: 10px 12px;
+    gap: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .site-body .site-header .container.header-wrap .mobile-nav-menu nav {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    left: auto;
+    width: min(260px, 100%);
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .donate-page .donor-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .donate-page .donation-form-card :is(label, input, select, textarea) {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .site-body .site-header .container.header-wrap .brand-text {
+    font-size: 13px;
+  }
+
+  .site-body .site-header .container.header-wrap .header-cta.button::after {
+    display: none;
+  }
+}

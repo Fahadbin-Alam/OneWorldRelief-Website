@@ -1,0 +1,41 @@
+/* Preserve the full frame of the October field updates. */
+.project-update-feature {
+  display: grid;
+  grid-template-rows: auto auto;
+  aspect-ratio: auto;
+  align-self: start;
+}
+
+.project-update-feature img {
+  height: auto;
+  object-fit: contain;
+}
+
+.project-media-update .proof-card {
+  grid-template-rows: auto auto;
+  align-content: start;
+}
+
+.project-media-update .proof-card img {
+  height: auto;
+  object-fit: contain;
+  background: var(--sky-50);
+}
+
+.project-media-update .video-proof video {
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: var(--ink);
+}
+
+.project-media-update .portrait-video video {
+  aspect-ratio: 9 / 16;
+  max-height: 560px;
+}
+
+@media (max-width: 720px) {
+  .project-media-update .portrait-video {
+    grid-column: auto;
+  }
+}

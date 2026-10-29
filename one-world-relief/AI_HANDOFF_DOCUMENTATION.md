@@ -3215,3 +3215,162 @@ Additional DNS check later on May 4, 2026:
 **End of AI Handoff Documentation**
 
 *This document should be updated whenever major changes are made or new integrations added.*
+
+
+## October 14, 2026 — Case 008 and Case 010 field media
+
+- The user requested publication of new videos/photos in the update folders. The media archive has moved from `D:\OneWorldRelief` to `D:\Documents\OneWorldRelief`; the relevant sources are `Cases/Case 008 - Tiles to help finish a Mosque/Update Photos - 10-14-26` and `Cases/Case 010 - A Safer Elder Care Home/Update Photos - 10-14-26`.
+- Case 008: all five supplied JPEGs and the October 14 MP4 are published in `assets/projects/case-008/`. The two September 26 MP4 files are zero bytes and remain unpublished. Photo numbering follows filename sort order, with `2.57.06 PM` as 01, `2.57.07 PM (1)` as 02, `2.57.07 PM` as 03, `2.57.08 PM (1)` as 04, and `2.57.08 PM` as 05. Photo 02 supplies the hero/card image.
+- Case 010: all three October 13 MP4s are published in `assets/projects/case-010/`. Numbering follows filename sort order: `3.59.5` -> 01, `3.59.51 AM` -> 02, `3.59.52 AM` -> 03. The first video's incorrect rotation flag was cleared after visual inspection. A still at 20 seconds in video 01 supplies the hero/card image. Posters are labeled as video stills, not new source photos.
+- Videos retain the source H.264/AAC streams, receive fast-start MP4 packaging and metadata removal, and remain below the 25 MiB asset limit. JPEG derivatives remove metadata. Private source files are unchanged.
+- Detail pages now contain native, click-to-play videos, poster images, field galleries and October 14 publication timeline entries. `project-updates.css` preserves full image frames and contains portrait videos without cropping; existing `project-motion` animations still apply.
+- Project board thumbnails and latest-update text now show the received media. Status remains Coming Soon for both cases because no completed-project cost, delivery date, scope, or completion confirmation was provided. Counts remain 7 completed projects and 2 individually verified students. Donation program/referrer links are unchanged.
+- Offline cache is v45. New project-media CSS is cached; the new videos are not precached or autoplayed.
+- Validation: all 48 regression tests passed, including new media structure/size/metadata checks. Browser preview confirmed all four videos played without media errors; the first elder-care clip is now landscape and the remaining two are portrait. The 390px gallery has no horizontal overflow; portrait videos are contained. All five mosque photos loaded, and both project cards expose their new update labels and thumbnails. JavaScript syntax and Git whitespace checks passed.
+- Deployment attempt staged 96 public assets plus 6 Pages Function sources, but Cloudflare rejected it because the saved OAuth token expired and could not refresh. The user was shown a Cloudflare sign-in tab. The user subsequently completed sign-in in Chrome and publishing resumed successfully (details below).
+- Production deployment succeeded after the user renewed the existing Cloudflare connection: `https://78c4d17a.trying-8o0.pages.dev`, project `trying`, branch `main`, Wrangler 4.151.0. All 17 new public media assets and the two project HTML pages, project data, new CSS, and cache file match their local SHA256 bytes on `https://one-world-relief.org`.
+- Live Chrome verification showed all five mosque photos loaded, the mosque video played through to 39 seconds without a media error, and the elder-care page exposed all three new clips and the October 14 update. Range probes for the four new MP4s return complete HTTP 200 bodies rather than 206; media bytes are intact and browser playback works. Do not describe byte-range support as verified.
+
+
+### October 14, 2026 — Stories behind the new field updates
+
+- At the user's request, rewrote Case 008 and Case 010 introductions and overview sections as short project stories: the intended support, why it matters, what visitors can see in the field media, and what comes next. Updated project-card summaries, meta descriptions, captions, and timeline wording to match.
+- The mosque story describes its visible arched windows, green-and-white facade and bamboo scaffolding, and frames tile support as planned work toward finishing a place of prayer. The elder-care story connects the intended renovation to residents' everyday comfort and dignity and describes the walls, roof framing, rooms, and walkway visible in the supplied clips.
+- No resident anecdotes, quotations, headcounts, budgets, location details, delivered funding, specific repairs, or completion claims were invented. Existing statuses, verified counts, media, and donation links remain unchanged. The user was invited to supply personal project background for a later refinement; none had been supplied at the time of this edit.
+- Both story sections now have a `#story` anchor with sticky-header clearance. HTML is fetched network-first and project-data.js is not in the service-worker app shell, so cache version remains v45 for this copy-only update.
+
+- Story update deployed successfully to Cloudflare Pages production: https://f8fbed3b.trying-8o0.pages.dev (project `trying`, branch `main`).
+- Validation: all 48 charity-function tests passed; JavaScript syntax and scoped diff whitespace checks passed. The canonical domain returned HTTP 200 and byte-for-byte matches for both case pages and `project-data.js`. The live elder-care story was checked in Chrome with no horizontal overflow.
+
+
+### October 15, 2026 — Smoother motion throughout the site
+
+- Added `smooth-motion.css` to all 19 public HTML pages. Shared reveals use shorter opacity/transform transitions without blur; first-screen, focused, and direct-anchor content displays immediately. Mobile menus settle in gently. Native same-origin view transitions use a short crossfade where supported and are disabled for reduced motion, with ordinary navigation as the fallback.
+- Homepage buttons and shortcut cards retain their playful feedback with gentler easing/travel. The project reel now measures the exact first repeated-set distance, matches duplicate vertical offsets to originals, and pauses offscreen or in a hidden tab without losing the user's manual pause. Phone scrolling uses proximity snapping and desktop repetitions are created correctly after a phone-to-desktop resize.
+- Project board and profile entrances have shorter stagger/travel, stable video frames, and cancellation on focus/tap, hidden tabs, reduced-motion preference changes, and page exit. Removed redundant pointer/tilt handlers for these pages and perpetual timeline repaint animations. Project-specific view transitions were removed in favor of the shared fade.
+- Impact counters avoid redundant updates, clamp elapsed progress, and finish cleanly if motion is disabled or the tab is hidden. Unusual URL fragments no longer break shared page initialization.
+- New `*-smooth-v1` aliases for shared/home/project scripts and home/project styles bypass older service-worker assets on the first visit; prior URLs remain supported. Offline cache advanced to `owr-offline-v46` and includes the new motion stylesheet and aliases.
+- Validation: all 48 regression tests passed; changed JavaScript syntax and Git whitespace checks passed. All 19 pages load the new stylesheet; all six new asset URLs return HTTP 200 locally. Focused behavior checks covered motion preference changes, cancellation, visibility, resize, and manual pause retention. Chrome verified 390px projects/profile/menu/back navigation, 320px Donate/Zakat, and desktop reel spacing/pause with no horizontal overflow. First-screen text is immediately visible and project pages attach no redundant tilt handlers. The desktop reel contains 28 cards with matching original/duplicate heights and a measured 2800px loop at 1440px.
+- Project facts, photos/videos, donation links, checkout behavior, and backend integrations are unchanged.
+
+- Published to Cloudflare Pages production (`trying`, `main`): https://264984f7.trying-8o0.pages.dev. Canonical HTTP checks verified byte-identical HTML, all six new motion asset URLs, and SWv46. Live Chrome confirmed the new scripts/styles, seamless-loop animation, and project navigation with visible first cards, zero tilt handlers/overflow, and no production warnings or errors.
+
+
+## October 19, 2026 — homepage slider and scroll performance
+
+User requested smoother homepage project rotation and less freezing while scrolling; authorized Cloudflare publication and Chrome sign-in if needed. Existing Wrangler authentication worked, so no new browser sign-in was needed.
+
+Changes:
+- `renderHomeCaseFlow` now renders seven accessible original cards. The homepage controller adds only enough copies for continuous desktop coverage (normally seven copies, 14 total instead of 28), and none on mobile/reduced motion. Clones preserve the originals' vertical offsets and stay outside keyboard/accessibility navigation.
+- Loop spacing is measured once and on actual size changes, with reads batched before writes. Intersection re-entry only resumes animation; it does not recalculate layout or rebuild cards. Resize work is coalesced into one frame. User pause state survives offscreen and hidden-tab transitions.
+- Removed per-card entry animations/permanent image zoom, homepage fixed-layer animation, the animated slider backdrop, and the live video's full-frame saturation filter. Kept the existing layout, donation panel, project links, video, and separate action cards.
+- Homepage slider uses seven uncropped WebP derivatives in `assets/home-slider/`, bounded to 760x1140 without upscaling. Combined bytes fell from 1,126,329 to 483,788 (57%); decoded pixels fell from 8,356,314 to 3,300,680. Original project-page media remain unchanged. Thumbnails warm near the viewport unless Save-Data is enabled.
+- Slider has explicit visible content instead of a guessed offscreen intrinsic height. Desktop section stayed 634.375px and document stayed 2907px across scroll/re-entry in the tested 1280x720 browser. Track width fell from ~10,297px to 5,190px. Phone uses native horizontal scrolling with proximity snap and no automatic motion.
+- Added v2 cache-safe homepage CSS/JS and shared JS aliases, referenced shared v2 from public pages, and bumped offline cache to v47.
+
+Validation:
+- 57 tests passed: 48 existing charity/site tests plus nine behavioral slider tests (`tests/home-slider.test.mjs`). New tests cover minimal copies, measured seam, no geometry reads on viewport re-entry, pause persistence, mobile/reduced-motion behavior, resize coalescing, and Save-Data handling.
+- JS syntax checks and `git -c core.safecrlf=false diff --check` passed.
+- Browser checked desktop 1280x720 and phone 390x844, loaded thumbnails, continuous measured spacing, hover pause, explicit pause, horizontal phone swipe, and stable section height. No browser warnings/errors reported. Viewport override was reset.
+- This was a structural rendering-cost reduction and interaction check, not an FPS benchmark across all devices.
+
+Published with `deploy-one-world-relief-pages.ps1 -ProjectName trying -Branch main`. Public staging prepared 104 assets and six function source files; Wrangler uploaded 28 changed files and reused 75. Production deployment: https://9acc8900.trying-8o0.pages.dev . Live https://one-world-relief.org/ browser verification confirmed v2 script/style references, 14 desktop cards, all seven new thumbnails loaded, visible content mode, video filter none, and running slider animation. Direct Python HTTP hash verification returned 403; browser verification succeeded instead. Final screenshot: C:/Users/Mihad/.codex/visualizations/2026/09/12/01a0938d-d4d4-7913-8fd8-dfe8b1e6b370/home-slider-smooth-2026-10-19.png .
+
+
+## October 19, 2026 — faster continuous rotation and lighter Projects browsing
+
+Follow-up request: keep the homepage slider rotating beneath the cursor, increase its speed, and smooth the Projects page. Completed and published to production https://31606e3f.trying-8o0.pages.dev (project `trying`, branch `main`). Existing Cloudflare authentication worked.
+
+- Homepage loop is now 8 seconds per card, 56 seconds for the current seven projects (previously98 seconds), giving75% faster travel. Removed hover pause; explicit pause, keyboard-focus pause, offscreen suspension, and reduced-motion/mobile behavior remain.
+- Shared preview mapping now serves the same seven optimized WebPs on Projects, plus two new uncropped previews for Cases008 and010 in `assets/project-previews/`. Added async decoding to board images. All nine board images total580,738 bytes and3,885,880 decoded pixels versus1,335,033 bytes and9,289,434 pixels before (~56.5% less data, ~58% fewer pixels). Original project photos/videos and story copy are unchanged.
+- Project pages now have a static blue backdrop and an opaque header without a backdrop blur; fixed blurred background shapes are hidden. Card hover retains lift/image zoom/label bounce, but lift is3px and large shadows no longer interpolate.
+- Project-board entrance animation affects only the compact media preview, starts160px ahead, lasts260ms with no stagger, and moves8px. Card text and buttons remain visible throughout scrolling. Profile motion still uses its existing gentle reveal behavior.
+- Cache references: shared script `one-world-relief-smooth-v3.js`, homepage stylesheet `home-welcome-smooth-v3.css`, project CSS/JS `project-motion-smooth-v2.*`; homepage controller staysv2. Offline cachev48.
+
+Validation: all57 existing tests passed; four JS syntax checks and Git whitespace check passed. Browser checked1280x720 desktop and390x844 phone, project scroll and stable4192px desktop page height, all nine preview images loaded, and navigation into Case010 and back. Explicit homepage pause/resume works; local and live DOM checks both confirmed `:hover` true while animation-play-state remained running with56s duration. Live Projects confirmed ten cards, nine WebP previews, no header blur/background animation, and current v3/v2 assets. No browser errors reported. Temporary viewport override reset. This is rendering-cost reduction and behavior validation, not a cross-device FPS benchmark.
+
+Cloudflare staged106 public assets and6 function sources; uploaded24 changed files, reused81. Screenshot: C:/Users/Mihad/.codex/visualizations/2026/09/12/01a0938d-d4d4-7913-8fd8-dfe8b1e6b370/projects-smooth-2026-10-19.png .
+
+
+## October 19, 2026 — English guided Zakat calculator
+
+User goal: rebuild the Zakat calculator in English with stronger visuals, comprehensive common-asset calculation and linked Qur'an/hadith evidence. Published to Cloudflare Pages production (`trying`, `main`): https://9a5e2218.trying-8o0.pages.dev . Canonical page: https://one-world-relief.org/zakat . Existing Cloudflare authentication worked.
+
+- Replaced the crowded multilingual form with an English-only four-step workspace: setup, assets, deductions and review. Saved old language preferences no longer change this page. Added `zakat-studio.css` for the responsive teal/navy design, reduced-motion support, clear focus states and print layout. No generated imagery or fabricated project facts.
+- Nisab choices include gold, silver and a trusted custom USD threshold; both 87.48/612.36g and 85/595g conventions are named. Prices are entered manually for the chosen valuation date; there are no fabricated live prices or currency conversion. The default lunar rate is 2.5%, with an explained solar option of 2.577%.
+- Explicit hawl confirmation differentiates an amount due from a conditional planning estimate. Supports cash, direct-value or purity/weight gold and silver (mutually exclusive), investments, cryptocurrency, retirement amounts, business assets, receivables and other qualifying wealth. Debt-method choices and already-paid Zakat are distinct deductions. Specialist categories such as livestock and Zakat al-Fitr are explicitly excluded.
+- Detailed review includes date, threshold method, rate, hawl answer, debt method and prior payments. Numeric validation blocks negative/invalid/overflow/missing-required values; errors inside collapsed accordions are revealed before focus. Back preserves entries; reset clears them. Incomplete native printing does not present a monetary conclusion; per-gram prices retain up to six decimal places in review metadata.
+- Linked relevant primary evidence: Sahih al-Bukhari 1454, Sunan Abi Dawud 1573 with its displayed Sahih (Al-Albani) grading, and Qur'an 9:60. NZF/Islamic Relief/Fiqh Council links explain differing nisab, jewellery, debt, investment, retirement and annual-cycle approaches. Copy makes clear this is an educational estimate, not a certification or fatwa.
+- Financial asset/debt inputs stay in page memory. Only amount and the existing four-field non-financial v1 calculation context continue into donation checkout. The numerical engine is `owr-zakat-engine-v2`; `HANDOFF_VERSION` stays `owr-zakat-v1` for backend compatibility. Donation catalog copy now describes the English calculator; historical backend language validation remains intact.
+- Added cache-safe `/zakat-studio-v1.css` and `/zakat-calculator-v2.js` aliases; offline cache is `owr-offline-v49`. Existing homepage speed (56s loop, 75% faster), continuous rotation under the cursor, and lightweight Projects motion are preserved and verified live.
+
+Validation:
+- 92 tests pass: 48 charity/site checks, 9 homepage slider tests, 35 dedicated numerical and controller calculator tests. Replaced only the three obsolete multilingual Zakat contracts; all unrelated security/checkout checks retained. Syntax checks and Git whitespace checks passed. All 90 HTML IDs are unique, 25 form labels resolve, and all local assets/fragments exist.
+- Browser checked 1280x720 desktop and 390x844 phone, required-field focus, four-step navigation, Back/reset, no horizontal overflow, conditional hawl, and metal weights/purity. Sample 10g 18K gold at 100 USD/g plus 100g sterling silver at 1 USD/g gives 842.50 USD; a 10,000 USD cash sample minus 2,000 USD debts yields 200 USD gross Zakat and 150 USD after 50 USD paid.
+- Live canonical site verified English/LTR and new CSS/JS references. Verified 150 USD handoff with Zakat selected in the donation form; no payment submitted. No calculator browser warnings/errors observed. Temporary viewport override reset.
+- Deployment staged 107 public assets and 6 function sources, uploaded 5 changed assets and reused 101; private documentation/tests were excluded. Screenshot: C:/Users/Mihad/.codex/visualizations/2026/09/12/01a0938d-d4d4-7913-8fd8-dfe8b1e6b370/zakat-redesign-live-2026-10-19.png .
+
+Staging/rollback copies remain in D:/Documents/ChatGPT/Daily/owr-zakat-redesign/ (not deployed). No Git commit or push was made.
+
+## October 19, 2026 — cleaner homepage and clearer navigation
+
+User request: make the website cleaner and easier to use. Applied to the open homepage. Published to Cloudflare Pages production (`trying`, `main`): https://80d5c171.trying-8o0.pages.dev . Canonical page: https://one-world-relief.org/ . Existing Cloudflare authentication worked.
+
+- Kept the large donation panel with less surrounding space and a quieter pale-blue canvas. Removed repeated organization/legal text from the form; legal information remains in the footer. Clarified the next step with “Choose an amount. Pick a cause next.” and “Choose a cause”. Donation behavior and minimum are unchanged.
+- Added Zakat to desktop/mobile primary navigation in place of Share. Share remains available through the standalone shortcut and footer. Reduced the impact strip to verified counts (7 completed projects, 2 students supported), View all projects, and the existing count explanation.
+- Leveled carousel cards, removed nested decorative borders/heavy shadows, and removed whole-section scroll fading from the donation, impact and carousel sections. Preserved the 56-second loop, rotation beneath the cursor, explicit pause, reduced-motion behavior and background-video size.
+- Retained the separate four shortcut cards with their hover interaction, simplified their background and reduced their height. Consolidated the footer to three groups while retaining contact/legal/supporter/share routes. Raised small control labels to 13px and corrected selected amount hover contrast.
+- Cache-safe stylesheet alias: `/home-welcome-clean-v1.css`; offline cache `owr-offline-v50`. Zakat calculator and JavaScript behavior files were unchanged this turn.
+
+Validation: all 92 tests pass (48 charity/site, 9 slider, 35 Zakat), service-worker syntax and Git whitespace checks pass. Browser checked 1280px desktop, 390px phone and 320px small phone with no horizontal overflow; mobile menu works. Selecting $100 correctly carries into the donation cause-selection form; no payment was submitted. Live canonical page confirmed new navigation, clearer button, three footer groups, 56-second animation and new stylesheet. No browser warnings/errors observed.
+
+Deployment staged 107 public assets and 6 function sources, uploaded 3 changed assets and reused 103. Private documentation/tests were excluded. Screenshot: C:/Users/Mihad/.codex/visualizations/2026/09/12/01a0938d-d4d4-7913-8fd8-dfe8b1e6b370/home-cleaner-live-2026-10-19.png . Staging/rollback copies remain in D:/Documents/ChatGPT/Daily/owr-home-cleanup/ . No Git commit or push was made.
+
+## October 29, 2026 — homepage project access and motion preview (NOT PUBLISHED)
+
+User requested immediate project access from the homepage and more animated projects, explicitly asking to see the result before uploading. No Cloudflare deployment was run. Await review before publishing.
+
+- Added a prominent dark-blue Explore projects card above the existing donation form. The entire card links directly to projects.html and is visible without scrolling on desktop and phone. Includes a small animated icon, directional arrow, keyboard focus and press feedback.
+- Homepage carousel cards now respond with a 4px lift, 1.045 image zoom, directional arrow and press feedback. Existing 56s continuous loop, pause controls, video, impact figures and donation flow are unchanged.
+- Project board cards have a 6px spring lift, 1.045 image zoom, accessible decorative story arrows and instant press feedback. No navigation delays; no effects on decorative category labels. Existing 260ms preview entrances, static backgrounds, touch/reduced-motion behavior and project profile behavior remain.
+- Changed only index.html, home-welcome.css, project-motion.css and project-motion.js for this request. Rollback copies are in D:/Documents/ChatGPT/Daily/owr-project-preview/before/.
+
+Validation: all 92 existing tests pass, JS syntax and Git whitespace checks pass. Browser checked desktop 1280px and phone 390px, no horizontal overflow, shortcut navigation into Projects and a project story, all 10 cards and 20 decorative arrows, and keyboard focus/arrow movement. No browser warnings or errors observed on the Projects preview. Viewport override reset.
+
+Review preview: http://127.0.0.1:8774/ . Local server script is D:/Documents/ChatGPT/Daily/owr-project-preview/preview.py and is intentionally left running for review. Screenshot: C:/Users/Mihad/.codex/visualizations/2026/09/12/01a0938d-d4d4-7913-8fd8-dfe8b1e6b370/projects-home-preview-2026-10-29.png . Before an approved deployment, create fresh homepage and project-motion cache aliases, update references/tests and bump the service worker so returning visitors receive the reviewed changes.
+
+Pending earlier work: the cleaner Zakat calculator was integrated locally (zakat-studio-clean-v2.css / zakat-calculator-clean-v3.js, offline-v51) and all 92 tests passed, but was not deployed before this preview request. It has a centered single form until Result, optional date/year settings, larger type and a mobile-first result summary. Preserve those local changes; do not claim they are already live. The last confirmed production deployment remains the October 19 homepage cleanup at https://80d5c171.trying-8o0.pages.dev .
+
+### October 29, 2026 — Gold yearly orphan option (LOCAL PREVIEW ONLY)
+- User requested a gold homepage donation toggle showing that $300 supports one orphan for one year with education, food, and housing. Preserve the user's earlier request to review before uploading: this work has NOT been deployed.
+- Added `quickOrphanOption` above the regular amount presets. Native button with `aria-pressed`, gold selected state, keyboard focus, responsive layout, short hover/press transitions, and reduced-motion handling.
+- Selecting sets $300 and changes the action to Continue with orphan support; submitting opens `donate.html?amount=300&program=orphan_annual#donationForm`. Switching it off restores the previous amount. Other presets or an edited amount clear the special selection. Manually typing $300 does not silently choose a cause.
+- Annual orphan description now includes education, food, and housing in donation-programs.js and both mirrored checkout function catalogs, using the program details supplied by the user. The fixed $300 rules are unchanged.
+- Browser back navigation now resynchronizes amount preset selection on pageshow.
+- New aliases: home-welcome-giving-v1.css, home-welcome-giving-v1.js, one-world-relief-giving-v1.js, donation-programs-giving-v1.js. Service-worker cache is v52. Earlier preview project-motion edits still need a new cache alias when preparing the eventual approved release.
+- Homepage Explore projects label remains short, without the Bangladesh subtitle, as requested in the preceding turn.
+- Verified mobile/desktop layout and actual navigation to the selected $300 orphan donation form. All 100 tests pass across charity-functions, home-donation (8 new behavioral cases), home-slider, and zakat-engine; JS syntax and whitespace checks pass.
+- Preview remains http://127.0.0.1:8774/index.html. Preview server process session 1211 is intentionally left running. Screenshots: C:\Users\Mihad\.codex\visualizations\2026\09\12\01a0938d-d4d4-7913-8fd8-dfe8b1e6b370\gold-orphan-desktop-preview.png and gold-orphan-mobile-preview.png.
+- Before-edit backups for this request: D:\Documents\ChatGPT\Daily\owr-orphan-option\before. No checkout/payment transaction was submitted, and no commit, push, or Cloudflare upload was made.
+
+### October 29, 2026 — Orphan option color correction (LOCAL PREVIEW ONLY)
+- Latest user direction supersedes the always-gold appearance: the orphan option uses the site's blue styling by default, then turns gold with a brief animation when selected. Reduced-motion preferences are respected. The $300 amount, program selection, and toggle behavior are unchanged.
+- Homepage stylesheet alias is now home-welcome-giving-v2.css and the service-worker cache is v53; JavaScript aliases remain v1. This correction remains local preview only and has NOT been uploaded to Cloudflare. The earlier request to review before publishing still applies.
+
+### October 29, 2026 — Narrow-screen header and donation fit (LOCAL PREVIEW ONLY)
+- User reported the mobile Menu touching the One World Relief brand. Shared mobile header sizing now allows the full brand to wrap within its available space, keeps menu and donation controls separate, and anchors the open menu beneath the header. Donation name/email fields stack on narrow screens.
+- All 19 public HTML pages now reference one-world-relief-fit-v1.css, with the parent-relative path retained for project profiles. The alias maps to the existing shared stylesheet; older aliases remain supported. Offline cache is v54.
+- Validation: all 48 charity/site tests pass, including updated mobile-fit and cache-path checks; service-worker syntax passes. Desktop and phone visual checks are handled in the main task.
+- This remains a local preview at http://127.0.0.1:8774/. No Cloudflare upload, commit, or push; the user's review-before-publishing instruction still applies.
+
+- Header visual QA complete: donation checked at 320/390/1280 viewport settings, homepage and Zakat checked at 320. Header elements have distinct bounds and no page horizontal overflow; menu dropdown remains within viewport and below the actual header. Donation name/email fields fit and stack below480. Brand wraps to two lines at smallest size (13px below360).
+- Final screenshot: C:\Users\Mihad\.codex\visualizations\2026\09\12\01a0938d-d4d4-7913-8fd8-dfe8b1e6b370\donation-header-fit-preview.png. Browser tab6 left at the updated local donation preview; temporary test tab9 closed and viewport override reset. Still NOT PUBLISHED.
+
+## October 29, 2026 — Approved publication of reviewed changes
+- User explicitly approved uploading the reviewed website to Cloudflare and GitHub. This supersedes the earlier preview-only hold.
+- Release includes homepage Explore projects access, project-card animation, blue-to-gold annual orphan support toggle, cleaner Zakat flow, and responsive header/form corrections. Earlier approved media and performance work is also being synchronized to GitHub because it was already deployed without a source push.
+- Publication targets: GitHub origin/charity-frontend-redesign (existing active source branch) and Cloudflare Pages project trying, production branch main, canonical https://one-world-relief.org/.
+- Fresh project-motion-release-v1.css/js aliases cover the reviewed project animations. All 19 public pages use one-world-relief-fit-v1.css; homepage giving aliases and cleaner Zakat aliases remain current. Offline cache is v55; old aliases remain supported.
+- Release checks: all 100 tests pass, nine changed JavaScript syntax checks pass, whitespace checks pass, both checkout function mirrors match, and new project-motion aliases return HTTP 200 locally with correct source contents.
+- Existing Git credential-manager and Cloudflare OAuth access both work; no new sign-in was needed. GitHub CLI itself is not signed in; Git HTTPS push uses the existing credential manager.
+- Deployment result and live verification are recorded in the following entry after publication completes.

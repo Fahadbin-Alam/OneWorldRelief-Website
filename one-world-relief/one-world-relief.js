@@ -5,7 +5,11 @@
   document.documentElement.classList.add("motion-ready");
 
   const API_BASE = (window.ONE_WORLD_RELIEF_API_BASE || window.location.origin).replace(/\/$/, "");
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let prefersReducedMotion = motionPreference.matches;
+  motionPreference.addEventListener?.("change", (event) => {
+    prefersReducedMotion = event.matches;
+  });
   const donationForm = document.getElementById("donationForm");
   const quickDonationForm = document.getElementById("quickDonationForm");
   const contactForm = document.getElementById("contactForm");
@@ -126,36 +130,61 @@
   };
 
   const setupReveals = () => {
-    if (!revealItems.length) {
-      return;
-    }
+    if (!revealItems.length) return;
 
-    const hashTarget = window.location.hash ? document.querySelector(window.location.hash) : null;
+    // IDs are not CSS selectors: unusual/encoded anchors must not stop page setup.
+    let anchorId = window.location.hash.slice(1);
+    try { anchorId = decodeURIComponent(anchorId); } catch (_) { /* Keep the literal ID. */ }
+    const hashTarget = document.getElementById(anchorId);
     const hashReveal = hashTarget?.classList?.contains("reveal") ? hashTarget : hashTarget?.closest?.(".reveal");
+    const show = (item, delay = 0) => {
+      item.style.setProperty("--reveal-delay", `${delay}ms`);
+      item.classList.add("is-visible");
+    };
 
-    if (!("IntersectionObserver" in window)) {
-      revealItems.forEach((item) => item.classList.add("is-visible"));
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      revealItems.forEach((item) => show(item));
       return;
     }
 
     const observer = new IntersectionObserver((entries) => {
+      let order = 0;
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
+        if (!entry.isIntersecting) return;
+        show(entry.target, Math.min(order++ * 45, 135));
+        observer.unobserve(entry.target);
       });
-    }, { rootMargin: "0px 0px 22% 0px", threshold: 0.08 });
+    }, { rootMargin: "0px 0px 12% 0px", threshold: 0 });
 
-    revealItems.forEach((item, index) => {
-      item.style.setProperty("--reveal-delay", `${Math.min(index * 70, 280)}ms`);
-      item.dataset.revealVariant = item.dataset.revealVariant || ["rise", "slide-left", "slide-right", "scale"][index % 4];
-      observer.observe(item);
+    // Read layout once before writing styles; first-screen text is ready immediately.
+    const initialItems = revealItems.map((item) => ({ item, rect: item.getBoundingClientRect() }));
+    initialItems.forEach(({ item, rect }) => {
+      item.dataset.revealVariant = item.dataset.revealVariant || "rise";
+      if (item === hashReveal || (rect.top < window.innerHeight && rect.bottom > 0)) {
+        item.dataset.revealImmediate = "true";
+        show(item);
+      } else {
+        observer.observe(item);
+      }
     });
 
-    if (hashReveal) {
-      hashReveal.classList.add("is-visible");
-    }
+    const finishReveals = () => {
+      observer.disconnect();
+      revealItems.forEach((item) => show(item));
+    };
+    motionPreference.addEventListener?.("change", (event) => {
+      if (event.matches) finishReveals();
+    });
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) finishReveals();
+    });
+    document.addEventListener("focusin", (event) => {
+      const item = event.target.closest?.(".reveal");
+      if (!item) return;
+      item.dataset.revealImmediate = "true";
+      show(item);
+      observer.unobserve(item);
+    });
   };
 
   const setupScrollProgress = () => {
@@ -269,7 +298,7 @@
 
     const targets = Array.from(document.querySelectorAll(
       ".project-card, .proof-card, .project-detail-feature, .flow-impact-media"
-    ));
+    )).filter((target) => !target.closest(".project-motion-page"));
 
     targets.forEach((target) => {
       target.classList.add("motion-surface");
@@ -338,12 +367,12 @@
       const start = performance.now();
 
       const tick = (now) => {
-        const progress = Math.min((now - start) / duration, 1);
+        const progress = Math.min(Math.max((now - start) / duration, 0), 1);
         const eased = 1 - Math.pow(1 - progress, 3);
         const value = Math.round(target * eased).toLocaleString();
         element.textContent = `${prefix}${value}${suffix}`;
 
-        if (progress < 1) {
+        if (progress < 1 && !prefersReducedMotion && !document.hidden) {
           window.requestAnimationFrame(tick);
         } else {
           element.textContent = original;
@@ -364,6 +393,20 @@
 
     numberItems.forEach((item) => observer.observe(item));
   };
+
+  // Reuse smaller, uncropped previews across the home slider and project board.
+  const projectPreviewImages = {
+    "Case 001": "assets/home-slider/orphan-support-001.webp",
+    "Case 002": "assets/home-slider/livelihood-support-002.webp",
+    "Case 003": "assets/home-slider/orphan-education-003.webp",
+    "Case 004": "assets/home-slider/korbani-meals-004.webp",
+    "Case 005": "assets/home-slider/flood-relief-005.webp",
+    "Case 006": "assets/home-slider/mosque-gate-006.webp",
+    "Case 008": "assets/project-previews/mosque-tiles-008.webp",
+    "Case 009": "assets/home-slider/mosque-fans-009.webp",
+    "Case 010": "assets/project-previews/elder-care-010.webp",
+  };
+  const getProjectPreviewUrl = (project) => projectPreviewImages[project.date] || project.thumbnailUrl;
 
   const renderProjects = () => {
     if (!projectBoard || !Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS)) {
@@ -397,7 +440,7 @@
       const summary = escapeHtml(project.summary);
       const update = escapeHtml(project.update);
       const mediaLabel = escapeHtml(project.mediaLabel || "View update");
-      const thumbnailUrl = escapeHtml(project.thumbnailUrl);
+      const thumbnailUrl = escapeHtml(getProjectPreviewUrl(project));
       const caseNumber = escapeHtml(String(date).replace(/^Case\s*/i, "") || date);
       const hasBannerThumbnail = project.thumbnailType === "banner" || !project.thumbnailUrl;
       const thumbnailLabel = escapeHtml(project.thumbnailLabel || "Current Case");
@@ -415,7 +458,7 @@
             <strong>${caseNumber}</strong>
           </span>
         `
-        : `<img src="${thumbnailUrl}" alt="${title}" loading="lazy" />`;
+        : `<img src="${thumbnailUrl}" alt="${title}" loading="lazy" decoding="async" />`;
 
       return `
         <article class="${projectCardClass}">
@@ -460,34 +503,29 @@
       return;
     }
 
-    // A readable but slightly quicker pace than the previous 16 seconds per card.
-    // Six completed projects now make one 84-second visual cycle.
-    const secondsPerProject = 14;
+    // Keep a steady, readable pace for each completed project in the loop.
+    const secondsPerProject = 8;
     homeCaseFlowTrack.style.setProperty(
       "--case-flow-duration",
       `${projects.length * secondsPerProject}s`,
     );
 
-    const mobileFlow = window.matchMedia("(max-width: 720px)").matches;
-    const repeatedProjects = Array.from({ length: mobileFlow ? 1 : 4 }, () => projects).flat();
-
-    homeCaseFlowTrack.innerHTML = repeatedProjects.map((project, index) => {
-      const isDuplicate = index >= projects.length;
+    // Render one accessible set. The homepage adds only the copies its width needs.
+    homeCaseFlowTrack.innerHTML = projects.map((project, index) => {
       const title = escapeHtml(project.title);
       const category = escapeHtml(project.category);
       const status = escapeHtml(project.status);
       const date = escapeHtml(project.date);
       const amountRaised = escapeHtml(project.amountRaised);
-      const thumbnailUrl = escapeHtml(project.thumbnailUrl);
+      const thumbnailUrl = escapeHtml(getProjectPreviewUrl(project));
       const rawMediaUrl = project.mediaUrl || "projects.html";
       const mediaUrl = escapeHtml(rawMediaUrl);
       const mediaLinkAttrs = isExternalUrl(rawMediaUrl) ? ' target="_blank" rel="noreferrer"' : "";
-      const duplicateAttrs = isDuplicate ? ' aria-hidden="true" tabindex="-1"' : ` aria-label="Open ${title}"`;
-      const altText = isDuplicate ? "" : title;
+      const cardLift = (index + 1) % 3 === 0 ? ".85rem" : (index + 1) % 2 === 0 ? "1.8rem" : "0px";
 
       return `
-        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs}${duplicateAttrs} style="--case-delay: ${(index % projects.length) * 90}ms; --case-phase: ${index % 5};">
-          <img src="${thumbnailUrl}" alt="${altText}" loading="lazy" decoding="async" />
+        <a class="case-flow-card" href="${mediaUrl}"${mediaLinkAttrs} aria-label="Open ${title}" style="--card-lift: ${cardLift};">
+          <img src="${thumbnailUrl}" alt="${title}" loading="lazy" decoding="async" />
           <span class="case-flow-copy">
             <span>${date} &middot; ${status}</span>
             <strong>${title}</strong>
@@ -531,50 +569,55 @@
   const setupFaithVideo = () => {
     const source = faithVideo?.querySelector("source[data-src]");
     const section = faithVideo?.closest(".faith-video-section");
-    if (!faithVideo || !source || !section || prefersReducedMotion) {
-      return;
-    }
+    const toggle = document.getElementById("backgroundVideoToggle");
+    if (!faithVideo || !source || !section || !toggle) return;
 
-    const desktopQuery = window.matchMedia("(min-width: 721px)");
-    let observer;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let userPaused = motionPreference.matches || navigator.connection?.saveData === true;
+    let isVisible = false;
     let hasLoaded = false;
+    toggle.hidden = false;
 
-    const loadAndPlay = () => {
-      if (!desktopQuery.matches || hasLoaded) {
-        return;
-      }
-      source.src = source.dataset.src;
-      source.removeAttribute("data-src");
-      faithVideo.load();
-      faithVideo.play().catch(() => {});
-      hasLoaded = true;
-      observer?.disconnect();
+    const syncToggle = () => {
+      const playing = !faithVideo.paused;
+      toggle.querySelector("[data-video-toggle-label]").textContent = playing ? "Pause background" : "Play background";
+      toggle.querySelector("[data-video-toggle-icon]").textContent = playing ? "\u23f8" : "\u25b6";
     };
-
-    const watchSection = () => {
-      if (!desktopQuery.matches) {
-        faithVideo.pause();
-        return;
+    const play = () => {
+      if (!hasLoaded) {
+        source.src = source.dataset.src;
+        source.removeAttribute("data-src");
+        faithVideo.load();
+        hasLoaded = true;
       }
-      if (hasLoaded) {
-        faithVideo.play().catch(() => {});
-        return;
-      }
-      if (!("IntersectionObserver" in window)) {
-        loadAndPlay();
-        return;
-      }
-      observer?.disconnect();
-      observer = new IntersectionObserver((entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          loadAndPlay();
-        }
-      }, { rootMargin: "500px 0px" });
+      faithVideo.play().catch(syncToggle);
+    };
+    const syncPlayback = () => {
+      if (isVisible && !document.hidden && !userPaused) play();
+      else faithVideo.pause();
+    };
+    toggle.addEventListener("click", () => {
+      userPaused = !faithVideo.paused;
+      if (userPaused) faithVideo.pause();
+      else play();
+    });
+    faithVideo.addEventListener("play", syncToggle);
+    faithVideo.addEventListener("pause", syncToggle);
+    document.addEventListener("visibilitychange", syncPlayback);
+    motionPreference.addEventListener?.("change", () => {
+      userPaused = motionPreference.matches || navigator.connection?.saveData === true;
+      syncPlayback();
+    });
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        isVisible = entries.some((entry) => entry.isIntersecting);
+        syncPlayback();
+      }, { threshold: 0.1 });
       observer.observe(section);
-    };
-
-    watchSection();
-    desktopQuery.addEventListener?.("change", watchSection);
+    } else {
+      isVisible = true;
+      syncPlayback();
+    }
   };
 
   registerOfflineFallback();
@@ -689,6 +732,16 @@
   if (quickDonationForm) {
     const quickCustomInput = document.getElementById("quickCustomAmount");
     const quickStatus = document.getElementById("quickDonationStatus");
+    const orphanOption = document.getElementById("quickOrphanOption");
+    const quickSubmitLabel = quickDonationForm.querySelector(".quick-donation-button > span");
+    let previousQuickAmount = quickCustomInput?.value || "50";
+
+    const setOrphanSelection = (selected) => {
+      orphanOption?.setAttribute("aria-pressed", String(selected));
+      if (quickSubmitLabel) {
+        quickSubmitLabel.textContent = selected ? "Continue with orphan support" : "Choose a cause";
+      }
+    };
 
     const setQuickStatus = (message = "", isError = false) => {
       if (!quickStatus) {
@@ -705,7 +758,20 @@
 
     if (quickCustomInput) {
       quickCustomInput.addEventListener("input", clearQuickAmountError);
+      quickCustomInput.addEventListener("input", () => {
+        if (Number(quickCustomInput.value) !== 300) setOrphanSelection(false);
+      });
     }
+
+    orphanOption?.addEventListener("click", () => {
+      if (!quickCustomInput) return;
+      const selected = orphanOption.getAttribute("aria-pressed") !== "true";
+      if (selected) previousQuickAmount = quickCustomInput.value;
+      quickCustomInput.value = selected ? "300" : previousQuickAmount;
+      setOrphanSelection(selected);
+      quickCustomInput.dispatchEvent(new Event("input", { bubbles: true }));
+      setQuickStatus(selected ? "$300 selected for one year of orphan support." : "");
+    });
 
     quickDonationForm.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -716,7 +782,9 @@
         setQuickStatus("Please enter a donation amount of at least $5.", true);
         return;
       }
-      window.location.href = buildQuickDonationUrl({ amount: String(amount), program: "unrestricted" });
+      const program = orphanOption?.getAttribute("aria-pressed") === "true" && amount === 300
+        ? "orphan_annual" : "unrestricted";
+      window.location.href = buildQuickDonationUrl({ amount: String(amount), program });
     });
   }
 

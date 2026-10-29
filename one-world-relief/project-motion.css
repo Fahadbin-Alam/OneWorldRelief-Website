@@ -1,0 +1,199 @@
+/* Shared motion for the project board and every project story. */
+.motion-ready .project-motion-page .reveal,
+.motion-ready .project-motion-page .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+}
+
+.project-motion-page .project-card,
+.project-motion-page .proof-card,
+.project-motion-page .project-detail-feature {
+  transform: none;
+  transform-style: flat;
+  transition: transform 300ms cubic-bezier(.2,.8,.25,1.08), box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.project-motion-page .project-card {
+  transition: transform 360ms cubic-bezier(.2,.9,.25,1.18), border-color 220ms ease;
+  box-shadow: 0 10px 24px -12px #175b7c38;
+}
+
+.project-motion-page .project-media img,
+.project-motion-page .proof-card img,
+.project-motion-page .project-detail-feature img {
+  transition: transform 480ms cubic-bezier(.22,1,.36,1);
+}
+
+.project-motion-page .project-media > span:not(.project-media-banner) {
+  gap: .4rem;
+  transform-origin: left center;
+}
+
+/* One directional cue per story link, without delaying its navigation. */
+.project-motion-page .project-story-arrow {
+  display: inline-block;
+  flex: 0 0 auto;
+  line-height: 1;
+  transition: transform 320ms cubic-bezier(.2,.9,.25,1.18);
+}
+.project-motion-page .project-actions .button-outline {
+  gap: .55rem;
+}
+
+.project-motion-page .project-actions .button,
+.project-motion-page .project-detail-actions .button,
+.project-motion-page .project-detail-cta .button,
+.project-motion-page .back-link {
+  transition: transform 240ms cubic-bezier(.2,.8,.25,1.08), box-shadow 220ms ease, background-color 220ms ease;
+}
+
+.project-motion-page .project-fact-grid > div {
+  transition: transform 300ms cubic-bezier(.2,.8,.25,1.08), box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.project-motion-page .project-timeline > div {
+  animation: none;
+  opacity: 1;
+  transform: none;
+  transition: border-color 240ms ease, box-shadow 240ms ease;
+}
+
+/* Keep the timeline calm while reading; its badges respond on interaction. */
+.project-motion-page .project-timeline::before,
+.project-motion-page .project-timeline::after,
+.project-motion-page .project-timeline > div > span,
+.project-motion-page .project-timeline > div > span::before {
+  animation: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-motion-page .project-card:hover {
+    transform: translateY(-6px);
+    border-color: #77b8cf;
+    box-shadow: 0 10px 24px -12px #175b7c38;
+  }
+  .project-motion-page .project-card:hover .project-media img {
+    transform: scale(1.045);
+  }
+  .project-motion-page .project-card:hover .project-media .project-story-arrow,
+  .project-motion-page .project-actions .button-outline:hover .project-story-arrow {
+    transform: translateX(4px);
+  }
+  .project-motion-page .project-card:hover .project-media > span:not(.project-media-banner) {
+    animation: project-label-bounce 560ms ease both;
+  }
+  .project-motion-page .project-fact-grid > div:hover {
+    transform: translateY(-5px);
+    border-color: #8ec5d8;
+    box-shadow: 0 16px 28px -15px #175b7c55;
+  }
+  .project-motion-page .proof-card:not(:has(video)):hover,
+  .project-motion-page .project-detail-feature:not(:has(video)):hover {
+    transform: translateY(-4px);
+    border-color: #77b8cf;
+    box-shadow: 0 20px 36px -16px #175b7c55;
+  }
+  .project-motion-page .proof-card:hover img,
+  .project-motion-page .project-detail-feature:hover img {
+    transform: scale(1.025);
+  }
+  .project-motion-page .project-timeline > div:hover > span {
+    animation: project-label-bounce 560ms ease both;
+  }
+  .project-motion-page .project-actions .button:hover,
+  .project-motion-page .project-detail-actions .button:hover,
+  .project-motion-page .project-detail-cta .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 18px -10px #175b7c99;
+  }
+  .project-motion-page .back-link:hover { transform: translateX(-4px); }
+}
+
+.project-motion-page .project-card:focus-within {
+  border-color: #237b9a;
+  box-shadow: 0 12px 30px -14px #175b7c66;
+}
+.project-motion-page .project-media:focus-visible > span:not(.project-media-banner) {
+  animation: project-label-bounce 560ms ease both;
+}
+.project-motion-page .project-media:focus-visible .project-story-arrow,
+.project-motion-page .project-actions .button-outline:focus-visible .project-story-arrow {
+  transform: translateX(4px);
+}
+.project-motion-page .project-actions .button:focus-visible,
+.project-motion-page .project-detail-actions .button:focus-visible,
+.project-motion-page .project-detail-cta .button:focus-visible {
+  transform: translateY(-3px);
+}
+.project-motion-page .project-media:focus-visible {
+  outline: 3px solid #237b9a;
+  outline-offset: -5px;
+}
+.project-motion-page .project-actions .button:focus-visible,
+.project-motion-page .project-detail-actions .button:focus-visible,
+.project-motion-page .project-detail-cta .button:focus-visible,
+.project-motion-page .back-link:focus-visible {
+  outline: 3px solid #237b9a;
+  outline-offset: 4px;
+}
+.project-motion-page .project-card:has(.project-media:active),
+.project-motion-page .project-card:has(.project-actions .button-outline:active) {
+  transform: translateY(1px) scale(.992);
+  transition-duration: 80ms;
+}
+.project-motion-page .project-actions .button:active,
+.project-motion-page .project-detail-actions .button:active,
+.project-motion-page .project-detail-cta .button:active,
+.project-motion-page .back-link:active {
+  transform: scale(.98);
+  transition-duration: 80ms;
+}
+
+@keyframes project-label-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-7px) rotate(-2deg); }
+  55% { transform: translateY(1px) rotate(1deg); }
+  78% { transform: translateY(-2px); }
+}
+
+/* Avoid the base stylesheet's sticky image zoom after a touchscreen tap. */
+@media (hover: none), (pointer: coarse) {
+  .project-motion-page .project-media:hover img,
+  .project-motion-page .proof-card:hover img,
+  .project-motion-page .project-detail-feature:hover img {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-motion-page *,
+  .project-motion-page *::before,
+  .project-motion-page *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .project-motion-page .project-card,
+  .project-motion-page .proof-card,
+  .project-motion-page .project-detail-feature,
+  .project-motion-page .project-fact-grid > div,
+  .project-motion-page .project-media img,
+  .project-motion-page .proof-card img,
+  .project-motion-page .project-detail-feature img,
+  .project-motion-page .project-story-arrow,
+  .project-motion-page .button,
+  .project-motion-page .back-link { transform: none !important; }
+}
+
+/* Keep the blue backdrop still so scrolling doesn't repaint blurred layers. */
+.project-motion-page::before,
+.project-motion-page::after { animation: none; }
+.project-motion-page .background-shape { display: none; }
+.project-motion-page .site-header,
+.project-motion-page .site-header.is-scrolled {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: #f6fcff;
+}

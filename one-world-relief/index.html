@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>One World Relief | Donate</title>
+  <title>One World Relief | Projects &amp; Donations</title>
   <meta
     name="description"
     content="Donate to One World Relief for clean water, orphan support, food campaigns, zakat, and urgent humanitarian support."
@@ -20,7 +20,9 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="one-world-relief-community-v4.css" />
+  <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
+  <link rel="stylesheet" href="smooth-motion.css" />
+  <link rel="stylesheet" href="home-welcome-giving-v2.css" />
 </head>
 <body class="site-body home-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -34,7 +36,7 @@
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="projects.html">Projects</a>
-        <a href="share.html">Share</a>
+        <a href="zakat.html">Zakat</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -42,7 +44,7 @@
         <summary>Menu</summary>
         <nav aria-label="Mobile navigation">
           <a href="projects.html">Projects</a>
-          <a href="share.html">Share</a>
+          <a href="zakat.html">Zakat</a>
           <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
@@ -54,51 +56,42 @@
   <main>
     <section class="hero-shell hero-shell-home home-current-scene reveal">
       <div class="container hero hero-home hero-donate-first">
-        <div class="hero-copy home-impact-copy" aria-labelledby="homeImpactTitle">
-          <p class="eyebrow home-impact-eyebrow">A reminder from the Qur&rsquo;an</p>
-          <h1 id="homeImpactTitle">&ldquo;And whatever you spend in charity, He will compensate you for it.&rdquo;</h1>
-          <cite class="home-verse-citation">
-            <a
-              class="home-verse-source"
-              href="https://quran.com/34/39"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Read Qur'an 34:39 on Quran.com"
-            >Qur&rsquo;an 34:39 &middot; The Clear Quran <span aria-hidden="true">&nearr;</span></a>
-          </cite>
-          <p class="home-impact-summary">
-            Donate securely through Stripe. We publish photos, videos, dates, and completed costs from projects in Bangladesh.
-          </p>
-
-          <p class="home-proof-line">
-            <span><strong id="homeCompletedCaseCount">7</strong> completed cases</span>
-            <span class="home-proof-divider" aria-hidden="true">&middot;</span>
-            <span><strong id="homeOrphanImpactCount">2</strong> orphan students supported</span>
-          </p>
-          <a class="home-projects-shortcut" href="projects.html#projectBoard">
-            View all projects <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
-
+        <a class="home-project-entry" href="projects.html" aria-label="Explore projects">
+          <span class="home-project-entry-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none" focusable="false"><rect x="4" y="4" width="10" height="10" rx="3"/><rect x="18" y="4" width="10" height="10" rx="3"/><rect x="4" y="18" width="10" height="10" rx="3"/><path d="M19 23h8m-4-4 4 4-4 4"/></svg>
+          </span>
+          <span class="home-project-entry-copy"><strong>Explore projects</strong></span>
+          <span class="home-project-entry-arrow" aria-hidden="true">↗</span>
+        </a>
         <div class="home-action-panel">
           <form class="quick-donation" id="quickDonationForm" aria-label="Make a donation">
             <div class="quick-donation-heading">
-              <p class="quick-donation-kicker">Donate securely</p>
-              <h2>Choose your amount</h2>
-              <p class="quick-donation-subtitle">Enter an amount, then choose a cause before payment.</p>
+              <h1 id="homeImpactTitle">Make a donation</h1>
+              <p class="quick-donation-subtitle">Choose an amount. Pick a cause next.</p>
             </div>
 
+          <button class="quick-orphan-option" id="quickOrphanOption" type="button" aria-pressed="false" aria-label="$300 to support an orphan for one year" aria-describedby="quickOrphanBenefits">
+            <span class="quick-orphan-price" aria-hidden="true"><strong>$300</strong><small>for 1 year</small></span>
+            <span class="quick-orphan-copy"><strong>Support an orphan</strong><span id="quickOrphanBenefits">Education, food &amp; housing</span></span>
+            <span class="quick-orphan-switch" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" focusable="false"><path d="m4 8 3 3 5-6" /></svg></span>
+          </button>
+          <div class="welcome-amounts" role="group" aria-label="Suggested donation amounts">
+              <button type="button" data-gift="25" aria-pressed="false">$25</button>
+              <button type="button" data-gift="50" aria-pressed="true">$50</button>
+              <button type="button" data-gift="100" aria-pressed="false">$100</button>
+              <button type="button" data-gift="250" aria-pressed="false">$250</button>
+            </div>
             <label class="quick-custom-amount" for="quickCustomAmount">
               <span class="quick-amount-label">Donation amount <small>USD</small></span>
               <span class="quick-custom-input-wrap">
                 <span aria-hidden="true">$</span>
-                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="0.01" inputmode="decimal" placeholder="0.00" aria-describedby="quickAmountHint" required />
+                <input id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Your amount" value="50" aria-describedby="quickAmountHint" required />
               </span>
-              <small class="sr-only" id="quickAmountHint">Enter a donation amount in U.S. dollars.</small>
+              <small class="sr-only" id="quickAmountHint">Enter any amount of at least 5 U.S. dollars.</small>
             </label>
 
             <button class="button button-primary quick-donation-button" type="submit">
-              <span>Donate now</span><span aria-hidden="true">&rarr;</span>
+              <span>Choose a cause</span><span aria-hidden="true">&rarr;</span>
             </button>
             <p class="quick-donation-trust" aria-label="Secure Stripe checkout with an email receipt">
               <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
@@ -106,105 +99,52 @@
               </svg>
               Secure Stripe checkout <span aria-hidden="true">&middot;</span> Email receipt
             </p>
-            <a class="quick-donation-identity" href="about.html#official-details">About One World Relief &middot; EIN 41-5079927</a>
             <p class="quick-donation-status" id="quickDonationStatus" role="status" aria-live="polite"></p>
           </form>
         </div>
 
-        <a class="home-evidence-project" href="projects/case-004.html" aria-label="View completed Case 004, Feeding Madrasa for Orphan Kids">
-          <figure>
-            <img
-              src="assets/projects/case-004/korbani-meals-004-thumbnail.jpg"
-              width="1600"
-              height="1200"
-              alt="Meal service documented for orphan children at a madrasa in Bangladesh"
-              fetchpriority="high"
-              decoding="async"
-            />
-            <figcaption>
-              <span>Completed &middot; Case 004</span>
-              <strong>Feeding Madrasa for Orphan Kids</strong>
-              <small>$400 delivered &middot; View photos and video <span aria-hidden="true">&rarr;</span></small>
-            </figcaption>
-          </figure>
-        </a>
-
-        <div class="home-evidence-details">
-          <a class="home-impact-link" href="projects.html#projectBoard">View all documented projects <span aria-hidden="true">&rarr;</span></a>
-          <details class="home-count-method">
-            <summary>How we verify the student count</summary>
-            <p>
-              Cases 001 and 003 each document support for one student. Case 004 documents a group meal, but its exact headcount was not recorded, so it is not included in the individual count.
-            </p>
-            <div class="home-impact-cases" aria-label="Cases included in the individual orphan count">
-              <a href="projects/case-001.html">Case 001 &middot; $600 delivered</a>
-              <a href="projects/case-003.html">Case 003 &middot; $400 delivered</a>
-            </div>
-          </details>
-        </div>
       </div>
+      <div class="container welcome-impact reveal" aria-label="Our documented impact">
+        <div class="welcome-stat"><strong id="homeCompletedCaseCount">7</strong><span>completed projects</span></div>
+        <div class="welcome-stat"><strong id="homeOrphanImpactCount">2</strong><span>students supported</span></div>
+        <a href="projects.html#projectBoard">View all projects <span aria-hidden="true">&nearr;</span></a>
+        <div class="welcome-impact-line" aria-hidden="true"></div>
+      </div>
+      <details class="container welcome-count-note">
+        <summary>Behind the numbers</summary>
+        <p>Our individual student count includes one student each from <a href="projects/case-001.html">Case 001</a> and <a href="projects/case-003.html">Case 003</a>. Group meals and other aid reach more people, but are not included without a verified headcount.</p>
+      </details>
     </section>
 
     <section class="home-case-flow reveal" aria-labelledby="homeCaseFlowTitle">
-      <h2 class="sr-only" id="homeCaseFlowTitle">Completed One World Relief cases</h2>
+      <div class="container home-media-heading">
+        <h2 id="homeCaseFlowTitle">Completed projects</h2>
+        <button class="case-flow-toggle" id="caseFlowToggle" type="button" aria-pressed="false" aria-controls="homeCaseFlowTrack" hidden>Pause rotation</button>
+      </div>
       <div class="case-flow-shell" aria-label="One World Relief case photos">
         <div class="case-flow-track" id="homeCaseFlowTrack"></div>
       </div>
     </section>
 
-    <section class="faith-video-section reveal" aria-label="Islamic reminders for giving">
-      <video class="faith-video-bg" muted loop playsinline preload="none" poster="assets/projects/case-002/livelihood-support-002-video-poster.jpg" aria-hidden="true">
+    <section class="faith-video-section home-cinematic" aria-label="Field video from Bangladesh">
+      <video class="faith-video-bg" id="homeBackgroundVideo" muted loop playsinline preload="none" poster="assets/projects/case-002/livelihood-support-002-video-poster.jpg" aria-hidden="true" tabindex="-1">
         <source data-src="assets/projects/case-002/livelihood-support-002-primary.mp4" type="video/mp4" />
       </video>
-      <div class="faith-video-overlay" aria-hidden="true"></div>
-      <div class="container faith-reminder-content">
-        <p class="eyebrow">Why We Give</p>
-        <h2>Support that becomes mercy.</h2>
-        <div class="faith-quote-marquee" aria-label="Quran and Hadith reminders">
-          <div class="faith-quote-track">
-            <article>
-              <p>“Whatever donations you give are for parents, relatives, orphans, the poor, and needy travellers.”</p>
-              <span>Quran 2:215</span>
-            </article>
-            <article>
-              <p>“I and the person who looks after an orphan ... will be in Paradise like this.”</p>
-              <span>Sahih al-Bukhari 6005</span>
-            </article>
-            <article>
-              <p>“They give food ... to the poor, the orphan, and the captive.”</p>
-              <span>Quran 76:8</span>
-            </article>
-            <article>
-              <p>“He replied: Water is best.”</p>
-              <span>Sunan Abi Dawud 1681</span>
-            </article>
-            <article aria-hidden="true">
-              <p>“Whatever donations you give are for parents, relatives, orphans, the poor, and needy travellers.”</p>
-              <span>Quran 2:215</span>
-            </article>
-            <article aria-hidden="true">
-              <p>“I and the person who looks after an orphan ... will be in Paradise like this.”</p>
-              <span>Sahih al-Bukhari 6005</span>
-            </article>
-            <article aria-hidden="true">
-              <p>“They give food ... to the poor, the orphan, and the captive.”</p>
-              <span>Quran 76:8</span>
-            </article>
-            <article aria-hidden="true">
-              <p>“He replied: Water is best.”</p>
-              <span>Sunan Abi Dawud 1681</span>
-            </article>
-          </div>
-        </div>
+      <div class="home-cinematic-shade" aria-hidden="true"></div>
+      <p class="container home-cinematic-kicker">On the ground in Bangladesh</p>
+
+      <div class="container home-cinematic-footer">
+        <a href="projects/case-002.html">Watch project story <span aria-hidden="true">&nearr;</span></a>
+        <button id="backgroundVideoToggle" class="background-video-toggle" type="button" aria-controls="homeBackgroundVideo" hidden>
+          <span data-video-toggle-icon aria-hidden="true">&#9654;</span><span data-video-toggle-label>Play background</span>
+        </button>
       </div>
     </section>
 
     <section class="home-action-hub reveal" aria-labelledby="homeActionHubTitle">
       <div class="container">
         <header class="home-action-hub-heading">
-          <p class="eyebrow">Choose your next step</p>
-          <h2 id="homeActionHubTitle">Keep the good moving.</h2>
-          <p>See every project, share the mission, calculate your Zakat, or visit our public supporter board.</p>
+          <h2 id="homeActionHubTitle">Get involved.</h2>
         </header>
 
         <div class="home-action-hub-grid">
@@ -216,10 +156,8 @@
                 <path d="m20 35 3 3 7-8" />
               </svg>
             </span>
-            <span class="home-action-card-kicker">Documented projects</span>
-            <h3>See every project.</h3>
-            <p>Explore completed cases, real field photos, project costs, and work still ahead.</p>
-            <span class="home-action-card-link">View projects <span aria-hidden="true">&rarr;</span></span>
+            <h3>View projects</h3>
+            <span class="home-shortcut-arrow" aria-hidden="true">&nearr;</span>
           </a>
 
           <a class="home-action-card home-action-card-share" href="share.html">
@@ -231,10 +169,8 @@
                 <path d="m18.5 21.5 11-6M18.5 26.5l11 6" />
               </svg>
             </span>
-            <span class="home-action-card-kicker">Share the work</span>
-            <h3>Help the mission grow.</h3>
-            <p>Open a ready-to-share message, QR code, or link and invite others to take part.</p>
-            <span class="home-action-card-link">Open share tools <span aria-hidden="true">&rarr;</span></span>
+            <h3>Share kindness</h3>
+            <span class="home-shortcut-arrow" aria-hidden="true">&nearr;</span>
           </a>
 
           <a class="home-action-card home-action-card-zakat" href="zakat.html">
@@ -244,10 +180,8 @@
                 <path d="M16 13h16v7H16zM17 27h2M24 27h2M31 27h2M17 34h2M24 34h2M31 34h2" />
               </svg>
             </span>
-            <span class="home-action-card-kicker">Private Zakat estimate</span>
-            <h3>Calculate your Zakat.</h3>
-            <p>Use the guided calculator in English, Bangla, Urdu, or Arabic, then return to donate.</p>
-            <span class="home-action-card-link">Calculate my Zakat <span aria-hidden="true">&rarr;</span></span>
+            <h3>Calculate Zakat</h3>
+            <span class="home-shortcut-arrow" aria-hidden="true">&nearr;</span>
           </a>
 
           <a class="home-action-card home-action-card-supporters" href="supporters.html">
@@ -258,10 +192,8 @@
                 <path d="M7 39c1.2-7.1 5-10.6 11-10.6S27 31.9 29 39M28 29.5c5.9 0 9.5 3.2 10.5 9.5" />
               </svg>
             </span>
-            <span class="home-action-card-kicker">Public recognition</span>
-            <h3>Meet our supporters.</h3>
-            <p>See the donors who chose to share their names and confirmed gifts publicly.</p>
-            <span class="home-action-card-link">View supporters <span aria-hidden="true">&rarr;</span></span>
+            <h3>Our supporters</h3>
+            <span class="home-shortcut-arrow" aria-hidden="true">&nearr;</span>
           </a>
         </div>
       </div>
@@ -275,7 +207,7 @@
           <span class="brand-mark" aria-hidden="true"><img src="assets/one-world-relief-icon-192.png" alt="" /></span>
           <span id="homeFooterBrandTitle">One World Relief</span>
         </a>
-        <p>Practical aid. Documented impact. Giving rooted in mercy.</p>
+        <p>Food, education and community projects in Bangladesh.</p>
         <a class="home-footer-donate" href="donate.html">Donate now <span aria-hidden="true">&rarr;</span></a>
       </section>
 
@@ -284,25 +216,17 @@
         <a href="projects.html">Projects</a>
         <a href="supporters.html">Supporters</a>
         <a href="share.html">Share the mission</a>
-        <a href="about.html">About us</a>
+        <a href="about.html#official-details">About us</a>
+        <a href="zakat.html">Calculate Zakat</a>
         <a href="contact.html">Contact</a>
       </nav>
 
-      <nav class="home-footer-links" aria-label="Ways to give">
-        <h2>Ways to give</h2>
-        <a href="donate.html?program=orphan_annual&amp;amount=300#donationForm">Orphan support</a>
-        <a href="donate.html?program=orphan_feeding&amp;amount=100#donationForm">Feed orphan children</a>
-        <a href="donate.html?program=water_support&amp;variant=water_contribution&amp;amount=350#donationForm">Water support</a>
-        <a href="donate.html?program=emergency_aid&amp;amount=25#donationForm">Emergency aid</a>
-        <a href="zakat.html">Zakat calculator</a>
-      </nav>
 
       <section class="home-footer-contact" aria-labelledby="homeFooterContactTitle">
         <h2 id="homeFooterContactTitle">Contact</h2>
-        <p>Questions about a project or donation? We are here to help.</p>
+        <p>Questions? We’re here to help.</p>
         <a href="mailto:Oneworldrelief.fma@gmail.com">Oneworldrelief.fma@gmail.com</a>
         <a href="tel:+18568707528">856-870-7528</a>
-        <span>Mailing address available upon request.</span>
       </section>
     </div>
 
@@ -311,18 +235,6 @@
       <p>Donations may be tax-deductible to the extent allowed by law.</p>
     </div>
 
-    <section class="home-quick-give" aria-labelledby="homeQuickGiveTitle">
-      <div class="container home-quick-give-inner">
-        <div class="home-quick-give-copy">
-          <p class="home-quick-give-kicker">Support the next need</p>
-          <h2 id="homeQuickGiveTitle">Choose an amount that works for you.</h2>
-          <span>Checkout handled by Stripe &middot; Receipt after successful payment</span>
-        </div>
-        <a class="home-quick-give-button" href="donate.html?program=unrestricted#donationForm">
-          Donate what you can <span aria-hidden="true">&rarr;</span>
-        </a>
-      </div>
-    </section>
     <div class="home-footer-copyright">
       <div class="container">
         <p>&copy; 2026 One World Relief. All rights reserved.</p>
@@ -330,8 +242,9 @@
     </div>
   </footer>
 
-  <script src="donation-programs.js"></script>
+  <script src="donation-programs-giving-v1.js"></script>
   <script src="project-data.js"></script>
-  <script src="one-world-relief.js"></script>
+  <script src="one-world-relief-giving-v1.js"></script>
+  <script src="home-welcome-giving-v1.js"></script>
 </body>
 </html>

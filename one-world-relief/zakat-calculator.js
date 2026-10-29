@@ -1,733 +1,507 @@
-// One World Relief private, browser-only Zakat al-mal estimator.
+/* One World Relief — private, English-only Zakat al-mal calculator.
+ * Pure API: window.ONE_WORLD_RELIEF_ZAKAT_CALCULATOR (also globalThis in Node).
+ * calculate({ assets: { cashSavings, goldSilver, investments, moneyOwed,
+ *   businessAssets, otherAssets, cryptoAssets, retirementAssets },
+ *   metalEntryMode: "value" | "weight", metals: { goldWeight, goldPurity,
+ *   goldPricePerGram, silverWeight, silverPurity, silverPricePerGram },
+ *   liabilities, debtTreatment: "dueNow" | "next12Months" | "none", zakatPaid,
+ *   yearBasis: "hijri" | "solar", nisabBasis: "gold" | "silver" | "custom",
+ *   nisabValue, weightStandard: "traditional" | "metric", hawl: "yes" | "no" | "unsure"
+ * }) returns a frozen result with state, valid, errors, missing, totals, potentialZakat,
+ * grossZakat and remainingZakat. Monetary fields accept plain numbers with <= 2 dp;
+ * weights and spot prices accept <= 6 dp. Blank optional amounts mean zero.
+ * calculateNisab(basis, value, standard) returns a USD amount, or null if invalid.
+ * valueMetals({ mode, value, ...weightFields }) returns the separate metal values.
+ * No financial entries are persisted or fetched. Only a donation amount in the
+ * donation URL and the existing non-financial v1 context are passed to checkout.
+ */
 (function (global) {
   "use strict";
 
-  const VERSION = "owr-zakat-v1";
-  const RATES = Object.freeze({ hijri: 0.025, solar: 0.02577 });
-  const NISAB_GRAMS = Object.freeze({ gold: 87.48, silver: 612.36 });
-  const ASSET_IDS = Object.freeze([
-    "cashSavings",
-    "goldSilver",
-    "investments",
-    "moneyOwed",
-    "businessAssets",
-    "otherAssets",
-  ]);
-
-  const toAmount = (value) => {
-    const amount = Number(value);
-    return Number.isFinite(amount) && amount > 0 ? amount : 0;
-  };
-
-  const roundCurrency = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
-
-  const calculateNisab = (basis, value) => {
-    const currentValue = toAmount(value);
-    if (basis === "custom") {
-      return currentValue;
-    }
-    return NISAB_GRAMS[basis] ? roundCurrency(NISAB_GRAMS[basis] * currentValue) : 0;
-  };
-
-  const calculate = (input = {}) => {
-    const assetValues = Array.isArray(input.assets)
-      ? input.assets
-      : Object.values(input.assets || {});
-    const totalAssets = roundCurrency(assetValues.reduce((total, value) => total + toAmount(value), 0));
-    const liabilities = roundCurrency(toAmount(input.liabilities));
-    const netWealth = roundCurrency(Math.max(0, totalAssets - liabilities));
-    const yearBasis = input.yearBasis === "solar" ? "solar" : "hijri";
-    const rate = RATES[yearBasis];
-    const nisab = calculateNisab(input.nisabBasis, input.nisabValue);
-    const eligible = nisab > 0 && netWealth >= nisab;
-    const zakatDue = eligible ? roundCurrency(netWealth * rate) : 0;
-
-    return Object.freeze({
-      totalAssets,
-      liabilities,
-      netWealth,
-      nisab,
-      yearBasis,
-      rate,
-      eligible,
-      zakatDue,
-    });
-  };
-
-  const api = Object.freeze({
-    VERSION,
-    RATES,
-    NISAB_GRAMS,
-    ASSET_IDS,
-    calculateNisab,
-    calculate,
-    getNisab: calculateNisab,
-    calculateEstimate: calculate,
-  });
-  global.ONE_WORLD_RELIEF_ZAKAT_CALCULATOR = api;
-
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  const translations = {
-    en: {
-      pageTitle: "Calculate Your Zakat | One World Relief",
-      homeAriaLabel: "One World Relief Home",
-      mainNavigation: "Main navigation",
-      navProjects: "Projects",
-      navZakat: "Zakat",
-      navAbout: "About",
-      navContact: "Contact",
-      navDonate: "Donate",
-      language: "Language",
-      heroEyebrow: "A private, simple estimate",
-      heroTitle: "Calculate your Zakat",
-      heroIntro: "Zakat is an obligatory act of worship for Muslims who meet its conditions. If your zakatable wealth has reached the nisab and a full Hijri year has passed, Zakat al-mal is generally 2.5% of your net zakatable wealth.",
-      startCalculator: "Start calculator",
-      featureListLabel: "Calculator features",
-      featurePrivate: "Your financial entries stay on this device",
-      featureLanguages: "English, Bangla, Urdu, and Arabic",
-      featureReturn: "Continue directly to secure giving",
-      importantTitle: "Before you begin",
-      importantCopy: "Use values from your Zakat due date. Gold and silver prices change daily, and scholars differ over which nisab standard applies, so choose the standard you follow or enter a trusted current threshold.",
-      calculatorEyebrow: "Zakat al-mal calculator",
-      calculatorTitle: "Your Zakat, step by step",
-      calculatorIntro: "Three short steps. Enter only the amounts that apply to you.",
-      localBadge: "Calculated privately",
-      settingsLegend: "Choose your calculation basis",
-      yearBasisLabel: "Zakat year",
-      yearHijri: "Hijri / lunar year (2.5%)",
-      yearSolar: "Gregorian / solar year (2.577%)",
-      nisabBasisLabel: "Nisab standard",
-      nisabChoose: "Choose a standard",
-      nisabSilver: "Silver (612.36 g)",
-      nisabGold: "Gold (87.48 g)",
-      nisabCustom: "Enter a trusted threshold",
-      nisabGuidance: "The silver standard is commonly used in the Hanafi school; other scholarly approaches may use gold. Follow guidance you trust.",
-      metalPriceLabel: "Today's metal price per gram in USD",
-      goldPriceLabel: "Today's gold price per gram in USD",
-      silverPriceLabel: "Today's silver price per gram in USD",
-      amountPlaceholder: "0.00",
-      metalPriceHelp: "Use a current price from a source you trust; no live market price is built in.",
-      customNisabLabel: "Trusted nisab threshold in USD",
-      assetsLegend: "Add what you own",
-      assetsIntro: "Enter only the totals that apply to you. Leave the rest blank.",
-      cashSavingsLabel: "Cash and bank savings",
-      goldSilverLabel: "Gold and silver value",
-      investmentsLabel: "Shares and investments",
-      moneyOwedLabel: "Money owed to you that is expected back",
-      businessAssetsLabel: "Business cash and goods held for sale",
-      otherAssetsLabel: "Other zakatable assets",
-      optionalAssetsTitle: "More assets",
-      optionalLabel: "Optional",
-      assetsHelpTitle: "What is usually left out?",
-      assetsHelpCopy: "Usually do not include your primary home, personal-use car, clothing, household goods, or tools used for work. Rules can differ for personal jewellery, pensions, investments, and business assets.",
-      liabilitiesLegend: "Subtract bills due soon",
-      liabilitiesLabel: "Debts and bills due now or within the coming 12 months",
-      liabilitiesHelp: "Do not enter an entire long-term mortgage or student-loan balance. Debt treatment differs, so seek guidance if unsure.",
-      resultsEyebrow: "Your estimate",
-      resultsTitle: "Your estimated Zakat",
-      totalAssetsResultLabel: "Total assets",
-      liabilitiesResultLabel: "Short-term liabilities",
-      netWealthResultLabel: "Net zakatable wealth",
-      nisabResultLabel: "Selected nisab",
-      resultNeedsNisab: "Choose a nisab standard and enter its current value to see an estimate.",
-      resultEnterMetal: "Enter today's price per gram to calculate the selected nisab.",
-      resultEnterCustom: "Enter a trusted current nisab threshold to continue.",
-      resultBelow: "Based on the figures entered, your net zakatable wealth is below the selected nisab.",
-      resultDue: "Based on the figures entered, your net zakatable wealth meets the selected nisab.",
-      invalidAmount: "Enter zero or a positive amount with no more than two decimal places.",
-      minimumDonationNote: "Secure checkout accepts donations of $5 or more.",
-      donateMyZakat: "Donate my Zakat",
-      startOver: "Start over",
-      privacyNote: "Only your estimated donation amount and non-sensitive calculator choices continue to the donation page. One World Relief does not save or send your asset and debt entries.",
-      recipientsEyebrow: "Where Zakat may go",
-      recipientsTitle: "Eight recipient categories",
-      recipientsIntro: "The Qur'an (9:60) identifies eight categories. Eligibility must be assessed for each allocation.",
-      recipientPoor: "The poor",
-      recipientNeedy: "The needy",
-      recipientAdministrators: "Zakat administrators",
-      recipientReconciliation: "Those whose hearts are to be reconciled",
-      recipientBondage: "Those in bondage",
-      recipientDebt: "Those burdened by qualifying debt",
-      recipientCause: "In the cause of Allah",
-      recipientTraveller: "The stranded traveller",
-      jewelleryEyebrow: "An important difference",
-      jewelleryTitle: "Personal jewellery",
-      jewelleryCopy: "Scholars differ about gold and silver jewellery kept for personal use. Enter it according to guidance from a scholar you trust.",
-      fitrEyebrow: "A separate obligation",
-      fitrTitle: "Zakat al-Fitr is different",
-      fitrCopy: "This calculator covers Zakat al-mal only. It does not calculate Zakat al-Fitr, crops, livestock, minerals, or other categories with different rules.",
-      disclaimerEyebrow: "Please read",
-      disclaimerTitle: "An estimate, not a fatwa",
-      disclaimerCopy: "This calculator provides an educational estimate. Rules can vary according to your school of Islamic law and personal circumstances. Consult a qualified scholar or trusted Zakat specialist for complex or uncertain cases.",
-      sourcesTitle: "Guidance sources",
-      sourceQuran: "Qur'an 9:60: eligible recipient categories",
-      sourceIslamicRelief: "Islamic Relief UK: Zakat and nisab",
-      sourceMuslimHands: "Muslim Hands: calculation rules",
-      sourceNzfSolar: "National Zakat Foundation: solar-year rate",
-      sourceNzfNisab: "National Zakat Foundation: how nisab works",
-      footerHome: "Home",
-    },
-    bn: {
-      pageTitle: "আপনার যাকাত হিসাব করুন | One World Relief",
-      homeAriaLabel: "One World Relief হোম",
-      mainNavigation: "প্রধান নেভিগেশন",
-      navProjects: "প্রকল্প",
-      navZakat: "যাকাত",
-      navAbout: "আমাদের সম্পর্কে",
-      navContact: "যোগাযোগ",
-      navDonate: "দান করুন",
-      language: "ভাষা",
-      heroEyebrow: "ব্যক্তিগত ও সহজ আনুমানিক হিসাব",
-      heroTitle: "আপনার যাকাত হিসাব করুন",
-      heroIntro: "যাকাতের শর্ত পূরণকারী মুসলিমদের জন্য যাকাত একটি ফরজ ইবাদত। আপনার যাকাতযোগ্য সম্পদ নিসাবে পৌঁছালে এবং তার ওপর এক পূর্ণ হিজরি বছর অতিক্রান্ত হলে, সাধারণভাবে নিট যাকাতযোগ্য সম্পদের ২.৫% যাকাতুল-মাল দিতে হয়।",
-      startCalculator: "হিসাব শুরু করুন",
-      featureListLabel: "ক্যালকুলেটরের সুবিধা",
-      featurePrivate: "আপনার আর্থিক তথ্য এই ডিভাইসেই থাকে",
-      featureLanguages: "ইংরেজি, বাংলা, উর্দু ও আরবি",
-      featureReturn: "সরাসরি নিরাপদ অনুদান পাতায় যান",
-      importantTitle: "শুরু করার আগে",
-      importantCopy: "আপনার যাকাত দেওয়ার তারিখের মূল্য ব্যবহার করুন। সোনা ও রুপার দাম প্রতিদিন বদলায় এবং কোন নিসাব মান প্রযোজ্য তা নিয়ে আলেমদের মতভেদ আছে। আপনি যে মান অনুসরণ করেন তা বেছে নিন অথবা বিশ্বস্ত বর্তমান সীমা লিখুন।",
-      calculatorEyebrow: "যাকাতুল-মাল ক্যালকুলেটর",
-      calculatorTitle: "ধাপে ধাপে আপনার যাকাত",
-      calculatorIntro: "তিনটি ছোট ধাপ। শুধু আপনার ক্ষেত্রে প্রযোজ্য পরিমাণ লিখুন।",
-      localBadge: "ব্যক্তিগতভাবে হিসাব করা হয়",
-      settingsLegend: "হিসাবের ভিত্তি বেছে নিন",
-      yearBasisLabel: "যাকাতের বছর",
-      yearHijri: "হিজরি / চন্দ্র বছর (২.৫%)",
-      yearSolar: "গ্রেগরিয়ান / সৌর বছর (২.৫৭৭%)",
-      nisabBasisLabel: "নিসাবের মানদণ্ড",
-      nisabChoose: "একটি মানদণ্ড বেছে নিন",
-      nisabSilver: "রুপা (৬১২.৩৬ গ্রাম)",
-      nisabGold: "সোনা (৮৭.৪৮ গ্রাম)",
-      nisabCustom: "বিশ্বস্ত সীমা লিখুন",
-      nisabGuidance: "হানাফি মাযহাবে সাধারণত রুপার মান ব্যবহার করা হয়; অন্যান্য আলেম সোনার মান ব্যবহার করতে পারেন। আপনার বিশ্বস্ত নির্দেশনা অনুসরণ করুন।",
-      metalPriceLabel: "আজ প্রতি গ্রাম ধাতুর দাম (USD)",
-      goldPriceLabel: "আজ প্রতি গ্রাম সোনার দাম (USD)",
-      silverPriceLabel: "আজ প্রতি গ্রাম রুপার দাম (USD)",
-      amountPlaceholder: "০.০০",
-      metalPriceHelp: "বিশ্বস্ত উৎসের বর্তমান দাম ব্যবহার করুন; এখানে কোনো লাইভ বাজারদর যুক্ত নেই।",
-      customNisabLabel: "বিশ্বস্ত বর্তমান নিসাব সীমা (USD)",
-      assetsLegend: "আপনার যাকাতযোগ্য সম্পদ যোগ করুন",
-      assetsIntro: "শুধু আপনার ক্ষেত্রে প্রযোজ্য মোট অঙ্ক লিখুন। বাকিগুলো ফাঁকা রাখুন।",
-      cashSavingsLabel: "নগদ অর্থ ও ব্যাংক সঞ্চয়",
-      goldSilverLabel: "সোনা ও রুপার মূল্য",
-      investmentsLabel: "শেয়ার ও বিনিয়োগ",
-      moneyOwedLabel: "ফেরত পাওয়ার সম্ভাবনা আছে এমন পাওনা",
-      businessAssetsLabel: "ব্যবসার নগদ অর্থ ও বিক্রির জন্য রাখা পণ্য",
-      otherAssetsLabel: "অন্যান্য যাকাতযোগ্য সম্পদ",
-      optionalAssetsTitle: "আরও সম্পদ",
-      optionalLabel: "ঐচ্ছিক",
-      assetsHelpTitle: "সাধারণত কী বাদ থাকে?",
-      assetsHelpCopy: "সাধারণত নিজের বাসস্থান, ব্যক্তিগত ব্যবহারের গাড়ি, পোশাক, ঘরের জিনিসপত্র বা কাজের সরঞ্জাম অন্তর্ভুক্ত করবেন না। ব্যক্তিগত অলংকার, পেনশন, বিনিয়োগ ও ব্যবসায়িক সম্পদের বিধান ভিন্ন হতে পারে।",
-      liabilitiesLegend: "শিগগির পরিশোধযোগ্য দেনা বাদ দিন",
-      liabilitiesLabel: "এখন বা আগামী ১২ মাসে পরিশোধযোগ্য ঋণ ও বিল",
-      liabilitiesHelp: "দীর্ঘমেয়াদি বাড়ির ঋণ বা শিক্ষাঋণের পুরো বকেয়া লিখবেন না। ঋণের বিধান ভিন্ন হতে পারে, তাই সন্দেহ হলে পরামর্শ নিন।",
-      resultsEyebrow: "আপনার আনুমানিক হিসাব",
-      resultsTitle: "আপনার আনুমানিক যাকাত",
-      totalAssetsResultLabel: "মোট সম্পদ",
-      liabilitiesResultLabel: "স্বল্পমেয়াদি দায়",
-      netWealthResultLabel: "নিট যাকাতযোগ্য সম্পদ",
-      nisabResultLabel: "নির্বাচিত নিসাব",
-      resultNeedsNisab: "আনুমানিক হিসাব দেখতে নিসাবের মানদণ্ড বেছে নিয়ে বর্তমান মূল্য লিখুন।",
-      resultEnterMetal: "নির্বাচিত নিসাব হিসাব করতে আজকের প্রতি গ্রামের দাম লিখুন।",
-      resultEnterCustom: "চালিয়ে যেতে বিশ্বস্ত বর্তমান নিসাব সীমা লিখুন।",
-      resultBelow: "আপনার দেওয়া তথ্য অনুযায়ী নিট যাকাতযোগ্য সম্পদ নির্বাচিত নিসাবের নিচে।",
-      resultDue: "আপনার দেওয়া তথ্য অনুযায়ী নিট যাকাতযোগ্য সম্পদ নির্বাচিত নিসাবে পৌঁছেছে।",
-      invalidAmount: "শূন্য বা ধনাত্মক অঙ্ক লিখুন এবং সর্বোচ্চ দুই ঘর দশমিক ব্যবহার করুন।",
-      minimumDonationNote: "নিরাপদ চেকআউটে ন্যূনতম অনুদান ৫ ডলার।",
-      donateMyZakat: "আমার যাকাত দান করুন",
-      startOver: "আবার শুরু করুন",
-      privacyNote: "শুধু আনুমানিক অনুদানের পরিমাণ ও সংবেদনশীল নয় এমন হিসাবের পছন্দ অনুদান পাতায় যাবে। ওয়ান ওয়ার্ল্ড রিলিফ আপনার সম্পদ ও ঋণের তথ্য সংরক্ষণ বা পাঠায় না।",
-      recipientsEyebrow: "যাকাত কোথায় দেওয়া যায়",
-      recipientsTitle: "আট শ্রেণির প্রাপক",
-      recipientsIntro: "কুরআন (৯:৬০) আটটি শ্রেণি উল্লেখ করেছে। প্রতিটি বরাদ্দের যোগ্যতা আলাদাভাবে যাচাই করতে হবে।",
-      recipientPoor: "ফকির",
-      recipientNeedy: "মিসকিন",
-      recipientAdministrators: "যাকাত পরিচালনাকারী",
-      recipientReconciliation: "যাদের হৃদয় সম্প্রীত করা উদ্দেশ্য",
-      recipientBondage: "দাসত্ব বা বন্দিদশা থেকে মুক্তির জন্য",
-      recipientDebt: "যোগ্য ঋণে জর্জরিত ব্যক্তি",
-      recipientCause: "আল্লাহর পথে",
-      recipientTraveller: "অসহায় মুসাফির",
-      jewelleryEyebrow: "একটি গুরুত্বপূর্ণ মতভেদ",
-      jewelleryTitle: "ব্যক্তিগত অলংকার",
-      jewelleryCopy: "ব্যক্তিগত ব্যবহারের সোনা ও রুপার অলংকার সম্পর্কে আলেমদের মতভেদ আছে। বিশ্বস্ত আলেমের নির্দেশনা অনুযায়ী তা লিখুন।",
-      fitrEyebrow: "আলাদা একটি বিধান",
-      fitrTitle: "যাকাতুল-ফিতর আলাদা",
-      fitrCopy: "এই ক্যালকুলেটর শুধু যাকাতুল-মালের জন্য। এটি যাকাতুল-ফিতর, ফসল, গবাদিপশু, খনিজ বা ভিন্ন বিধানের অন্য শ্রেণি হিসাব করে না।",
-      disclaimerEyebrow: "অনুগ্রহ করে পড়ুন",
-      disclaimerTitle: "আনুমানিক হিসাব, ফতোয়া নয়",
-      disclaimerCopy: "এই ক্যালকুলেটরটি শুধু শিক্ষামূলক আনুমানিক হিসাব দেয়। মাযহাব ও ব্যক্তিগত পরিস্থিতি অনুযায়ী বিধান ভিন্ন হতে পারে। জটিল বা অস্পষ্ট ক্ষেত্রে একজন যোগ্য আলেম বা বিশ্বস্ত যাকাত বিশেষজ্ঞের পরামর্শ নিন।",
-      sourcesTitle: "নির্দেশনার উৎস",
-      sourceQuran: "কুরআন ৯:৬০: যাকাতের যোগ্য প্রাপক",
-      sourceIslamicRelief: "Islamic Relief UK: যাকাত ও নিসাব",
-      sourceMuslimHands: "Muslim Hands: হিসাবের বিধান",
-      sourceNzfSolar: "National Zakat Foundation: সৌর বছরের হার",
-      sourceNzfNisab: "National Zakat Foundation: নিসাব কীভাবে কাজ করে",
-      footerHome: "হোম",
-    },
-    ur: {
-      pageTitle: "اپنی زکوٰۃ کا حساب لگائیں | One World Relief",
-      homeAriaLabel: "One World Relief ہوم",
-      mainNavigation: "مرکزی نیویگیشن",
-      navProjects: "منصوبے",
-      navZakat: "زکوٰۃ",
-      navAbout: "ہمارے بارے میں",
-      navContact: "رابطہ",
-      navDonate: "عطیہ دیں",
-      language: "زبان",
-      heroEyebrow: "نجی اور آسان تخمینہ",
-      heroTitle: "اپنی زکوٰۃ کا حساب لگائیں",
-      heroIntro: "زکوٰۃ ان مسلمانوں پر فرض عبادت ہے جن پر اس کی شرائط پوری ہوتی ہوں۔ اگر آپ کا قابلِ زکوٰۃ مال نصاب تک پہنچ جائے اور اس پر ایک مکمل ہجری سال گزر جائے تو عموماً خالص قابلِ زکوٰۃ مال کا 2.5% زکوٰۃ المال ادا کرنا ہوتا ہے۔",
-      startCalculator: "حساب شروع کریں",
-      featureListLabel: "کیلکولیٹر کی خصوصیات",
-      featurePrivate: "آپ کی مالی معلومات اسی ڈیوائس پر رہتی ہیں",
-      featureLanguages: "انگریزی، بنگلہ، اردو اور عربی",
-      featureReturn: "براہِ راست محفوظ عطیہ کے صفحے پر جائیں",
-      importantTitle: "شروع کرنے سے پہلے",
-      importantCopy: "اپنی زکوٰۃ کی مقررہ تاریخ کی قدریں استعمال کریں۔ سونے اور چاندی کی قیمتیں روز بدلتی ہیں اور نصاب کے معیار میں اہلِ علم کی آرا مختلف ہیں، اس لیے اپنے معتبر معیار کا انتخاب کریں یا قابلِ اعتماد موجودہ حد درج کریں۔",
-      calculatorEyebrow: "زکوٰۃ المال کیلکولیٹر",
-      calculatorTitle: "آپ کی زکوٰۃ، مرحلہ وار",
-      calculatorIntro: "تین مختصر مراحل۔ صرف وہ رقوم درج کریں جو آپ پر لاگو ہوتی ہیں۔",
-      localBadge: "حساب نجی طور پر ہوتا ہے",
-      settingsLegend: "حساب کی بنیاد منتخب کریں",
-      yearBasisLabel: "زکوٰۃ کا سال",
-      yearHijri: "ہجری / قمری سال (2.5%)",
-      yearSolar: "عیسوی / شمسی سال (2.577%)",
-      nisabBasisLabel: "نصاب کا معیار",
-      nisabChoose: "ایک معیار منتخب کریں",
-      nisabSilver: "چاندی (612.36 گرام)",
-      nisabGold: "سونا (87.48 گرام)",
-      nisabCustom: "قابلِ اعتماد حد درج کریں",
-      nisabGuidance: "حنفی فقہ میں عموماً چاندی کا معیار استعمال ہوتا ہے؛ دیگر علمی آرا میں سونے کا معیار استعمال ہو سکتا ہے۔ معتبر رہنمائی پر عمل کریں۔",
-      metalPriceLabel: "آج دھات کی فی گرام قیمت (USD)",
-      goldPriceLabel: "آج سونے کی فی گرام قیمت (USD)",
-      silverPriceLabel: "آج چاندی کی فی گرام قیمت (USD)",
-      amountPlaceholder: "0.00",
-      metalPriceHelp: "کسی معتبر ذریعے کی موجودہ قیمت استعمال کریں؛ اس میں براہِ راست بازار کی قیمت شامل نہیں۔",
-      customNisabLabel: "قابلِ اعتماد موجودہ حدِ نصاب (USD)",
-      assetsLegend: "اپنے قابلِ زکوٰۃ اثاثے شامل کریں",
-      assetsIntro: "صرف وہ مجموعی رقوم درج کریں جو آپ پر لاگو ہوتی ہیں۔ باقی خالی چھوڑ دیں۔",
-      cashSavingsLabel: "نقد رقم اور بینک کی بچت",
-      goldSilverLabel: "سونے اور چاندی کی مالیت",
-      investmentsLabel: "حصص اور سرمایہ کاری",
-      moneyOwedLabel: "قابلِ وصول قرض جس کی واپسی متوقع ہو",
-      businessAssetsLabel: "کاروباری نقدی اور فروخت کے لیے موجود سامان",
-      otherAssetsLabel: "دیگر قابلِ زکوٰۃ اثاثے",
-      optionalAssetsTitle: "مزید اثاثے",
-      optionalLabel: "اختیاری",
-      assetsHelpTitle: "عام طور پر کیا شامل نہیں ہوتا؟",
-      assetsHelpCopy: "عام طور پر اپنا رہائشی گھر، ذاتی استعمال کی گاڑی، کپڑے، گھریلو سامان یا کام کے اوزار شامل نہ کریں۔ ذاتی زیورات، پنشن، سرمایہ کاری اور کاروباری اثاثوں کے احکام مختلف ہو سکتے ہیں۔",
-      liabilitiesLegend: "جلد واجب الادا قرض منہا کریں",
-      liabilitiesLabel: "ابھی یا اگلے 12 ماہ میں واجب الادا قرض اور بل",
-      liabilitiesHelp: "طویل مدتی رہن یا تعلیمی قرض کی پوری باقی رقم درج نہ کریں۔ قرض کے احکام مختلف ہیں، اس لیے شبہ ہو تو رہنمائی لیں۔",
-      resultsEyebrow: "آپ کا تخمینہ",
-      resultsTitle: "آپ کی تخمینی زکوٰۃ",
-      totalAssetsResultLabel: "کل اثاثے",
-      liabilitiesResultLabel: "قلیل مدتی واجبات",
-      netWealthResultLabel: "خالص قابلِ زکوٰۃ مال",
-      nisabResultLabel: "منتخب نصاب",
-      resultNeedsNisab: "تخمینہ دیکھنے کے لیے نصاب کا معیار منتخب کرکے اس کی موجودہ قیمت درج کریں۔",
-      resultEnterMetal: "منتخب نصاب کا حساب کرنے کے لیے آج کی فی گرام قیمت درج کریں۔",
-      resultEnterCustom: "جاری رکھنے کے لیے قابلِ اعتماد موجودہ حدِ نصاب درج کریں۔",
-      resultBelow: "درج کردہ معلومات کے مطابق آپ کا خالص قابلِ زکوٰۃ مال منتخب نصاب سے کم ہے۔",
-      resultDue: "درج کردہ معلومات کے مطابق آپ کا خالص قابلِ زکوٰۃ مال منتخب نصاب تک پہنچتا ہے۔",
-      invalidAmount: "صفر یا مثبت رقم درج کریں اور اعشاریہ کے بعد زیادہ سے زیادہ دو ہندسے رکھیں۔",
-      minimumDonationNote: "محفوظ چیک آؤٹ میں کم از کم عطیہ 5 ڈالر ہے۔",
-      donateMyZakat: "اپنی زکوٰۃ عطیہ کریں",
-      startOver: "دوبارہ شروع کریں",
-      privacyNote: "صرف تخمینی عطیہ اور غیر حساس حسابی انتخاب عطیہ کے صفحے تک جاتے ہیں۔ One World Relief آپ کے اثاثوں اور قرضوں کی تفصیلات محفوظ یا ارسال نہیں کرتا۔",
-      recipientsEyebrow: "زکوٰۃ کہاں دی جا سکتی ہے",
-      recipientsTitle: "مستحقین کی آٹھ اقسام",
-      recipientsIntro: "قرآن (9:60) میں آٹھ اقسام بیان ہوئی ہیں۔ ہر مختص رقم کے لیے اہلیت الگ جانچی جانی چاہیے۔",
-      recipientPoor: "فقیر",
-      recipientNeedy: "مسکین",
-      recipientAdministrators: "زکوٰۃ کے عاملین",
-      recipientReconciliation: "تالیفِ قلب کے مستحق",
-      recipientBondage: "غلامی یا قید سے رہائی",
-      recipientDebt: "مستحق مقروض",
-      recipientCause: "اللہ کی راہ میں",
-      recipientTraveller: "ضرورت مند مسافر",
-      jewelleryEyebrow: "ایک اہم اختلاف",
-      jewelleryTitle: "ذاتی زیورات",
-      jewelleryCopy: "ذاتی استعمال کے سونے اور چاندی کے زیورات کے بارے میں اہلِ علم کی آرا مختلف ہیں۔ اپنے معتبر عالم کی رہنمائی کے مطابق انہیں شامل کریں۔",
-      fitrEyebrow: "ایک الگ ذمہ داری",
-      fitrTitle: "زکوٰۃ الفطر الگ ہے",
-      fitrCopy: "یہ کیلکولیٹر صرف زکوٰۃ المال کے لیے ہے۔ یہ زکوٰۃ الفطر، فصلوں، مویشیوں، معدنیات یا مختلف احکام والی دوسری اقسام کا حساب نہیں کرتا۔",
-      disclaimerEyebrow: "براہِ کرم پڑھیں",
-      disclaimerTitle: "تخمینہ ہے، فتویٰ نہیں",
-      disclaimerCopy: "یہ کیلکولیٹر صرف ایک تعلیمی تخمینہ فراہم کرتا ہے۔ فقہی مسلک اور ذاتی حالات کے مطابق احکام مختلف ہو سکتے ہیں۔ پیچیدہ یا غیر واضح صورتِ حال میں کسی مستند عالم یا قابلِ اعتماد زکوٰۃ ماہر سے مشورہ کریں۔",
-      sourcesTitle: "رہنمائی کے ذرائع",
-      sourceQuran: "قرآن 9:60: زکوٰۃ کے مستحقین",
-      sourceIslamicRelief: "Islamic Relief UK: زکوٰۃ اور نصاب",
-      sourceMuslimHands: "Muslim Hands: حساب کے احکام",
-      sourceNzfSolar: "National Zakat Foundation: شمسی سال کی شرح",
-      sourceNzfNisab: "National Zakat Foundation: نصاب کیسے کام کرتا ہے",
-      footerHome: "ہوم",
-    },
-    ar: {
-      pageTitle: "احسب زكاتك | One World Relief",
-      homeAriaLabel: "الصفحة الرئيسية لـ One World Relief",
-      mainNavigation: "التنقل الرئيسي",
-      navProjects: "المشاريع",
-      navZakat: "الزكاة",
-      navAbout: "من نحن",
-      navContact: "اتصل بنا",
-      navDonate: "تبرع",
-      language: "اللغة",
-      heroEyebrow: "تقدير بسيط وخاص",
-      heroTitle: "احسب زكاتك",
-      heroIntro: "الزكاة عبادة واجبة على المسلم الذي تتوافر فيه شروط الوجوب. إذا بلغ مالك الزكوي النصاب ومضى عليه حول هجري كامل، فتكون زكاة المال عادةً 2.5% من صافي الأموال الزكوية.",
-      startCalculator: "ابدأ الحساب",
-      featureListLabel: "مزايا الحاسبة",
-      featurePrivate: "تبقى بياناتك المالية على هذا الجهاز",
-      featureLanguages: "الإنجليزية والبنغالية والأردية والعربية",
-      featureReturn: "انتقل مباشرةً إلى التبرع الآمن",
-      importantTitle: "قبل أن تبدأ",
-      importantCopy: "استخدم القيم في يوم استحقاق زكاتك. تتغير أسعار الذهب والفضة يوميًا، ويختلف العلماء في معيار النصاب المطبق؛ فاختر المعيار الذي تتبعه أو أدخل حدًا حاليًا من مصدر موثوق.",
-      calculatorEyebrow: "حاسبة زكاة المال",
-      calculatorTitle: "زكاتك، خطوة بخطوة",
-      calculatorIntro: "ثلاث خطوات قصيرة. أدخل فقط المبالغ التي تنطبق عليك.",
-      localBadge: "يُحسب بخصوصية",
-      settingsLegend: "اختر أساس الحساب",
-      yearBasisLabel: "سنة الزكاة",
-      yearHijri: "السنة الهجرية / القمرية (2.5%)",
-      yearSolar: "السنة الميلادية / الشمسية (2.577%)",
-      nisabBasisLabel: "معيار النصاب",
-      nisabChoose: "اختر معيارًا",
-      nisabSilver: "الفضة (612.36 غرامًا)",
-      nisabGold: "الذهب (87.48 غرامًا)",
-      nisabCustom: "أدخل حدًا موثوقًا",
-      nisabGuidance: "يشيع استخدام معيار الفضة في المذهب الحنفي، وقد تستخدم آراء فقهية أخرى معيار الذهب. اتبع الإرشاد الذي تثق به.",
-      metalPriceLabel: "سعر المعدن اليوم للغرام بالدولار",
-      goldPriceLabel: "سعر الذهب اليوم للغرام بالدولار",
-      silverPriceLabel: "سعر الفضة اليوم للغرام بالدولار",
-      amountPlaceholder: "0.00",
-      metalPriceHelp: "استخدم سعرًا حاليًا من مصدر تثق به؛ لا تتضمن الحاسبة سعر سوق مباشرًا.",
-      customNisabLabel: "حد النصاب الحالي الموثوق بالدولار",
-      assetsLegend: "أضف أموالك الزكوية",
-      assetsIntro: "أدخل فقط المبالغ الإجمالية التي تنطبق عليك، واترك الباقي فارغًا.",
-      cashSavingsLabel: "النقد والمدخرات المصرفية",
-      goldSilverLabel: "قيمة الذهب والفضة",
-      investmentsLabel: "الأسهم والاستثمارات",
-      moneyOwedLabel: "الديون المرجو سدادها لك",
-      businessAssetsLabel: "النقد التجاري والبضاعة المعدة للبيع",
-      otherAssetsLabel: "أموال زكوية أخرى",
-      optionalAssetsTitle: "أصول إضافية",
-      optionalLabel: "اختياري",
-      assetsHelpTitle: "ما الذي لا يُدرج عادةً؟",
-      assetsHelpCopy: "لا تُدرج عادةً مسكنك الأساسي، أو سيارتك للاستعمال الشخصي، أو ملابسك، أو أثاث منزلك، أو أدوات عملك. وقد تختلف أحكام الحلي الشخصية والمعاشات والاستثمارات وأموال التجارة.",
-      liabilitiesLegend: "اطرح الديون المستحقة قريبًا",
-      liabilitiesLabel: "الديون والفواتير المستحقة الآن أو خلال 12 شهرًا القادمة",
-      liabilitiesHelp: "لا تدخل كامل رصيد رهن عقاري أو قرض دراسي طويل الأجل. تختلف أحكام الديون، فاستشر أهل العلم إذا لم تكن متأكدًا.",
-      resultsEyebrow: "تقديرك",
-      resultsTitle: "زكاتك التقديرية",
-      totalAssetsResultLabel: "إجمالي الأموال",
-      liabilitiesResultLabel: "الالتزامات القصيرة الأجل",
-      netWealthResultLabel: "صافي الأموال الزكوية",
-      nisabResultLabel: "النصاب المختار",
-      resultNeedsNisab: "اختر معيار النصاب وأدخل قيمته الحالية لعرض التقدير.",
-      resultEnterMetal: "أدخل سعر الغرام اليوم لحساب النصاب المختار.",
-      resultEnterCustom: "أدخل حد نصاب حاليًا موثوقًا للمتابعة.",
-      resultBelow: "وفقًا للأرقام المدخلة، يقل صافي مالك الزكوي عن النصاب المختار.",
-      resultDue: "وفقًا للأرقام المدخلة، بلغ صافي مالك الزكوي النصاب المختار.",
-      invalidAmount: "أدخل صفرًا أو مبلغًا موجبًا، وبحد أقصى منزلتين عشريتين.",
-      minimumDonationNote: "يقبل الدفع الآمن تبرعات بقيمة 5 دولارات أو أكثر.",
-      donateMyZakat: "تبرع بزكاتي",
-      startOver: "ابدأ من جديد",
-      privacyNote: "لا ينتقل إلى صفحة التبرع إلا مبلغ التبرع التقديري وخيارات الحساب غير الحساسة. لا تحفظ One World Relief بيانات أموالك وديونك ولا ترسلها.",
-      recipientsEyebrow: "مصارف الزكاة",
-      recipientsTitle: "الأصناف الثمانية المستحقة",
-      recipientsIntro: "حدد القرآن الكريم (9:60) ثمانية أصناف. ويجب التحقق من الاستحقاق لكل تخصيص.",
-      recipientPoor: "الفقراء",
-      recipientNeedy: "المساكين",
-      recipientAdministrators: "العاملون على الزكاة",
-      recipientReconciliation: "المؤلفة قلوبهم",
-      recipientBondage: "في الرقاب",
-      recipientDebt: "الغارمون المستحقون",
-      recipientCause: "في سبيل الله",
-      recipientTraveller: "ابن السبيل",
-      jewelleryEyebrow: "مسألة فيها اختلاف",
-      jewelleryTitle: "حلي الاستعمال الشخصي",
-      jewelleryCopy: "تختلف أقوال العلماء في حلي الذهب والفضة المعدة للاستعمال الشخصي. فأدخلها وفق إرشاد عالم تثق به.",
-      fitrEyebrow: "واجب منفصل",
-      fitrTitle: "زكاة الفطر مختلفة",
-      fitrCopy: "تغطي هذه الحاسبة زكاة المال فقط. ولا تحسب زكاة الفطر أو الزروع أو الأنعام أو المعادن أو الأنواع الأخرى ذات الأحكام المختلفة.",
-      disclaimerEyebrow: "يرجى القراءة",
-      disclaimerTitle: "تقدير وليست فتوى",
-      disclaimerCopy: "تقدم هذه الحاسبة تقديرًا تعليميًا فقط. وقد تختلف الأحكام باختلاف المذهب والظروف الشخصية. استشر عالمًا مؤهلًا أو مختصًا موثوقًا بالزكاة في الحالات المعقدة أو غير الواضحة.",
-      sourcesTitle: "مصادر الإرشاد",
-      sourceQuran: "القرآن الكريم 9:60: أصناف مستحقي الزكاة",
-      sourceIslamicRelief: "Islamic Relief UK: الزكاة والنصاب",
-      sourceMuslimHands: "Muslim Hands: قواعد الحساب",
-      sourceNzfSolar: "National Zakat Foundation: نسبة السنة الشمسية",
-      sourceNzfNisab: "National Zakat Foundation: كيفية عمل النصاب",
-      footerHome: "الرئيسية",
-    },
-  };
-
-  const form = document.getElementById("zakatCalculator");
-  if (!form) {
-    return;
-  }
-
-  const languageSelect = document.getElementById("zakatLanguage");
-  const yearBasis = document.getElementById("zakatYearBasis");
-  const nisabBasis = document.getElementById("zakatNisabBasis");
-  const metalPrice = document.getElementById("zakatMetalPrice");
-  const customNisab = document.getElementById("zakatCustomNisab");
-  const metalPriceField = document.getElementById("zakatMetalPriceField");
-  const customNisabField = document.getElementById("zakatCustomNisabField");
-  const metalPriceLabel = document.getElementById("zakatMetalPriceLabel");
-  const liabilitiesInput = document.getElementById("shortTermLiabilities");
-  const totalAssetsResult = document.getElementById("totalAssetsResult");
-  const liabilitiesResult = document.getElementById("liabilitiesResult");
-  const netWealthResult = document.getElementById("netWealthResult");
-  const nisabResult = document.getElementById("nisabResult");
-  const zakatDueResult = document.getElementById("zakatDueResult");
-  const resultStatus = document.getElementById("zakatResultStatus");
-  const resultAnnouncement = document.getElementById("zakatResultAnnouncement");
-  const resultsPanel = form.querySelector(".zakat-results");
-  const minimumNote = document.getElementById("zakatMinimumNote");
-  const donateLink = document.getElementById("donateCalculatedZakat");
-  const startLink = document.querySelector(".zakat-start-link");
-  const amountInputs = [...form.querySelectorAll('input[type="number"]')];
+  const VERSION = "owr-zakat-engine-v2";
+  const HANDOFF_VERSION = "owr-zakat-v1";
   const HANDOFF_KEY = "owrZakatHandoff";
-  const LANGUAGE_KEY = "owrZakatLanguage";
-  const localeByLanguage = { en: "en-US", bn: "bn-BD", ur: "ur-PK", ar: "ar" };
-  const rtlLanguages = new Set(["ur", "ar"]);
-  let currentLanguage = "en";
-  let latestResult = calculate();
+  const MAX_AMOUNT = 1e12;
+  const RATES = Object.freeze({ hijri: 0.025, solar: 0.02577 });
+  const NISAB_STANDARDS = Object.freeze({
+    traditional: Object.freeze({ gold: 87.48, silver: 612.36 }),
+    metric: Object.freeze({ gold: 85, silver: 595 }),
+  });
+  const ASSET_IDS = Object.freeze([
+    "cashSavings", "goldSilver", "investments", "moneyOwed", "businessAssets",
+    "otherAssets", "cryptoAssets", "retirementAssets",
+  ]);
+  const ASSET_LABELS = Object.freeze({
+    cashSavings: "Cash and savings", goldSilver: "Gold and silver",
+    investments: "Shares and investments", moneyOwed: "Recoverable money owed to you",
+    businessAssets: "Business assets", otherAssets: "Other zakatable assets",
+    cryptoAssets: "Cryptocurrency", retirementAssets: "Zakatable retirement and pension amount",
+  });
+  const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+  const isBlank = (value) => value == null || (typeof value === "string" && value.trim() === "");
+  const toCents = (number) => Math.round((number + Number.EPSILON * Math.max(1, number)) * 100);
+  const roundCurrency = (number) => toCents(number) / 100;
 
-  try {
-    sessionStorage.removeItem(HANDOFF_KEY);
-  } catch (_error) {
-    // The calculator works without storage.
+  function parseAmount(value, precision = 2, required = false) {
+    if (isBlank(value)) return { value: 0, missing: required, error: "" };
+    if (!["string", "number"].includes(typeof value)) return { value: 0, error: "Enter a valid number." };
+    const text = String(value).trim();
+    const number = Number(text);
+    if (!Number.isFinite(number) || number < 0 || number > MAX_AMOUNT) {
+      return { value: 0, error: "Enter a positive number or zero, up to 1 trillion." };
+    }
+    if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(text)) return { value: 0, error: "Use digits and a decimal point, without commas or exponents." };
+    const decimalPlaces = (text.split(".")[1] || "").length;
+    if (decimalPlaces > precision) return { value: 0, error: `Use no more than ${precision} decimal places.` };
+    if (required && number === 0) return { value: 0, error: "Enter a value greater than zero." };
+    return { value: number, error: "" };
   }
 
-  const copy = (key) => translations[currentLanguage]?.[key] || translations.en[key] || key;
+  function calculateNisab(basis, value, standard = "traditional") {
+    if (!["gold", "silver", "custom"].includes(basis)) return null;
+    if (!hasOwn(NISAB_STANDARDS, standard)) return null;
+    const amount = parseAmount(value, basis === "custom" ? 2 : 6, true);
+    if (amount.error || amount.missing) return null;
+    const threshold = basis === "custom" ? amount.value : amount.value * NISAB_STANDARDS[standard][basis];
+    const rounded = roundCurrency(threshold);
+    return rounded > 0 && threshold <= MAX_AMOUNT ? rounded : null;
+  }
 
-  const formatUsd = (amount) => new Intl.NumberFormat(localeByLanguage[currentLanguage] || "en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(amount || 0));
-
-  const getStoredLanguage = () => {
-    try {
-      const saved = localStorage.getItem(LANGUAGE_KEY);
-      return translations[saved] ? saved : "en";
-    } catch (_error) {
-      return "en";
+  function valueMetals(input = {}) {
+    const errors = {};
+    const missing = {};
+    const mode = input.mode || "value";
+    if (mode === "value") {
+      const amount = parseAmount(input.value);
+      if (amount.error) errors.goldSilver = amount.error;
+      return Object.freeze({ value: roundCurrency(amount.value), goldValue: null, silverValue: null,
+        valid: !Object.keys(errors).length, errors: Object.freeze(errors), missing: Object.freeze(missing) });
     }
-  };
-
-  const storeLanguage = (language) => {
-    try {
-      localStorage.setItem(LANGUAGE_KEY, language);
-    } catch (_error) {
-      // The language switch still works when storage is unavailable.
+    if (mode !== "weight") errors.metalEntryMode = "Choose a metal entry method.";
+    let totalCents = 0;
+    const values = {};
+    for (const metal of ["gold", "silver"]) {
+      const weightId = `${metal}Weight`;
+      const priceId = `${metal}PricePerGram`;
+      const purityId = `${metal}Purity`;
+      const weight = parseAmount(input[weightId], 6);
+      const price = parseAmount(input[priceId], 6, weight.value > 0);
+      if (weight.error) errors[weightId] = weight.error;
+      if (price.error) errors[priceId] = price.error;
+      if (price.missing) missing[priceId] = `Enter a current pure ${metal} price per gram.`;
+      const purity = Number(input[purityId] ?? (metal === "gold" ? 24 : 1));
+      const allowed = metal === "gold" ? [24, 22, 21, 18, 14, 9] : [1, 0.925, 0.9, 0.8];
+      if (!allowed.includes(purity)) errors[purityId] = `Choose the ${metal} purity.`;
+      const factor = metal === "gold" ? purity / 24 : purity;
+      const amount = weight.value * price.value * factor;
+      if (!Number.isFinite(amount) || amount > MAX_AMOUNT) errors[weightId] = "This metal value exceeds the calculator's limit.";
+      values[`${metal}Value`] = Number.isFinite(amount) && amount <= MAX_AMOUNT ? roundCurrency(amount) : 0;
+      totalCents += toCents(values[`${metal}Value`]);
     }
-  };
+    if (totalCents > MAX_AMOUNT * 100) errors.goldWeight = "The combined metal value exceeds the calculator's limit.";
+    return Object.freeze({ value: totalCents <= MAX_AMOUNT * 100 ? totalCents / 100 : 0, ...values,
+      valid: !Object.keys(errors).length && !Object.keys(missing).length,
+      errors: Object.freeze(errors), missing: Object.freeze(missing) });
+  }
 
-  const applyLanguage = (language) => {
-    currentLanguage = translations[language] ? language : "en";
-    const direction = rtlLanguages.has(currentLanguage) ? "rtl" : "ltr";
-    document.documentElement.lang = currentLanguage;
-    document.documentElement.dir = direction;
-    document.title = copy("pageTitle");
-    if (languageSelect) {
-      languageSelect.value = currentLanguage;
-    }
-
-    document.querySelectorAll("[data-i18n]").forEach((element) => {
-      element.textContent = copy(element.dataset.i18n);
+  function calculate(input = {}) {
+    const errors = {};
+    const missing = {};
+    const assets = {};
+    const suppliedAssets = input.assets || {};
+    let totalCents = 0;
+    const mode = input.metalEntryMode || "value";
+    const directMetals = Array.isArray(suppliedAssets) ? suppliedAssets[1] : suppliedAssets.goldSilver;
+    const metalResult = valueMetals({ ...(input.metals || {}), mode, value: directMetals });
+    Object.assign(errors, metalResult.errors);
+    Object.assign(missing, metalResult.missing);
+    ASSET_IDS.forEach((id, index) => {
+      const parsed = id === "goldSilver" ? { value: metalResult.value } : parseAmount(
+        Array.isArray(suppliedAssets) ? suppliedAssets[index] : suppliedAssets[id]
+      );
+      if (parsed.error) errors[id] = parsed.error;
+      assets[id] = roundCurrency(parsed.value);
+      totalCents += toCents(assets[id]);
     });
-    document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
-      element.placeholder = copy(element.dataset.i18nPlaceholder);
-    });
-    document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
-      element.setAttribute("aria-label", copy(element.dataset.i18nAriaLabel));
-    });
-    updateNisabFields();
-    calculateAndRender();
-    storeLanguage(currentLanguage);
+    if (totalCents > MAX_AMOUNT * 100) errors.cashSavings = "Your combined assets exceed the calculator's 1 trillion USD limit.";
+    const totalAssets = totalCents <= MAX_AMOUNT * 100 ? totalCents / 100 : 0;
+
+    const debtTreatment = input.debtTreatment || "dueNow";
+    if (!["dueNow", "next12Months", "none"].includes(debtTreatment)) errors.debtTreatment = "Choose how to treat debts.";
+    const debt = parseAmount(debtTreatment === "none" ? 0 : input.liabilities);
+    if (debt.error) errors.shortTermLiabilities = debt.error;
+    const liabilities = roundCurrency(debt.value);
+    const netCents = Math.max(0, toCents(totalAssets) - toCents(liabilities));
+    const netWealth = netCents / 100;
+    const paid = parseAmount(input.zakatPaid);
+    if (paid.error) errors.zakatPaid = paid.error;
+    const paidZakat = roundCurrency(paid.value);
+    const yearBasis = input.yearBasis || "hijri";
+    if (!hasOwn(RATES, yearBasis)) errors.zakatYearBasis = "Choose a Zakat year.";
+    const rate = RATES[yearBasis] || RATES.hijri;
+    const standard = input.weightStandard || "traditional";
+    if (!hasOwn(NISAB_STANDARDS, standard)) errors.zakatWeightStandard = "Choose a weight standard.";
+    const basis = input.nisabBasis || "";
+    const nisabField = basis === "custom" ? "zakatCustomNisab" : "zakatMetalPrice";
+    if (!basis) missing.zakatNisabBasis = "Choose a nisab standard.";
+    else if (!["gold", "silver", "custom"].includes(basis)) errors.zakatNisabBasis = "Choose a valid nisab standard.";
+    if (["gold", "silver", "custom"].includes(basis)) {
+      const thresholdInput = parseAmount(input.nisabValue, basis === "custom" ? 2 : 6, true);
+      if (thresholdInput.error) errors[nisabField] = thresholdInput.error;
+      if (thresholdInput.missing) missing[nisabField] = basis === "custom"
+        ? "Enter a trusted current nisab threshold." : `Enter a current pure ${basis} price per gram.`;
+    }
+    const nisab = calculateNisab(basis, input.nisabValue, standard);
+    if (basis && !errors[nisabField] && !missing[nisabField] && nisab === null && !errors.zakatNisabBasis && !errors.zakatWeightStandard) {
+      errors[nisabField] = "The calculated nisab must be greater than zero and no more than 1 trillion USD.";
+    }
+    const hawl = input.hawl || "";
+    if (!hawl) missing.zakatHawl = "Tell us whether your Zakat year has completed.";
+    else if (!["yes", "no", "unsure"].includes(hawl)) errors.zakatHawl = "Choose a hawl answer.";
+    const valid = !Object.keys(errors).length && !Object.keys(missing).length;
+    const meetsNisab = nisab !== null && toCents(nisab) > 0 && netCents >= toCents(nisab);
+    const potentialZakat = meetsNisab ? roundCurrency(netWealth * rate) : 0;
+    const grossZakat = valid && hawl === "yes" ? potentialZakat : 0;
+    const remainingZakat = Math.max(0, toCents(grossZakat) - toCents(paidZakat)) / 100;
+    const potentialRemaining = Math.max(0, toCents(potentialZakat) - toCents(paidZakat)) / 100;
+    const eligible = valid && meetsNisab && hawl === "yes";
+    let state = "due";
+    if (Object.keys(errors).length) state = "invalid";
+    else if (Object.keys(missing).length) state = "missing";
+    else if (!meetsNisab) state = "below-nisab";
+    else if (hawl === "no") state = "not-due";
+    else if (hawl !== "yes") state = "hawl-unconfirmed";
+    else if (remainingZakat === 0) state = "already-paid";
+    return Object.freeze({ state, valid, errors: Object.freeze(errors), missing: Object.freeze(missing),
+      assets: Object.freeze(assets), totalAssets, liabilities, netWealth, nisab, yearBasis,
+      nisabBasis: basis, weightStandard: standard, debtTreatment, hawl, metalEntryMode: mode,
+      metalResult, rate, meetsNisab, eligible, potentialZakat, potentialRemaining, grossZakat,
+      paidZakat, remainingZakat, zakatDue: remainingZakat,
+      canDonate: eligible && remainingZakat >= 5 });
+  }
+
+  global.ONE_WORLD_RELIEF_ZAKAT_CALCULATOR = Object.freeze({ VERSION, HANDOFF_VERSION, RATES,
+    NISAB_STANDARDS, NISAB_GRAMS: NISAB_STANDARDS.traditional, ASSET_IDS, MAX_AMOUNT,
+    calculateNisab, calculate, valueMetals, getNisab: calculateNisab, calculateEstimate: calculate });
+
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = "en";
+  document.documentElement.dir = "ltr";
+  const form = document.getElementById("zakatCalculator");
+  if (!form) return;
+  const byId = (id) => document.getElementById(id);
+  const valueOf = (id) => byId(id)?.value ?? "";
+  const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  const pricePerGram = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  const usd = (amount) => amount === null ? "—" : money.format(amount);
+  const panels = [...form.querySelectorAll("[data-step-panel]")];
+  const stepButtons = [...document.querySelectorAll("[data-step-target]")];
+  const touched = new Set();
+  const stepNames = ["Setup", "Assets", "Deductions", "Result"];
+  const fieldSteps = {
+    zakatDueDate: 0, zakatYearBasis: 0, zakatHawl: 0, zakatNisabBasis: 0,
+    zakatWeightStandard: 0, zakatMetalPrice: 0, zakatCustomNisab: 0,
+    ...Object.fromEntries(ASSET_IDS.map((id) => [id, 1])),
+    metalEntryMode: 1, goldWeight: 1, goldPurity: 1, goldPricePerGram: 1,
+    silverWeight: 1, silverPurity: 1, silverPricePerGram: 1,
+    debtTreatment: 2, shortTermLiabilities: 2, zakatPaid: 2,
   };
+  let currentStep = 0;
+  let completedStep = -1;
+  let latestResult;
+  let latestIssues = {};
+  let announceTimer;
+  let lastAnnouncement = "";
 
-  const updateNisabFields = () => {
-    const basis = nisabBasis?.value || "";
-    const usesMetal = basis === "gold" || basis === "silver";
-    if (metalPriceField) {
-      metalPriceField.hidden = !usesMetal;
+  function setText(id, text) { if (byId(id)) byId(id).textContent = text; }
+  function localDate() {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  }
+  function validDate(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(`${value}T12:00:00Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  }
+  function formattedDate(value) {
+    return validDate(value) ? new Date(`${value}T12:00:00`).toLocaleDateString("en-US", {
+      year: "numeric", month: "long", day: "numeric",
+    }) : "Choose a valuation date";
+  }
+  if (byId("zakatDueDate")) byId("zakatDueDate").value = localDate();
+
+  function toggleFields(id, visible) {
+    const wrapper = byId(id);
+    if (!wrapper) return;
+    wrapper.hidden = !visible;
+    wrapper.querySelectorAll("input, select").forEach((field) => { field.disabled = !visible; });
+  }
+  function syncChoices() {
+    setText("zakatSettingsSummary", `${formattedDate(valueOf("zakatDueDate"))} · ${valueOf("zakatYearBasis") === "solar" ? "Solar, 2.577%" : "Lunar, 2.5%"}`);
+    const basis = valueOf("zakatNisabBasis");
+    const isMetal = basis === "gold" || basis === "silver";
+    toggleFields("zakatWeightStandardField", isMetal);
+    toggleFields("zakatMetalPriceField", isMetal);
+    toggleFields("zakatCustomNisabField", basis === "custom");
+    setText("zakatMetalPriceLabel", `Current pure ${basis === "gold" ? "gold" : "silver"} price per gram`);
+    const standard = NISAB_STANDARDS[valueOf("zakatWeightStandard")] || NISAB_STANDARDS.traditional;
+    setText("nisabCalculationHelp", isMetal ? `${standard[basis]} g × your current pure ${basis} price = your nisab. The threshold is not deducted from your wealth.`
+      : basis === "custom" ? "Use a current USD threshold from a scholar or Zakat authority you trust. The threshold is not deducted from your wealth."
+        : "Choose the nisab method you follow. Metal prices are entered by you, not fetched automatically.");
+    const weighted = valueOf("metalEntryMode") === "weight";
+    toggleFields("metalDirectFields", !weighted);
+    toggleFields("metalWeightFields", weighted);
+    const treatment = valueOf("debtTreatment");
+    const liabilityInput = byId("shortTermLiabilities");
+    if (liabilityInput) liabilityInput.disabled = treatment === "none";
+    setText("debtAmountLabel", treatment === "next12Months" ? "Eligible payments due in the next 12 months"
+      : treatment === "none" ? "Debt deduction turned off" : "Eligible debts and bills due now");
+    setText("debtAmountHelp", treatment === "none" ? "Your full zakatable assets will be used. Your entered debt amount is excluded."
+      : treatment === "next12Months" ? "Enter only payments permitted by the guidance you follow, not your entire mortgage or long-term loan balance."
+        : "Enter only qualifying debts already due on your valuation date. Debt deductions differ among scholars.");
+  }
+
+  function readCalculation() {
+    return calculate({ assets: Object.fromEntries(ASSET_IDS.map((id) => [id, valueOf(id)])),
+      metalEntryMode: valueOf("metalEntryMode") || "value",
+      metals: Object.fromEntries(["goldWeight", "goldPurity", "goldPricePerGram", "silverWeight", "silverPurity", "silverPricePerGram"].map((id) => [id, valueOf(id)])),
+      liabilities: valueOf("shortTermLiabilities"), debtTreatment: valueOf("debtTreatment") || "dueNow",
+      zakatPaid: valueOf("zakatPaid"), yearBasis: valueOf("zakatYearBasis"),
+      nisabBasis: valueOf("zakatNisabBasis"), weightStandard: valueOf("zakatWeightStandard") || "traditional",
+      nisabValue: valueOf("zakatNisabBasis") === "custom" ? valueOf("zakatCustomNisab") : valueOf("zakatMetalPrice"),
+      hawl: valueOf("zakatHawl") });
+  }
+
+  function displayError(id, message) {
+    const field = byId(id);
+    if (!field) return;
+    let error = byId(`${id}Error`);
+    if (!error && message) {
+      error = document.createElement("p");
+      error.id = `${id}Error`;
+      error.className = "zakat-field-error";
+      const container = field.closest(".zakat-money-input, .zakat-input-wrap");
+      (container || field).insertAdjacentElement("afterend", error);
     }
-    if (customNisabField) {
-      customNisabField.hidden = basis !== "custom";
-    }
-    if (metalPriceLabel && usesMetal) {
-      metalPriceLabel.textContent = copy(basis === "gold" ? "goldPriceLabel" : "silverPriceLabel");
-    }
-  };
+    if (error) { error.textContent = message || ""; error.hidden = !message; }
+    if (message) field.setAttribute("aria-invalid", "true");
+    else field.removeAttribute("aria-invalid");
+    const descriptions = new Set((field.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
+    if (message) descriptions.add(`${id}Error`);
+    else descriptions.delete(`${id}Error`);
+    if (descriptions.size) field.setAttribute("aria-describedby", [...descriptions].join(" "));
+    else field.removeAttribute("aria-describedby");
+  }
 
-  const getNisabValue = () => nisabBasis?.value === "custom"
-    ? customNisab?.value
-    : metalPrice?.value;
-
-  const updateAmountValidity = () => {
-    let hasInvalidAmount = false;
-
-    amountInputs.forEach((input) => {
-      const fieldIsActive = !input.disabled && !input.closest("[hidden]");
-      const isInvalid = fieldIsActive && input.value !== "" && !input.validity.valid;
-      const inputWrap = input.closest(".zakat-money-input");
-      let error = document.getElementById(`${input.id}Error`);
-
-      if (!error) {
-        error = document.createElement("small");
-        error.id = `${input.id}Error`;
-        error.className = "zakat-field-error";
-        error.hidden = true;
-        inputWrap?.insertAdjacentElement("afterend", error);
-      }
-
-      error.textContent = copy("invalidAmount");
-      error.hidden = !isInvalid;
-      if (isInvalid) {
-        input.setAttribute("aria-invalid", "true");
-      } else {
-        input.removeAttribute("aria-invalid");
-      }
-      inputWrap?.classList.toggle("has-error", isInvalid);
-
-      const descriptionIds = new Set((input.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
-      if (isInvalid) {
-        descriptionIds.add(error.id);
-        hasInvalidAmount = true;
-      } else {
-        descriptionIds.delete(error.id);
-      }
-      if (descriptionIds.size) {
-        input.setAttribute("aria-describedby", [...descriptionIds].join(" "));
-      } else {
-        input.removeAttribute("aria-describedby");
-      }
+  function collectIssues(result) {
+    const issues = { ...result.errors, ...result.missing };
+    if (!validDate(valueOf("zakatDueDate"))) issues.zakatDueDate = "Choose a valid valuation date.";
+    form.querySelectorAll("input[type='number']").forEach((field) => {
+      if (field.disabled) return;
+      if (field.validity?.badInput) issues[field.id] = "Enter a valid number.";
+      else if (field.validity?.rangeOverflow) issues[field.id] = `Enter a value no greater than ${Number(field.max).toLocaleString("en-US")}.`;
     });
+    return issues;
+  }
 
-    return !hasInvalidAmount;
-  };
-
-  const setDonationLink = (result, amountsAreValid) => {
-    const canContinue = amountsAreValid && result.eligible && result.zakatDue >= 5;
-    if (minimumNote) {
-      minimumNote.hidden = !(amountsAreValid && result.eligible && result.zakatDue > 0 && result.zakatDue < 5);
+  function renderReview(result) {
+    const holder = byId("zakatReviewRows");
+    if (!holder) return;
+    const incomplete = Object.keys(latestIssues).length > 0;
+    const rows = ASSET_IDS.filter((id) => result.assets[id] > 0).map((id) => [ASSET_LABELS[id], usd(result.assets[id])]);
+    if (!rows.length) rows.push(["Assets entered", usd(0)]);
+    rows.push(["Total zakatable assets", usd(result.totalAssets)],
+      ["Eligible debt deduction", `− ${usd(result.liabilities)}`], ["Net zakatable wealth", usd(result.netWealth)],
+      ["Nisab threshold", usd(result.nisab)], ["Year and rate", result.yearBasis === "solar" ? "Solar year · 2.577%" : "Lunar year · 2.5%"],
+      ["Zakat year (hawl)", result.hawl === "yes" ? "Confirmed by you" : result.hawl === "no" ? "Not yet completed" : "Not confirmed"],
+      ["Debt method", result.debtTreatment === "none" ? "No deduction" : result.debtTreatment === "next12Months" ? "Eligible payments in the next 12 months" : "Eligible amounts due now"],
+      [result.hawl === "yes" ? "Estimated Zakat before payments" : "Conditional estimate before payments", usd(result.potentialZakat)],
+      ["Already paid toward this Zakat year", `− ${usd(result.paidZakat)}`],
+      [result.hawl === "yes" ? "Remaining estimated Zakat" : "Conditional remaining estimate", usd(result.hawl === "yes" ? result.remainingZakat : result.potentialRemaining)]);
+    if (incomplete) rows.splice(0, rows.length,
+      ["Calculation status", "Incomplete — finish the required details and correct invalid entries before using this estimate."],
+      ["Estimated Zakat", "Not available from the current entries"]);
+    const fragment = document.createDocumentFragment();
+    for (const [label, value] of rows) {
+      const group = document.createElement("div");
+      const term = document.createElement("dt");
+      const detail = document.createElement("dd");
+      term.textContent = label;
+      detail.textContent = value;
+      group.append(term, detail);
+      fragment.appendChild(group);
     }
-    if (!donateLink) {
+    holder.replaceChildren(fragment);
+    const weightDescription = NISAB_STANDARDS[result.weightStandard];
+    setText("zakatReviewBasis", incomplete ? "Calculation incomplete — no reliable estimate"
+      : result.nisabBasis === "custom" ? "Your trusted custom threshold"
+      : weightDescription && ["gold", "silver"].includes(result.nisabBasis)
+        ? `${result.nisabBasis === "gold" ? "Gold" : "Silver"} nisab · ${weightDescription[result.nisabBasis]} g · ${pricePerGram.format(Number(valueOf("zakatMetalPrice")) || 0)} per gram`
+        : "Choose a nisab basis");
+    setText("zakatReviewDate", formattedDate(valueOf("zakatDueDate")));
+  }
+
+  function render() {
+    syncChoices();
+    latestResult = readCalculation();
+    latestIssues = collectIssues(latestResult);
+    Object.keys(fieldSteps).forEach((id) => displayError(id, touched.has(id) ? latestIssues[id] : ""));
+    const result = latestResult;
+    const hasIssues = Object.keys(latestIssues).length > 0;
+    let state = result.state;
+    if (hasIssues && result.valid) state = "invalid";
+    const conditional = state === "not-due" || state === "hawl-unconfirmed";
+    const displayedAmount = conditional ? result.potentialRemaining : result.remainingZakat;
+    setText("zakatResultsTitle", conditional ? "Planning estimate" : "Zakat remaining");
+    const messages = {
+      missing: "Choose your basis and complete the required details to see your estimate.",
+      invalid: "Check the highlighted entries before using this estimate.",
+      "below-nisab": "Your net wealth is below the selected nisab. No Zakat is estimated on these entries.",
+      "not-due": "Your hawl is not complete. This is a potential estimate for when the conditions are met, not Zakat confirmed due now.",
+      "hawl-unconfirmed": "Confirm your hawl with a trusted scholar. This amount is conditional and is not a confirmed obligation.",
+      "already-paid": "Your entered payments cover this year's estimated Zakat. No amount remains in this calculation.",
+      due: "Your entries meet the chosen nisab and you confirmed your hawl. This is your estimated amount still to pay.",
+    };
+    const resultBox = document.querySelector(".zakat-results");
+    if (resultBox) resultBox.dataset.state = state;
+    setText("zakatDueResult", hasIssues ? "—" : usd(displayedAmount));
+    setText("zakatResultStatus", messages[state] || messages.missing);
+    setText("totalAssetsResult", usd(result.totalAssets));
+    setText("liabilitiesResult", usd(result.liabilities));
+    setText("netWealthResult", usd(result.netWealth));
+    setText("nisabResult", usd(result.nisab));
+    setText("rateResult", `${result.yearBasis === "solar" ? "2.577" : "2.5"}%`);
+    setText("grossZakatResult", hasIssues ? "—" : usd(result.potentialZakat));
+    setText("paidZakatResult", usd(result.paidZakat));
+    setText("metalValueResult", result.metalResult.valid ? usd(result.metalResult.value) : "Add the missing metal details");
+    const ratio = result.nisab > 0 ? (result.netWealth / result.nisab) * 100 : 0;
+    const meter = byId("zakatThresholdMeter");
+    if (meter) { meter.max = 100; meter.value = Math.max(0, Math.min(100, ratio)); }
+    setText("zakatThresholdText", hasIssues ? "Complete your basis to compare your wealth with nisab."
+      : result.meetsNisab ? `${usd(result.netWealth - result.nisab)} above your selected nisab`
+        : `${usd(result.nisab - result.netWealth)} below your selected nisab`);
+    const canDonate = !hasIssues && result.canDonate && currentStep === 3;
+    const donate = byId("donateCalculatedZakat");
+    if (donate) {
+      donate.setAttribute("aria-disabled", String(!canDonate));
+      donate.classList.toggle("is-disabled", !canDonate);
+      if (canDonate) donate.href = `donate.html?program=zakat&amount=${result.remainingZakat.toFixed(2)}&source=zakat-calculator#donationForm`;
+      else donate.removeAttribute("href");
+    }
+    const minimum = byId("zakatMinimumNote");
+    if (minimum) {
+      minimum.hidden = !(result.eligible && !hasIssues && result.remainingZakat > 0 && result.remainingZakat < 5);
+      minimum.textContent = "Your estimate is below our $5 checkout minimum. The minimum does not change your Zakat calculation.";
+    }
+    if (byId("printZakat")) byId("printZakat").disabled = hasIssues || currentStep !== 3;
+    if (currentStep === 3) renderReview(result);
+    global.clearTimeout(announceTimer);
+    const announcement = `${messages[state]} ${hasIssues ? "" : `${conditional ? "Conditional estimate" : "Remaining estimate"}: ${usd(displayedAmount)}.`}`;
+    announceTimer = global.setTimeout(() => {
+      if (currentStep === 3 && announcement !== lastAnnouncement) {
+        setText("zakatResultAnnouncement", announcement);
+        lastAnnouncement = announcement;
+      }
+    }, 450);
+  }
+
+  function showStep(step, focus = false) {
+    currentStep = Math.max(0, Math.min(3, step));
+    form.dataset.review = String(currentStep === 3);
+    const resultBox = document.querySelector(".zakat-results");
+    if (resultBox) resultBox.hidden = currentStep !== 3;
+    panels.forEach((panel) => {
+      const active = Number(panel.dataset.stepPanel) === currentStep;
+      panel.hidden = !active;
+      panel.classList.toggle("is-active", active);
+    });
+    stepButtons.forEach((button) => {
+      const index = Number(button.dataset.stepTarget);
+      button.disabled = false;
+      button.classList.toggle("is-active", index === currentStep);
+      button.classList.toggle("is-complete", index <= completedStep && index !== currentStep);
+      if (index === currentStep) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
+    if (byId("zakatPrevious")) byId("zakatPrevious").hidden = currentStep === 0;
+    if (byId("zakatNext")) {
+      byId("zakatNext").hidden = currentStep === 3;
+      byId("zakatNext").textContent = ["Continue to assets →", "Continue to deductions →", "See my result →"][currentStep] || "Continue";
+    }
+    setText("zakatStepLabel", `Step ${currentStep + 1} of 4 · ${stepNames[currentStep]}`);
+    if (byId("zakatProgress")) { byId("zakatProgress").max = 4; byId("zakatProgress").value = currentStep + 1; }
+    render();
+    if (focus) {
+      const panel = panels.find((item) => Number(item.dataset.stepPanel) === currentStep);
+      const heading = currentStep === 3 ? byId("zakatResultsTitle") : panel?.querySelector("h2, h3, legend");
+      if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+      const reduced = global.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      form.scrollIntoView({ behavior: reduced ? "instant" : "smooth", block: "start" });
+    }
+  }
+
+  function navigate(target) {
+    if (!Number.isInteger(target) || target < 0 || target > 3) return;
+    if (target <= currentStep) { showStep(target, true); return; }
+    render();
+    const requiredIds = Object.keys(fieldSteps).filter((id) => fieldSteps[id] < target);
+    requiredIds.forEach((id) => touched.add(id));
+    const failed = requiredIds.find((id) => latestIssues[id]);
+    if (failed) {
+      completedStep = Math.min(completedStep, fieldSteps[failed] - 1);
+      showStep(fieldSteps[failed]);
+      const field = byId(failed);
+      for (let ancestor = field?.parentElement; ancestor && ancestor !== form; ancestor = ancestor.parentElement) {
+        if (ancestor.tagName === "DETAILS") ancestor.open = true;
+      }
+      field?.focus();
       return;
     }
-    donateLink.setAttribute("aria-disabled", canContinue ? "false" : "true");
-    donateLink.classList.toggle("is-disabled", !canContinue);
-    donateLink.href = canContinue
-      ? `donate.html?program=zakat&amount=${result.zakatDue.toFixed(2)}&source=zakat-calculator#donationForm`
-      : "donate.html?program=zakat";
-  };
+    completedStep = Math.max(completedStep, target - 1);
+    showStep(target, true);
+  }
 
-  const calculateAndRender = () => {
-    const basis = nisabBasis?.value || "";
-    const amountsAreValid = updateAmountValidity();
-    latestResult = calculate({
-      assets: ASSET_IDS.map((id) => document.getElementById(id)?.value),
-      liabilities: liabilitiesInput?.value,
-      yearBasis: yearBasis?.value,
-      nisabBasis: basis,
-      nisabValue: getNisabValue(),
-    });
-
-    totalAssetsResult.textContent = formatUsd(latestResult.totalAssets);
-    if (liabilitiesResult) {
-      liabilitiesResult.textContent = formatUsd(latestResult.liabilities);
-    }
-    netWealthResult.textContent = formatUsd(latestResult.netWealth);
-    nisabResult.textContent = latestResult.nisab > 0 ? formatUsd(latestResult.nisab) : "—";
-    zakatDueResult.textContent = formatUsd(latestResult.zakatDue);
-
-    let resultState = "waiting";
-    if (!amountsAreValid) {
-      resultStatus.textContent = copy("invalidAmount");
-      resultState = "invalid";
-    } else if (!basis) {
-      resultStatus.textContent = copy("resultNeedsNisab");
-    } else if (latestResult.nisab <= 0) {
-      resultStatus.textContent = copy(basis === "custom" ? "resultEnterCustom" : "resultEnterMetal");
-    } else {
-      resultStatus.textContent = copy(latestResult.eligible ? "resultDue" : "resultBelow");
-      resultState = latestResult.eligible ? "due" : "below";
-    }
-    resultStatus.dataset.state = resultState;
-    if (resultsPanel) {
-      resultsPanel.dataset.state = resultState;
-    }
-    if (resultAnnouncement) {
-      resultAnnouncement.textContent = `${resultStatus.textContent} ${copy("resultsTitle")}: ${formatUsd(latestResult.zakatDue)}`;
-    }
-    setDonationLink(latestResult, amountsAreValid);
-  };
-
-  const storeHandoff = () => {
-    const context = {
-      version: VERSION,
-      language: currentLanguage,
-      year_basis: yearBasis?.value === "solar" ? "solar" : "hijri",
-      nisab_basis: ["gold", "silver", "custom"].includes(nisabBasis?.value) ? nisabBasis.value : "",
-    };
-    try {
-      sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(context));
-    } catch (_error) {
-      // The amount remains in the URL if session storage is unavailable.
-    }
-  };
-
-  const moveToCalculator = () => {
-    const scrollContainer = document.scrollingElement || document.documentElement;
-    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-    const targetTop = Math.max(0, form.getBoundingClientRect().top + scrollContainer.scrollTop - headerHeight - 16);
-    scrollContainer.scrollTop = targetTop;
-  };
-
-  languageSelect?.addEventListener("change", () => applyLanguage(languageSelect.value));
-  startLink?.addEventListener("click", (event) => {
-    event.preventDefault();
-    moveToCalculator();
-    form.focus({ preventScroll: true });
+  form.addEventListener("input", (event) => {
+    if (event.target.id) touched.add(event.target.id);
+    completedStep = Math.min(completedStep, currentStep - 1);
+    render();
   });
-  nisabBasis?.addEventListener("change", () => {
-    updateNisabFields();
-    calculateAndRender();
+  form.addEventListener("change", (event) => {
+    if (event.target.id) touched.add(event.target.id);
+    completedStep = Math.min(completedStep, currentStep - 1);
+    render();
   });
-  form.addEventListener("input", calculateAndRender);
-  form.addEventListener("change", calculateAndRender);
+  form.addEventListener("submit", (event) => { event.preventDefault(); if (currentStep < 3) navigate(currentStep + 1); });
+  byId("zakatNext")?.addEventListener("click", () => navigate(currentStep + 1));
+  byId("zakatPrevious")?.addEventListener("click", () => navigate(currentStep - 1));
+  stepButtons.forEach((button) => button.addEventListener("click", () => navigate(Number(button.dataset.stepTarget))));
   form.addEventListener("reset", () => {
-    try {
-      sessionStorage.removeItem(HANDOFF_KEY);
-    } catch (_error) {
-      // Nothing sensitive is retained if storage is unavailable.
-    }
+    try { global.sessionStorage.removeItem(HANDOFF_KEY); } catch (_error) { /* Storage is optional. */ }
     global.setTimeout(() => {
-      updateNisabFields();
-      calculateAndRender();
-      moveToCalculator();
-      form.focus({ preventScroll: true });
+      form.querySelectorAll("input[type='number']").forEach((field) => { field.value = ""; });
+      const defaults = { zakatYearBasis: "hijri", zakatHawl: "", zakatNisabBasis: "",
+        zakatWeightStandard: "traditional", metalEntryMode: "value", goldPurity: "24", silverPurity: "1", debtTreatment: "dueNow" };
+      Object.entries(defaults).forEach(([id, value]) => { if (byId(id)) byId(id).value = value; });
+      if (byId("zakatDueDate")) byId("zakatDueDate").value = localDate();
+      touched.clear(); completedStep = -1; lastAnnouncement = "";
+      showStep(0, true);
     }, 0);
   });
-  donateLink?.addEventListener("click", (event) => {
-    if (!updateAmountValidity() || !latestResult.eligible || latestResult.zakatDue < 5) {
-      event.preventDefault();
-      return;
-    }
-    storeHandoff();
+  byId("printZakat")?.addEventListener("click", () => {
+    render();
+    if (currentStep === 3 && !Object.keys(latestIssues).length) global.print();
   });
-
-  applyLanguage(getStoredLanguage());
+  global.addEventListener?.("beforeprint", () => {
+    render();
+    renderReview(latestResult);
+  });
+  byId("donateCalculatedZakat")?.addEventListener("click", (event) => {
+    render();
+    if (currentStep !== 3 || Object.keys(latestIssues).length || !latestResult.canDonate) {
+      event.preventDefault(); return;
+    }
+    const context = { version: HANDOFF_VERSION, language: "en", year_basis: latestResult.yearBasis, nisab_basis: latestResult.nisabBasis };
+    try { global.sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(context)); } catch (_error) { /* The chosen amount remains in the donation URL. */ }
+  });
+  showStep(0);
 })(typeof window !== "undefined" ? window : globalThis);

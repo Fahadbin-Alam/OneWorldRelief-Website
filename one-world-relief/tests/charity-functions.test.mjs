@@ -621,7 +621,7 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
     "purpose should be chosen before amount",
   );
 
-  assert.match(donateHtml, /<script src="donation-programs\.js"><\/script>[\s\S]*?<script src="donation-checkout-v3\.js"><\/script>/);
+  assert.match(donateHtml, /<script src="donation-programs-giving-v1\.js"><\/script>[\s\S]*?<script src="donation-checkout-v3\.js"><\/script>/);
   assert.doesNotMatch(donateHtml, /<script src="donation-checkout\.js"><\/script>/);
   assert.match(redirectsSource, /^\/donation-checkout-v3\.js \/donation-checkout\.js 200$/m);
   assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
@@ -848,240 +848,221 @@ test("donation options stay accessible in a compact, responsive disclosure", asy
   assert.match(reducedMotionCatalog, /transform: none !important;[^}]*transition: none !important/);
 });
 
-test("Zakat page explains eligibility with sources and offers four-language RTL access", async () => {
-  const [zakatHtml, zakatJs, programSource, donateHtml, homeHtml, siteCss] = await Promise.all([
+test("Zakat page offers an English wizard with evidence, accessible controls and a private printable review", async () => {
+  const [zakatHtml, zakatJs, studioCss, programSource, donateHtml, homeHtml] = await Promise.all([
     readFile("zakat.html", "utf8"),
     readFile("zakat-calculator.js", "utf8"),
+    readFile("zakat-studio.css", "utf8"),
     readFile("donation-programs.js", "utf8"),
     readFile("donate.html", "utf8"),
     readFile("index.html", "utf8"),
-    readFile("one-world-relief.css", "utf8"),
   ]);
   const publicZakatSource = `${zakatHtml}\n${zakatJs}`;
-
   assert.match(`${programSource}\n${donateHtml}\n${homeHtml}`, /zakat\.html/i, "a visible donation surface should link to the Zakat guide");
-  assert.match(zakatHtml, /<form id="zakatCalculator"/);
+  assert.match(zakatHtml, /<html lang="en" dir="ltr">/);
+  assert.match(zakatJs, /document\.documentElement\.lang = "en"/);
+  assert.match(zakatJs, /document\.documentElement\.dir = "ltr"/);
+  assert.doesNotMatch(zakatHtml, /id="zakatLanguage"|data-zakat-i18n/);
+  assert.doesNotMatch(zakatJs, /localStorage|currentLanguage|rtlLanguages/);
+  for (const asset of ["zakat-studio-clean-v2.css", "zakat-calculator-clean-v3.js", "one-world-relief-giving-v1.js"]) {
+    assert.ok(zakatHtml.includes(`="${asset}"`), `${asset} should use the new public cache alias`);
+  }
+
+  assert.match(zakatHtml, /<form id="zakatCalculator"[^>]*tabindex="-1"[^>]*novalidate[^>]*autocomplete="off"/);
+  assert.deepEqual([...zakatHtml.matchAll(/data-step-target="(\d)"/g)].map((match) => match[1]), ["0", "1", "2", "3"]);
+  assert.deepEqual([...zakatHtml.matchAll(/data-step-panel="(\d)"/g)].map((match) => match[1]), ["0", "1", "2", "3"]);
+  for (let step = 0; step < 4; step += 1) {
+    assert.match(zakatHtml, new RegExp(`data-step-target="${step}"[^>]*aria-controls="zkStep${step}"`));
+    const panel = zakatHtml.match(new RegExp(`<section id="zkStep${step}"[^>]*>`))?.[0];
+    assert.ok(panel?.includes("aria-labelledby="), `step ${step + 1} needs an accessible heading`);
+    assert.equal(/\bhidden\b/.test(panel), step !== 0, "only the first step should be visible initially");
+  }
+  assert.match(zakatHtml, /id="zakatProgress"[^>]*max="4"[^>]*aria-label=/);
   for (const id of [
-    "zakatYearBasis",
-    "zakatNisabBasis",
-    "zakatMetalPrice",
-    "zakatCustomNisab",
-    "cashSavings",
-    "goldSilver",
-    "investments",
-    "moneyOwed",
-    "businessAssets",
-    "otherAssets",
-    "shortTermLiabilities",
-    "totalAssetsResult",
-    "liabilitiesResult",
-    "netWealthResult",
-    "nisabResult",
-    "zakatDueResult",
-    "zakatResultStatus",
-    "zakatResultAnnouncement",
-    "donateCalculatedZakat",
-    "resetZakat",
+    "zakatDueDate", "zakatYearBasis", "zakatHawl", "zakatNisabBasis", "zakatWeightStandard",
+    "zakatMetalPrice", "zakatCustomNisab", "cashSavings", "goldSilver", "metalEntryMode",
+    "goldWeight", "goldPurity", "goldPricePerGram", "silverWeight", "silverPurity", "silverPricePerGram",
+    "investments", "cryptoAssets", "retirementAssets", "moneyOwed", "businessAssets", "otherAssets",
+    "debtTreatment", "shortTermLiabilities", "zakatPaid",
+  ]) {
+    assert.match(zakatHtml, new RegExp(`id="${id}"`), `${id} should be present`);
+    assert.match(zakatHtml, new RegExp(`<label[^>]*for="${id}"`), `${id} should have an explicit label`);
+  }
+  for (const id of [
+    "totalAssetsResult", "liabilitiesResult", "netWealthResult", "nisabResult", "rateResult",
+    "grossZakatResult", "paidZakatResult", "zakatDueResult", "zakatResultStatus", "zakatResultAnnouncement",
+    "zakatThresholdMeter", "zakatReviewDate", "zakatReviewBasis", "zakatReviewRows",
+    "donateCalculatedZakat", "resetZakat", "printZakat", "zakatPrevious", "zakatNext",
   ]) {
     assert.match(zakatHtml, new RegExp(`id="${id}"`), `${id} should be present`);
   }
-
-  const languageSelect = zakatHtml.match(/<select id="zakatLanguage"[\s\S]*?<\/select>/)?.[0];
-  assert.ok(languageSelect, "Zakat page should include a language selector");
-  assert.deepEqual(
-    [...languageSelect.matchAll(/<option value="([^"]+)"/g)].map((match) => match[1]),
-    ["en", "bn", "ur", "ar"],
-  );
-  assert.match(zakatJs, /bn:\s*\{/);
-  assert.match(zakatJs, /ur:\s*\{/);
-  assert.match(zakatJs, /ar:\s*\{/);
-  assert.match(zakatJs, /বাংলা/);
-  assert.match(zakatJs, /اردو/);
-  assert.match(zakatJs, /العربية/);
-  assert.match(zakatJs, /document\.documentElement\.lang/);
-  assert.match(zakatJs, /document\.documentElement\.dir/);
-  assert.match(zakatJs, /const rtlLanguages = new Set\(\["ur", "ar"\]\)/);
-  assert.match(zakatJs, /(?:ur|ar)[\s\S]{0,160}(?:rtl|right-to-left)/i);
-
-  assert.match(zakatHtml, /class="zakat-calculator-layout"/);
-  assert.equal([...zakatHtml.matchAll(/class="zakat-step-number"/g)].length, 3);
-  assert.match(zakatHtml, /<details class="zakat-more-assets">[\s\S]*?id="moneyOwed"[\s\S]*?id="businessAssets"[\s\S]*?id="otherAssets"[\s\S]*?<\/details>/);
-  assert.doesNotMatch(zakatHtml.match(/<details class="zakat-more-assets"[^>]*>/)?.[0] || "", /\bopen\b/);
-  assert.match(zakatHtml, /class="zakat-results" data-state="waiting"/);
-  assert.doesNotMatch(zakatHtml.match(/id="zakatResultStatus"[^>]*>/)?.[0] || "", /aria-live/);
+  const hawlSelect = zakatHtml.match(/<select id="zakatHawl"[\s\S]*?<\/select>/)?.[0] || "";
+  assert.deepEqual([...hawlSelect.matchAll(/<option value="([^"]*)"/g)].map((match) => match[1]), ["", "yes", "no", "unsure"]);
+  const standardSelect = zakatHtml.match(/<select id="zakatWeightStandard"[\s\S]*?<\/select>/)?.[0] || "";
+  assert.deepEqual([...standardSelect.matchAll(/<option value="([^"]*)"/g)].map((match) => match[1]), ["traditional", "metric"]);
+  assert.match(zakatHtml, /id="donateCalculatedZakat"[^>]*aria-disabled="true"[^>]*aria-describedby="zakatResultStatus"/);
   assert.match(zakatHtml, /id="zakatResultAnnouncement"[^>]*role="status"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
-  assert.doesNotMatch(zakatHtml.match(/id="zakatDueResult"[^>]*>/)?.[0] || "", /aria-live/);
-  assert.match(zakatHtml, /id="donateCalculatedZakat"[^>]*aria-disabled="true"/);
-  for (const key of ["startCalculator", "calculatorIntro", "optionalAssetsTitle", "optionalLabel", "liabilitiesResultLabel", "invalidAmount"]) {
-    assert.equal([...zakatJs.matchAll(new RegExp(`\\b${key}:`, "g"))].length, 4, `${key} should be translated in all four languages`);
+  for (const id of ["zakatResultStatus", "zakatDueResult"]) {
+    assert.doesNotMatch(zakatHtml.match(new RegExp(`id="${id}"[^>]*>`))?.[0] || "", /aria-live/);
   }
-  assert.match(zakatHtml, /<form id="zakatCalculator"[^>]*tabindex="-1"/);
-  assert.match(zakatJs, /startLink\?\.addEventListener\("click"[\s\S]*?form\.focus\(\{ preventScroll: true \}\)/);
-  assert.match(zakatJs, /input\.setAttribute\("aria-invalid", "true"\)/);
-  assert.match(zakatJs, /input\.removeAttribute\("aria-invalid"\)/);
-  assert.match(zakatJs, /resultState = "invalid"/);
-
-  assert.match(zakatHtml, /Eight recipient categories/);
-  assert.match(zakatHtml, /Zakat is an obligatory act of worship for Muslims who meet its conditions/);
-  for (const recipient of [
-    /The poor/,
-    /The needy/,
-    /Zakat administrators/,
-    /hearts are to be reconciled/,
-    /Those in bondage/,
-    /qualifying debt/,
-    /cause of Allah/,
-    /stranded traveller/,
-  ]) {
-    assert.match(zakatHtml, recipient);
-  }
-  assert.match(zakatHtml, /Zakat al-Fitr is different/);
-  assert.match(zakatHtml, /calculator covers Zakat al-mal only\. It does not calculate Zakat al-Fitr/);
-  assert.match(zakatHtml, /educational estimate/);
-  assert.match(zakatHtml, /qualified scholar or trusted Zakat specialist/);
-  assert.match(zakatHtml, /One World Relief does not save or send your asset and debt entries/);
-  assert.doesNotMatch(publicZakatSource, /Shariah[- ]compliant/i);
-  assert.doesNotMatch(zakatJs, /scrollIntoView\(\{ behavior: "smooth"/);
+  assert.match(zakatJs, /setAttribute\("aria-invalid", "true"\)/);
+  assert.match(zakatJs, /removeAttribute\("aria-invalid"\)/);
+  assert.match(zakatJs, /getAttribute\("aria-describedby"\)/, "validation should preserve the existing field help association");
+  assert.match(zakatJs, /setAttribute\("aria-current", "step"\)/);
+  assert.match(zakatJs, /heading\.tabIndex = -1; heading\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(zakatJs, /scrollIntoView\(\{ behavior: reduced \? "instant" : "smooth"/);
+  assert.match(zakatHtml, /id="printZakat"[^>]*type="button"/);
+  assert.match(zakatJs, /currentStep === 3 && !Object\.keys\(latestIssues\)\.length\) global\.print\(\)/);
+  assert.match(zakatHtml, /id="resetZakat"[^>]*type="reset"/);
 
   for (const sourceUrl of [
     "https://quran.com/9/60",
-    "https://www.islamic-relief.org.uk/giving/islamic-giving/zakat/",
-    "https://muslimhands.org.uk/islamic-resources/the-rules-for-calculating-and-paying-your-zakat",
+    "https://sunnah.com/bukhari:1454",
+    "https://sunnah.com/abudawud:1573",
+    "https://nzf.org.uk/nisab/",
+    "https://islamic-relief.org/zakat-faq/",
     "https://nzf.org.uk/knowledge/can-a-solar-year-be-used-for-zakat-calculation/",
-    "https://nzf.org.uk/knowledge/what-is-nisab/",
   ]) {
-    assert.match(zakatHtml, new RegExp(sourceUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok(zakatHtml.includes(`href="${sourceUrl}"`), `${sourceUrl} should be linked as evidence`);
   }
+  for (const recipient of ["The poor", "The needy", "Zakat administrators", "hearts are to be reconciled", "Those in bondage", "qualifying debt", "cause of Allah", "stranded traveller"]) {
+    assert.ok(zakatHtml.includes(recipient), `recipient guidance should include ${recipient}`);
+  }
+  assert.match(zakatHtml, /Sahih \(Al-Albani\)/);
+  assert.match(zakatHtml, /Scholars differ about personal-use gold and silver jewellery/);
+  assert.match(zakatHtml, /Debt deductions vary by scholarly approach/);
+  assert.match(zakatHtml, /Zakat al-Fitr is different/);
+  assert.match(zakatHtml, /does not calculate Zakat al-Fitr, agricultural produce, livestock/);
+  assert.match(zakatHtml, /educational estimate, not a fatwa/);
+  assert.match(zakatHtml, /qualified scholar or trusted Zakat specialist/);
+  assert.match(zakatHtml, /One World Relief does not save or send your asset and debt entries/);
+  assert.match(zakatHtml, /Only the donation amount and basic calculation choices continue to checkout/);
+  assert.doesNotMatch(publicZakatSource, /Shariah[- ]compliant/i);
   assert.match(zakatHtml, /no live market price is built in/i);
   assert.doesNotMatch(zakatJs, /metals?-api|goldapi|metalpriceapi|api[_-]?key|fetch\s*\(/i);
-  assert.doesNotMatch(zakatJs, /\b(?:gold|silver)(?:Price|_PRICE)\s*[:=]\s*\d/i);
-  assert.doesNotMatch(zakatJs, /metalPrice\.value\s*=\s*["']?\d/i);
-  assert.doesNotMatch(zakatHtml.match(/<input id="zakatMetalPrice"[^>]*>/)?.[0] || "", /\bvalue=/);
-  assert.match(siteCss, /\.zakat-hero-grid\s*\{[\s\S]*?grid-template-columns:/);
-  assert.match(siteCss, /\.zakat-calculator-layout\s*\{[^}]*grid-template-columns:/);
-  assert.match(siteCss, /\.zakat-results\s*\{[^}]*position: sticky;/);
-  assert.match(siteCss, /\.zakat-money-input\s*\{[^}]*direction: ltr;/);
-  assert.match(siteCss, /\.zakat-more-assets summary,[\s\S]*?min-height: 46px;/);
-  assert.match(siteCss, /\.zakat-money-input\.has-error\s*\{[^}]*border-color: #b42318;/);
-  assert.match(siteCss, /\.zakat-result-status\[data-state="invalid"\]/);
-  assert.match(siteCss, /\[dir="rtl"\] \.zakat-page/);
-  assert.match(siteCss, /\.zakat-calculator-card :is\(input, select, summary, button, a\):focus-visible[\s\S]*?outline: 3px solid var\(--blue-700\)/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.zakat-field-grid-two,[\s\S]*?grid-template-columns: 1fr/);
-  assert.match(siteCss, /@media \(max-width: 420px\)[\s\S]*?\.zakat-header-wrap \.brand-text\s*\{[\s\S]*?display: none/);
+  for (const id of ["zakatMetalPrice", "goldPricePerGram", "silverPricePerGram"]) {
+    assert.doesNotMatch(zakatHtml.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0] || "", /\bvalue=/, "market prices must not be invented or prefilled");
+  }
+  assert.match(studioCss, /\.zk-calculator\s*\{[^}]*grid-template-columns:/);
+  assert.match(studioCss, /\.zk-result\.zakat-results\s*\{[^}]*position:\s*sticky/);
+  assert.match(studioCss, /\.zakat-studio \.zk-input\s*\{[^}]*direction:\s*ltr/);
+  assert.match(studioCss, /\.zk-field select,\.zk-field>input\s*\{[^}]*min-height:\s*48px/);
+  assert.match(studioCss, /\[aria-invalid='true'\][^}]*border-color:/);
+  assert.match(studioCss, /:focus-visible\s*\{[^}]*outline:\s*3px solid/);
+  assert.match(studioCss, /@media \(max-width:\s*760px\)[\s\S]*?\.zk-calculator\s*\{[^}]*grid-template-columns:\s*1fr/);
+  assert.match(studioCss, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?animation:\s*none !important;[^}]*transition:\s*none !important/);
+  assert.match(studioCss, /@media print\s*\{[\s\S]*?\[data-step-panel='3'\]\[hidden\][^}]*display:\s*block !important/);
+  assert.match(studioCss, /\.zk-evidence-card a::after\s*\{[^}]*attr\(href\)/, "printed evidence should include usable source URLs");
 });
 
-test("Zakat calculator applies nisab thresholds and lunar or solar rates without deducting nisab", async () => {
+test("Zakat calculator applies confirmed hawl, nisab thresholds and lunar or solar rates without deducting nisab", async () => {
   const zakatJs = await readFile("zakat-calculator.js", "utf8");
   const context = { window: {} };
   runInNewContext(zakatJs, context);
   const calculator = context.window.ONE_WORLD_RELIEF_ZAKAT_CALCULATOR;
   assert.ok(calculator, "calculator should expose a pure browser API for verification");
-  assert.equal(calculator.VERSION, "owr-zakat-v1");
+  assert.equal(calculator.VERSION, "owr-zakat-engine-v2");
+  assert.equal(calculator.HANDOFF_VERSION, "owr-zakat-v1", "the calculation engine version must not change the secure checkout contract");
   assert.deepEqual(JSON.parse(JSON.stringify(calculator.RATES)), { hijri: 0.025, solar: 0.02577 });
+  assert.deepEqual(JSON.parse(JSON.stringify(calculator.NISAB_STANDARDS)), {
+    traditional: { gold: 87.48, silver: 612.36 }, metric: { gold: 85, silver: 595 },
+  });
   assert.deepEqual(JSON.parse(JSON.stringify(calculator.NISAB_GRAMS)), { gold: 87.48, silver: 612.36 });
-
+  assert.equal(calculator.calculateEstimate, calculator.calculate);
+  assert.equal(calculator.getNisab, calculator.calculateNisab);
   assert.equal(calculator.calculateNisab("gold", 100), 8748);
   assert.equal(calculator.calculateNisab("silver", 1), 612.36);
+  assert.equal(calculator.calculateNisab("gold", 100, "metric"), 8500);
+  assert.equal(calculator.calculateNisab("silver", 1, "metric"), 595);
   assert.equal(calculator.calculateNisab("custom", 5000), 5000);
-  assert.equal(calculator.calculateNisab("unknown", 100), 0);
+  for (const [basis, price] of [["unknown", 100], ["gold", ""], ["silver", 0], ["custom", -1]]) {
+    assert.equal(calculator.calculateNisab(basis, price), null, "an invalid threshold must not become a zero-dollar nisab");
+  }
 
-  const hijri = calculator.calculate({
-    assets: [7000, 2000, 1000],
-    liabilities: 2000,
-    yearBasis: "hijri",
-    nisabBasis: "custom",
-    nisabValue: 5000,
-  });
-  assert.deepEqual(JSON.parse(JSON.stringify(hijri)), {
-    totalAssets: 10000,
-    liabilities: 2000,
-    netWealth: 8000,
-    nisab: 5000,
-    yearBasis: "hijri",
-    rate: 0.025,
-    eligible: true,
-    zakatDue: 200,
-  });
+  const basis = { hawl: "yes", yearBasis: "hijri", nisabBasis: "custom", nisabValue: 5000 };
+  const hijri = calculator.calculate({ ...basis, assets: [7000, 2000, 1000], liabilities: 2000 });
+  assert.equal(hijri.state, "due");
+  assert.equal(hijri.valid, true);
+  assert.equal(hijri.totalAssets, 10000);
+  assert.equal(hijri.liabilities, 2000);
+  assert.equal(hijri.netWealth, 8000);
+  assert.equal(hijri.nisab, 5000);
+  assert.equal(hijri.rate, 0.025);
+  assert.equal(hijri.eligible, true);
+  assert.equal(hijri.grossZakat, 200);
+  assert.equal(hijri.remainingZakat, 200);
+  assert.equal(hijri.zakatDue, 200);
+  assert.equal(hijri.canDonate, true);
   assert.notEqual(hijri.zakatDue, (hijri.netWealth - hijri.nisab) * hijri.rate, "nisab is a threshold, not a deduction");
-
-  const solar = calculator.calculate({
-    assets: { cash: 7000, investments: 2000, business: 1000 },
-    liabilities: 2000,
-    yearBasis: "solar",
-    nisabBasis: "custom",
-    nisabValue: 5000,
-  });
+  const solar = calculator.calculate({ ...basis, yearBasis: "solar", assets: { cashSavings: 7000, investments: 2000, businessAssets: 1000 }, liabilities: 2000 });
   assert.equal(solar.rate, 0.02577);
   assert.equal(solar.netWealth, 8000);
   assert.equal(solar.zakatDue, 206.16);
 
-  const belowNisab = calculator.calculate({
-    assets: [4999],
-    liabilities: 0,
-    yearBasis: "hijri",
-    nisabBasis: "custom",
-    nisabValue: 5000,
-  });
+  const belowNisab = calculator.calculate({ ...basis, assets: [4999] });
+  assert.equal(belowNisab.state, "below-nisab");
   assert.equal(belowNisab.eligible, false);
   assert.equal(belowNisab.zakatDue, 0);
-
-  const atGoldNisab = calculator.calculate({
-    assets: [8748],
-    liabilities: 0,
-    yearBasis: "hijri",
-    nisabBasis: "gold",
-    nisabValue: 100,
-  });
-  assert.equal(atGoldNisab.nisab, 8748);
-  assert.equal(atGoldNisab.eligible, true);
-  assert.equal(atGoldNisab.zakatDue, 218.7);
-
-  const atSilverNisab = calculator.calculate({
-    assets: [612.36],
-    liabilities: 0,
-    yearBasis: "hijri",
-    nisabBasis: "silver",
-    nisabValue: 1,
-  });
-  assert.equal(atSilverNisab.nisab, 612.36);
-  assert.equal(atSilverNisab.eligible, true);
-  assert.equal(atSilverNisab.zakatDue, 15.31);
-
-  const insolvent = calculator.calculate({
-    assets: [1000],
-    liabilities: 5000,
-    yearBasis: "hijri",
-    nisabBasis: "custom",
-    nisabValue: 5,
-  });
+  for (const [nisabBasis, nisabValue, wealth, expectedDue] of [["gold", 100, 8748, 218.7], ["silver", 1, 612.36, 15.31]]) {
+    const exact = calculator.calculate({ ...basis, nisabBasis, nisabValue, assets: [wealth] });
+    assert.equal(exact.nisab, wealth);
+    assert.equal(exact.eligible, true, "wealth exactly at nisab qualifies when hawl is confirmed");
+    assert.equal(exact.zakatDue, expectedDue);
+  }
+  const insolvent = calculator.calculate({ ...basis, nisabValue: 5, assets: [1000], liabilities: 5000 });
   assert.equal(insolvent.netWealth, 0);
   assert.equal(insolvent.zakatDue, 0);
+  for (const [hawl, state] of [["", "missing"], ["no", "not-due"], ["unsure", "hawl-unconfirmed"]]) {
+    const planning = calculator.calculate({ ...basis, assets: [10000], hawl });
+    assert.equal(planning.state, state);
+    assert.equal(planning.eligible, false);
+    assert.equal(planning.zakatDue, 0);
+    assert.equal(planning.canDonate, false, "a planning estimate must not become a payment instruction");
+    assert.equal(planning.potentialZakat, 250);
+  }
+  const paid = calculator.calculate({ ...basis, assets: { cashSavings: 10000 }, liabilities: 2000, zakatPaid: 50 });
+  assert.equal(paid.netWealth, 8000, "previous Zakat payments must not be deducted from the asset base");
+  assert.equal(paid.grossZakat, 200);
+  assert.equal(paid.remainingZakat, 150);
+  const fullyPaid = calculator.calculate({ ...basis, assets: [10000], zakatPaid: 300 });
+  assert.equal(fullyPaid.state, "already-paid");
+  assert.equal(fullyPaid.remainingZakat, 0);
+  assert.equal(fullyPaid.canDonate, false);
+  const invalid = calculator.calculate({ ...basis, assets: { cashSavings: -1 } });
+  assert.equal(invalid.state, "invalid");
+  assert.equal(invalid.canDonate, false);
+  assert.equal(invalid.zakatDue, 0);
 });
 
-test("Zakat calculator hands off only amount and non-sensitive context through URL and session storage", async () => {
+test("Zakat calculator hands off only amount and non-sensitive English context through URL and session storage", async () => {
   const [zakatJs, checkoutJs, donateHtml] = await Promise.all([
     readFile("zakat-calculator.js", "utf8"),
     readFile("donation-checkout.js", "utf8"),
     readFile("donate.html", "utf8"),
   ]);
-
+  assert.match(zakatJs, /const HANDOFF_VERSION = "owr-zakat-v1"/);
   assert.match(zakatJs, /const HANDOFF_KEY = "owrZakatHandoff"/);
   assert.match(zakatJs, /sessionStorage\.setItem\(HANDOFF_KEY, JSON\.stringify\(context\)\)/);
-  assert.match(zakatJs, /version: VERSION/);
-  assert.match(zakatJs, /language: currentLanguage/);
-  assert.match(zakatJs, /year_basis: yearBasis\?\.value === "solar" \? "solar" : "hijri"/);
-  assert.match(zakatJs, /nisab_basis: \["gold", "silver", "custom"\]\.includes/);
-  assert.match(zakatJs, /donate\.html\?program=zakat&amount=\$\{result\.zakatDue\.toFixed\(2\)\}&source=zakat-calculator#donationForm/);
-  assert.doesNotMatch(
-    zakatJs.match(/const storeHandoff = \(\) => \{[\s\S]*?\n  \};/)?.[0] || "",
-    /cashSavings|goldSilver|investments|moneyOwed|businessAssets|otherAssets|shortTermLiabilities|totalAssets|netWealth|nisabValue|zakatDue/,
-  );
+  assert.equal([...zakatJs.matchAll(/sessionStorage\.setItem\(/g)].length, 1, "only the minimal donation context may be stored");
+  assert.doesNotMatch(zakatJs, /localStorage/);
+  const handoffLiteral = zakatJs.match(/const context = (\{[^;]+\});/)?.[1];
+  assert.ok(handoffLiteral, "the donation click handler should construct a reviewable, minimal context");
+  const payload = runInNewContext(`(${handoffLiteral})`, {
+    HANDOFF_VERSION: "owr-zakat-v1",
+    latestResult: { yearBasis: "solar", nisabBasis: "gold", assets: { cashSavings: 12345 }, netWealth: 12345, remainingZakat: 318.13 },
+  });
+  assert.deepEqual(JSON.parse(JSON.stringify(payload)), {
+    version: "owr-zakat-v1", language: "en", year_basis: "solar", nisab_basis: "gold",
+  });
+  assert.match(zakatJs, /donate\.html\?program=zakat&amount=\$\{result\.remainingZakat\.toFixed\(2\)\}&source=zakat-calculator#donationForm/);
+  assert.match(zakatJs, /currentStep !== 3 \|\| Object\.keys\(latestIssues\)\.length \|\| !latestResult\.canDonate/);
+  assert.match(zakatJs, /sessionStorage\.removeItem\(HANDOFF_KEY\)/);
 
   assert.match(checkoutJs, /owrZakatHandoff/);
   assert.match(checkoutJs, /params\.get\("source"\) !== "zakat-calculator" \|\| params\.get\("program"\) !== "zakat"/);
   assert.match(checkoutJs, /Object\.keys\(parsed\)\.length === 4/);
   assert.match(checkoutJs, /parsed\.version === "owr-zakat-v1"/);
-  assert.match(checkoutJs, /\["en", "bn", "ur", "ar"\]\.includes\(parsed\.language\)/);
+  assert.match(checkoutJs, /\["en", "bn", "ur", "ar"\]\.includes\(parsed\.language\)/, "checkout must continue validating older handoff contexts");
   assert.match(checkoutJs, /\["hijri", "solar"\]\.includes\(parsed\.year_basis\)/);
   assert.match(checkoutJs, /\["gold", "silver", "custom"\]\.includes\(parsed\.nisab_basis\)/);
   assert.match(checkoutJs, /zakat_context:|zakat_context\s*=/);
@@ -1089,21 +1070,12 @@ test("Zakat calculator hands off only amount and non-sensitive context through U
   assert.match(checkoutJs, /nisab_basis/);
   assert.match(checkoutJs, /program\.id === "zakat" && activeZakatContext && donationSourceInput\?\.value === "zakat-calculator"/);
   assert.match(checkoutJs, /sessionStorage\.removeItem\(ZAKAT_HANDOFF_KEY\)/);
-  for (const id of [
-    "donationSource",
-    "zakatContextVersion",
-    "zakatContextLanguage",
-    "zakatContextYearBasis",
-    "zakatContextNisabBasis",
-  ]) {
+  for (const id of ["donationSource", "zakatContextVersion", "zakatContextLanguage", "zakatContextYearBasis", "zakatContextNisabBasis"]) {
     assert.match(donateHtml, new RegExp(`id="${id}" type="hidden"`));
   }
-  const combinedHandoffSource = `${zakatJs}\n${checkoutJs}`;
-  assert.doesNotMatch(
-    combinedHandoffSource,
-    /(?:searchParams|params)\.(?:set|append)\([^\n]*(?:cashSavings|goldSilver|investments|moneyOwed|businessAssets|otherAssets|shortTermLiabilities|totalAssets|netWealth|nisabValue)/,
-  );
+  assert.doesNotMatch(`${zakatJs}\n${checkoutJs}`, /(?:searchParams|params)\.(?:set|append)\([^\n]*(?:cashSavings|goldSilver|investments|cryptoAssets|retirementAssets|moneyOwed|businessAssets|otherAssets|shortTermLiabilities|totalAssets|netWealth|nisabValue|zakatPaid)/);
 });
+
 
 test("donation page keeps one documented Case 004 proof photo beside checkout", async () => {
   const [donateHtml, siteJs, siteCss] = await Promise.all([
@@ -1192,12 +1164,13 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v38/);
+  assert.match(serviceWorker, /owr-offline-v55/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v3\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v4\.css/);
+  assert.match(serviceWorker, /\/one-world-relief-fit-v1\.css/);
   assert.match(serviceWorker, /\/supporter-board-v1\.js/);
   assert.match(serviceWorker, /\/donation-checkout-v3\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
@@ -1502,7 +1475,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v38/);
+  assert.match(serviceWorker, /owr-offline-v55/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1520,44 +1493,14 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
     readFile("one-world-relief.css", "utf8"),
   ]);
 
-  const heroStart = homeHtml.indexOf('<section class="hero-shell hero-shell-home home-current-scene reveal">');
-  const impactStart = homeHtml.indexOf('<div class="hero-copy home-impact-copy"');
-  const donationStart = homeHtml.indexOf('<div class="home-action-panel">');
-  const evidenceStart = homeHtml.indexOf('<a class="home-evidence-project"');
-  const detailsStart = homeHtml.indexOf('<div class="home-evidence-details">');
-  const flowStart = homeHtml.indexOf('<section class="home-case-flow reveal"');
-  assert.ok(heroStart >= 0, "homepage should include its credibility-first hero");
-  assert.ok(impactStart >= 0, "homepage should include its giving message");
-  assert.ok(donationStart > impactStart, "the giving message should lead the hero before checkout");
-  assert.ok(evidenceStart > donationStart, "the primary action should precede the documentary project in the DOM");
-  assert.ok(detailsStart > evidenceStart, "project details should follow the documentary project");
-  assert.ok(flowStart > detailsStart, "documentary evidence should remain inside the hero before the case flow");
-
-  const impactHtml = homeHtml.slice(impactStart, donationStart);
-  const heroHtml = homeHtml.slice(heroStart, flowStart);
-  assert.match(impactHtml, /A reminder from the Qur&rsquo;an/);
-  assert.match(impactHtml, /id="homeImpactTitle">&ldquo;And whatever you spend in charity, He will compensate you for it\.&rdquo;<\/h1>/);
-  assert.match(impactHtml, /<cite class="home-verse-citation">[\s\S]*?class="home-verse-source"[\s\S]*?href="https:\/\/quran\.com\/34\/39"[\s\S]*?target="_blank"[\s\S]*?rel="noopener noreferrer"[\s\S]*?aria-label="Read Qur'an 34:39 on Quran\.com"[\s\S]*?Qur&rsquo;an 34:39 &middot; The Clear Quran/);
-  assert.match(impactHtml, /Donate securely through Stripe\. We publish photos, videos, dates, and completed costs from projects in Bangladesh\./);
-  assert.match(impactHtml, /class="home-proof-line"/);
-  assert.match(impactHtml, /id="homeCompletedCaseCount">7<\/strong> completed cases/);
-  assert.match(impactHtml, /id="homeOrphanImpactCount">2<\/strong> orphan students supported/);
-  assert.doesNotMatch(impactHtml, /home-proof-strip|home-proof-stat|homeOrphanImpactAccessible/);
-  assert.match(heroHtml, /class="home-evidence-project" href="projects\/case-004\.html"/);
-  assert.match(heroHtml, /src="assets\/projects\/case-004\/korbani-meals-004-thumbnail\.jpg"/);
-  assert.match(heroHtml, /alt="Meal service documented for orphan children at a madrasa in Bangladesh"/);
-  assert.match(heroHtml, /Completed &middot; Case 004/);
-  assert.match(heroHtml, /Feeding Madrasa for Orphan Kids/);
-  assert.match(heroHtml, /\$400 delivered &middot; View photos and video/);
-  assert.match(heroHtml, /<details class="home-count-method">/);
-  assert.match(heroHtml, /<summary>How we verify the student count<\/summary>/);
-  assert.match(heroHtml, /Case 004 documents a group meal, but its exact headcount was not recorded, so it is not included in the individual count\./);
-  assert.match(heroHtml, /aria-label="Cases included in the individual orphan count"/);
-  assert.match(heroHtml, /href="projects\/case-001\.html">Case 001 &middot; \$600 delivered<\/a>/);
-  assert.match(heroHtml, /href="projects\/case-003\.html">Case 003 &middot; \$400 delivered<\/a>/);
-  assert.match(heroHtml, /href="projects\.html#projectBoard">View all documented projects/);
-  assert.doesNotMatch(heroHtml, /home-impact-hadith|Charity does not decrease wealth|O son of Adam! Spend/);
-  assert.doesNotMatch(heroHtml, /2 orphans helped|total orphans helped/i);
+  assert.match(homeHtml, /id="homeImpactTitle"/);
+  assert.doesNotMatch(homeHtml, /home-evidence-project|home-verse-citation|faith-quote/);
+  assert.match(homeHtml, /id="homeCompletedCaseCount">7</);
+  assert.match(homeHtml, /id="homeOrphanImpactCount">2</);
+  assert.match(homeHtml, /students supported/);
+  assert.match(homeHtml, /without a verified headcount/);
+  assert.match(homeHtml, /href="projects\/case-001\.html"/);
+  assert.match(homeHtml, /href="projects\/case-003\.html"/);
 
   const projectContext = { window: {} };
   runInNewContext(projectData, projectContext);
@@ -1587,24 +1530,10 @@ test("homepage leads with a simple, source-backed project and orphan impact summ
   assert.match(siteJs, /Number\.isSafeInteger\(beneficiaryCount\)/);
   assert.match(siteJs, /renderHomeOrphanImpact\(\);\s*renderHomeCaseFlow\(\);/);
   assert.match(siteJs, /\[data-impact-count\], \.flow-impact-stats strong/);
-  assert.match(siteCss, /\.home-page \.home-proof-line\s*\{[^}]*display: flex;[^}]*border-top: 1px solid #cad9e1/);
-  assert.match(siteCss, /\.home-page \.home-impact-copy h1\s*\{[^}]*max-width: 18ch;[^}]*font-size: clamp\(2\.3rem, 3\.6vw, 3\.1rem\);[^}]*line-height: 1\.08/);
-  assert.match(siteCss, /\.home-page \.home-verse-source\s*\{[^}]*min-height: 44px/);
-  assert.match(siteCss, /\.home-page \.hero-shell-home\s*\{[^}]*linear-gradient\(135deg, #e9f9fe/);
-  assert.match(siteCss, /\.home-page \.quick-donation\s*\{[^}]*border: 1px solid #92cee0;[^}]*border-top: 5px solid #228db8;[^}]*background: linear-gradient\(150deg, #f8fdff 0%, #e6f7fc 100%\)/);
-  assert.match(siteCss, /\.home-page \.quick-donation-button\s*\{[^}]*background: #155b7f/);
-  assert.match(siteCss, /\.home-page \.home-evidence-project img\s*\{[^}]*height: auto;[^}]*aspect-ratio: 16 \/ 9;[^}]*object-fit: cover/);
-  assert.match(siteCss, /\.home-page \.home-evidence-project:focus-visible,[\s\S]*?\.home-page \.home-impact-link:focus-visible\s*\{[^}]*outline: 3px solid #174a6d/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-proof-line\s*\{[^}]*display: grid/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-summary\s*\{[^}]*display: none/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-impact-copy h1\s*\{[^}]*font-size: clamp\(1\.85rem, 8\.1vw, 2\.2rem\);[^}]*line-height: 1\.09/);
-  assert.match(siteCss, /\.home-page \.home-impact-copy\s*\{[^}]*min-width: 0/);
-  assert.match(siteCss, /\.home-page \.home-action-panel\s*\{[^}]*min-width: 0/);
-  assert.match(siteCss, /\.home-page \.home-evidence-project\s*\{[^}]*min-width: 0/);
-  assert.match(siteCss, /\.home-page \.home-evidence-details\s*\{[^}]*min-width: 0/);
+
 });
 
-test("homepage checkout accepts one custom unrestricted amount with accessible Stripe handoff", async () => {
+test("homepage checkout accepts a custom amount or annual orphan support with accessible Stripe handoff", async () => {
   const [homeHtml, siteJs, siteCss, programSource, serviceWorker, redirectsSource] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -1617,29 +1546,29 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-community-v4\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-community-v4\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-community-v4\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-fit-v1\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-fit-v1\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-fit-v1\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
-  assert.match(quickForm, /class="quick-donation-kicker">Donate securely<\/p>/);
-  assert.match(quickForm, /<h2>Choose your amount<\/h2>/);
-  assert.match(quickForm, /class="quick-donation-subtitle">Enter an amount, then choose a cause before payment\.<\/p>/);
-  assert.doesNotMatch(quickForm, /class="quick-amounts"|name="quickAmount"|type="radio"|\$25|\$50|\$100/);
+  assert.match(quickForm, /<h1 id="homeImpactTitle">Make a donation<\/h1>/);
+  assert.match(quickForm, /class="quick-donation-subtitle">Choose an amount\. Pick a cause next\.<\/p>/);
+  assert.match(quickForm, /role="group" aria-label="Suggested donation amounts"/);
+  assert.match(quickForm, /id="quickOrphanOption" type="button" aria-pressed="false" aria-label="\$300 to support an orphan for one year" aria-describedby="quickOrphanBenefits"/);
+  assert.match(quickForm, /id="quickOrphanBenefits">Education, food &amp; housing<\/span>/);
 
   assert.match(quickForm, /<label class="quick-custom-amount" for="quickCustomAmount">/);
   assert.match(quickForm, /<span class="quick-amount-label">Donation amount <small>USD<\/small><\/span>/);
   assert.match(quickForm, /id="quickCustomAmount" name="quickCustomAmount" type="number" min="5" step="0\.01" inputmode="decimal"/);
-  assert.match(quickForm, /placeholder="0\.00" aria-describedby="quickAmountHint" required/);
-  assert.match(quickForm, /<small class="sr-only" id="quickAmountHint">Enter a donation amount in U\.S\. dollars\.<\/small>/);
+  assert.match(quickForm, /placeholder="Your amount" value="50" aria-describedby="quickAmountHint" required/);
+  assert.match(quickForm, /<small class="sr-only" id="quickAmountHint">Enter any amount of at least 5 U\.S\. dollars\.<\/small>/);
   assert.doesNotMatch(quickForm, /quick-custom[^>]*hidden|id="quickCustomAmount"[^>]*hidden/);
   assert.doesNotMatch(quickForm, /quickFrequency|quick-frequency|<legend>Frequency<\/legend>|Monthly|One-time/);
   assert.doesNotMatch(quickForm, /quickCampaign|Donation destination|Choose a purpose/);
-  assert.match(homeHtml, /<script src="donation-programs\.js"><\/script>\s*<script src="project-data\.js"><\/script>\s*<script src="one-world-relief\.js"><\/script>/);
+  assert.match(homeHtml, /<script src="donation-programs-giving-v1\.js"><\/script>\s*<script src="project-data\.js"><\/script>\s*<script src="one-world-relief-giving-v1\.js"><\/script>/);
   assert.doesNotMatch(siteJs, /createElement\("optgroup"\)|Purpose-based giving|Other giving/);
 
-  assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Donate now<\/span><span aria-hidden="true">&rarr;<\/span>/);
+  assert.match(quickForm, /class="[^"]*\bquick-donation-button\b[^"]*"[^>]*>[\s\S]*?<span>Choose a cause<\/span><span aria-hidden="true">&rarr;<\/span>/);
   assert.match(quickForm, /class="quick-donation-trust" aria-label="Secure Stripe checkout with an email receipt"[\s\S]*?<svg aria-hidden="true"[^>]*focusable="false"[\s\S]*?Secure Stripe checkout[\s\S]*?Email receipt/);
-  assert.match(quickForm, /class="quick-donation-identity" href="about\.html#official-details">About One World Relief &middot; EIN 41-5079927<\/a>/);
   assert.doesNotMatch(quickForm, /quick-donation-cause-link/);
   assert.match(quickForm, /id="quickDonationStatus" role="status" aria-live="polite"/);
   assert.doesNotMatch(quickForm, /Receipt emailed|quick-donation-topline|Checkout handled by Stripe/);
@@ -1654,7 +1583,7 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.match(siteJs, /Please enter a donation amount of at least \$5\./);
   assert.match(siteJs, /const buildQuickDonationUrl = \(\{ amount, program = "unrestricted" \}\) =>/);
   assert.match(siteJs, /const params = new URLSearchParams\(\{[\s\S]*?amount: String\(amount\),[\s\S]*?program: String\(program \|\| "unrestricted"\),[\s\S]*?\}\)/);
-  assert.match(siteJs, /window\.location\.href = buildQuickDonationUrl\(\{ amount: String\(amount\), program: "unrestricted" \}\)/);
+  assert.match(siteJs, /window\.location\.href = buildQuickDonationUrl\(\{ amount: String\(amount\), program \}\)/);
   assert.doesNotMatch(siteJs, /input\[name="quickFrequency"\]:checked|frequency: String\(frequency|params\.get\("frequency"\)/);
 
   const catalogContext = { window: {} };
@@ -1700,130 +1629,62 @@ test("homepage checkout accepts one custom unrestricted amount with accessible S
   assert.doesNotMatch(quickCardRule, /animation\s*:|will-change\s*:/);
 });
 
-test("home page renders a continuous completed-case photo flow from project data", async () => {
-  const [homeHtml, siteJs, siteCss, projectData] = await Promise.all([
+test("homepage keeps one donation form and rotating projects with controllable background video, without quotes", async () => {
+  const [html, welcomeCss] = await Promise.all([
     readFile("index.html", "utf8"),
-    readFile("one-world-relief.js", "utf8"),
-    readFile("one-world-relief.css", "utf8"),
-    readFile("project-data.js", "utf8"),
+    readFile("home-welcome.css", "utf8"),
   ]);
-
-  assert.doesNotMatch(homeHtml, /See the work as it moves/);
-  assert.doesNotMatch(homeHtml, /Project Flow/);
-  assert.doesNotMatch(homeHtml, /From donation to proof/);
-  assert.match(homeHtml, /Completed One World Relief cases/);
-  assert.match(homeHtml, /faith-video-section/);
-  assert.match(homeHtml, /faith-video-bg/);
-  assert.match(homeHtml, /<video class="faith-video-bg"[^>]*preload="none"/);
-  assert.match(homeHtml, /<source data-src="assets\/projects\/case-002\/livelihood-support-002-primary\.mp4"/);
-  assert.doesNotMatch(homeHtml, /<video class="faith-video-bg"[^>]*autoplay/);
-  assert.match(homeHtml, /Why We Give/);
-  const heroEnd = homeHtml.indexOf('<section class="home-case-flow reveal"');
-  const heroHtml = homeHtml.slice(0, heroEnd);
-  assert.doesNotMatch(heroHtml, /home-impact-hadith|Charity does not decrease wealth|Sahih Muslim 2588/);
-  assert.doesNotMatch(homeHtml, /person who looks after an orphan and provides for him/);
-  assert.doesNotMatch(homeHtml, /Direct aid, moving fast\./);
-  assert.doesNotMatch(
-    homeHtml,
-    /Choose an amount, pick where it should go, and follow real project updates as support reaches people\./,
-  );
-  assert.match(homeHtml, /Quran 2:215/);
-  assert.match(homeHtml, /Sahih al-Bukhari 6005/);
-  assert.match(homeHtml, /Quran 76:8/);
-  assert.match(homeHtml, /Sunan Abi Dawud 1681/);
-  assert.match(homeHtml, /id="homeCaseFlowTrack"/);
-  assert.match(homeHtml, /<script src="project-data\.js"><\/script>/);
-  assert.match(homeHtml, /id="quickDonationForm"/);
-  assert.match(homeHtml, /quick-donation-heading/);
-  assert.doesNotMatch(homeHtml, /quickFrequency|quick-frequency-control/);
-  assert.match(homeHtml, /Checkout handled by Stripe/);
-  assert.match(homeHtml, /Receipt after successful payment/);
-  assert.doesNotMatch(homeHtml, /home-case-panel-section|homeCompletedCases|homeGoalCases|home-trust-row/);
-  const quickFormIndex = homeHtml.indexOf('id="quickDonationForm"');
-  const evidenceIndex = homeHtml.indexOf('class="home-evidence-project"');
-  const caseFlowIndex = homeHtml.indexOf('class="home-case-flow reveal"');
-  assert.ok(quickFormIndex >= 0 && evidenceIndex > quickFormIndex && caseFlowIndex > evidenceIndex);
-  assert.match(siteJs, /homeCaseFlowTrack/);
-  assert.match(siteJs, /renderHomeCaseFlow/);
-  assert.doesNotMatch(siteJs, /renderHomeCaseLanes|homeCompletedCases|homeGoalCases|story-link|story-empty/);
-  assert.match(siteJs, /includes\("completed"\)/);
-  assert.match(siteJs, /const mobileFlow = window\.matchMedia\("\(max-width: 720px\)"\)\.matches/);
-  assert.match(siteJs, /Array\.from\(\{ length: mobileFlow \? 1 : 4 \}, \(\) => projects\)\.flat\(\)/);
-  assert.match(siteJs, /const setupFaithVideo = \(\) =>/);
-  assert.match(siteJs, /rootMargin: "500px 0px"/);
-  assert.match(siteJs, /aria-hidden="true" tabindex="-1"/);
-  assert.match(siteJs, /decoding="async"/);
-  assert.match(siteJs, /clearQuickAmountError/);
-  assert.match(siteJs, /populateDonationDestinations/);
-  assert.match(siteJs, /cancelAnimationFrame\(pointerFrame\)/);
-  assert.match(siteJs, /case-flow-card/);
-  assert.match(siteCss, /\.home-case-flow/);
-  assert.doesNotMatch(siteCss, /\.home-case-panel-section|\.home-case-lanes|\.home-case-lane|\.home-trust-row|\.home-stories|\.story-link|\.story-empty/);
-  assert.match(siteCss, /grid-template-columns: minmax\(0, 0\.95fr\) minmax\(380px, 460px\)/);
-  assert.match(siteCss, /\.quick-donation-heading/);
-  assert.match(siteCss, /\.quick-donation-trust/);
-  assert.match(siteCss, /\.home-page \.home-impact-copy/);
-  assert.match(siteCss, /\.home-page \.home-impact-headline/);
-  assert.match(siteCss, /\.home-page \.home-impact-hadith a:focus-visible/);
-  assert.match(siteCss, /content-visibility: auto/);
-  assert.match(siteCss, /\.faith-video-section/);
-  assert.match(siteCss, /\.faith-quote-track/);
-  assert.match(siteCss, /@keyframes faith-quote-scroll/);
-  assert.match(siteCss, /\.case-flow-track/);
-  assert.match(siteCss, /@keyframes case-river/);
-  assert.match(siteCss, /animation:\s*case-river var\(--case-flow-duration, 70s\) linear infinite/);
-  assert.match(siteJs, /"--case-flow-duration"/);
-  assert.match(siteJs, /`\$\{projects\.length \* secondsPerProject\}s`/);
-  const secondsPerProject = Number(siteJs.match(/const secondsPerProject = (\d+);/)?.[1]);
-  const totalCaseCount = [...projectData.matchAll(/date:\s*"Case \d{3}"/g)].length;
-  const completedCaseCount = [...projectData.matchAll(/status:\s*"Completed"/g)].length;
-  const comingSoonCaseCount = [...projectData.matchAll(/status:\s*"Coming Soon"/g)].length;
-  const activeCaseCount = totalCaseCount - completedCaseCount - comingSoonCaseCount;
-  assert.equal(secondsPerProject, 14);
-  assert.equal(totalCaseCount, 10);
-  assert.equal(completedCaseCount, 7);
-  assert.equal(activeCaseCount, 0);
-  assert.equal(comingSoonCaseCount, 3);
-  assert.equal(completedCaseCount * secondsPerProject, 98);
-  assert.match(siteCss, /will-change: transform/);
-  assert.match(siteCss, /--case-flow-start-offset: clamp\(-3rem, -2\.5vw, -1\.25rem\)/);
-  assert.match(siteCss, /padding: 0\.8rem clamp\(1rem, 4vw, 4rem\) 1\.4rem/);
-  assert.doesNotMatch(siteCss, /\.case-flow-track\s*\{[\s\S]*?calc\(\(100vw - var\(--max-width\)\) \/ 2\)/);
-  assert.match(siteCss, /translate3d\(var\(--case-flow-start-offset\), 0, 0\)/);
-  assert.match(siteCss, /translate3d\(calc\(-50% - 0\.5rem \+ var\(--case-flow-start-offset\)\), 0, 0\)/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?--case-flow-start-offset: 0px/);
-  assert.doesNotMatch(siteCss, /@keyframes selected-amount-glow/);
-  assert.doesNotMatch(siteCss, /@keyframes case-card-float/);
-  assert.doesNotMatch(siteCss, /@keyframes case-photo-drift/);
-  assert.doesNotMatch(siteCss, /@keyframes case-light-sweep/);
-  assert.doesNotMatch(siteCss, /animation: selected-amount-glow/);
-  assert.doesNotMatch(siteCss, /case-flow-shell:hover \.case-flow-track/);
-  assert.doesNotMatch(siteCss, /@keyframes case-shine/);
-  assert.doesNotMatch(siteJs, /case-flow-shine/);
-  assert.doesNotMatch(siteJs, /case-flow-card, \\.contact-message-card/);
+  assert.equal((html.match(/<form /g) || []).length, 1);
+  assert.equal((html.match(/<h1\b/g) || []).length, 1);
+  assert.doesNotMatch(html, /faith-quote|home-evidence-project|home-quick-give|A little kindness\.|A real difference\.|A little from you/);
+  assert.match(html, /class="home-case-flow reveal"/);
+  assert.match(html, /id="homeCaseFlowTrack"/);
+  assert.match(html, /class="faith-video-section home-cinematic"/);
+  const fieldVideo = html.match(/<video\b[^>]*class="faith-video-bg"[\s\S]*?<\/video>/)?.[0];
+  assert.ok(fieldVideo, "homepage should use field footage as a background");
+  assert.match(fieldVideo, /id="homeBackgroundVideo"/);
+  assert.match(fieldVideo, /\bmuted\b/);
+  assert.match(fieldVideo, /\bloop\b/);
+  assert.match(fieldVideo, /\bplaysinline\b/);
+  assert.match(fieldVideo, /preload="none"/);
+  assert.match(fieldVideo, /aria-hidden="true"/);
+  assert.match(fieldVideo, /tabindex="-1"/);
+  assert.doesNotMatch(fieldVideo, /\bcontrols\b|\ssrc=/);
+  assert.match(fieldVideo, /\sdata-src="assets\/projects\/case-002\/livelihood-support-002-primary\.mp4"/);
+  assert.match(html, /<button\b[^>]*id="backgroundVideoToggle"[^>]*aria-controls="homeBackgroundVideo"[^>]*\bhidden\b/);
+  assert.match(html, /href="projects\/case-002\.html"[^>]*>[\s\S]*?Watch project story/);
+  assert.doesNotMatch(html, /class="faith-video-caption"/);
+  assert.match(welcomeCss, /\.home-page \.faith-video-bg\s*\{[^}]*display: block;/);
+  assert.match(welcomeCss, /\.home-page \.faith-video-bg\s*\{[^}]*position: absolute;/);
+  assert.match(welcomeCss, /\.home-page \.faith-video-bg\s*\{[^}]*object-fit: cover;/);
+  assert.match(html, /home-welcome-giving-v2\.css/);
+  assert.match(html, /home-welcome-giving-v1\.js/);
 });
 
-test("home page offers quick project access, four blue next steps, and inline quick giving", async () => {
-  const [homeHtml, siteCss] = await Promise.all([
+test("home page offers project access and four next steps without repeating the donation form", async () => {
+  const [homeHtml, siteCss, welcomeCss] = await Promise.all([
     readFile("index.html", "utf8"),
     readFile("one-world-relief.css", "utf8"),
+    readFile("home-welcome.css", "utf8"),
   ]);
 
   assert.match(homeHtml, /<body class="site-body home-page">/);
-  assert.match(homeHtml, /class="home-projects-shortcut" href="projects\.html#projectBoard">\s*View all projects/);
+  assert.doesNotMatch(homeHtml, /welcome-project-link/);
 
   const actionStart = homeHtml.indexOf('<section class="home-action-hub reveal"');
   const actionEnd = homeHtml.indexOf("</main>", actionStart);
   assert.ok(actionStart >= 0 && actionEnd > actionStart, "homepage should include the action hub before the footer");
   const actionHub = homeHtml.slice(actionStart, actionEnd);
-  assert.match(actionHub, /Keep the good moving\./);
+  assert.match(actionHub, /Get involved\./);
   assert.equal((actionHub.match(/class="home-action-card home-action-card-/g) || []).length, 4);
   assert.match(actionHub, /home-action-card-projects" href="projects\.html#projectBoard"/);
   assert.match(actionHub, /home-action-card-share" href="share\.html"/);
   assert.match(actionHub, /home-action-card-zakat" href="zakat\.html"/);
   assert.match(actionHub, /home-action-card-supporters" href="supporters\.html"/);
-  assert.match(actionHub, /Calculate your Zakat\./);
-  assert.match(actionHub, /Meet our supporters\./);
+  assert.match(actionHub, /<h3>View projects<\/h3>/);
+  assert.match(actionHub, /<h3>Share kindness<\/h3>/);
+  assert.match(actionHub, /<h3>Calculate Zakat<\/h3>/);
+  assert.match(actionHub, /<h3>Our supporters<\/h3>/);
   assert.doesNotMatch(homeHtml, /id="supporterBoard"|supporter-board-v1\.js/);
 
   assert.match(homeHtml, /<footer class="site-footer home-site-footer">/);
@@ -1834,20 +1695,17 @@ test("home page offers quick project access, four blue next steps, and inline qu
   assert.match(homeHtml, /href="supporters\.html">Supporters<\/a>/);
   assert.doesNotMatch(homeHtml, /href="[^"]*(?:reports|volunteer|privacy|terms)[^"]*"/i);
 
-  const quickGive = homeHtml.match(/<section class="home-quick-give"[\s\S]*?<\/section>/)?.[0];
-  assert.ok(quickGive, "homepage footer should include inline quick giving");
-  assert.match(quickGive, /Choose an amount that works for you\./);
-  assert.match(quickGive, /href="donate\.html\?program=unrestricted#donationForm">\s*Donate what you can/);
-  assert.match(quickGive, /Checkout handled by Stripe/);
-  assert.match(quickGive, /Receipt after successful payment/);
-  assert.doesNotMatch(quickGive, /home-quick-give-amounts|[?&](?:amp;)?amount=|>\$(?:5|25|50|100)</);
-  assert.doesNotMatch(quickGive, /frequency|<select|position:\s*fixed/i);
+  assert.doesNotMatch(homeHtml, /home-quick-give/);
 
   assert.match(siteCss, /\.home-page \.home-projects-shortcut\s*\{[^}]*min-height: 44px/);
   assert.match(siteCss, /\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /\.home-page \.home-action-card-supporters\s*\{[\s\S]*?background: linear-gradient\(145deg, #174a6d 0%, #2b739d 100%\)/);
+  assert.match(welcomeCss, /\.home-page \.home-action-hub \.home-action-card\s*\{[^}]*background: #fff/);
+  assert.match(welcomeCss, /\.home-page \.home-action-hub \.home-action-card\s*\{[^}]*background: #fff/);
+  const videoStart = homeHtml.indexOf('class="faith-video-section home-cinematic"');
+  const videoEnd = homeHtml.indexOf("</section>", videoStart);
+  assert.ok(videoEnd < actionStart, "shortcut section should follow the separate background video");
   assert.match(siteCss, /@media \(min-width: 721px\) and \(max-width: 980px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: 1fr/);
+  assert.match(welcomeCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-action-hub-grid\s*\{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(siteCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-projects-shortcut\s*\{[^}]*width: 100%/);
   assert.match(siteCss, /--home-blue-canvas: #d9f3fa/);
   assert.match(siteCss, /\.home-page main,[\s\S]*?\.home-page \.home-action-hub\s*\{\s*background: var\(--home-blue-canvas\)/);
@@ -1877,7 +1735,7 @@ test("public supporter activity lives on a dedicated privacy-safe page", async (
   assert.match(supporterBoard, /id="supporterBoardStatus" role="status" aria-live="polite" aria-atomic="true"/);
   assert.match(supporterBoard, /Totals include confirmed gifts donors chose to make public\./);
   assert.match(supporterBoard, /href="donate\.html#donationForm">Join the community/);
-  assert.match(supportersHtml, /<script src="one-world-relief\.js"><\/script>\s*<script src="supporter-board-v1\.js"><\/script>/);
+  assert.match(supportersHtml, /<script src="one-world-relief-giving-v1\.js"><\/script>\s*<script src="supporter-board-v1\.js"><\/script>/);
 
   assert.match(supporterBoardJs, /const LEADERBOARD_URL = "\/charity\/donors\/leaderboard"/);
   assert.match(supporterBoardJs, /new IntersectionObserver/);
@@ -1931,10 +1789,8 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.match(html, /<details class="mobile-nav-menu">[\s\S]*?<summary>Menu<\/summary>[\s\S]*?<\/details>/, `${name} should provide a compact phone navigation menu`);
     assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
     const expectedStylesheet = name.startsWith("projects/case-")
-      ? /href="\.\.\/one-world-relief-blue-v1\.css"/
-      : ["index.html", "donate.html", "supporters.html"].includes(name)
-        ? /href="one-world-relief-community-v4\.css"/
-        : /href="one-world-relief-blue-v1\.css"/;
+      ? /href="\.\.\/one-world-relief-fit-v1\.css"/
+      : /href="one-world-relief-fit-v1\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
       assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
@@ -1947,7 +1803,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileMenu, /<summary>Menu<\/summary>/);
   assert.match(mobileMenu, /<nav aria-label="Mobile navigation">/);
   assert.equal([...mobileMenu.matchAll(/<a\s/g)].length, 4);
-  for (const destination of ["projects.html", "share.html", "about.html", "contact.html"]) {
+  for (const destination of ["projects.html", "zakat.html", "about.html", "contact.html"]) {
     assert.match(mobileMenu, new RegExp(`href="${destination.replace(".", "\\.")}"`));
   }
 
@@ -2026,8 +1882,15 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(mobileCss, /@media \(max-width: 720px\)[\s\S]*?\.home-page \.home-supporter-board-grid\s*\{\s*grid-template-columns: 1fr/);
   assert.match(mobileCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-row\s*\{[^}]*min-height: 54px/);
   assert.match(mobileCss, /@media \(max-width: 420px\)[\s\S]*?\.home-page \.home-footer-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(mobileCss, /@media \(max-width: 380px\)[\s\S]*?\.home-page \.brand-text,[\s\S]*?\.donate-page \.brand-text,[\s\S]*?display: none;/);
-  assert.match(mobileCss, /@media \(min-width: 350px\) and \(max-width: 599px\)[\s\S]*?\.donate-page \.donor-grid\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  const headerFitStart = siteCss.indexOf("/* Keep the shared phone header within its grid");
+  assert.ok(headerFitStart > mobileStart, "the narrow header fix must override earlier phone styles");
+  const headerFitCss = siteCss.slice(headerFitStart);
+  assert.match(headerFitCss, /@media \(max-width: 720px\)[\s\S]*?\.site-body \.site-header \.container\.header-wrap \.brand\s*\{[^}]*min-width: 0;[^}]*max-width: 100%;/);
+  assert.match(headerFitCss, /\.site-body \.site-header \.container\.header-wrap \.brand-text\s*\{[^}]*display: block;[^}]*min-width: 0;[^}]*white-space: normal;[^}]*text-wrap: wrap;/);
+  assert.match(headerFitCss, /\.site-body \.site-header \.container\.header-wrap \.mobile-nav-menu\s*\{[^}]*position: static;/);
+  assert.match(headerFitCss, /\.site-body \.site-header \.container\.header-wrap \.mobile-nav-menu nav\s*\{[^}]*position: absolute;[^}]*top: calc\(100% \+ 6px\);[^}]*max-width: 100%;/);
+  assert.match(headerFitCss, /@media \(max-width: 480px\)[\s\S]*?\.donate-page \.donor-grid\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
+  assert.match(headerFitCss, /\.donate-page \.donation-form-card :is\(label, input, select, textarea\)\s*\{[^}]*min-width: 0;[^}]*max-width: 100%;/);
   assert.match(mobileCss, /\.footer-links a\s*\{[^}]*min-width: 44px;[^}]*min-height: 44px;[^}]*display: inline-flex;/);
   assert.match(mobileCss, /#proof,\s*#case-timeline,\s*#donationForm\s*\{\s*scroll-margin-top: 148px;/);
   assert.match(mobileCss, /input,\s*select,\s*textarea\s*\{\s*font-size: 16px;/);
@@ -2101,7 +1964,7 @@ test("contact page has a polished accessible mailto contact flow", async () => {
   assert.match(siteJs, /window\.location\.href = mailtoUrl/);
   assert.match(siteJs, /Your email app is ready\. Send the drafted message to finish\./);
   assert.match(siteJs, /We couldn't open your email app/);
-  assert.match(siteJs, /rootMargin: "0px 0px 22% 0px"/);
+  assert.match(siteJs, /rootMargin: "0px 0px 12% 0px"/);
 
   const helperStart = siteJs.indexOf("  const CONTACT_EMAIL =");
   const helperEnd = siteJs.indexOf("\n\n  if (contactForm)", helperStart);
@@ -2373,12 +2236,88 @@ test("project cards publish approved cases with embedded local media", async () 
     assert.match(entry, /status: "Coming Soon"/);
     assert.match(entry, /location: ""/);
     assert.match(entry, /amountRaised: "Budget coming soon"/);
-    assert.match(entry, /thumbnailType: "banner"/);
-    assert.match(entry, /thumbnailLabel: "Coming Soon"/);
     assert.match(page, /Coming Soon/);
     assert.match(page, /To be announced/);
     assert.match(page, /timeline-step-pending/);
-    assert.doesNotMatch(page, /Bangladesh|\$\d+|2026-\d{2}-\d{2}/);
+    assert.doesNotMatch(page, /Bangladesh|\$\d+/);
+  }
+  assert.match(caseSevenData, /thumbnailType: "banner"/);
+  assert.match(caseSevenData, /thumbnailLabel: "Coming Soon"/);
+  assert.match(caseSevenPage, /current-case-banner/);
+  assert.doesNotMatch(caseSevenPage, /2026-\d{2}-\d{2}/);
+
+  const newFieldUpdates = [
+    {
+      entry: caseEightData,
+      page: caseEightPage,
+      folder: "case-008",
+      thumbnail: "mosque-tiles-008-thumbnail.jpg",
+      media: [
+        "mosque-tiles-008-update-20261014.mp4",
+        "mosque-tiles-008-photo-01.jpg",
+        "mosque-tiles-008-photo-02.jpg",
+        "mosque-tiles-008-photo-03.jpg",
+        "mosque-tiles-008-photo-04.jpg",
+        "mosque-tiles-008-photo-05.jpg",
+      ],
+    },
+    {
+      entry: caseTenData,
+      page: caseTenPage,
+      folder: "case-010",
+      thumbnail: "elder-care-010-thumbnail.jpg",
+      media: [
+        "elder-care-010-update-20261014-01.mp4",
+        "elder-care-010-update-20261014-02.mp4",
+        "elder-care-010-update-20261014-03.mp4",
+      ],
+    },
+  ];
+  for (const { entry, page, folder, thumbnail, media } of newFieldUpdates) {
+    assert.ok(entry.includes(`thumbnailUrl: "assets/projects/${folder}/${thumbnail}"`));
+    assert.doesNotMatch(entry, /thumbnailType: "banner"|thumbnailLabel: "Coming Soon"|status: "Completed"/);
+    assert.match(entry, /October 14, 2026/);
+    assert.match(page, /<time datetime="2026-10-14">October 14, 2026<\/time>/);
+    assert.match(page, /id="proof"/);
+    assert.match(page, /project-proof-grid/);
+    assert.doesNotMatch(page, /current-case-banner|<strong>Completed<\/strong>/);
+    for (const filename of media) {
+      assert.ok(page.includes(`../assets/projects/${folder}/${filename}`), `${folder} should link ${filename}`);
+    }
+
+    const videoTags = [...page.matchAll(/<video\b[^>]*>/g)].map(([tag]) => tag);
+    assert.ok(videoTags.length > 0, `${folder} should embed field videos`);
+    for (const tag of videoTags) {
+      assert.match(tag, /\bcontrols(?:\s|>)/);
+      assert.match(tag, /\bplaysinline(?:\s|>)/);
+      assert.match(tag, /\bpreload="none"/);
+      assert.match(tag, /\bposter="\.\.\/assets\/projects\//);
+      assert.doesNotMatch(tag, /\bautoplay\b/);
+    }
+
+    // Include posters, hero images, and the board thumbnail in asset checks.
+    const publishedAssets = new Set([
+      `assets/projects/${folder}/${thumbnail}`,
+      ...[...page.matchAll(/(?:src|poster)="\.\.\/(assets\/projects\/[^\"]+)"/g)].map((match) => match[1]),
+    ]);
+    for (const assetPath of publishedAssets) {
+      const asset = await readFile(assetPath);
+      assert.ok(asset.byteLength > 0, `${assetPath} should not be empty`);
+      assert.ok(asset.byteLength < 25 * 1024 * 1024, `${assetPath} should fit the site asset limit`);
+      if (assetPath.endsWith(".jpg")) {
+        assert.deepEqual([...asset.subarray(0, 3)], [0xff, 0xd8, 0xff], `${assetPath} should be a JPEG`);
+        assert.deepEqual([...asset.subarray(-2)], [0xff, 0xd9], `${assetPath} should be complete`);
+        assert.equal(asset.includes(Buffer.from("Exif\0\0")), false, `${assetPath} should omit EXIF metadata`);
+        assert.equal(asset.includes(Buffer.from("http://ns.adobe.com/xap/1.0/")), false, `${assetPath} should omit XMP metadata`);
+      } else if (assetPath.endsWith(".mp4")) {
+        assert.equal(asset.subarray(4, 8).toString("ascii"), "ftyp", `${assetPath} should be an ISO MP4`);
+        assert.ok(asset.includes(Buffer.from("avc1")), `${assetPath} should use H.264 video`);
+        assert.ok(asset.includes(Buffer.from("mp4a")), `${assetPath} should use AAC audio`);
+        assert.ok(asset.indexOf(Buffer.from("moov")) > 0, `${assetPath} should contain movie metadata`);
+        assert.ok(asset.indexOf(Buffer.from("mdat")) > 0, `${assetPath} should contain media data`);
+        assert.doesNotMatch(asset.toString("latin1"), /com\.apple\.quicktime\.(?:location|make|model)|location-eng|ISO6709/i);
+      }
+    }
   }
   assert.match(caseSevenPage, /Water for a madrasa mosque/);
   assert.match(caseEightPage, /Tiles to help finish a mosque/);
