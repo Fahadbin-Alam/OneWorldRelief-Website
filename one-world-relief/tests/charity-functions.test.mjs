@@ -621,9 +621,9 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
     "purpose should be chosen before amount",
   );
 
-  assert.match(donateHtml, /<script src="donation-programs-giving-v1\.js"><\/script>[\s\S]*?<script src="donation-checkout-v3\.js"><\/script>/);
+  assert.match(donateHtml, /<script src="donation-programs-giving-v1\.js"><\/script>[\s\S]*?<script src="donation-checkout-v4\.js"><\/script>/);
   assert.doesNotMatch(donateHtml, /<script src="donation-checkout\.js"><\/script>/);
-  assert.match(redirectsSource, /^\/donation-checkout-v3\.js \/donation-checkout\.js 200$/m);
+  assert.match(redirectsSource, /^\/donation-checkout-v4\.js \/donation-checkout\.js 200$/m);
   assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
   assert.match(checkoutJs, /if \(rule\.type === "fixed"\)/);
   assert.match(checkoutJs, /if \(rule\.type === "range"\)/);
@@ -1164,7 +1164,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v55/);
+  assert.match(serviceWorker, /owr-offline-v56/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
@@ -1172,7 +1172,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(serviceWorker, /\/one-world-relief-community-v4\.css/);
   assert.match(serviceWorker, /\/one-world-relief-fit-v1\.css/);
   assert.match(serviceWorker, /\/supporter-board-v1\.js/);
-  assert.match(serviceWorker, /\/donation-checkout-v3\.js/);
+  assert.match(serviceWorker, /\/donation-checkout-v4\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/supporters\.html/);
@@ -1475,7 +1475,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v55/);
+  assert.match(serviceWorker, /owr-offline-v56/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -3255,4 +3255,74 @@ test("public supporter endpoint fails safely without leaking upstream details", 
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.deepEqual(await response.json(), { detail: "Supporter board is temporarily unavailable." });
+});
+
+test("donate page shows a source-backed gift scale line and the live amount on the button", async () => {
+  const [donateHtml, checkoutJs, interactiveCss, projectData] = await Promise.all([
+    readFile("donate.html", "utf8"),
+    readFile("donation-checkout.js", "utf8"),
+    readFile("interactive.css", "utf8"),
+    readFile("project-data.js", "utf8"),
+  ]);
+
+  assert.match(donateHtml, /<p class="gift-comparison" id="giftComparison" aria-live="polite" hidden><\/p>/);
+  assert.match(donateHtml, /<link rel="stylesheet" href="interactive\.css" \/>/);
+  assert.ok(donateHtml.indexOf('id="customDonation"') < donateHtml.indexOf('id="giftComparison"'), "the scale line follows the amount");
+  assert.match(checkoutJs, /const describeGiftScale = \(amount, program\) =>/);
+  assert.match(checkoutJs, /includes\("completed"\)/, "only completed cases with a confirmed cost are used for scale");
+  assert.match(checkoutJs, /For scale: /);
+  assert.match(checkoutJs, /detail\.className = "donate-button-amount"/);
+  assert.match(checkoutJs, /giving_frequency: "one_time"/, "checkout stays one-time");
+  assert.match(interactiveCss, /\.donate-page \.gift-comparison/);
+
+  const projects = runInNewContext(`${projectData}; window.ONE_WORLD_RELIEF_PROJECTS`, { window: {} });
+  const completedCosts = projects
+    .filter((project) => /completed/i.test(project.status))
+    .map((project) => Number(String(project.amountRaised).replace(/[^0-9.]/g, "")))
+    .filter((cost) => cost > 0);
+  assert.ok(completedCosts.length >= 5, "the scale line needs real completed-case costs to compare against");
+});
+
+test("projects page turns its filter chips into live filters with counts and a delivered total", async () => {
+  const [projectsHtml, filtersJs, interactiveCss, serviceWorker] = await Promise.all([
+    readFile("projects.html", "utf8"),
+    readFile("project-filters.js", "utf8"),
+    readFile("interactive.css", "utf8"),
+    readFile("sw.js", "utf8"),
+  ]);
+
+  assert.match(projectsHtml, /<link rel="stylesheet" href="interactive\.css" \/>/);
+  assert.match(projectsHtml, /<script src="project-motion-release-v1\.js"><\/script>\s*<script src="project-filters\.js"><\/script>/);
+  assert.match(projectsHtml, /<div class="category-row project-filter-row">[\s\S]*?<span>Completed Cases<\/span>/, "static chips stay as the no-JS fallback");
+  assert.match(filtersJs, /button\.className = "project-filter-button"/);
+  assert.match(filtersJs, /setAttribute\("aria-pressed"/);
+  assert.match(filtersJs, /card\.dataset\.category = normalize\(project\.category\)/);
+  assert.match(filtersJs, /prefers-reduced-motion: reduce/);
+  assert.match(filtersJs, /chip\.className = "project-total-delivered"/);
+  assert.match(filtersJs, /filter=\(\[\^&\]\+\)/, "deep links like #filter=feeding are supported");
+  assert.match(interactiveCss, /\.project-filter-button\[aria-pressed="true"\]/);
+  assert.match(interactiveCss, /\.project-grid \.project-card\[hidden\]\s*\{[^}]*display: none/);
+  assert.match(serviceWorker, /\/project-filters\.js/);
+  assert.match(serviceWorker, /\/interactive\.css/);
+});
+
+test("thank-you page offers sharing and every public page carries link-preview tags", async () => {
+  const thankYou = await importFunctionModule("functions/charity/thank-you.js");
+  const response = await thankYou.onRequestGet({
+    request: new Request("https://one-world-relief.org/charity/thank-you?donation_id=don_123&session_id=cs_test_123"),
+    env: {},
+  });
+  const html = await response.text();
+  assert.match(html, /class="success-share"/);
+  assert.match(html, /https:\/\/wa\.me\/\?text=/);
+  assert.match(html, /facebook\.com\/sharer\/sharer\.php\?u=https%3A%2F%2Fone-world-relief\.org%2Fdonate\.html/);
+  assert.match(html, /id="copyShareLink" data-share-url="https:\/\/one-world-relief\.org\/donate\.html"/);
+  assert.match(html, /href="\/share\.html"/);
+  assert.doesNotMatch(html, /session_id|cs_test_123/, "share links never carry the Stripe session");
+
+  for (const page of ["index.html", "donate.html", "projects.html", "about.html", "zakat.html", "supporters.html", "contact.html", "share.html"]) {
+    const source = await readFile(page, "utf8");
+    assert.match(source, /<meta property="og:title" content="[^"]+" \/>/, page);
+    assert.match(source, /<meta property="og:image" content="https:\/\/one-world-relief\.org\/[^"]+" \/>/, page);
+  }
 });

@@ -11,6 +11,14 @@
     name="description"
     content="Give securely to One World Relief or choose orphan, mosque, water, feeding, family recovery, emergency aid, or Zakat support."
   />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="Donate to One World Relief" />
+  <meta property="og:description" content="Give once, monthly, or every Friday to orphan support, mosque, water, feeding, family recovery, emergency aid, or Zakat." />
+  <meta property="og:url" content="https://one-world-relief.org/donate.html" />
+  <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
+  <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
@@ -22,6 +30,7 @@
   />
   <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
   <link rel="stylesheet" href="smooth-motion.css" />
+  <link rel="stylesheet" href="interactive.css" />
 </head>
 <body class="site-body donate-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -113,6 +122,7 @@
                   <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter an amount" required />
                 </span>
               </label>
+              <p class="gift-comparison" id="giftComparison" aria-live="polite" hidden></p>
             </section>
 
             <section class="donation-step donation-step-details" aria-label="Receipt details">
@@ -254,6 +264,6 @@
   <script src="donation-programs-giving-v1.js"></script>
   <script src="project-data.js"></script>
   <script src="one-world-relief-giving-v1.js"></script>
-  <script src="donation-checkout-v3.js"></script>
+  <script src="donation-checkout-v4.js"></script>
 </body>
 </html>
