@@ -20,6 +20,10 @@
       .replace(/'/g, "&#039;");
   };
 
+  const formatMoney = (value) => {
+    return `$${Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  };
+
   const formatProjectCount = (count) => {
     return `${count} ${count === 1 ? "project" : "projects"}`;
   };
@@ -55,6 +59,26 @@
       const thumbnailUrl = escapeHtml(project.thumbnailUrl);
       const mediaUrl = escapeHtml(project.mediaUrl || "#");
       const donationUrl = escapeHtml(project.donationUrl || "donate.html#donationForm");
+      const goal = Number(project.goalAmount || 0);
+      const raised = Number(project.raisedAmount || 0);
+      const progressHtml = goal > 0
+        ? (() => {
+            const percent = Math.min(100, Math.round((raised / goal) * 100));
+            const remaining = Math.max(0, goal - raised);
+            return `
+              <div class="project-progress" role="group" aria-label="Fundraising progress">
+                <div class="project-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${raised}">
+                  <span style="width: ${percent}%"></span>
+                </div>
+                <div class="project-progress-meta">
+                  <strong>${formatMoney(raised)} raised</strong>
+                  <span>${percent}% of ${formatMoney(goal)}${remaining > 0 ? ` &middot; ${formatMoney(remaining)} to go` : " &middot; Fully funded"}</span>
+                </div>
+              </div>
+            `;
+          })()
+        : "";
+      const donateLabel = goal > 0 && raised < goal ? "Fund this project" : "Donate";
 
       return `
         <article class="project-card">
@@ -75,9 +99,10 @@
             <strong>${amountRaised}</strong>
             <span>${impact}</span>
           </div>
+          ${progressHtml}
           <p class="project-update">${update}</p>
           <div class="project-actions">
-            <a class="button button-primary" href="${donationUrl}">Donate</a>
+            <a class="button button-primary" href="${donationUrl}">${donateLabel}</a>
             <a class="button button-outline" href="${mediaUrl}" target="_blank" rel="noreferrer">${mediaLabel}</a>
           </div>
         </article>
@@ -95,7 +120,8 @@
         ? String(customAmount)
         : quickDonationForm.querySelector('input[name="quickAmount"]:checked')?.value || "25";
       const campaign = document.getElementById("quickCampaign")?.value || "General Fund";
-      const params = new URLSearchParams({ amount, campaign });
+      const frequency = quickDonationForm.querySelector('input[name="quickFrequency"]:checked')?.value || "once";
+      const params = new URLSearchParams({ amount, campaign, frequency });
       window.location.href = `donate.html?${params.toString()}#donationForm`;
     });
   }
@@ -116,11 +142,35 @@
     return;
   }
 
+  const campaignSelect = document.getElementById("campaignSelect");
+  const customInput = document.getElementById("customDonation");
+  const impactLine = document.getElementById("impactLine");
+  const impactList = document.getElementById("impactList");
+  const projectTag = document.getElementById("projectTag");
+  const coverFees = document.getElementById("coverFees");
+  const feeAmountEl = document.getElementById("feeAmount");
+  const dedicationInput = document.getElementById("dedication");
+  let selectedProject = "";
+
   const applyDonationParams = () => {
     const params = new URLSearchParams(window.location.search);
     const amount = params.get("amount");
     const campaign = params.get("campaign");
-    const campaignSelect = document.getElementById("campaignSelect");
+    const project = params.get("project");
+    const frequency = params.get("frequency");
+
+    if (frequency === "monthly") {
+      const monthlyRadio = donationForm.querySelector('input[name="frequency"][value="monthly"]');
+      if (monthlyRadio) {
+        monthlyRadio.checked = true;
+      }
+    }
+
+    if (project && projectTag) {
+      selectedProject = project;
+      projectTag.textContent = `Your gift will go to: ${project}`;
+      projectTag.hidden = false;
+    }
 
     if (amount) {
       const amountRadio = donationForm.querySelector(`input[name="amount"][value="${amount}"]`);
@@ -144,13 +194,7 @@
 
   applyDonationParams();
 
-  const setStatus = (message, isError) => {
-    statusEl.textContent = message;
-    statusEl.classList.toggle("error", Boolean(isError));
-  };
-
   const getDonationAmount = () => {
-    const customInput = document.getElementById("customDonation");
     const customValue = customInput ? Number(customInput.value) : 0;
     if (customValue > 0) {
       return customValue;
@@ -159,15 +203,98 @@
     return selected ? Number(selected.value) : 0;
   };
 
+  const getFrequency = () => {
+    return donationForm.querySelector('input[name="frequency"]:checked')?.value === "monthly" ? "monthly" : "once";
+  };
+
+  // Stripe US card pricing: 2.9% + $0.30. Gross-up so the project receives the full gift.
+  const estimateFee = (amount) => {
+    if (!amount || amount <= 0) {
+      return 0;
+    }
+    return Math.round(((amount + 0.3) / (1 - 0.029) - amount) * 100) / 100;
+  };
+
+  const impactFor = (campaign, amount) => {
+    const table = (window.ONE_WORLD_RELIEF_IMPACT || {})[campaign] || (window.ONE_WORLD_RELIEF_IMPACT || {})["General Fund"];
+    if (!table) {
+      return "";
+    }
+    const tiers = Object.keys(table).map(Number).sort((a, b) => a - b);
+    let match = tiers[0];
+    tiers.forEach((tier) => {
+      if (amount >= tier) {
+        match = tier;
+      }
+    });
+    if (!match || amount < tiers[0]) {
+      return "";
+    }
+    const multiple = Math.floor(amount / match);
+    const prefix = multiple > 1 && match === tiers[tiers.length - 1] ? `${multiple}x: ` : "";
+    return `${prefix}${table[match]}`;
+  };
+
+  const refreshDonationUi = () => {
+    const amount = getDonationAmount();
+    const campaign = campaignSelect?.value || "General Fund";
+    const monthly = getFrequency() === "monthly";
+    const fee = estimateFee(amount);
+    const total = coverFees?.checked ? Math.round((amount + fee) * 100) / 100 : amount;
+
+    if (feeAmountEl) {
+      feeAmountEl.textContent = `$${fee.toFixed(2)}`;
+    }
+
+    if (impactLine) {
+      const line = amount > 0 ? impactFor(campaign, amount) : "";
+      impactLine.textContent = line ? `$${amount}${monthly ? " a month" : ""} ${line}.` : "";
+    }
+
+    if (impactList) {
+      const table = (window.ONE_WORLD_RELIEF_IMPACT || {})[campaign];
+      if (table) {
+        impactList.innerHTML = Object.keys(table)
+          .map(Number)
+          .sort((a, b) => a - b)
+          .map((tier) => `<li><strong>$${tier}</strong> ${escapeHtml(table[tier])}.</li>`)
+          .join("");
+      }
+    }
+
+    donateButton.textContent = amount > 0
+      ? `Donate $${Number.isInteger(total) ? total : total.toFixed(2)}${monthly ? " monthly" : ""}`
+      : "Complete Donation";
+  };
+
+  donationForm.addEventListener("change", refreshDonationUi);
+  donationForm.addEventListener("input", refreshDonationUi);
+  donationForm.querySelectorAll('input[name="amount"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (customInput) {
+        customInput.value = "";
+      }
+      refreshDonationUi();
+    });
+  });
+
+  const setStatus = (message, isError) => {
+    statusEl.textContent = message;
+    statusEl.classList.toggle("error", Boolean(isError));
+  };
+
+
   donationForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     setStatus("", false);
 
     const donorName = document.getElementById("donorName").value.trim();
     const donorEmail = document.getElementById("donorEmail").value.trim();
-    const paymentMethod = document.getElementById("paymentMethod").value;
-    const campaign = document.getElementById("campaignSelect")?.value || "General Fund";
+    const campaign = campaignSelect?.value || "General Fund";
     const amountUsd = getDonationAmount();
+    const frequency = getFrequency();
+    const feeUsd = coverFees?.checked ? estimateFee(amountUsd) : 0;
+    const dedication = dedicationInput?.value.trim() || "";
 
     if (!donorName || !donorEmail) {
       setStatus("Please enter your name and email.", true);
@@ -175,6 +302,10 @@
     }
     if (!amountUsd || amountUsd <= 0) {
       setStatus("Please select or enter a valid donation amount.", true);
+      return;
+    }
+    if (amountUsd > 10000) {
+      setStatus("For gifts over $10,000, please email Oneworldrelief.fma@gmail.com so we can arrange it directly.", true);
       return;
     }
 
@@ -189,7 +320,11 @@
           donor_name: donorName,
           donor_email: donorEmail,
           amount_usd: amountUsd,
-          payment_method: paymentMethod,
+          fee_usd: feeUsd,
+          frequency,
+          dedication,
+          project: selectedProject,
+          payment_method: "stripe",
           campaign,
         }),
       });
@@ -224,11 +359,13 @@
       const fallbackMessage =
         window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
           ? "Cloudflare checkout is not connected yet for this deploy."
-          : "Payment checkout failed. Make sure the backend is running and Stripe/PayPal keys are configured.";
+          : "Payment checkout failed. Make sure the backend is running and Stripe keys are configured.";
       setStatus(error.message || fallbackMessage, true);
     } finally {
       donateButton.disabled = false;
-      donateButton.textContent = "Complete Donation";
+      refreshDonationUi();
     }
   });
+
+  refreshDonationUi();
 })();

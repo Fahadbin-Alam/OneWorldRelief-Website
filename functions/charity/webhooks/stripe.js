@@ -94,27 +94,14 @@ const getGoogleAccessToken = async (env) => {
   return payload.access_token;
 };
 
-const appendDonationToGoogleSheet = async (env, session) => {
+const appendRowToGoogleSheet = async (env, row) => {
   if (!env.OWR_GOOGLE_SHEET_ID) {
     return;
   }
 
   const accessToken = await getGoogleAccessToken(env);
-  const metadata = session.metadata || {};
-  const row = [
-    metadata.donation_id || session.client_reference_id || "",
-    new Date((session.created || Date.now() / 1000) * 1000).toISOString(),
-    metadata.donor_name || session.customer_details?.name || "",
-    metadata.donor_email || session.customer_details?.email || session.customer_email || "",
-    ((session.amount_total || 0) / 100).toFixed(2),
-    metadata.campaign || "General Fund",
-    session.id || "",
-    session.payment_status || "",
-    session.payment_intent || "",
-    session.url || "",
-  ];
   const tabName = env.OWR_GOOGLE_SHEET_TAB || "Donations";
-  const range = encodeURIComponent(`'${tabName}'!A:J`);
+  const range = encodeURIComponent(`'${tabName}'!A:N`);
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.OWR_GOOGLE_SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
   const sheetResponse = await fetch(appendUrl, {
@@ -130,6 +117,49 @@ const appendDonationToGoogleSheet = async (env, session) => {
     const payload = await sheetResponse.text();
     throw new Error(`Google Sheets append failed: ${payload}`);
   }
+};
+
+// Columns A-N: donation id, time, name, email, amount, campaign, session/invoice id,
+// payment status, payment intent, checkout url, frequency, fee covered, dedication, project.
+const appendDonationToGoogleSheet = async (env, session) => {
+  const metadata = session.metadata || {};
+  await appendRowToGoogleSheet(env, [
+    metadata.donation_id || session.client_reference_id || "",
+    new Date((session.created || Date.now() / 1000) * 1000).toISOString(),
+    metadata.donor_name || session.customer_details?.name || "",
+    metadata.donor_email || session.customer_details?.email || session.customer_email || "",
+    ((session.amount_total || 0) / 100).toFixed(2),
+    metadata.campaign || "General Fund",
+    session.id || "",
+    session.payment_status || "",
+    session.payment_intent || session.subscription || "",
+    session.url || "",
+    metadata.frequency === "monthly" ? "monthly (first payment)" : "once",
+    metadata.fee_covered || "",
+    metadata.dedication || "",
+    metadata.project || "",
+  ]);
+};
+
+// Later monthly payments arrive as invoices, not checkout sessions.
+const appendRenewalToGoogleSheet = async (env, invoice) => {
+  const metadata = invoice.subscription_details?.metadata || invoice.metadata || {};
+  await appendRowToGoogleSheet(env, [
+    metadata.donation_id || "",
+    new Date((invoice.created || Date.now() / 1000) * 1000).toISOString(),
+    metadata.donor_name || invoice.customer_name || "",
+    metadata.donor_email || invoice.customer_email || "",
+    ((invoice.amount_paid || 0) / 100).toFixed(2),
+    metadata.campaign || "General Fund",
+    invoice.id || "",
+    invoice.status || "",
+    invoice.payment_intent || invoice.subscription || "",
+    invoice.hosted_invoice_url || "",
+    "monthly (renewal)",
+    metadata.fee_covered || "",
+    metadata.dedication || "",
+    metadata.project || "",
+  ]);
 };
 
 const verifyStripeSignature = async (body, header, configuredSecrets) => {
@@ -178,6 +208,19 @@ export const onRequestPost = async ({ request, env }) => {
       await appendDonationToGoogleSheet(env, session);
     } catch (error) {
       console.error("One World Relief Google Sheets sync failed", error.message);
+    }
+  }
+
+  if (event.type === "invoice.paid") {
+    const invoice = event.data?.object;
+    // The first invoice is already logged by checkout.session.completed.
+    if (invoice?.billing_reason === "subscription_cycle") {
+      console.log("One World Relief monthly renewal", invoice.id);
+      try {
+        await appendRenewalToGoogleSheet(env, invoice);
+      } catch (error) {
+        console.error("One World Relief Google Sheets renewal sync failed", error.message);
+      }
     }
   }
 

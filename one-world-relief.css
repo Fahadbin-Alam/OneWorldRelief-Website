@@ -803,6 +803,155 @@ ul {
   font-size: 0.92rem;
 }
 
+.project-progress {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 1.2rem;
+}
+
+.project-progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--sky-200);
+  overflow: hidden;
+}
+
+.project-progress-bar span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-700));
+  transition: width 0.6s ease;
+}
+
+.project-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.project-progress-meta strong {
+  color: var(--blue-700);
+}
+
+.frequency-toggle {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.frequency-toggle legend {
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.frequency-toggle label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--sky-50);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-frequency {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quick-frequency label:has(input:checked),
+.quick-amounts label:has(input:checked),
+.frequency-toggle label:has(input:checked),
+.amount-grid label:has(input:checked) {
+  border-color: var(--blue-500);
+  background: var(--sky-100);
+  color: var(--blue-700);
+  box-shadow: inset 0 0 0 1px var(--blue-500);
+}
+
+.amount-grid label {
+  cursor: pointer;
+}
+
+.impact-line {
+  min-height: 1.4rem;
+  margin: 0.8rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  background: var(--sky-50);
+  border: 1px dashed var(--blue-500);
+  color: var(--blue-700);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.impact-line:empty {
+  display: none;
+}
+
+.project-tag {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--blue-700);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  margin-top: 0.3rem;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue-500);
+}
+
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.share-row .button {
+  min-height: 44px;
+}
+
+.thank-you-summary {
+  margin: 1rem 0 1.4rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+  max-width: 34rem;
+}
+
+.thank-you-summary strong {
+  display: block;
+  font-size: 1.6rem;
+  color: var(--blue-700);
+}
+
+.thank-you-summary p {
+  margin: 0.3rem 0 0;
+}
+
 .project-actions {
   display: grid;
   grid-template-columns: 1fr;
@@ -947,7 +1096,8 @@ ul {
     width: 100%;
   }
 
-  .hero-actions {
+  .hero-actions,
+  .share-row {
     flex-direction: column;
   }
 

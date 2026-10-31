@@ -11,6 +11,13 @@
     name="description"
     content="Donate to One World Relief for clean water, orphan support, food campaigns, zakat, and urgent humanitarian support."
   />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="One World Relief | Donate" />
+  <meta property="og:description" content="Donate to One World Relief for clean water, orphan support, food campaigns, zakat, and urgent humanitarian support." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link
@@ -63,6 +70,12 @@
               Custom amount
               <input id="quickCustomAmount" type="number" min="1" step="1" placeholder="Enter amount in USD" />
             </label>
+
+            <fieldset class="quick-amounts quick-frequency">
+              <legend>How often</legend>
+              <label><input type="radio" name="quickFrequency" value="once" checked />Once</label>
+              <label><input type="radio" name="quickFrequency" value="monthly" />Monthly</label>
+            </fieldset>
 
             <label class="quick-category" for="quickCampaign">
               Donation type

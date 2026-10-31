@@ -11,6 +11,13 @@
     name="description"
     content="Donate to One World Relief across regular giving, orphan support, wells, zakat, and feeding."
   />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="One World Relief | Donate" />
+  <meta property="og:description" content="Give once or monthly to One World Relief: orphan support, wells, zakat, and feeding." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link
@@ -44,7 +51,7 @@
       <div class="container page-hero-content">
         <p class="eyebrow">Donate</p>
         <h1>Give securely through Stripe.</h1>
-        <p class="lead">Choose a category, enter your donor details, and continue to hosted checkout.</p>
+        <p class="lead">Give once or monthly, choose where it goes, and continue to secure checkout.</p>
       </div>
     </section>
 
@@ -87,15 +94,26 @@
         <article class="donation-card">
           <h3>Donation Details</h3>
           <form id="donationForm">
-            <label class="custom-amount" for="donorName">
-              Full name
-              <input id="donorName" type="text" placeholder="Your full name" required />
+            <fieldset class="frequency-toggle" id="frequencyToggle">
+              <legend>How often</legend>
+              <label><input type="radio" name="frequency" value="once" checked />Give once</label>
+              <label><input type="radio" name="frequency" value="monthly" />Give monthly</label>
+            </fieldset>
+
+            <fieldset class="amount-grid">
+              <legend>Select or enter a donation amount</legend>
+              <label><input type="radio" name="amount" value="10" checked />$10</label>
+              <label><input type="radio" name="amount" value="25" />$25</label>
+              <label><input type="radio" name="amount" value="50" />$50</label>
+              <label><input type="radio" name="amount" value="100" />$100</label>
+            </fieldset>
+
+            <label class="custom-amount" for="customDonation">
+              Custom amount
+              <input id="customDonation" type="number" min="1" max="10000" step="1" placeholder="Enter amount in USD" />
             </label>
 
-            <label class="custom-amount" for="donorEmail">
-              Email
-              <input id="donorEmail" type="email" placeholder="you@example.com" required />
-            </label>
+            <p class="impact-line" id="impactLine" aria-live="polite"></p>
 
             <label class="custom-amount" for="campaignSelect">
               Donation type
@@ -108,36 +126,36 @@
               </select>
             </label>
 
-            <fieldset class="amount-grid">
-              <legend>Select or enter a donation amount</legend>
-              <label><input type="radio" name="amount" value="10" checked />$10</label>
-              <label><input type="radio" name="amount" value="25" />$25</label>
-              <label><input type="radio" name="amount" value="50" />$50</label>
-              <label><input type="radio" name="amount" value="100" />$100</label>
-            </fieldset>
+            <p class="project-tag" id="projectTag" hidden></p>
 
-            <label class="custom-amount" for="customDonation">
-              Custom amount
-              <input id="customDonation" type="number" min="1" step="1" placeholder="Enter amount in USD" />
+            <label class="custom-amount" for="donorName">
+              Full name
+              <input id="donorName" type="text" placeholder="Your full name" required />
             </label>
 
-            <label class="custom-amount" for="paymentMethod">
-              Payment method
-              <select id="paymentMethod" required>
-                <option value="stripe">Stripe</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="paypal">PayPal</option>
-              </select>
+            <label class="custom-amount" for="donorEmail">
+              Email
+              <input id="donorEmail" type="email" placeholder="you@example.com" required />
+            </label>
+
+            <label class="custom-amount" for="dedication">
+              In honour or memory of (optional)
+              <input id="dedication" type="text" maxlength="120" placeholder="e.g. In memory of my grandmother" />
+            </label>
+
+            <label class="checkbox-row" for="coverFees">
+              <input id="coverFees" type="checkbox" />
+              <span>Add <strong id="feeAmount">$0.59</strong> to cover card processing fees so 100% of my gift reaches the project</span>
             </label>
 
             <div class="payments" aria-label="Supported payment methods">
               <span>Visa</span>
               <span>Mastercard</span>
-              <span>PayPal</span>
-              <span>Stripe</span>
+              <span>Apple Pay</span>
+              <span>Google Pay</span>
             </div>
 
-            <button class="button button-primary donate-button" type="submit">Complete Donation</button>
+            <button class="button button-primary donate-button" type="submit">Donate $10</button>
             <p class="donation-note">
               Card payments are handled by Stripe Checkout. One World Relief does not store card numbers.
             </p>
@@ -147,15 +165,19 @@
 
         <article class="donation-card donation-benefits">
           <h3>What your donation supports</h3>
-          <ul>
+          <ul id="impactList">
             <li><strong>$10</strong> helps fund a basic family support need.</li>
             <li><strong>$25</strong> supports essentials for a child or household.</li>
             <li><strong>$50</strong> helps fund part of a relief or feeding campaign.</li>
             <li><strong>$100</strong> contributes toward larger community projects like wells.</li>
           </ul>
           <div class="secure-note">
+            <strong>Monthly giving</strong>
+            <p>A monthly gift gives us steady support we can plan projects around. You can cancel any time by emailing Oneworldrelief.fma@gmail.com.</p>
+          </div>
+          <div class="secure-note">
             <strong>Secure checkout</strong>
-            <p>After submitting, donors are redirected to Stripe or PayPal depending on the selected payment method.</p>
+            <p>After submitting, you are taken to Stripe's hosted checkout. Your receipt is emailed by Stripe.</p>
           </div>
         </article>
       </div>
@@ -174,6 +196,7 @@
     </div>
   </footer>
 
+  <script src="project-data.js"></script>
   <script src="one-world-relief.js"></script>
 </body>
 </html>

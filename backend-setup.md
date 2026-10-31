@@ -104,3 +104,14 @@ For photos, place optimized images in an assets folder later, or use a hosted im
 3. Move these backend routes into Cloudflare Workers (or Pages Functions).
 4. Replace `sqlite3` calls with D1 prepared statements.
 5. Keep webhook endpoints public and protect admin endpoints with `OWR_ADMIN_API_KEY`.
+
+## Monthly giving
+
+- "Give monthly" on the donate page creates a Stripe Checkout session in `subscription` mode with a monthly recurring price. No products need to be created in the Stripe dashboard; prices are created inline.
+- The first payment is logged by `checkout.session.completed`. Later payments arrive as `invoice.paid` events with `billing_reason = subscription_cycle`, so add `invoice.paid` to the webhook's event list in the Stripe dashboard.
+- Columns K-N in the sheet hold frequency, whether the donor covered the card fee, any dedication, and the project chosen. Add those headers to the "Donations (2026)" tab.
+- Donors cancel by emailing; to cancel, open the subscription in the Stripe dashboard. (A self-serve portal link can be added later with Stripe's customer portal.)
+
+## Project progress bars
+
+- Planned projects in `project-data.js` have `goalAmount` and `raisedAmount`. Update `raisedAmount` by hand from the sheet whenever a project receives gifts; the bar on the projects page updates on deploy.
