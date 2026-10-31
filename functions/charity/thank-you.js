@@ -41,6 +41,8 @@ export const onRequestGet = async ({ request }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>One World Relief | Thank You</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="/one-world-relief.css" />
       </head>
       <body class="site-body">

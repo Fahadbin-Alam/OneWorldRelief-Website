@@ -931,6 +931,13 @@ ul {
 
 .share-row .button {
   min-height: 44px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.page-hero .hero-actions {
+  justify-content: flex-start;
 }
 
 .thank-you-summary {
