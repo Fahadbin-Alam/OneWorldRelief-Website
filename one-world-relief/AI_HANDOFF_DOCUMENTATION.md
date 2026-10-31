@@ -10,6 +10,12 @@ This document provides a complete technical reference for the One World Relief n
 
 **Current Status**: Active Development - Stripe payment integration complete, share/QR donation UX refinement in progress.
 
+### Interactive additions (October 31, 2026)
+- `projects.html` loads `project-filters.js` + `interactive.css`: the filter chips become real buttons with counts (generated from `project-data.js` categories and statuses), the grid filters in place, and a "$X delivered across N completed cases" counter is summed from completed `amountRaised` values. Deep links: `projects.html#filter=feeding`.
+- `donate.html` (`donation-checkout-v4.js`): a "For scale" line under the amount compares the gift to real completed-case costs (same cause area first), and the Donate button shows the entered amount. Checkout still sends `giving_frequency: "one_time"`; recurring stays server-side only, as decided on August 15, 2026.
+- `/charity/thank-you` has WhatsApp, Facebook, X and copy-link sharing plus a link to `share.html`. Share links never include the Stripe session.
+- Open Graph / Twitter preview tags on every public page use the Case 004 photo.
+
 ### Standing User Instructions Logged May 4, 2026
 - Keep this AI handoff document updated during One World Relief work.
 - Active workflow as of June 6, 2026: use GitHub only for source control.
