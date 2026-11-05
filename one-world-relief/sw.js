@@ -1,7 +1,7 @@
 // Author: Fahadbin Alam (fma52), 5/13/26
 // Mod by Codex, 5/13/26
 // One World Relief offline fallback cache.
-const CACHE_NAME = "owr-offline-v55";
+const CACHE_NAME = "owr-offline-v56";
 const APP_SHELL = [
   "/project-motion-release-v1.css",
   "/project-motion-release-v1.js",
@@ -54,6 +54,9 @@ const APP_SHELL = [
   "/donation-checkout.js",
   "/donation-checkout-v2.js",
   "/donation-checkout-v3.js",
+  "/donation-checkout-v4.js",
+  "/interactive.css",
+  "/project-filters.js",
   "/zakat.html",
   "/supporters.html",
   "/zakat-calculator.js",

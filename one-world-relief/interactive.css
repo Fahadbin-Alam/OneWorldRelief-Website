@@ -1,0 +1,106 @@
+/* One World Relief interactive additions: gift scale and live amount on the donate page, project filters and delivered total on the projects page. */
+
+/* Donate page: what the gift compares to */
+.donate-page .gift-comparison {
+  margin: 0.55rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--mint);
+  border-radius: 0 10px 10px 0;
+  background: rgba(47, 159, 137, 0.08);
+  color: #1f5c50;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.donate-page .donate-button-amount {
+  margin-right: 0.3rem;
+  opacity: 0.92;
+  font-weight: 700;
+}
+
+/* Projects page: clickable filters */
+.project-filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.32rem 0.5rem 0.32rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--sky-100);
+  color: var(--blue-700);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.project-filter-button small {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--blue-600);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.project-filter-button:hover {
+  background: var(--sky-200);
+}
+
+.project-filter-button.is-active,
+.project-filter-button[aria-pressed="true"] {
+  border-color: #175b7c;
+  background: #175b7c;
+  color: #fff;
+}
+
+.project-filter-button.is-active small,
+.project-filter-button[aria-pressed="true"] small {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.project-filter-button:focus-visible {
+  outline: 3px solid rgba(77, 149, 194, 0.45);
+  outline-offset: 2px;
+}
+
+.project-filter-note {
+  margin: 0.55rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.project-grid .project-card[hidden] {
+  display: none;
+}
+
+.project-stats .project-total-delivered {
+  gap: 0.3rem;
+  background: rgba(47, 159, 137, 0.12);
+  color: #1f5c50;
+  font-weight: 700;
+}
+
+.project-stats .project-total-delivered em {
+  font-style: normal;
+}
+
+.project-stats .project-total-delivered strong {
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .project-filter-row .project-filter-button {
+    flex: 0 0 auto;
+  }
+}
