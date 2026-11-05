@@ -3381,3 +3381,11 @@ Pending earlier work: the cleaner Zakat calculator was integrated locally (zakat
 - Live browser verified Explore projects, the blue default/orphan gold selected appearance, $300 selection and handoff to the annual orphan cause, updated education/food/housing copy, spaced mobile header and stacked donation fields. Settled phone layout has no horizontal overflow (375px document width and viewport); no Stripe checkout/payment was submitted.
 - Live proof screenshot: C:\Users\Mihad\.codex\visualizations\2026\09\12\01a0938d-d4d4-7913-8fd8-dfe8b1e6b370\donation-header-live-2026-10-29.png . All reviewed changes described above are now published; earlier preview-only labels are historical.
 - This final documentation-only entry is committed separately; public deployment bytes remain those of e194d84.
+## November 5, 2026 — Site review fixes (PR, NOT DEPLOYED)
+- Primary navigation is now Projects, Zakat, About, Contact on every page (desktop and phone menus). The October 19 change had only reached the homepage and Zakat page; Share stays in footers.
+- Every page footer now states "501(c)(3) nonprofit · EIN 41-5079927". Manrope's standard ligatures turned "(c)" into "©" (visible live as "501©(3)" on the homepage footer and About page); every 501(c)(3) element now carries `style="font-variant-ligatures: none"`. Keep that attribute on any new 501(c)(3) text.
+- Added `404.html` (absolute paths, noindex). Without it Cloudflare Pages served the homepage for any mistyped URL.
+- Added `_headers` with HSTS (no includeSubDomains), nosniff, Referrer-Policy, X-Frame-Options SAMEORIGIN and a Permissions-Policy. No CSP yet; adding one needs Stripe, Google Fonts and inline-script allowances.
+- Donate page photo now uses srcset with new 800/1200px WebP copies (85/150 KB) instead of always loading the 435 KB JPG.
+- Projects page gained a screen-reader-only h1.
+- HTML/asset-only change: no CSS/JS alias or service-worker bump needed. Two new tests; all 102 tests pass.

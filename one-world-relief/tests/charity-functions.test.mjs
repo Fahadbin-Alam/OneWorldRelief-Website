@@ -1754,6 +1754,41 @@ test("public supporter activity lives on a dedicated privacy-safe page", async (
   assert.match(siteCss, /@media \(max-width: 390px\)[\s\S]*?\.home-page \.home-supporter-panel\s*\{[^}]*padding: 0\.78rem/);
 });
 
+test("every page offers Zakat in navigation and shows the 501(c)(3) and EIN in its footer", async () => {
+  const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html", "supporters.html", "zakat.html", "404.html"];
+  const casePageNames = Array.from({ length: 10 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`);
+  for (const name of [...rootPageNames, ...casePageNames]) {
+    const html = await readFile(name, "utf8");
+    const nav = html.match(/<nav class="main-nav"[\s\S]*?<\/nav>/)?.[0] || "";
+    const mobileMenu = html.match(/<details class="mobile-nav-menu">[\s\S]*?<\/details>/)?.[0] || "";
+    for (const menu of [nav, mobileMenu]) {
+      assert.match(menu, /href="(?:\.\.\/|\/)?zakat\.html"[^>]*>Zakat<\/a>/, `${name} should link Zakat in each menu`);
+      assert.doesNotMatch(menu, />Share<\/a>/, `${name} should keep Share in the footer, not the menu`);
+    }
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] || "";
+    assert.match(footer, /501\(c\)\(3\)/, `${name} footer should state nonprofit status`);
+    assert.match(footer, /EIN 41-5079927/, `${name} footer should show the EIN`);
+  }
+});
+
+test("not-found page uses absolute paths and security headers are conservative", async () => {
+  const [notFound, headers, projectsHtml, donateHtml] = await Promise.all([
+    readFile("404.html", "utf8"),
+    readFile("_headers", "utf8"),
+    readFile("projects.html", "utf8"),
+    readFile("donate.html", "utf8"),
+  ]);
+  assert.match(notFound, /<meta name="robots" content="noindex" \/>/);
+  assert.match(notFound, /href="\/one-world-relief-fit-v1\.css"/);
+  assert.doesNotMatch(notFound, /(?:href|src)="(?!\/|https:|#)/, "404 links must be absolute because it is served at any path");
+  assert.match(headers, /^\/\*$/m);
+  assert.match(headers, /X-Content-Type-Options: nosniff/);
+  assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
+  assert.doesNotMatch(headers, /^\s*Content-Security-Policy:/m, "a CSP would need Stripe and font allowances first");
+  assert.equal((projectsHtml.match(/<h1\b/g) || []).length, 1, "projects page needs one h1");
+  assert.match(donateHtml, /korbani-meals-004-main-800\.webp 800w/);
+});
+
 test("mobile layouts retain navigation and use contained, touch-friendly static flows", async () => {
   const rootPageNames = ["index.html", "projects.html", "donate.html", "share.html", "about.html", "contact.html", "supporters.html", "zakat.html"];
   const casePageNames = Array.from({ length: 10 }, (_, index) => {
