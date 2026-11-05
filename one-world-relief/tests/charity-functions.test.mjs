@@ -621,9 +621,10 @@ test("donation page starts with one blank custom amount and preserves purpose-sp
     "purpose should be chosen before amount",
   );
 
-  assert.match(donateHtml, /<script src="donation-programs-giving-v1\.js"><\/script>[\s\S]*?<script src="donation-checkout-v4\.js"><\/script>/);
+  assert.match(donateHtml, /<script src="donation-programs-giving-v1\.js"><\/script>[\s\S]*?<script src="donation-checkout-v5\.js"><\/script>/);
   assert.doesNotMatch(donateHtml, /<script src="donation-checkout\.js"><\/script>/);
   assert.match(redirectsSource, /^\/donation-checkout-v4\.js \/donation-checkout\.js 200$/m);
+  assert.match(redirectsSource, /^\/donation-checkout-v5\.js \/donation-checkout\.js 200$/m);
   assert.match(checkoutJs, /const getAmountRule = \(program, variant\) =>/);
   assert.match(checkoutJs, /if \(rule\.type === "fixed"\)/);
   assert.match(checkoutJs, /if \(rule\.type === "range"\)/);
@@ -1164,7 +1165,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v56/);
+  assert.match(serviceWorker, /owr-offline-v57/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
@@ -1173,6 +1174,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(serviceWorker, /\/one-world-relief-fit-v1\.css/);
   assert.match(serviceWorker, /\/supporter-board-v1\.js/);
   assert.match(serviceWorker, /\/donation-checkout-v4\.js/);
+  assert.match(serviceWorker, /\/donation-checkout-v5\.js/);
   assert.doesNotMatch(serviceWorker, /"\/assets\/one-world-relief-icon\.png"/);
   assert.match(serviceWorker, /\/zakat\.html/);
   assert.match(serviceWorker, /\/supporters\.html/);
@@ -1475,7 +1477,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v56/);
+  assert.match(serviceWorker, /owr-offline-v57/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1940,7 +1942,7 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
   assert.match(siteCss, /\.home-page \.home-impact-cases a\s*\{[^}]*min-height: 44px;[^}]*display: inline-flex;/);
 });
 
-test("contact page has a polished accessible mailto contact flow", async () => {
+test("contact page has a polished accessible contact flow with a mailto fallback", async () => {
   const [contactHtml, siteJs, siteCss] = await Promise.all([
     readFile("contact.html", "utf8"),
     readFile("one-world-relief.js", "utf8"),
@@ -1957,13 +1959,15 @@ test("contact page has a polished accessible mailto contact flow", async () => {
   assert.match(contactHtml, /href="tel:\+18568707528" class="contact-method-card contact-method-card-link"/);
   assert.match(contactHtml, /contact-method-card contact-method-card-static/);
   assert.equal([...contactHtml.matchAll(/class="contact-method-icon"/g)].length, 3);
-  assert.match(contactHtml, /<form class="contact-form" id="contactForm" novalidate>/);
+  assert.match(contactHtml, /<form class="contact-form" id="contactForm" data-contact-endpoint="\/charity\/contact" novalidate>/);
+  assert.match(contactHtml, /class="contact-honeypot" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" \/>/);
+  assert.match(contactHtml, /<script src="one-world-relief-giving-v2\.js"><\/script>\s*<script src="contact-form\.js"><\/script>/);
   assert.match(contactHtml, /id="nameField" name="name" type="text"[^>]*autocomplete="name" required[^>]*aria-describedby="nameFieldError"/);
   assert.match(contactHtml, /id="emailField" name="email" type="email" placeholder="you@example\.com" autocomplete="email" required[^>]*aria-describedby="emailFieldError"/);
   assert.match(contactHtml, /id="messageField" name="message"[^>]*maxlength="2000"[^>]*required[^>]*aria-describedby="messageFieldError"/);
   assert.equal([...contactHtml.matchAll(/class="contact-field-error"[^>]*aria-live="polite"/g)].length, 3);
   assert.match(contactHtml, /id="contactSubmit"[^>]*>\s*<span data-contact-submit-label>Send Message<\/span>/);
-  assert.match(contactHtml, /Your message goes directly to One World Relief\./);
+  assert.match(contactHtml, /Your message goes straight to the One World Relief inbox, and we reply by email\./);
   assert.match(contactHtml, /id="contactFormStatus" role="status" aria-live="polite" aria-atomic="true"/);
   assert.doesNotMatch(contactHtml, /Send us a note|Send Email/);
   assert.doesNotMatch(contactHtml, /Send a note and we will follow up/);
@@ -2002,7 +2006,8 @@ test("contact page has a polished accessible mailto contact flow", async () => {
   assert.match(siteJs, /rootMargin: "0px 0px 12% 0px"/);
 
   const helperStart = siteJs.indexOf("  const CONTACT_EMAIL =");
-  const helperEnd = siteJs.indexOf("\n\n  if (contactForm)", helperStart);
+  const helperEnd = siteJs.indexOf("\n\n  // Pages that post to the contact Function", helperStart);
+  assert.match(siteJs, /if \(contactForm && !contactForm\.dataset\.contactEndpoint\)/);
   assert.ok(helperStart >= 0 && helperEnd > helperStart, "contact mailto helper should remain available");
   const helperContext = {};
   runInNewContext(
@@ -3360,4 +3365,129 @@ test("thank-you page offers sharing and every public page carries link-preview t
     assert.match(source, /<meta property="og:title" content="[^"]+" \/>/, page);
     assert.match(source, /<meta property="og:image" content="https:\/\/one-world-relief\.org\/[^"]+" \/>/, page);
   }
+});
+
+test("contact Function emails the message through Resend with the visitor as reply-to", async () => {
+  for (const modulePath of ["functions/charity/contact.js", "../functions/charity/contact.js"]) {
+    const contact = await importFunctionModule(modulePath);
+    const originalFetch = globalThis.fetch;
+    const calls = [];
+    globalThis.fetch = async (url, options) => {
+      calls.push({ url, body: JSON.parse(options.body), auth: options.headers.Authorization });
+      return new Response(JSON.stringify({ id: "email_123" }), { status: 200 });
+    };
+    const post = (body, env = { OWR_RESEND_API_KEY: "re_test", OWR_RECEIPT_FROM_EMAIL: "receipts@one-world-relief.org" }) => {
+      return contact.onRequestPost({
+        request: new Request("https://pages.example/charity/contact", { method: "POST", body: JSON.stringify(body) }),
+        env,
+      });
+    };
+    try {
+      const sent = await post({ name: "Test\r\nBcc: evil@example.com", email: "donor@example.com", message: "Receipt question\nThanks" });
+      assert.equal(sent.status, 200);
+      assert.deepEqual(await sent.json(), { status: "sent" });
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0].url, "https://api.resend.com/emails");
+      assert.equal(calls[0].auth, "Bearer re_test");
+      assert.deepEqual(calls[0].body.to, ["Oneworldrelief.fma@gmail.com"]);
+      assert.equal(calls[0].body.from, "receipts@one-world-relief.org");
+      assert.equal(calls[0].body.reply_to, "donor@example.com");
+      assert.doesNotMatch(calls[0].body.subject, /[\r\n]/);
+      assert.match(calls[0].body.text, /Receipt question\nThanks/);
+
+      const bot = await post({ name: "Bot", email: "bot@example.com", message: "spam", website: "https://spam.example" });
+      assert.equal(bot.status, 200);
+      assert.equal(calls.length, 1, "honeypot submissions must not send email");
+
+      assert.equal((await post({ name: "A", email: "donor@example.com", message: "Hi" })).status, 400);
+      assert.equal((await post({ name: "Test Donor", email: "not-an-email", message: "Hi" })).status, 400);
+      assert.equal((await post({ name: "Test Donor", email: "donor@example.com", message: "  " })).status, 400);
+      assert.equal((await post({ name: "Test Donor", email: "donor@example.com", message: "x".repeat(2001) })).status, 400);
+
+      const unconfigured = await post({ name: "Test Donor", email: "donor@example.com", message: "Hi" }, {});
+      assert.equal(unconfigured.status, 503);
+      assert.equal((await unconfigured.json()).fallback, "mailto");
+      assert.equal(calls.length, 1);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  }
+});
+
+test("checkout adds an optional covered processing fee as its own line item", async () => {
+  for (const modulePath of checkoutModulePaths) {
+    const covered = await callCheckout(modulePath, { amount_usd: 50, program_id: "unrestricted", cover_processing_fee: true });
+    assert.equal(covered.response.status, 200);
+    assert.equal(covered.stripeForm.get("line_items[0][price_data][unit_amount]"), "5000");
+    // (50.00 + 0.30) / (1 - 0.029) = 51.802..., rounded up to 51.81 -> fee 1.81, so the full 50.00 always arrives.
+    assert.equal(covered.stripeForm.get("line_items[1][price_data][unit_amount]"), "181");
+    assert.equal(covered.stripeForm.get("line_items[1][price_data][product_data][name]"), "Card processing fee (covered by you)");
+    assert.equal(covered.stripeForm.get("metadata[processing_fee_covered]"), "yes");
+    assert.equal(covered.stripeForm.get("metadata[processing_fee_usd]"), "1.81");
+    assert.equal(covered.stripeForm.get("metadata[gift_amount_usd]"), "50.00");
+    assert.equal(covered.payload.processing_fee_usd, "1.81");
+
+    const fixed = await callCheckout(modulePath, { amount_usd: 300, program_id: "orphan_annual", cover_processing_fee: true });
+    assert.equal(fixed.response.status, 200, "fixed-amount programs validate the gift, not gift plus fee");
+    assert.equal(fixed.stripeForm.get("line_items[0][price_data][unit_amount]"), "30000");
+    assert.equal(fixed.stripeForm.get("line_items[1][price_data][unit_amount]"), "927");
+
+    const plain = await callCheckout(modulePath, { amount_usd: 50, program_id: "unrestricted" });
+    assert.equal(plain.stripeForm.has("line_items[1][price_data][unit_amount]"), false);
+    assert.equal(plain.stripeForm.get("metadata[processing_fee_covered]"), "no");
+
+    const truthyString = await callCheckout(modulePath, { amount_usd: 50, program_id: "unrestricted", cover_processing_fee: "yes" });
+    assert.equal(truthyString.stripeForm.has("line_items[1][price_data][unit_amount]"), false, "only a real true opts in");
+  }
+});
+
+test("donate page offers optional suggested amounts and a cover-the-fee choice without preselecting anything", async () => {
+  const [donateHtml, checkoutJs, interactiveCss] = await Promise.all([
+    readFile("donate.html", "utf8"),
+    readFile("donation-checkout.js", "utf8"),
+    readFile("interactive.css", "utf8"),
+  ]);
+  const chips = [...donateHtml.matchAll(/data-quick-amount="([^"]+)" aria-pressed="false"/g)].map((match) => match[1]);
+  assert.deepEqual(chips, ["25", "50", "100", "other"]);
+  assert.doesNotMatch(donateHtml, /aria-pressed="true"/);
+  assert.match(donateHtml, /<input id="coverProcessingFee" type="checkbox" aria-describedby="coverFeeHint" \/>/);
+  assert.doesNotMatch(donateHtml, /id="coverProcessingFee"[^>]*checked/);
+  assert.match(donateHtml, /href="where-the-money-goes\.html"/);
+  assert.doesNotMatch(donateHtml, /og:description" content="[^"]*(?:monthly|Friday)/i, "link preview must not promise removed recurring giving");
+  assert.match(checkoutJs, /cover_processing_fee: Boolean\(coverFeeInput\?\.checked\)/);
+  assert.match(checkoutJs, /isAllowedAmount\(program, variant, chipAmount\)/);
+  assert.match(interactiveCss, /\.donate-page \.amount-chip\s*\{[^}]*min-height: 44px/);
+
+  const feeStart = checkoutJs.indexOf("  const processingFeeFor =");
+  const feeEnd = checkoutJs.indexOf("\n\n  const setStatus", feeStart);
+  const context = { PROCESSING_FEE_RATE: 0.029, PROCESSING_FEE_FIXED_USD: 0.3 };
+  runInNewContext(`${checkoutJs.slice(feeStart, feeEnd).replace("const processingFeeFor", "globalThis.processingFeeFor")}`, context);
+  assert.equal(context.processingFeeFor(50), 1.81);
+  assert.equal(context.processingFeeFor(300), 9.27);
+  assert.equal(context.processingFeeFor(0), 0);
+});
+
+test("upcoming project progress bars only appear for confirmed budgets and the money page matches project data", async () => {
+  const [projectsHtml, progressJs, projectData, moneyHtml, moneyJs] = await Promise.all([
+    readFile("projects.html", "utf8"),
+    readFile("project-progress.js", "utf8"),
+    readFile("project-data.js", "utf8"),
+    readFile("where-the-money-goes.html", "utf8"),
+    readFile("money-breakdown.js", "utf8"),
+  ]);
+  assert.match(projectsHtml, /<script src="project-filters\.js"><\/script>\s*<script src="project-progress\.js"><\/script>/);
+  assert.match(progressJs, /isCompleted \|\| !Number\.isFinite\(goal\) \|\| goal <= 0/);
+  assert.match(progressJs, /setAttribute\("role", "progressbar"\)/);
+  assert.doesNotMatch(projectData, /^\s+fundingGoalUsd:/m, "no case should show a goal until its budget is confirmed");
+
+  const context = { window: {} };
+  runInNewContext(projectData, context);
+  const completed = context.window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => /completed/i.test(project.status));
+  const total = completed.reduce((sum, project) => sum + Number(project.amountRaised.replace(/[^0-9.]/g, "")), 0);
+  assert.match(moneyHtml, new RegExp(`id="moneyDeliveredTotal">\\$${total.toLocaleString("en-US")}<`));
+  assert.match(moneyHtml, new RegExp(`Across ${completed.length} completed cases`));
+  assert.match(moneyHtml, /<script src="project-data\.js"><\/script>\s*<script src="money-breakdown\.js"><\/script>/);
+  assert.match(moneyJs, /status \|\| ""\)\.toLowerCase\(\)\.includes\("completed"\)/);
+  assert.match(moneyHtml, /EIN 41-5079927/);
+  assert.match(moneyHtml, /href="zakat\.html"[^>]*>Zakat<\/a>/);
 });

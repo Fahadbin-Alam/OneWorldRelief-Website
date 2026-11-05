@@ -37,6 +37,14 @@
   const publicDisplayName = document.getElementById("publicDisplayName");
   const anonymousDonation = document.getElementById("anonymousDonation");
   const giftComparison = document.getElementById("giftComparison");
+  const quickFill = document.getElementById("amountQuickFill");
+  const quickFillButtons = quickFill ? [...quickFill.querySelectorAll("[data-quick-amount]")] : [];
+  const coverFeeLine = document.getElementById("coverFeeLine");
+  const coverFeeInput = document.getElementById("coverProcessingFee");
+  const coverFeeLabel = document.getElementById("coverFeeLabel");
+  // Standard Stripe card pricing. The server recomputes the fee; this only drives the on-page preview.
+  const PROCESSING_FEE_RATE = 0.029;
+  const PROCESSING_FEE_FIXED_USD = 0.3;
   const params = new URLSearchParams(window.location.search);
   const ZAKAT_HANDOFF_KEY = "owrZakatHandoff";
   const PUBLIC_DISPLAY_NAME_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} .'\u2019_-]*$/u;
@@ -168,6 +176,15 @@
     return `Enter at least ${formatUsd(rule.min)} for ${program.title}.`;
   };
 
+  // Smallest fee that, once Stripe takes its cut of the larger total, leaves the full gift.
+  const processingFeeFor = (amount) => {
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return 0;
+    }
+    const totalCents = Math.ceil(((amount + PROCESSING_FEE_FIXED_USD) / (1 - PROCESSING_FEE_RATE)) * 100);
+    return Math.max(0, totalCents - Math.round(amount * 100)) / 100;
+  };
+
   const setStatus = (message = "", isError = false) => {
     if (!status) {
       return;
@@ -224,6 +241,20 @@
         ? String(requested)
         : "";
     customAmount.removeAttribute("aria-invalid");
+
+    if (quickFill) {
+      let visibleChips = 0;
+      quickFillButtons.forEach((button) => {
+        const chipAmount = Number(button.dataset.quickAmount);
+        const isOther = button.dataset.quickAmount === "other";
+        const show = !isFixed && (isOther || isAllowedAmount(program, variant, chipAmount));
+        button.hidden = !show;
+        if (show && !isOther) {
+          visibleChips += 1;
+        }
+      });
+      quickFill.hidden = visibleChips === 0;
+    }
 
     if (minimumText) {
       const shouldExplainRule = rule.type === "fixed" || rule.type === "range" || rule.min > 5;
@@ -507,10 +538,41 @@
     giftComparison.hidden = !text;
   };
 
+  const syncQuickFill = () => {
+    const amount = getDonationAmount();
+    quickFillButtons.forEach((button) => {
+      const isMatch = button.dataset.quickAmount !== "other" && Number(button.dataset.quickAmount) === amount;
+      button.setAttribute("aria-pressed", String(isMatch));
+    });
+  };
+
+  const updateCoverFee = () => {
+    if (!coverFeeLine) {
+      return;
+    }
+    const amount = getDonationAmount();
+    const program = getProgram(programIdInput?.value);
+    const variant = getVariant(program, variantInput?.value);
+    const isValid = Boolean(program) && isAllowedAmount(program, variant, amount);
+    coverFeeLine.hidden = !isValid;
+    if (coverFeeLabel) {
+      coverFeeLabel.textContent = isValid
+        ? `Add ${formatUsd(processingFeeFor(amount))} to cover the card processing fee`
+        : "Cover the card processing fee";
+    }
+  };
+
+  const getChargeTotal = () => {
+    const amount = getDonationAmount();
+    return coverFeeInput?.checked ? Math.round((amount + processingFeeFor(amount)) * 100) / 100 : amount;
+  };
+
   const updateSubmitLabel = () => {
     if (!submitButton) {
       return;
     }
+    syncQuickFill();
+    updateCoverFee();
     submitButton.replaceChildren(document.createTextNode("Donate Now "));
     const amount = getDonationAmount();
     const program = getProgram(programIdInput?.value);
@@ -518,7 +580,7 @@
     if (program && isAllowedAmount(program, variant, amount)) {
       const detail = document.createElement("span");
       detail.className = "donate-button-amount";
-      detail.textContent = `${formatUsd(amount)} `;
+      detail.textContent = `${formatUsd(getChargeTotal())} `;
       submitButton.appendChild(detail);
     }
     const arrow = document.createElement("span");
@@ -550,6 +612,23 @@
     updateSubmitLabel();
     updateGiftComparison();
   });
+
+  quickFillButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!customAmount) {
+        return;
+      }
+      if (button.dataset.quickAmount === "other") {
+        customAmount.value = "";
+        customAmount.focus();
+      } else {
+        customAmount.value = button.dataset.quickAmount;
+      }
+      customAmount.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  });
+
+  coverFeeInput?.addEventListener("change", updateSubmitLabel);
 
   programSelect?.addEventListener("change", () => {
     selectProgram(programSelect.value, { referrer: referrerInput?.value || "" });
@@ -661,6 +740,7 @@
         anonymous_public: anonymous,
         supporter_board_opt_in: supporterBoardOptedIn,
         public_display_name: publicName,
+        cover_processing_fee: Boolean(coverFeeInput?.checked),
       };
       if (program.id === "zakat" && activeZakatContext && donationSourceInput?.value === "zakat-calculator") {
         checkoutData.zakat_context = {

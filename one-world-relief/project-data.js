@@ -1,6 +1,11 @@
 // Author: Fahadbin Alam (fma52), 4/23/26
 // Mod by Codex, 4/23/26
 // From One World Relief project content board data, 4/23/26
+// Optional funding progress for upcoming cases (shown as a progress bar on the projects page):
+//   fundingGoalUsd: 350,           // confirmed budget in dollars
+//   fundingRaisedUsd: 120,         // dollars received so far for this case
+//   fundingUpdated: "Nov 5, 2026"  // when the raised figure was last checked
+// Leave them out until the budget is confirmed; the card then keeps its "Budget coming soon" text.
 window.ONE_WORLD_RELIEF_PROJECTS = [
   {
     title: "Keeping a Hafiz Student in School",

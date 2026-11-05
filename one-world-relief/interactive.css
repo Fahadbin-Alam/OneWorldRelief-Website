@@ -104,3 +104,354 @@
     flex: 0 0 auto;
   }
 }
+
+/* Donate page: suggested amounts (nothing preselected; the amount field stays the source of truth) */
+.donate-page .amount-quick-fill {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.donate-page .amount-quick-fill[hidden],
+.donate-page .amount-chip[hidden] {
+  display: none;
+}
+
+.donate-page .amount-chip {
+  min-height: 44px;
+  border: 1px solid rgba(33, 79, 113, 0.22);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--blue-700);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.donate-page .amount-chip:hover {
+  border-color: var(--blue-600);
+  background: var(--sky-100);
+}
+
+.donate-page .amount-chip[aria-pressed="true"] {
+  border-color: #175b7c;
+  background: #175b7c;
+  color: #fff;
+}
+
+.donate-page .amount-chip:focus-visible {
+  outline: 3px solid rgba(51, 121, 168, 0.45);
+  outline-offset: 2px;
+}
+
+.donate-page .amount-chip-other {
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* Donate page: cover the processing fee */
+.donate-page .cover-fee-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--sky-50);
+  cursor: pointer;
+}
+
+.donate-page .cover-fee-line[hidden] {
+  display: none;
+}
+
+.donate-page .cover-fee-line input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  accent-color: #175b7c;
+}
+
+.donate-page .cover-fee-line span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.donate-page .cover-fee-line strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.donate-page .cover-fee-line small {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.donate-page .donation-money-link {
+  margin-top: 0.35rem;
+  text-align: center;
+}
+
+.donate-page .donation-money-link a {
+  color: var(--blue-600);
+  font-weight: 700;
+}
+
+/* Contact page: hidden spam trap */
+.contact-honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-form-status a {
+  color: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+/* Projects page: funding progress on upcoming cases */
+.project-progress {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 1.2rem;
+}
+
+.project-progress-numbers {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0 !important;
+  font-size: 0.86rem;
+}
+
+.project-progress-numbers strong {
+  color: var(--ink);
+}
+
+.project-progress-numbers span {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.project-progress-bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(33, 79, 113, 0.12);
+}
+
+.project-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint), #1f8a74);
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-progress small {
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+}
+
+/* Where the money goes page */
+.money-page .page-hero h1 {
+  max-width: 18ch;
+}
+
+.money-totals {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.money-total-card {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.money-total-card span {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.money-total-card strong {
+  color: var(--blue-700);
+  font-size: 1.6rem;
+  line-height: 1.15;
+}
+
+.money-total-card-main strong {
+  font-size: 2.6rem;
+  color: #1f8a74;
+}
+
+.money-total-card small {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.money-breakdown {
+  margin-top: 2.5rem;
+}
+
+.money-bars {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.money-bars li {
+  display: grid;
+  grid-template-columns: 11rem 1fr 5rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.money-bars li > span:first-child {
+  display: grid;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.money-bars li small {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.money-bar-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(33, 79, 113, 0.1);
+}
+
+.money-bar-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3379a8, #214f71);
+}
+
+.money-bars li strong {
+  color: var(--blue-700);
+  text-align: right;
+}
+
+.money-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.money-steps li {
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+}
+
+.money-step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #175b7c;
+  color: #fff;
+  font-weight: 800;
+}
+
+.money-steps h3 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.money-steps p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.money-cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--sky-100);
+}
+
+.money-cta h2 {
+  margin: 0 0 0.3rem;
+}
+
+.money-cta p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.money-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+@media (max-width: 860px) {
+  .money-totals,
+  .money-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .money-bars li {
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 0.75rem;
+  }
+
+  .money-bar-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 420px) {
+  .donate-page .amount-quick-fill {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-progress-bar span,
+  .donate-page .amount-chip {
+    transition: none;
+  }
+}
