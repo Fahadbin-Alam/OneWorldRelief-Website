@@ -1,4 +1,9 @@
+const SHARE_URL = "https://one-world-relief.org/donate.html";
+const SHARE_TEXT = "I just donated to One World Relief, a 501(c)(3) delivering documented direct aid in Bangladesh. Join me:";
+
 export const onRequestGet = async () => {
+  const encodedText = encodeURIComponent(SHARE_TEXT);
+  const encodedUrl = encodeURIComponent(SHARE_URL);
   return new Response(
     `<!doctype html>
     <html lang="en">
@@ -147,6 +152,47 @@ export const onRequestGet = async () => {
             line-height: 1.5;
           }
 
+          .success-share {
+            width: 100%;
+            display: grid;
+            gap: 0.55rem;
+            justify-items: center;
+            padding-top: 0.4rem;
+            border-top: 1px solid rgba(24, 52, 71, 0.1);
+          }
+
+          .success-share > p {
+            margin: 0.4rem 0 0;
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: 800;
+          }
+
+          .success-share-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+          }
+
+          .success-share-row .button,
+          .success-share-row button {
+            min-height: 44px;
+            padding: 0.55rem 0.95rem;
+            border-radius: 999px;
+            font: inherit;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
+          }
+
+          .success-share-more {
+            color: #2f6f93;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: underline;
+          }
+
           @keyframes badge-enter {
             0% { opacity: 0; transform: translateY(18px) scale(0.78); }
             62% { opacity: 1; transform: translateY(0) scale(1.04); }
@@ -243,8 +289,37 @@ export const onRequestGet = async () => {
               <a class="button button-outline" href="/projects.html">View projects</a>
             </div>
             <p class="success-note">Stripe will email your payment confirmation to the address used at checkout.</p>
+            <div class="success-share" aria-label="Share One World Relief">
+              <p>Know someone who would give too? Sharing is the quickest way to double your impact.</p>
+              <div class="success-share-row">
+                <a class="button button-outline" href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank" rel="noreferrer">WhatsApp</a>
+                <a class="button button-outline" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noreferrer">Facebook</a>
+                <a class="button button-outline" href="https://x.com/intent/post?text=${encodedText}&amp;url=${encodedUrl}" target="_blank" rel="noreferrer">X</a>
+                <button class="button button-outline" type="button" id="copyShareLink" data-share-url="${SHARE_URL}">Copy link</button>
+              </div>
+              <a class="success-share-more" href="/share.html">More ways to share, including a QR code</a>
+            </div>
           </section>
         </main>
+        <script>
+          (function () {
+            var button = document.getElementById("copyShareLink");
+            if (!button) { return; }
+            var url = button.getAttribute("data-share-url");
+            var reset = function () { button.textContent = "Copy link"; };
+            button.addEventListener("click", function () {
+              if (navigator.share) {
+                navigator.share({ title: "One World Relief", url: url }).catch(function () {});
+                return;
+              }
+              if (!navigator.clipboard) { window.prompt("Copy this link", url); return; }
+              navigator.clipboard.writeText(url).then(function () {
+                button.textContent = "Link copied";
+                window.setTimeout(reset, 2000);
+              }, function () { window.prompt("Copy this link", url); });
+            });
+          })();
+        </script>
       </body>
     </html>`,
     { headers: { "Content-Type": "text/html; charset=utf-8" } }

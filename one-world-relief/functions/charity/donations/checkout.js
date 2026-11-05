@@ -230,6 +230,16 @@ const isValidDonorEmail = (value) => {
     && /^[^\s@|]{1,64}@[^\s@|]{1,189}\.[^\s@|]{2,}$/u.test(normalized);
 };
 
+// Standard Stripe card pricing (2.9% + 30 cents). Donors may opt in to cover it.
+const PROCESSING_FEE_RATE = 0.029;
+const PROCESSING_FEE_FIXED_CENTS = 30;
+
+// Smallest fee that, once Stripe takes its cut of the larger total, leaves the full gift.
+const processingFeeCentsFor = (giftCents) => {
+  const totalCents = Math.ceil((giftCents + PROCESSING_FEE_FIXED_CENTS) / (1 - PROCESSING_FEE_RATE));
+  return Math.max(0, totalCents - giftCents);
+};
+
 const formatUsdFromCents = (amountCents) => {
   const amount = amountCents / 100;
   return `$${Number.isInteger(amount) ? amount.toLocaleString("en-US") : amount.toFixed(2)}`;
@@ -383,6 +393,7 @@ export const onRequestPost = async ({ request, env }) => {
   const supporterBoardOptIn = body.supporter_board_opt_in === true;
   const requestedPublicDisplayName = normalizePublicDisplayName(body.public_display_name);
   const publicDisplayName = supporterBoardOptIn ? requestedPublicDisplayName : "";
+  const coverProcessingFee = body.cover_processing_fee === true;
   const givingFrequency = normalizeGivingFrequency(body.giving_frequency);
   const recurringInterval = getRecurringInterval(givingFrequency);
   const isRecurring = givingFrequency !== "one_time";
@@ -509,6 +520,9 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Recurring donations use Stripe card checkout. Please choose Apple Pay, card, or Stripe Checkout." }, 400);
   }
 
+  // The fee is only offered for one-time card checkout; the program amount rules above apply to the gift alone.
+  const processingFeeCents = coverProcessingFee && !isRecurring ? processingFeeCentsFor(amountCents) : 0;
+
   const donationId = crypto.randomUUID();
   const redirectBases = getCheckoutRedirectBases(request.url, env);
   const successUrl = new URL(redirectBases.successUrl);
@@ -550,6 +564,9 @@ export const onRequestPost = async ({ request, env }) => {
     giving_frequency: givingFrequency,
     recurring_interval: recurringInterval || "one_time",
     schedule_label: frequencyLabels[givingFrequency],
+    gift_amount_usd: (amountCents / 100).toFixed(2),
+    processing_fee_covered: processingFeeCents > 0 ? "yes" : "no",
+    processing_fee_usd: (processingFeeCents / 100).toFixed(2),
   };
 
   if (zakatContext) {
@@ -587,6 +604,13 @@ export const onRequestPost = async ({ request, env }) => {
   }
   form.set("line_items[0][price_data][product_data][name]", `One World Relief - ${stripeProgramLabel}`);
   form.set("line_items[0][price_data][product_data][description]", purposeSummary);
+  if (processingFeeCents > 0) {
+    form.set("line_items[1][quantity]", "1");
+    form.set("line_items[1][price_data][currency]", "usd");
+    form.set("line_items[1][price_data][unit_amount]", String(processingFeeCents));
+    form.set("line_items[1][price_data][product_data][name]", "Card processing fee (covered by you)");
+    form.set("line_items[1][price_data][product_data][description]", "Added so your full gift reaches the cause.");
+  }
 
   const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
@@ -612,6 +636,7 @@ export const onRequestPost = async ({ request, env }) => {
     program_option_label: programOptionLabel,
     campaign,
     giving_frequency: givingFrequency,
+    processing_fee_usd: (processingFeeCents / 100).toFixed(2),
     status: "pending",
     redirect_url: payload.url,
     message: "Redirect donor to Stripe Checkout URL",

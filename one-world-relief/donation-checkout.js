@@ -36,6 +36,15 @@
   const publicDisplayNameField = document.getElementById("publicDisplayNameField");
   const publicDisplayName = document.getElementById("publicDisplayName");
   const anonymousDonation = document.getElementById("anonymousDonation");
+  const giftComparison = document.getElementById("giftComparison");
+  const quickFill = document.getElementById("amountQuickFill");
+  const quickFillButtons = quickFill ? [...quickFill.querySelectorAll("[data-quick-amount]")] : [];
+  const coverFeeLine = document.getElementById("coverFeeLine");
+  const coverFeeInput = document.getElementById("coverProcessingFee");
+  const coverFeeLabel = document.getElementById("coverFeeLabel");
+  // Standard Stripe card pricing. The server recomputes the fee; this only drives the on-page preview.
+  const PROCESSING_FEE_RATE = 0.029;
+  const PROCESSING_FEE_FIXED_USD = 0.3;
   const params = new URLSearchParams(window.location.search);
   const ZAKAT_HANDOFF_KEY = "owrZakatHandoff";
   const PUBLIC_DISPLAY_NAME_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} .'\u2019_-]*$/u;
@@ -167,6 +176,15 @@
     return `Enter at least ${formatUsd(rule.min)} for ${program.title}.`;
   };
 
+  // Smallest fee that, once Stripe takes its cut of the larger total, leaves the full gift.
+  const processingFeeFor = (amount) => {
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return 0;
+    }
+    const totalCents = Math.ceil(((amount + PROCESSING_FEE_FIXED_USD) / (1 - PROCESSING_FEE_RATE)) * 100);
+    return Math.max(0, totalCents - Math.round(amount * 100)) / 100;
+  };
+
   const setStatus = (message = "", isError = false) => {
     if (!status) {
       return;
@@ -223,6 +241,20 @@
         ? String(requested)
         : "";
     customAmount.removeAttribute("aria-invalid");
+
+    if (quickFill) {
+      let visibleChips = 0;
+      quickFillButtons.forEach((button) => {
+        const chipAmount = Number(button.dataset.quickAmount);
+        const isOther = button.dataset.quickAmount === "other";
+        const show = !isFixed && (isOther || isAllowedAmount(program, variant, chipAmount));
+        button.hidden = !show;
+        if (show && !isOther) {
+          visibleChips += 1;
+        }
+      });
+      quickFill.hidden = visibleChips === 0;
+    }
 
     if (minimumText) {
       const shouldExplainRule = rule.type === "fixed" || rule.type === "range" || rule.min > 5;
@@ -315,6 +347,7 @@
     renderAmountChoices(program, variant, options.amount);
     setStatus();
     updateSubmitLabel();
+    updateGiftComparison();
 
     programGrid?.querySelectorAll(".donation-program-card").forEach((card) => {
       card.classList.toggle("is-selected", card.dataset.programId === program.id);
@@ -455,11 +488,101 @@
     return customAmount?.value ? Number(customAmount.value) : 0;
   };
 
+  const SCALE_STOP_WORDS = new Set(["support", "relief", "help", "build", "one", "year", "for", "and", "the", "give", "where", "most", "needed", "aid", "world", "community"]);
+  const scaleWords = (value) => String(value || "")
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .filter((word) => word.length >= 4 && !SCALE_STOP_WORDS.has(word));
+
+  // Completed cases with a confirmed dollar cost, used only to give a donor a sense of scale.
+  const completedCaseCosts = (Array.isArray(window.ONE_WORLD_RELIEF_PROJECTS) ? window.ONE_WORLD_RELIEF_PROJECTS : [])
+    .filter((project) => String(project.status || "").toLowerCase().includes("completed"))
+    .map((project) => ({
+      title: String(project.title || ""),
+      caseLabel: String(project.date || ""),
+      cost: Number(String(project.amountRaised || "").replace(/[^0-9.]/g, "")),
+      words: scaleWords(`${project.category || ""} ${project.title || ""}`),
+    }))
+    .filter((project) => project.title && Number.isFinite(project.cost) && project.cost > 0)
+    .sort((left, right) => left.cost - right.cost);
+
+  const describeGiftScale = (amount, program) => {
+    if (!completedCaseCosts.length || !Number.isFinite(amount) || amount < 5) {
+      return "";
+    }
+    // Prefer completed cases in the same area as the chosen cause (feeding, orphan, mosque, ...).
+    const programWords = new Set(scaleWords(`${program?.campaign || ""} ${program?.title || ""}`));
+    const related = completedCaseCosts.filter((project) => project.words.some((word) => programWords.has(word)));
+    const pool = related.length ? related : completedCaseCosts;
+    const covered = pool.filter((project) => project.cost <= amount);
+    if (covered.length) {
+      const match = covered[covered.length - 1];
+      const times = Math.floor(amount / match.cost);
+      const multiple = times >= 2 ? ` ${times} times over` : "";
+      return `For scale: ${formatUsd(amount)} would cover the full cost of ${match.caseLabel}, ${match.title} (${formatUsd(match.cost)})${multiple}.`;
+    }
+    const smallest = pool[0];
+    const percent = Math.max(1, Math.round((amount / smallest.cost) * 100));
+    return `For scale: ${formatUsd(amount)} is ${percent}% of ${smallest.caseLabel}, ${smallest.title} (${formatUsd(smallest.cost)}).`;
+  };
+
+  const updateGiftComparison = () => {
+    if (!giftComparison) {
+      return;
+    }
+    const program = getProgram(programIdInput?.value);
+    const variant = getVariant(program, variantInput?.value);
+    const amount = getDonationAmount();
+    const text = program && isAllowedAmount(program, variant, amount) ? describeGiftScale(amount, program) : "";
+    giftComparison.textContent = text;
+    giftComparison.hidden = !text;
+  };
+
+  const syncQuickFill = () => {
+    const amount = getDonationAmount();
+    quickFillButtons.forEach((button) => {
+      const isMatch = button.dataset.quickAmount !== "other" && Number(button.dataset.quickAmount) === amount;
+      button.setAttribute("aria-pressed", String(isMatch));
+    });
+  };
+
+  const updateCoverFee = () => {
+    if (!coverFeeLine) {
+      return;
+    }
+    const amount = getDonationAmount();
+    const program = getProgram(programIdInput?.value);
+    const variant = getVariant(program, variantInput?.value);
+    const isValid = Boolean(program) && isAllowedAmount(program, variant, amount);
+    coverFeeLine.hidden = !isValid;
+    if (coverFeeLabel) {
+      coverFeeLabel.textContent = isValid
+        ? `Add ${formatUsd(processingFeeFor(amount))} to cover the card processing fee`
+        : "Cover the card processing fee";
+    }
+  };
+
+  const getChargeTotal = () => {
+    const amount = getDonationAmount();
+    return coverFeeInput?.checked ? Math.round((amount + processingFeeFor(amount)) * 100) / 100 : amount;
+  };
+
   const updateSubmitLabel = () => {
     if (!submitButton) {
       return;
     }
+    syncQuickFill();
+    updateCoverFee();
     submitButton.replaceChildren(document.createTextNode("Donate Now "));
+    const amount = getDonationAmount();
+    const program = getProgram(programIdInput?.value);
+    const variant = getVariant(program, variantInput?.value);
+    if (program && isAllowedAmount(program, variant, amount)) {
+      const detail = document.createElement("span");
+      detail.className = "donate-button-amount";
+      detail.textContent = `${formatUsd(getChargeTotal())} `;
+      submitButton.appendChild(detail);
+    }
     const arrow = document.createElement("span");
     arrow.setAttribute("aria-hidden", "true");
     arrow.textContent = "→";
@@ -487,7 +610,25 @@
       Boolean(customAmount.value) && !isAllowedAmount(program, variant, amount)
     );
     updateSubmitLabel();
+    updateGiftComparison();
   });
+
+  quickFillButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!customAmount) {
+        return;
+      }
+      if (button.dataset.quickAmount === "other") {
+        customAmount.value = "";
+        customAmount.focus();
+      } else {
+        customAmount.value = button.dataset.quickAmount;
+      }
+      customAmount.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  });
+
+  coverFeeInput?.addEventListener("change", updateSubmitLabel);
 
   programSelect?.addEventListener("change", () => {
     selectProgram(programSelect.value, { referrer: referrerInput?.value || "" });
@@ -599,6 +740,7 @@
         anonymous_public: anonymous,
         supporter_board_opt_in: supporterBoardOptedIn,
         public_display_name: publicName,
+        cover_processing_fee: Boolean(coverFeeInput?.checked),
       };
       if (program.id === "zakat" && activeZakatContext && donationSourceInput?.value === "zakat-calculator") {
         checkoutData.zakat_context = {

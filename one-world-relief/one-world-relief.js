@@ -795,7 +795,8 @@
     return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
   };
 
-  if (contactForm) {
+  // Pages that post to the contact Function (contact-form.js) handle submission themselves.
+  if (contactForm && !contactForm.dataset.contactEndpoint) {
     const nameField = document.getElementById("nameField");
     const emailField = document.getElementById("emailField");
     const messageField = document.getElementById("messageField");

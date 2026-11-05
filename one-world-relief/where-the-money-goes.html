@@ -1,0 +1,171 @@
+<!-- Author: Fahadbin Alam (fma52), 4/23/26 -->
+<!-- Mod by Codex, 4/23/26 -->
+<!-- One World Relief "Where the money goes" page, 11/5/26 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>One World Relief | Where the money goes</title>
+  <meta
+    name="description"
+    content="How a gift to One World Relief moves from checkout to a documented project, and what each completed case cost."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="Where the money goes | One World Relief" />
+  <meta property="og:description" content="Every completed case is published with its cost, photos, and status. See how a gift moves from checkout to the field." />
+  <meta property="og:url" content="https://one-world-relief.org/where-the-money-goes.html" />
+  <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
+  <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
+  <link rel="stylesheet" href="smooth-motion.css" />
+  <link rel="stylesheet" href="interactive.css" />
+</head>
+<body class="site-body">
+  <div class="background-shape background-shape-top" aria-hidden="true"></div>
+  <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="container header-wrap">
+      <a href="index.html" class="brand" aria-label="One World Relief Home">
+        <span class="brand-mark" aria-hidden="true"><img src="assets/one-world-relief-icon-192.png" alt="" /></span>
+        <span class="brand-text">One World Relief</span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="projects.html">Projects</a>
+        <a href="zakat.html">Zakat</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <details class="mobile-nav-menu">
+        <summary>Menu</summary>
+        <nav aria-label="Mobile navigation">
+          <a href="projects.html">Projects</a>
+          <a href="zakat.html">Zakat</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </details>
+      <a class="button button-primary header-cta" href="donate.html">Donate now</a>
+    </div>
+  </header>
+
+  <main class="money-page">
+    <section class="page-hero">
+      <div class="container page-hero-content">
+        <p class="eyebrow">Where the money goes</p>
+        <h1>From your gift to the field, step by step.</h1>
+        <p class="lead">
+          Every completed case is published with what it cost, what it delivered, and photos from the field.
+          Here is the full path a donation takes and the totals so far.
+        </p>
+      </div>
+    </section>
+
+    <section class="container section" aria-labelledby="moneyTotalsTitle">
+      <div class="money-totals">
+        <article class="money-total-card money-total-card-main">
+          <span>Delivered through completed cases</span>
+          <strong id="moneyDeliveredTotal">$4,270</strong>
+          <small id="moneyDeliveredNote">Across 7 completed cases, each with its own public case page.</small>
+        </article>
+        <article class="money-total-card">
+          <span>Card processing</span>
+          <strong>2.9% + 30&cent;</strong>
+          <small>Kept by Stripe on each card gift. Donors can choose to cover it at checkout.</small>
+        </article>
+        <article class="money-total-card">
+          <span>Zakat</span>
+          <strong>Kept separate</strong>
+          <small>Zakat gifts are only used for Zakat-eligible support.</small>
+        </article>
+      </div>
+
+      <div class="money-breakdown">
+        <div class="section-heading">
+          <p class="eyebrow">By cause</p>
+          <h2 id="moneyTotalsTitle">What completed cases cost</h2>
+          <p>Totals come from the same public records shown on the projects page.</p>
+        </div>
+        <ul class="money-bars" id="moneyBars" aria-label="Completed case spending by cause">
+          <li><span>Mosque Support</span><strong>$1,820</strong></li>
+          <li><span>Orphan Support</span><strong>$1,000</strong></li>
+          <li><span>Livelihood Support</span><strong>$600</strong></li>
+          <li><span>Flood Relief</span><strong>$450</strong></li>
+          <li><span>Feeding</span><strong>$400</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="container section" aria-labelledby="moneyStepsTitle">
+      <div class="section-heading">
+        <p class="eyebrow">How a gift moves</p>
+        <h2 id="moneyStepsTitle">Four steps, all on the record</h2>
+      </div>
+      <ol class="money-steps">
+        <li>
+          <span class="money-step-number" aria-hidden="true">1</span>
+          <h3>You give through Stripe</h3>
+          <p>Checkout is handled by Stripe. Your card details never touch our site, and your receipt is emailed when the payment succeeds.</p>
+        </li>
+        <li>
+          <span class="money-step-number" aria-hidden="true">2</span>
+          <h3>It is logged to the cause you chose</h3>
+          <p>Each gift is recorded with its cause. If a specific need is fully funded or cannot go ahead, the gift goes to the closest eligible need in the same program.</p>
+        </li>
+        <li>
+          <span class="money-step-number" aria-hidden="true">3</span>
+          <h3>Aid is delivered in the field</h3>
+          <p>Support is delivered for a specific case, such as a student's school year, a family's business, or a mosque's fans and tiles.</p>
+        </li>
+        <li>
+          <span class="money-step-number" aria-hidden="true">4</span>
+          <h3>The case is published</h3>
+          <p>Each case gets a public page with its cost, status, and field photos or video. Donor names and private documents stay off the website.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="container section">
+      <div class="money-cta">
+        <div>
+          <h2>See every case for yourself.</h2>
+          <p>Each completed case links to its photos and the amount delivered.</p>
+        </div>
+        <div class="money-cta-actions">
+          <a class="button button-outline" href="projects.html">View projects</a>
+          <a class="button button-primary" href="donate.html">Donate</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bar">
+      <p style="font-variant-ligatures: none">One World Relief &middot; 501(c)(3) nonprofit &middot; EIN 41-5079927</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Projects</a>
+        <a href="share.html">Share</a>
+        <a href="where-the-money-goes.html" aria-current="page">Where the money goes</a>
+        <a href="donate.html">Donate</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="project-data.js"></script>
+  <script src="money-breakdown.js"></script>
+</body>
+</html>

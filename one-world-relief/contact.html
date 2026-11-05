@@ -11,6 +11,14 @@
     name="description"
     content="Contact One World Relief, send questions, and view common FAQ answers."
   />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="Contact One World Relief" />
+  <meta property="og:description" content="Questions about One World Relief projects or donations." />
+  <meta property="og:url" content="https://one-world-relief.org/contact.html" />
+  <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
+  <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
@@ -22,6 +30,7 @@
   />
   <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
   <link rel="stylesheet" href="smooth-motion.css" />
+  <link rel="stylesheet" href="interactive.css" />
 </head>
 <body class="site-body">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -35,7 +44,7 @@
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="projects.html">Projects</a>
-        <a href="share.html">Share</a>
+        <a href="zakat.html">Zakat</a>
         <a href="about.html">About</a>
         <a href="contact.html" aria-current="page">Contact</a>
       </nav>
@@ -43,7 +52,7 @@
         <summary>Menu</summary>
         <nav aria-label="Mobile navigation">
           <a href="projects.html">Projects</a>
-          <a href="share.html">Share</a>
+          <a href="zakat.html">Zakat</a>
           <a href="about.html">About</a>
           <a href="contact.html" aria-current="page">Contact</a>
         </nav>
@@ -105,7 +114,8 @@
             <p class="eyebrow">Message</p>
             <h2>Send us a message</h2>
           </div>
-          <form class="contact-form" id="contactForm" novalidate>
+          <form class="contact-form" id="contactForm" data-contact-endpoint="/charity/contact" novalidate>
+            <label class="contact-honeypot" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
             <label for="nameField">
               <span>Full Name</span>
               <input id="nameField" name="name" type="text" placeholder="Your full name" autocomplete="name" required aria-describedby="nameFieldError" />
@@ -125,7 +135,7 @@
               <span data-contact-submit-label>Send Message</span>
               <span class="contact-submit-arrow" aria-hidden="true">&rarr;</span>
             </button>
-            <p class="contact-form-trust">Your message goes directly to One World Relief.</p>
+            <p class="contact-form-trust">Your message goes straight to the One World Relief inbox, and we reply by email.</p>
             <p class="contact-form-status" id="contactFormStatus" role="status" aria-live="polite" aria-atomic="true"></p>
           </form>
         </article>
@@ -160,17 +170,19 @@
 
   <footer class="site-footer">
     <div class="container footer-bar">
-      <p>One World Relief &middot; one-world-relief.org</p>
+      <p style="font-variant-ligatures: none">One World Relief &middot; 501(c)(3) nonprofit &middot; EIN 41-5079927</p>
       <div class="footer-links">
         <a href="index.html">Home</a>
         <a href="projects.html">Projects</a>
         <a href="share.html">Share</a>
+        <a href="where-the-money-goes.html">Where the money goes</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
       </div>
     </div>
   </footer>
 
-  <script src="one-world-relief-giving-v1.js"></script>
+  <script src="one-world-relief-giving-v2.js"></script>
+  <script src="contact-form.js"></script>
 </body>
 </html>

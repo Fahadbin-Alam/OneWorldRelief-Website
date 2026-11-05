@@ -11,6 +11,14 @@
     name="description"
     content="See active and completed One World Relief projects for wells, orphan support, and humanitarian response."
   />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="One World Relief | Projects" />
+  <meta property="og:description" content="See completed and upcoming One World Relief projects in Bangladesh with photos and field video." />
+  <meta property="og:url" content="https://one-world-relief.org/projects.html" />
+  <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
+  <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
@@ -23,6 +31,7 @@
   <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
   <link rel="stylesheet" href="smooth-motion.css" />
   <link rel="stylesheet" href="project-motion-release-v1.css" />
+  <link rel="stylesheet" href="interactive.css" />
 </head>
 <body class="site-body project-motion-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -36,7 +45,7 @@
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="projects.html" aria-current="page">Projects</a>
-        <a href="share.html">Share</a>
+        <a href="zakat.html">Zakat</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -44,7 +53,7 @@
         <summary>Menu</summary>
         <nav aria-label="Mobile navigation">
           <a href="projects.html" aria-current="page">Projects</a>
-          <a href="share.html">Share</a>
+          <a href="zakat.html">Zakat</a>
           <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
@@ -54,6 +63,7 @@
   </header>
 
   <main>
+    <h1 class="sr-only">One World Relief projects</h1>
     <section class="container project-filter-section reveal" aria-label="Project filters">
       <div class="category-row project-filter-row">
         <span>Wells</span>
@@ -80,10 +90,11 @@
 
   <footer class="site-footer">
     <div class="container footer-bar">
-      <p>One World Relief &middot; one-world-relief.org</p>
+      <p style="font-variant-ligatures: none">One World Relief &middot; 501(c)(3) nonprofit &middot; EIN 41-5079927</p>
       <div class="footer-links">
         <a href="index.html">Home</a>
         <a href="share.html">Share</a>
+        <a href="where-the-money-goes.html">Where the money goes</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
         <a href="contact.html">Contact</a>
@@ -94,5 +105,7 @@
   <script src="project-data.js"></script>
   <script src="one-world-relief-giving-v1.js"></script>
   <script src="project-motion-release-v1.js"></script>
+  <script src="project-filters.js"></script>
+  <script src="project-progress.js"></script>
 </body>
 </html>

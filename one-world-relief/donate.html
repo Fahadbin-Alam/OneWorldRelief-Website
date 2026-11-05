@@ -11,6 +11,14 @@
     name="description"
     content="Give securely to One World Relief or choose orphan, mosque, water, feeding, family recovery, emergency aid, or Zakat support."
   />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="Donate to One World Relief" />
+  <meta property="og:description" content="Give securely through Stripe to orphan support, mosque, water, feeding, family recovery, emergency aid, or Zakat, and see the documented results." />
+  <meta property="og:url" content="https://one-world-relief.org/donate.html" />
+  <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
+  <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
@@ -22,6 +30,7 @@
   />
   <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
   <link rel="stylesheet" href="smooth-motion.css" />
+  <link rel="stylesheet" href="interactive.css" />
 </head>
 <body class="site-body donate-page">
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
@@ -35,7 +44,7 @@
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="projects.html">Projects</a>
-        <a href="share.html">Share</a>
+        <a href="zakat.html">Zakat</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -43,7 +52,7 @@
         <summary>Menu</summary>
         <nav aria-label="Mobile navigation">
           <a href="projects.html">Projects</a>
-          <a href="share.html">Share</a>
+          <a href="zakat.html">Zakat</a>
           <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
@@ -113,6 +122,20 @@
                   <input id="customDonation" type="number" min="5" step="0.01" inputmode="decimal" placeholder="Enter an amount" required />
                 </span>
               </label>
+              <div class="amount-quick-fill" id="amountQuickFill" role="group" aria-label="Suggested amounts" hidden>
+                <button type="button" class="amount-chip" data-quick-amount="25" aria-pressed="false">$25</button>
+                <button type="button" class="amount-chip" data-quick-amount="50" aria-pressed="false">$50</button>
+                <button type="button" class="amount-chip" data-quick-amount="100" aria-pressed="false">$100</button>
+                <button type="button" class="amount-chip amount-chip-other" data-quick-amount="other" aria-pressed="false">Other</button>
+              </div>
+              <p class="gift-comparison" id="giftComparison" aria-live="polite" hidden></p>
+              <label class="checkbox-line cover-fee-line" for="coverProcessingFee" id="coverFeeLine" hidden>
+                <input id="coverProcessingFee" type="checkbox" aria-describedby="coverFeeHint" />
+                <span>
+                  <strong id="coverFeeLabel">Cover the card processing fee</strong>
+                  <small id="coverFeeHint">Stripe keeps about 2.9% + 30&cent; of each card gift. Add it so your full gift reaches the cause.</small>
+                </span>
+              </label>
             </section>
 
             <section class="donation-step donation-step-details" aria-label="Receipt details">
@@ -178,6 +201,7 @@
               </svg>
               Secure checkout by Stripe. Your receipt is sent by email.
             </p>
+            <p class="donation-note donation-money-link"><a href="where-the-money-goes.html">See where the money goes <span aria-hidden="true">&rarr;</span></a></p>
             <details class="donation-allocation-details">
               <summary>Donation policy</summary>
               <p class="donation-stewardship-note">
@@ -196,6 +220,8 @@
             <a class="donate-impact-photo donate-impact-photo-main" href="projects/case-004.html">
               <img
                 src="assets/projects/case-004/korbani-meals-004-main.jpg"
+                srcset="assets/projects/case-004/korbani-meals-004-main-800.webp 800w, assets/projects/case-004/korbani-meals-004-main-1200.webp 1200w, assets/projects/case-004/korbani-meals-004-main.jpg 1800w"
+                sizes="(max-width: 980px) 100vw, 480px"
                 alt="Orphan students at a madrasa share a meal provided through Case 004."
                 fetchpriority="high"
                 decoding="async"
@@ -240,11 +266,12 @@
 
   <footer class="site-footer">
     <div class="container footer-bar">
-      <p>One World Relief &middot; one-world-relief.org</p>
+      <p style="font-variant-ligatures: none">One World Relief &middot; 501(c)(3) nonprofit &middot; EIN 41-5079927</p>
       <div class="footer-links">
         <a href="index.html">Home</a>
         <a href="projects.html">Projects</a>
         <a href="share.html">Share</a>
+        <a href="where-the-money-goes.html">Where the money goes</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </div>
@@ -254,6 +281,6 @@
   <script src="donation-programs-giving-v1.js"></script>
   <script src="project-data.js"></script>
   <script src="one-world-relief-giving-v1.js"></script>
-  <script src="donation-checkout-v3.js"></script>
+  <script src="donation-checkout-v5.js"></script>
 </body>
 </html>
