@@ -45,11 +45,17 @@
       <div class="container page-hero-content">
         <p class="eyebrow">Donate</p>
         <h1>Give securely through Stripe.</h1>
-        <p class="lead">Choose a category, enter your donor details, and continue to hosted checkout.</p>
+        <p class="lead">Choose a cause, enter your details, and finish on Stripe's secure checkout page.</p>
+        <p><a class="button button-primary" href="#donationForm">Go to the donation form</a></p>
       </div>
     </section>
 
-    <section class="container section reveal">
+    <section class="container section reveal" aria-labelledby="causesHeading">
+      <div class="section-heading">
+        <p class="eyebrow">Causes</p>
+        <h2 id="causesHeading">Choose where your gift goes</h2>
+        <p>Every gift is recorded with the cause you pick.</p>
+      </div>
       <div class="donation-categories">
         <article class="donation-card">
           <h3>Regular Donation</h3>
@@ -87,20 +93,20 @@
       <div class="donation-layout">
         <article class="donation-card">
           <h3>Donation Details</h3>
-          <form id="donationForm">
+          <form id="donationForm" tabindex="-1">
             <label class="custom-amount" for="donorName">
               Full name
-              <input id="donorName" type="text" placeholder="Your full name" required />
+              <input id="donorName" name="donorName" type="text" placeholder="Your full name" autocomplete="name" maxlength="120" required />
             </label>
 
             <label class="custom-amount" for="donorEmail">
               Email
-              <input id="donorEmail" type="email" placeholder="you@example.com" required />
+              <input id="donorEmail" name="donorEmail" type="email" placeholder="you@example.com" autocomplete="email" maxlength="254" required />
             </label>
 
             <label class="custom-amount" for="campaignSelect">
               Donation type
-              <select id="campaignSelect" required>
+              <select id="campaignSelect" name="campaign" required>
                 <option value="General Fund">Regular Donation</option>
                 <option value="Orphan Support">Orphan Support</option>
                 <option value="Wells">Wells</option>
@@ -119,28 +125,28 @@
 
             <label class="custom-amount" for="customDonation">
               Custom amount
-              <input id="customDonation" type="number" min="1" step="1" placeholder="Enter amount in USD" />
+              <input id="customDonation" name="customAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter amount in USD" />
             </label>
 
             <label class="custom-amount" for="paymentMethod">
               Payment method
-              <select id="paymentMethod" required>
-                <option value="stripe">Stripe</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="paypal">PayPal</option>
+              <select id="paymentMethod" name="paymentMethod" required>
+                <option value="stripe">Credit or debit card (Stripe Checkout)</option>
+                <!-- The checkout function rejects PayPal until live PayPal is configured, so it is shown but not selectable. -->
+                <option value="paypal" disabled>PayPal (coming soon)</option>
               </select>
             </label>
 
-            <div class="payments" aria-label="Supported payment methods">
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>PayPal</span>
-              <span>Stripe</span>
+            <div class="payments" role="list" aria-label="Supported payment methods">
+              <span role="listitem">Visa</span>
+              <span role="listitem">Mastercard</span>
+              <span role="listitem">Stripe</span>
             </div>
 
-            <button class="button button-primary donate-button" type="submit">Complete Donation</button>
+            <button class="button button-primary donate-button" type="submit">Continue to secure payment</button>
             <p class="donation-note">
-              Card payments are handled by Stripe Checkout. One World Relief does not store card numbers.
+              You will enter your card on Stripe's secure checkout page. One World Relief never sees or stores your
+              card number.
             </p>
             <p class="donation-status" id="donationStatus" aria-live="polite"></p>
           </form>
@@ -156,8 +162,32 @@
           </ul>
           <div class="secure-note">
             <strong>Secure checkout</strong>
-            <p>After submitting, donors are redirected to Stripe or PayPal depending on the selected payment method.</p>
+            <p>After you continue, you are sent to Stripe's hosted checkout page to pay. You can cancel there at any time.</p>
           </div>
+
+          <div class="secure-note">
+            <strong>Where your money goes</strong>
+            <p>
+              Your gift is recorded with the cause you choose, and completed work is posted with the amount given on the
+              <a href="projects.html">Projects page</a>.
+            </p>
+            <!-- TODO(owner): Explain how funds reach recipients (who delivers them on the ground, how often) and whether
+                 any share goes to payment fees or costs. Do not publish numbers until they are verified. -->
+          </div>
+
+          <div class="secure-note">
+            <strong>Your information</strong>
+            <p>
+              Your name, email, amount and chosen cause are shared with Stripe to process the payment and kept in our
+              donation records. Questions about a gift:
+              <a href="mailto:Oneworldrelief.fma@gmail.com">Oneworldrelief.fma@gmail.com</a>.
+            </p>
+            <!-- TODO(owner): Link a privacy policy and a refund policy once written. -->
+          </div>
+
+          <!-- TODO(owner): State tax status here. Either "One World Relief is a registered 501(c)(3), EIN XX-XXXXXXX;
+               donations are tax-deductible", or "Donations are not tax-deductible". Only publish what is verified. -->
+          <!-- TODO(owner): Describe how Zakat gifts are handled (kept separate, given only to eligible recipients, etc.). -->
         </article>
       </div>
     </section>

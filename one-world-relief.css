@@ -1067,3 +1067,11 @@ summary:focus-visible {
     flex-direction: column;
   }
 }
+
+/* Inline text links need more than color to be recognisable (WCAG 1.4.1). */
+p a:not(.button),
+li a:not(.button) {
+  color: var(--blue-700);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}

@@ -65,17 +65,19 @@
           <form class="contact-form" id="contactForm">
             <label for="nameField">
               Full Name
-              <input id="nameField" type="text" placeholder="Your full name" />
+              <input id="nameField" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
             </label>
             <label for="emailField">
               Email Address
-              <input id="emailField" type="email" placeholder="your@email.com" />
+              <input id="emailField" name="email" type="email" placeholder="your@email.com" autocomplete="email" required />
             </label>
             <label for="messageField">
               Message
-              <textarea id="messageField" rows="5" placeholder="How can we help?"></textarea>
+              <textarea id="messageField" name="message" rows="5" placeholder="How can we help?" required></textarea>
             </label>
             <button class="button button-primary" type="submit">Email Us</button>
+            <p class="donation-note">This opens your email app with your message filled in.</p>
+            <p class="donation-status" id="contactStatus" role="status"></p>
           </form>
         </article>
       </div>
@@ -89,16 +91,21 @@
       <div class="faq-list">
         <article class="card">
           <h3>How do I donate?</h3>
-          <p>Go to the donate page and choose the category that matches what you want to support.</p>
+          <p>
+            Go to the <a href="donate.html">donate page</a>, choose the cause you want to support, and pay on Stripe's
+            secure checkout page.
+          </p>
         </article>
         <article class="card">
           <h3>Can I follow project updates?</h3>
-          <p>Yes. The projects page is where wells, orphan support updates, and relief campaigns are posted.</p>
+          <p>Yes. The <a href="projects.html">projects page</a> is where wells, orphan support updates, and relief campaigns are posted.</p>
         </article>
         <article class="card">
-          <h3>Can videos be added?</h3>
-          <p>Yes. Each project entry can include a video link, update note, or campaign status.</p>
+          <h3>Is my card information safe?</h3>
+          <p>Payments are processed by Stripe. One World Relief never sees or stores your card number.</p>
         </article>
+        <!-- TODO(owner): Add FAQ answers for "Is my donation tax-deductible?" and "How is Zakat handled?"
+             once the answers are confirmed. -->
         <article class="card">
           <h3>Who should I contact for questions?</h3>
           <p>Email the contact address on this page for donation, partnership, or update questions.</p>

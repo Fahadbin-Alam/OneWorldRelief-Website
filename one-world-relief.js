@@ -124,7 +124,38 @@
 
   renderProjects();
 
+  // Keep preset amount buttons and the custom amount field in sync, so it is always clear which amount will be charged.
+  const linkAmountInputs = (form, radioName, customInput, onChange) => {
+    if (!form || !customInput) {
+      return;
+    }
+    const radios = Array.from(form.querySelectorAll(`input[name="${radioName}"]`));
+    customInput.addEventListener("input", () => {
+      if (Number(customInput.value) > 0) {
+        radios.forEach((radio) => {
+          radio.checked = false;
+        });
+      }
+      onChange();
+    });
+    radios.forEach((radio) => {
+      radio.addEventListener("change", () => {
+        customInput.value = "";
+        onChange();
+      });
+    });
+  };
+
+  const formatUsd = (amount) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    }).format(amount);
+  };
+
   if (quickDonationForm) {
+    linkAmountInputs(quickDonationForm, "quickAmount", document.getElementById("quickCustomAmount"), () => {});
     quickDonationForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const customAmount = Number(document.getElementById("quickCustomAmount")?.value || 0);
@@ -146,6 +177,11 @@
       const subject = encodeURIComponent("One World Relief question");
       const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
       window.location.href = `mailto:Oneworldrelief.fma@gmail.com?subject=${subject}&body=${body}`;
+      const contactStatus = document.getElementById("contactStatus");
+      if (contactStatus) {
+        contactStatus.textContent =
+          "Your email app should open with this message filled in. If nothing happens, email Oneworldrelief.fma@gmail.com directly.";
+      }
     });
   }
 
@@ -159,14 +195,20 @@
     const campaign = params.get("campaign");
     const campaignSelect = document.getElementById("campaignSelect");
 
-    if (amount) {
-      const amountRadio = donationForm.querySelector(`input[name="amount"][value="${amount}"]`);
+    const requestedAmount = Number(amount);
+    if (Number.isFinite(requestedAmount) && requestedAmount > 0) {
+      const amountRadio = Array.from(donationForm.querySelectorAll('input[name="amount"]')).find((radio) => {
+        return Number(radio.value) === requestedAmount;
+      });
       if (amountRadio) {
         amountRadio.checked = true;
       } else {
         const customInput = document.getElementById("customDonation");
         if (customInput) {
-          customInput.value = amount;
+          customInput.value = String(requestedAmount);
+          donationForm.querySelectorAll('input[name="amount"]').forEach((radio) => {
+            radio.checked = false;
+          });
         }
       }
     }
@@ -180,6 +222,9 @@
   };
 
   applyDonationParams();
+
+  const DEFAULT_BUTTON_LABEL = "Continue to secure payment";
+  const CONTACT_EMAIL = "Oneworldrelief.fma@gmail.com";
 
   const setStatus = (message, isError) => {
     statusEl.textContent = message;
@@ -195,6 +240,21 @@
     const selected = donationForm.querySelector('input[name="amount"]:checked');
     return selected ? Number(selected.value) : 0;
   };
+
+  const updateDonateButtonLabel = () => {
+    const amount = getDonationAmount();
+    donateButton.textContent = amount > 0 ? `${DEFAULT_BUTTON_LABEL} (${formatUsd(amount)})` : DEFAULT_BUTTON_LABEL;
+  };
+
+  linkAmountInputs(donationForm, "amount", document.getElementById("customDonation"), updateDonateButtonLabel);
+  updateDonateButtonLabel();
+
+  // If the donor comes back from Stripe with the browser's Back button, the page may be restored from cache
+  // with the button still disabled; re-enable it.
+  window.addEventListener("pageshow", () => {
+    donateButton.disabled = false;
+    updateDonateButtonLabel();
+  });
 
   donationForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -215,8 +275,11 @@
       return;
     }
 
+    const unavailableMessage =
+      `Secure checkout is temporarily unavailable. No payment was taken. Please try again in a few minutes or email ${CONTACT_EMAIL}.`;
+
     donateButton.disabled = true;
-    donateButton.textContent = "Preparing checkout...";
+    donateButton.textContent = "Preparing secure checkout...";
 
     try {
       const response = await fetch(`${API_BASE}/charity/donations/checkout`, {
@@ -239,16 +302,15 @@
       }
 
       if (!response.ok) {
-        const errMessage =
-          payload.detail ||
-          (response.status === 405
-            ? "Cloudflare checkout is not deployed on this route yet. Please redeploy the OneWorldRelief-Website project."
-            : "Secure checkout could not be started. Please try again.");
-        throw new Error(errMessage);
+        // 4xx responses carry a donor-facing validation message; anything else is a server/config problem
+        // that donors cannot fix, so show a calm message instead of internal details.
+        const isDonorError = response.status >= 400 && response.status < 500 && response.status !== 405;
+        throw new Error(isDonorError && payload.detail ? payload.detail : unavailableMessage);
       }
 
       if (payload.redirect_url) {
-        setStatus("Redirecting to secure payment...", false);
+        // Leave the button disabled while the browser navigates away, so the donor cannot start a second checkout.
+        setStatus("Redirecting to Stripe's secure checkout...", false);
         window.location.href = payload.redirect_url;
         return;
       }
@@ -257,15 +319,15 @@
         `Donation request saved (#${payload.donation_id}). We will issue your receipt after payment confirmation.`,
         false
       );
-    } catch (error) {
-      const fallbackMessage =
-        window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
-          ? "Cloudflare checkout is not connected yet for this deploy."
-          : "Payment checkout failed. Make sure the backend is running and Stripe/PayPal keys are configured.";
-      setStatus(error.message || fallbackMessage, true);
-    } finally {
       donateButton.disabled = false;
-      donateButton.textContent = "Complete Donation";
+      updateDonateButtonLabel();
+    } catch (error) {
+      // Network failures (TypeError from fetch) get the same donor-friendly message.
+      const message = error instanceof TypeError ? unavailableMessage : error.message || unavailableMessage;
+      console.error("Checkout could not be started", error);
+      setStatus(message, true);
+      donateButton.disabled = false;
+      updateDonateButtonLabel();
     }
   });
 })();
