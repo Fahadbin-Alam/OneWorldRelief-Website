@@ -438,6 +438,8 @@ const appendDonationToGoogleSheet = async (env, session, completedAtSeconds) => 
   }
 };
 
+const STRIPE_SIGNATURE_TOLERANCE_SECONDS = 300;
+
 const verifyStripeSignature = async (body, header, configuredSecrets) => {
   if (!configuredSecrets) {
     return false;
@@ -446,6 +448,12 @@ const verifyStripeSignature = async (body, header, configuredSecrets) => {
   const timestamp = header.match(/(?:^|,)t=([^,]+)/)?.[1];
   const signatures = [...header.matchAll(/(?:^|,)v1=([^,]+)/g)].map((match) => match[1]);
   if (!timestamp || signatures.length === 0) {
+    return false;
+  }
+
+  // Reject events signed more than 5 minutes ago (Stripe's default tolerance) so a captured request cannot be replayed.
+  const ageSeconds = Math.abs(Math.floor(Date.now() / 1000) - Number(timestamp));
+  if (!Number.isFinite(ageSeconds) || ageSeconds > STRIPE_SIGNATURE_TOLERANCE_SECONDS) {
     return false;
   }
 

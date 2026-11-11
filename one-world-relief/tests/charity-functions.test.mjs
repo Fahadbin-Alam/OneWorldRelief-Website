@@ -2532,10 +2532,39 @@ test("stripe webhook rejects invalid signatures", async () => {
   assert.equal(response.status, 400);
 });
 
+test("stripe webhook rejects correctly signed events older than five minutes (replay protection)", async () => {
+  const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
+  const secret = "whsec_replay_test";
+  const timestamp = String(Math.floor(Date.now() / 1000) - 3600);
+  const body = JSON.stringify({ id: "evt_replay", type: "checkout.session.completed", data: { object: {} } });
+  const signature = createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    throw new Error("A replayed event must not reach Sheets or email services.");
+  };
+
+  try {
+    const response = await webhook.onRequestPost({
+      request: new Request("https://one-world-relief.org/charity/webhooks/stripe", {
+        method: "POST",
+        headers: { "stripe-signature": `t=${timestamp},v1=${signature}` },
+        body,
+      }),
+      env: { OWR_STRIPE_WEBHOOK_SECRET: secret },
+    });
+    assert.equal(response.status, 400);
+    assert.equal(fetchCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("stripe webhook never records an unpaid checkout session", async () => {
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const secret = "whsec_unpaid_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const body = JSON.stringify({
     id: "evt_unpaid",
     type: "checkout.session.completed",
@@ -2585,7 +2614,7 @@ test("stripe webhook never records an unpaid checkout session", async () => {
 test("stripe webhook returns 500 so Stripe retries when Sheets is not configured", async () => {
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const secret = "whsec_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const body = JSON.stringify({
     id: "evt_test",
     type: "checkout.session.completed",
@@ -2626,7 +2655,7 @@ test("stripe webhook sends custom OneWorld Relief receipt email when configured"
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const originalFetch = globalThis.fetch;
   const secret = "whsec_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const calls = [];
   const body = JSON.stringify({
     id: "evt_test",
@@ -2761,7 +2790,7 @@ test("both webhook mirrors keep Zakat donations in A:H with safe calculator cont
   assert.equal(deployedSource, mirrorSource, "Stripe webhook mirrors must remain byte-identical");
 
   const secret = "whsec_zakat_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const body = JSON.stringify({
     id: "evt_zakat_test",
     type: "checkout.session.completed",
@@ -2881,7 +2910,7 @@ test("stripe webhook neutralizes formula-like Google Sheets cells without changi
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const originalFetch = globalThis.fetch;
   const secret = "whsec_formula_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const calls = [];
 
   globalThis.fetch = async (url, options) => {
@@ -2985,7 +3014,7 @@ test("stripe webhook records recurring invoice payments with subscription metada
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const originalFetch = globalThis.fetch;
   const secret = "whsec_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const calls = [];
   const body = JSON.stringify({
     id: "evt_invoice_paid",
@@ -3092,7 +3121,7 @@ test("stripe webhook skips existing spreadsheet rows without duplicate receipt e
   const webhook = await importFunctionModule("functions/charity/webhooks/stripe.js");
   const originalFetch = globalThis.fetch;
   const secret = "whsec_test";
-  const timestamp = "1770000000";
+  const timestamp = String(Math.floor(Date.now() / 1000));
   const calls = [];
   const body = JSON.stringify({
     id: "evt_test_duplicate",
