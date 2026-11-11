@@ -1165,7 +1165,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v58/);
+  assert.match(serviceWorker, /owr-offline-v59/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
@@ -1477,7 +1477,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v58/);
+  assert.match(serviceWorker, /owr-offline-v59/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);

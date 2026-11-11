@@ -379,7 +379,8 @@ ul {
 
 .button-primary {
   color: #fff;
-  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
+  /* Starts at blue-600 (was blue-500, 3.3:1 with white) so the label stays >= 4.5:1 across the gradient. */
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
 }
 
 .button-outline {
@@ -1529,7 +1530,7 @@ ul {
 
 .share-pill-instagram {
   background:
-    radial-gradient(circle at 30% 108%, #fdf497 0 17%, #fd5949 38%, #d6249f 62%, #285aeb 100%);
+    radial-gradient(circle at 30% 108%, #fdf497 0 9%, #f0493c 26%, #c81f8f 54%, #285aeb 100%);
 }
 
 .share-pill-x {
@@ -1537,7 +1538,8 @@ ul {
 }
 
 .share-pill-whatsapp {
-  background: #25d366;
+  /* WhatsApp's darker brand green: 4.1:1 with the white logo (#25d366 was 2.0:1). */
+  background: #128c7e;
 }
 
 .share-status {
@@ -1810,6 +1812,13 @@ ul {
 .project-detail-hero {
   position: relative;
   overflow: hidden;
+}
+
+/* Keep hero text above the decorative light-band ::after, which otherwise washes over it. */
+.page-hero > .container,
+.project-detail-hero > .container {
+  position: relative;
+  z-index: 1;
 }
 
 .donate-flow-hero {
@@ -3365,12 +3374,13 @@ ul {
   display: grid;
   gap: 0.12rem;
   padding: 0.85rem 0.95rem;
-  background: linear-gradient(180deg, rgba(8, 27, 40, 0), rgba(8, 27, 40, 0.58));
+  /* Scrim darkens sooner so the small caption line stays readable over bright photos. */
+  background: linear-gradient(180deg, rgba(8, 27, 40, 0), rgba(8, 27, 40, 0.6) 30%, rgba(8, 27, 40, 0.76));
 }
 
 .donate-impact-caption small,
 .donate-impact-caption em {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.94);
   font-size: 0.7rem;
   font-style: normal;
   font-weight: 800;
@@ -4233,7 +4243,7 @@ ul {
   font-size: 0.82rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: var(--blue-600);
+  color: #2a6690;
 }
 
 .project-media-banner strong,
@@ -4394,6 +4404,11 @@ ul {
 
 .project-detail-video-feature {
   background: var(--ink);
+}
+
+/* Caption on the dark video panel: light tint (9.1:1) instead of ink-soft (2.6:1). */
+.project-detail-feature.project-detail-video-feature figcaption {
+  color: #c9dbe6;
 }
 
 .project-detail-feature figcaption,
@@ -4606,7 +4621,8 @@ ul {
   margin-bottom: 1.2rem;
   border: 6px solid rgba(255, 255, 255, 0.95);
   border-radius: 999px;
-  color: #fff;
+  /* Ink numerals (white was 1.5-2.8:1 on these light gradients). */
+  color: var(--ink);
   background:
     radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.68), transparent 20%),
     linear-gradient(135deg, #ffd166, #ff9f1c 48%, #c95b16);
@@ -4692,7 +4708,7 @@ ul {
 }
 
 .timeline-step-maintenance span {
-  background: linear-gradient(135deg, #ff9f1c, #2f9f89);
+  background: linear-gradient(135deg, #ffa92f, #3fae97);
 }
 
 .timeline-step-maintenance time {
@@ -9018,7 +9034,7 @@ html {
 
 .home-page .home-action-hub-heading .eyebrow {
   margin-bottom: 0.65rem;
-  color: #3379a8;
+  color: #2a6896;
   font-family: var(--header-sans);
   letter-spacing: 0.08em;
 }
@@ -9034,7 +9050,7 @@ html {
 .home-page .home-action-hub-heading > p:last-child {
   max-width: 54ch;
   margin: 1rem auto 0;
-  color: #55768c;
+  color: #4a6a80;
   font-size: clamp(0.98rem, 1.7vw, 1.08rem);
 }
 
@@ -10105,7 +10121,7 @@ html {
 }
 
 .home-page .quick-amount-label small {
-  color: #667e8d;
+  color: #57707e;
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -11263,7 +11279,7 @@ html {
 .home-page .home-supporter-empty p {
   max-width: 31ch;
   margin: 0.35rem 0 0;
-  color: #5d7889;
+  color: #4f6b7c;
   font-size: 0.82rem;
 }
 
@@ -11963,4 +11979,19 @@ html {
 
 main:focus {
   outline: none;
+}
+
+/* Text that sits directly on the cyan sky (body gradient reaches #70d5f0): same hues, darker,
+   so ink-soft and blue-600 text stays >= 4.5:1 there (they were 3.0:1 and 3.2:1). */
+.page-hero,
+.project-detail-hero,
+.project-detail-section,
+.project-filter-section,
+.section-heading,
+.share-copy,
+.contact-methods,
+.money-page,
+.offline-card {
+  --ink-soft: #3e5462;
+  --blue-600: #245676;
 }

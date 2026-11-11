@@ -160,7 +160,7 @@
   top: 16px;
   right: 19px;
   font-size: 21px;
-  color: #648697;
+  color: #56707c;
   transition: transform 320ms var(--home-motion-ease), color 220ms ease;
 }
 .home-page .home-action-hub .home-action-card:focus-visible {
