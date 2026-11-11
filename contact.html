@@ -6,20 +6,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>One World Relief | Contact</title>
-  <meta
-    name="description"
-    content="Contact One World Relief, send questions, and view common FAQ answers."
-  />
+  <title>Contact | One World Relief</title>
+  <meta name="description" content="Contact One World Relief with questions about donations or projects, and read answers to common questions." />
+  <link rel="canonical" href="https://one-world-relief.org/contact.html" />
+  <meta name="theme-color" content="#214f71" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="One World Relief" />
+  <meta property="og:title" content="Contact | One World Relief" />
+  <meta property="og:description" content="Contact One World Relief with questions about donations or projects, and read answers to common questions." />
+  <meta property="og:url" content="https://one-world-relief.org/contact.html" />
+  <meta property="og:image" content="https://one-world-relief.org/assets/brand/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="One World Relief logo and name" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link
-    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="one-world-relief.css" />
 </head>
 <body class="site-body">
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -29,17 +41,17 @@
         <span class="brand-mark">OWR</span>
         <span class="brand-text">One World Relief</span>
       </a>
-      <nav class="main-nav" aria-label="Main navigation">
+      <nav class="main-nav" aria-label="Main">
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
-        <a href="contact.html">Contact</a>
+        <a href="contact.html" aria-current="page">Contact</a>
       </nav>
       <a class="button button-primary header-cta" href="donate.html">Donate</a>
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section class="page-hero reveal">
       <div class="container page-hero-content">
         <p class="eyebrow">Contact</p>
@@ -64,17 +76,19 @@
           <form class="contact-form" id="contactForm">
             <label for="nameField">
               Full Name
-              <input id="nameField" type="text" placeholder="Your full name" />
+              <input id="nameField" name="name" type="text" placeholder="Your full name" autocomplete="name" required />
             </label>
             <label for="emailField">
               Email Address
-              <input id="emailField" type="email" placeholder="your@email.com" />
+              <input id="emailField" name="email" type="email" placeholder="your@email.com" autocomplete="email" required />
             </label>
             <label for="messageField">
               Message
-              <textarea id="messageField" rows="5" placeholder="How can we help?"></textarea>
+              <textarea id="messageField" name="message" rows="5" placeholder="How can we help?" required></textarea>
             </label>
             <button class="button button-primary" type="submit">Email Us</button>
+            <p class="donation-note">This opens your email app with your message filled in.</p>
+            <p class="donation-status" id="contactStatus" role="status"></p>
           </form>
         </article>
       </div>
@@ -88,16 +102,21 @@
       <div class="faq-list">
         <article class="card">
           <h3>How do I donate?</h3>
-          <p>Go to the donate page and choose the category that matches what you want to support.</p>
+          <p>
+            Go to the <a href="donate.html">donate page</a>, choose the cause you want to support, and pay on Stripe's
+            secure checkout page.
+          </p>
         </article>
         <article class="card">
           <h3>Can I follow project updates?</h3>
-          <p>Yes. The projects page is where wells, orphan support updates, and relief campaigns are posted.</p>
+          <p>Yes. The <a href="projects.html">projects page</a> is where wells, orphan support updates, and relief campaigns are posted.</p>
         </article>
         <article class="card">
-          <h3>Can videos be added?</h3>
-          <p>Yes. Each project entry can include a video link, update note, or campaign status.</p>
+          <h3>Is my card information safe?</h3>
+          <p>Payments are processed by Stripe. One World Relief never sees or stores your card number.</p>
         </article>
+        <!-- TODO(owner): Add FAQ answers for "Is my donation tax-deductible?" and "How is Zakat handled?"
+             once the answers are confirmed. -->
         <article class="card">
           <h3>Who should I contact for questions?</h3>
           <p>Email the contact address on this page for donation, partnership, or update questions.</p>
@@ -109,15 +128,15 @@
   <footer class="site-footer">
     <div class="container footer-bar">
       <p>One World Relief</p>
-      <div class="footer-links">
+      <nav class="footer-links" aria-label="Footer">
         <a href="index.html">Home</a>
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
-      </div>
+      </nav>
     </div>
   </footer>
 
-  <script src="one-world-relief.js"></script>
+  <script src="one-world-relief.js" defer></script>
 </body>
 </html>

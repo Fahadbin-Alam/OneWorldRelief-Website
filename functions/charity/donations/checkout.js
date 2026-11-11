@@ -1,3 +1,11 @@
+const ALLOWED_CAMPAIGNS = ["General Fund", "Orphan Support", "Wells", "Zakat", "Feeding"];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_AMOUNT_USD = 1;
+// Stripe Checkout's per-payment ceiling for USD is $999,999.99.
+const MAX_AMOUNT_USD = 999999.99;
+const MAX_NAME_LENGTH = 120;
+const MAX_EMAIL_LENGTH = 254;
+
 const json = (payload, status = 200) => {
   return new Response(JSON.stringify(payload), {
     status,
@@ -26,18 +34,24 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ detail: "Invalid JSON body." }, 400);
   }
 
-  const donorName = String(body.donor_name || "").trim();
-  const donorEmail = String(body.donor_email || "").trim();
+  const donorName = String(body.donor_name || "").trim().slice(0, MAX_NAME_LENGTH);
+  const donorEmail = String(body.donor_email || "").trim().slice(0, MAX_EMAIL_LENGTH);
   const amountUsd = Number(body.amount_usd || 0);
   const paymentMethod = String(body.payment_method || "stripe").trim().toLowerCase();
-  const campaign = String(body.campaign || "General Fund").trim() || "General Fund";
+  const requestedCampaign = String(body.campaign || "").trim();
+  // Only accept known campaigns so arbitrary text cannot end up in Stripe product names or the donation log.
+  const campaign = ALLOWED_CAMPAIGNS.includes(requestedCampaign) ? requestedCampaign : "General Fund";
 
-  if (donorName.length < 2 || !donorEmail.includes("@")) {
+  if (donorName.length < 2 || !EMAIL_PATTERN.test(donorEmail)) {
     return json({ detail: "Please enter a valid donor name and email." }, 400);
   }
 
-  if (!amountUsd || amountUsd <= 0) {
-    return json({ detail: "Donation amount must be greater than zero." }, 400);
+  if (!Number.isFinite(amountUsd) || amountUsd < MIN_AMOUNT_USD) {
+    return json({ detail: `Donation amount must be at least $${MIN_AMOUNT_USD}.` }, 400);
+  }
+
+  if (amountUsd > MAX_AMOUNT_USD) {
+    return json({ detail: "For gifts this large, please contact us directly." }, 400);
   }
 
   if (!["stripe", "credit_card", "card"].includes(paymentMethod)) {
@@ -47,8 +61,10 @@ export const onRequestPost = async ({ request, env }) => {
   const origin = new URL(request.url).origin;
   const donationId = crypto.randomUUID();
   const amountCents = Math.round(amountUsd * 100);
-  const successUrl = body.success_url || `${origin}/charity/thank-you?donation_id=${donationId}&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = body.cancel_url || `${origin}/charity/cancelled?donation_id=${donationId}`;
+  // Redirect URLs are always built server-side. Accepting them from the request body would let anyone
+  // create a real Stripe Checkout page that sends donors to an arbitrary site afterwards (open redirect).
+  const successUrl = `${origin}/charity/thank-you?donation_id=${donationId}&session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = `${origin}/charity/cancelled?donation_id=${donationId}`;
 
   const form = new URLSearchParams();
   form.set("mode", "payment");
