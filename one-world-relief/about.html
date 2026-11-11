@@ -15,10 +15,11 @@
   <meta property="og:site_name" content="One World Relief" />
   <meta property="og:title" content="About One World Relief" />
   <meta property="og:description" content="One World Relief is a 501(c)(3) nonprofit delivering documented direct aid in Bangladesh." />
-  <meta property="og:url" content="https://one-world-relief.org/about.html" />
+  <meta property="og:url" content="https://one-world-relief.org/about" />
   <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
   <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
   <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://one-world-relief.org/about" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
@@ -28,10 +29,11 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
+  <link rel="stylesheet" href="one-world-relief-fit-v2.css" />
   <link rel="stylesheet" href="smooth-motion.css" />
 </head>
 <body class="site-body">
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -60,33 +62,50 @@
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <section class="page-hero reveal">
       <div class="container page-hero-content">
         <p class="eyebrow">About</p>
-        <h1>What you do, why you do it, and how it helps.</h1>
+        <h1>Direct help in Bangladesh, with proof for every case.</h1>
         <p class="lead">
-          One World Relief supports people through clean water, orphan care, feeding, zakat-based support,
-          and urgent humanitarian outreach.
+          One World Relief is a U.S. <span style="font-variant-ligatures: none">501(c)(3)</span> nonprofit. We fund specific cases in Bangladesh, from keeping
+          orphans in school to flood relief and mosque repairs, and publish photos and videos once the help is delivered.
         </p>
       </div>
     </section>
 
-    <section class="container section reveal">
-      <div class="mission-grid">
-        <article class="card">
-          <h3>What We Do</h3>
-          <p>We raise support for projects that meet real needs with clear, practical outcomes.</p>
-        </article>
-        <article class="card">
-          <h3>Why It Matters</h3>
-          <p>Small donations become direct help when they are organized around real people and real needs.</p>
-        </article>
-        <article class="card">
-          <h3>How We Work</h3>
-          <p>We collect, organize, share updates, and keep donors connected to visible impact.</p>
-        </article>
+    <section class="container section about-record reveal" aria-labelledby="aboutRecordTitle">
+      <h2 class="sr-only" id="aboutRecordTitle">Our record so far</h2>
+      <dl class="about-record-grid">
+        <div><dt>Completed cases</dt><dd id="aboutCompletedCount">7</dd></div>
+        <div><dt>Delivered so far</dt><dd id="aboutDeliveredTotal">$4,270</dd></div>
+        <div><dt>Kinds of help</dt><dd id="aboutCategoryCount">6</dd></div>
+      </dl>
+      <p class="about-record-link"><a href="where-the-money-goes.html">See where the money goes <span aria-hidden="true">&rarr;</span></a></p>
+    </section>
+
+    <section class="container section reveal" aria-labelledby="aboutStepsTitle">
+      <div class="section-heading">
+        <p class="eyebrow">How every case works</p>
+        <h2 id="aboutStepsTitle">From a real need to published proof.</h2>
       </div>
+      <ol class="mission-grid about-steps">
+        <li class="card">
+          <span class="about-step-number" aria-hidden="true">1</span>
+          <h3>A specific need</h3>
+          <p>Every case is a real person, family or community in Bangladesh, such as an orphan who needs school fees or families hit by floods.</p>
+        </li>
+        <li class="card">
+          <span class="about-step-number" aria-hidden="true">2</span>
+          <h3>Help delivered directly</h3>
+          <p>Our field team delivers the support to the case, and the amount delivered is recorded on its page.</p>
+        </li>
+        <li class="card">
+          <span class="about-step-number" aria-hidden="true">3</span>
+          <h3>Proof published</h3>
+          <p>Photos and videos go on the case&rsquo;s own page, while private and identifying details stay off the website.</p>
+        </li>
+      </ol>
     </section>
 
     <section class="container section reveal">
@@ -102,7 +121,7 @@
         <div class="official-details" id="official-details" aria-label="One World Relief nonprofit details">
           <article>
             <span style="font-variant-ligatures: none">501(c)(3) Status</span>
-            <strong style="font-variant-ligatures: none">OneWorld Relief is a 501(c)(3) nonprofit organization.</strong>
+            <strong style="font-variant-ligatures: none">One World Relief is a 501(c)(3) nonprofit organization.</strong>
           </article>
           <article>
             <span>EIN</span>
@@ -131,21 +150,24 @@
     <section class="container section reveal">
       <div class="section-heading">
         <p class="eyebrow">Our Focus</p>
-        <h2>Built around clear categories of help</h2>
+        <h2>The kinds of help we fund</h2>
       </div>
       <div class="program-grid">
-        <article class="program-card">
-          <h3>Wells</h3>
-          <p>Fund clean water systems, repairs, and new drilling projects in underserved areas.</p>
-        </article>
-        <article class="program-card">
-          <h3>Orphan Support</h3>
-          <p>Help cover food, care, schooling, essentials, and longer-term support for children.</p>
-        </article>
-        <article class="program-card">
-          <h3>Humanitarian Relief</h3>
-          <p>Respond to urgent community needs with emergency giving, feeding, and aid campaigns.</p>
-        </article>
+        <a class="program-card about-focus-card" href="projects.html#filter=orphan%20support">
+          <h3>Orphan support</h3>
+          <p>School fees, food and essentials so children who have lost a parent can stay in school.</p>
+          <span class="about-focus-link">See orphan cases <span aria-hidden="true">&rarr;</span></span>
+        </a>
+        <a class="program-card about-focus-card" href="projects.html#filter=flood%20relief">
+          <h3>Food and emergency relief</h3>
+          <p>Meals for madrasa students and food packages for families after floods.</p>
+          <span class="about-focus-link">See relief cases <span aria-hidden="true">&rarr;</span></span>
+        </a>
+        <a class="program-card about-focus-card" href="projects.html#filter=mosque%20support">
+          <h3>Mosques and community</h3>
+          <p>Gates, ceiling fans, tiles and water for mosques and madrasas that serve whole neighborhoods.</p>
+          <span class="about-focus-link">See community cases <span aria-hidden="true">&rarr;</span></span>
+        </a>
       </div>
     </section>
   </main>

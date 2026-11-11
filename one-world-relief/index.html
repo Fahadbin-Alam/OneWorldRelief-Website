@@ -19,6 +19,7 @@
   <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
   <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
   <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://one-world-relief.org/" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
@@ -28,11 +29,31 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="one-world-relief-fit-v1.css" />
+  <link rel="stylesheet" href="one-world-relief-fit-v2.css" />
   <link rel="stylesheet" href="smooth-motion.css" />
-  <link rel="stylesheet" href="home-welcome-giving-v2.css" />
+  <link rel="stylesheet" href="home-welcome-giving-v3.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "NGO",
+    "name": "One World Relief",
+    "url": "https://one-world-relief.org/",
+    "logo": "https://one-world-relief.org/assets/one-world-relief-icon.png",
+    "description": "Food, education and community projects in Bangladesh, with photo and video proof for every completed case.",
+    "nonprofitStatus": "Nonprofit501c3",
+    "taxID": "41-5079927",
+    "email": "Oneworldrelief.fma@gmail.com",
+    "telephone": "+1-856-870-7528",
+    "areaServed": "Bangladesh",
+    "potentialAction": {
+      "@type": "DonateAction",
+      "target": "https://one-world-relief.org/donate"
+    }
+  }
+  </script>
 </head>
 <body class="site-body home-page">
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -61,7 +82,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <section class="hero-shell hero-shell-home home-current-scene reveal">
       <div class="container hero hero-home hero-donate-first">
         <a class="home-project-entry" href="projects.html" aria-label="Explore projects">
@@ -118,6 +139,23 @@
         <a href="projects.html#projectBoard">View all projects <span aria-hidden="true">&nearr;</span></a>
         <div class="welcome-impact-line" aria-hidden="true"></div>
       </div>
+      <ul class="container welcome-trust" aria-label="Why donors can trust One World Relief">
+        <li class="welcome-trust-pill">
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M12 3 5 6v5.5c0 4.2 2.9 8 7 9.5 4.1-1.5 7-5.3 7-9.5V6z" /><path d="m9 12 2.2 2.2L15.5 10" /></svg>
+          <span style="font-variant-ligatures: none">501(c)(3) nonprofit &middot; EIN 41-5079927</span>
+        </li>
+        <li class="welcome-trust-pill">
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5" /><circle cx="12" cy="13" r="3.5" /><path d="M8.5 6.5 10 4h4l1.5 2.5" /></svg>
+          <span>Photo or video proof for every completed case</span>
+        </li>
+        <li>
+          <a class="welcome-trust-pill" href="where-the-money-goes.html">
+            <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M4 19h16M6.5 16v-5M11 16V7M15.5 16v-7M20 16V5" /></svg>
+            <span>See where the money goes</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+      </ul>
       <details class="container welcome-count-note">
         <summary>Behind the numbers</summary>
         <p>Our individual student count includes one student each from <a href="projects/case-001.html">Case 001</a> and <a href="projects/case-003.html">Case 003</a>. Group meals and other aid reach more people, but are not included without a verified headcount.</p>
@@ -254,6 +292,6 @@
   <script src="donation-programs-giving-v1.js"></script>
   <script src="project-data.js"></script>
   <script src="one-world-relief-giving-v1.js"></script>
-  <script src="home-welcome-giving-v1.js"></script>
+  <script src="home-welcome-giving-v2.js"></script>
 </body>
 </html>

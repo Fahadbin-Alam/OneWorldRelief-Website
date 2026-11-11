@@ -1,0 +1,130 @@
+<!-- One World Relief printable donation flyer (one Letter/A4 page). Linked from share.html. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>One World Relief | Printable donation flyer</title>
+  <meta name="description" content="A one-page One World Relief flyer with a donation QR code, real case photos, and nonprofit details." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    @page { size: letter; margin: 0.4in; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e8f2f6; color: #183447; font-family: "Manrope", "Segoe UI", sans-serif; font-variant-ligatures: none; }
+    .flyer-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; padding: 18px 16px; }
+    .flyer-toolbar p { margin: 0; font-size: 14px; color: #4f6b7e; }
+    .flyer-toolbar button, .flyer-toolbar a { min-height: 44px; padding: 10px 20px; border: 1px solid #1b4d6b; border-radius: 999px; font: 800 15px/1 "Manrope", sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .flyer-toolbar button { background: #1b4d6b; color: #fff; }
+    .flyer-toolbar a { background: #fff; color: #1b4d6b; }
+    .flyer-toolbar button:focus-visible, .flyer-toolbar a:focus-visible { outline: 3px solid #d7a536; outline-offset: 2px; }
+    .flyer { width: 7.7in; min-height: 10.2in; margin: 0 auto 32px; padding: 0.45in 0.5in; background: #fff; box-shadow: 0 20px 50px rgba(24, 52, 71, 0.15); display: grid; grid-template-rows: auto auto auto 1fr auto; gap: 0.22in; }
+    .flyer-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
+    .flyer-brand img { width: 46px; height: 46px; border-radius: 12px; }
+    .flyer h1 { margin: 0; font-family: "Source Serif 4", Georgia, serif; font-size: 40px; line-height: 1.05; letter-spacing: -0.01em; }
+    .flyer-intro { margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #2c4a5e; max-width: 6in; }
+    .flyer-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .flyer-photos figure { margin: 0; }
+    .flyer-photos img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; }
+    .flyer-photos figcaption { margin-top: 6px; font-size: 12.5px; line-height: 1.35; font-weight: 700; }
+    .flyer-photos figcaption span { display: block; color: #8a5a00; }
+    .flyer-give { display: grid; grid-template-columns: 1fr 2.3in; gap: 0.3in; align-items: center; padding: 0.25in; border: 2px solid #1b4d6b; border-radius: 16px; }
+    .flyer-give h2 { margin: 0 0 6px; font-family: "Source Serif 4", Georgia, serif; font-size: 28px; }
+    .flyer-give p { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: #2c4a5e; }
+    .flyer-record { display: flex; gap: 22px; margin: 4px 0 0; }
+    .flyer-record div { display: grid; }
+    .flyer-record dt { order: 2; font-size: 12px; color: #4f6b7e; font-weight: 700; }
+    .flyer-record dd { order: 1; margin: 0; font-family: "Source Serif 4", Georgia, serif; font-size: 26px; font-weight: 700; }
+    .flyer-qr { text-align: center; }
+    .flyer-qr img { width: 2.1in; height: 2.1in; display: block; margin: 0 auto 6px; }
+    .flyer-qr strong { display: block; font-size: 15px; }
+    .flyer-qr span { font-size: 13px; color: #2c4a5e; }
+    .flyer-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding-top: 12px; border-top: 1px solid #d4e3ea; font-size: 12.5px; color: #2c4a5e; }
+    .flyer-footer strong { color: #183447; }
+    @media screen and (max-width: 820px) {
+      .flyer { width: auto; min-height: 0; margin: 0 12px 24px; padding: 22px 18px; }
+      .flyer h1 { font-size: 30px; }
+      .flyer-give { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .flyer-toolbar { display: none; }
+      .flyer { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; gap: 0.2in; }
+    }
+  </style>
+</head>
+<body>
+  <div class="flyer-toolbar">
+    <p>A one-page flyer for notice boards, Friday prayers and events.</p>
+    <button type="button" id="printFlyer">Print or save as PDF</button>
+    <a href="share.html">Back to Share</a>
+  </div>
+
+  <main class="flyer" id="main">
+    <div class="flyer-brand">
+      <img src="assets/one-world-relief-icon-192.png" alt="" />
+      <span>One World Relief</span>
+    </div>
+
+    <header>
+      <h1>Your gift reaches real people in Bangladesh.</h1>
+      <p class="flyer-intro">
+        We fund specific cases, from keeping orphans in school to food for flood-hit families, and publish
+        photos and videos of every completed case at one-world-relief.org.
+      </p>
+    </header>
+
+    <ul class="flyer-photos" aria-label="Completed cases">
+      <li>
+        <figure>
+          <img src="assets/projects/case-001/orphan-support-001-thumbnail.jpg" alt="A young Hafiz student holding a support envelope" />
+          <figcaption>Kept a Hafiz student in school <span>$600 delivered</span></figcaption>
+        </figure>
+      </li>
+      <li>
+        <figure>
+          <img src="assets/projects/case-005/flood-relief-005-delivery.jpg" alt="A food package handed over to a flood-affected family" />
+          <figcaption>Food for flood-affected families <span>$450 delivered</span></figcaption>
+        </figure>
+      </li>
+      <li>
+        <figure>
+          <img src="assets/projects/case-009/mosque-fans-009-thumbnail.jpg" alt="Boxed ceiling fans inside a newly built mosque" />
+          <figcaption>Twenty ceiling fans for a new mosque <span>$1,650 delivered</span></figcaption>
+        </figure>
+      </li>
+    </ul>
+
+    <section class="flyer-give" aria-labelledby="flyerGiveTitle">
+      <div>
+        <h2 id="flyerGiveTitle">Give in under a minute.</h2>
+        <p>Scan the code with your phone camera. Choose a cause and an amount, and pay securely through Stripe. Your receipt arrives by email.</p>
+        <dl class="flyer-record">
+          <div><dt>completed cases</dt><dd id="flyerCompletedCount">7</dd></div>
+          <div><dt>delivered so far</dt><dd id="flyerDeliveredTotal">$4,270</dd></div>
+        </dl>
+      </div>
+      <div class="flyer-qr">
+        <img src="assets/one-world-relief-donate-qr.svg" alt="QR code linking to the One World Relief donation page" />
+        <strong>Scan to donate</strong>
+        <span>one-world-relief.org/donate</span>
+      </div>
+    </section>
+
+    <footer class="flyer-footer">
+      <span><strong>One World Relief</strong> &middot; 501(c)(3) nonprofit &middot; EIN 41-5079927</span>
+      <span>Oneworldrelief.fma@gmail.com &middot; 856-870-7528</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("printFlyer").addEventListener("click", () => window.print());
+  </script>
+</body>
+</html>

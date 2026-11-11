@@ -1,0 +1,261 @@
+/* One World Relief case pages: readable intro text, photo viewer, "More cases" strip. */
+
+/* The intro under each case title used the soft grey-blue on a light blue background
+   (about 2.8:1 contrast) and was centred under a left-aligned headline. Darken it so it
+   passes WCAG AA and line it up with the title. */
+.project-detail-copy .lead {
+  max-width: 46ch;
+  margin-inline: 0;
+  color: #2c4a5e;
+}
+
+/* ---------- Photo viewer ---------- */
+.case-photo-zoomable {
+  cursor: zoom-in;
+}
+
+.case-photo-zoomable:focus-visible {
+  outline: 3px solid var(--gold, #d7a536);
+  outline-offset: -3px;
+}
+
+html.case-photo-viewer-open {
+  overflow: hidden;
+}
+
+.case-photo-viewer {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.case-photo-viewer::backdrop {
+  background: rgba(8, 22, 32, 0.92);
+}
+
+.case-photo-viewer-frame {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 0.8rem;
+  height: 100%;
+  margin: 0;
+  padding: clamp(3.6rem, 7vh, 4.5rem) clamp(0.75rem, 6vw, 5.5rem) 1.2rem;
+  box-sizing: border-box;
+}
+
+.case-photo-viewer-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  align-self: center;
+}
+
+.case-photo-viewer-frame figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.case-photo-viewer-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+.case-photo-viewer button {
+  position: fixed;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: 600 1.9rem/1 system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.case-photo-viewer button:hover,
+.case-photo-viewer button:focus-visible {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.case-photo-viewer button:focus-visible {
+  outline: 3px solid var(--gold, #d7a536);
+  outline-offset: 2px;
+}
+
+.case-photo-viewer-close {
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+.case-photo-viewer-step {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.case-photo-viewer-prev {
+  left: 0.75rem;
+}
+
+.case-photo-viewer-next {
+  right: 0.75rem;
+}
+
+.case-photo-viewer button[hidden] {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  /* On phones the arrows sit at the bottom so they never cover the photo. */
+  .case-photo-viewer-step {
+    top: auto;
+    bottom: 0.9rem;
+    transform: none;
+  }
+
+  .case-photo-viewer-frame {
+    padding-bottom: 4.6rem;
+  }
+}
+
+/* ---------- More cases ---------- */
+.case-more-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.case-more-heading h2 {
+  margin: 0;
+}
+
+.case-more-heading a {
+  color: var(--blue-700, #1d5476);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.case-more-heading a:hover {
+  text-decoration: underline;
+}
+
+.case-more-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.case-more-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-lg, 22px);
+  background: var(--ink, #183447);
+  box-shadow: var(--shadow, 0 20px 44px rgba(45, 91, 122, 0.1));
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.case-more-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.case-more-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 22, 32, 0) 35%, rgba(8, 22, 32, 0.82) 100%);
+}
+
+.case-more-copy {
+  position: absolute;
+  z-index: 1;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0.95rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.case-more-copy small {
+  font-size: 0.78rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.case-more-copy strong {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 1.2rem;
+  line-height: 1.15;
+}
+
+.case-more-copy span {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #ffe3a1;
+}
+
+.case-more-card:hover,
+.case-more-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 50px rgba(45, 91, 122, 0.22);
+}
+
+.case-more-card:hover img,
+.case-more-card:focus-visible img {
+  transform: scale(1.045);
+}
+
+.case-more-card:focus-visible {
+  outline: 3px solid var(--gold, #d7a536);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  /* Swipe row on phones, with the next card peeking in. */
+  .case-more-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 78%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.4rem;
+  }
+
+  .case-more-card {
+    scroll-snap-align: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-more-card,
+  .case-more-card img {
+    transition: none;
+  }
+}

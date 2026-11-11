@@ -23,6 +23,36 @@
     const originals = [...projectTrack.querySelectorAll('.case-flow-card:not([aria-hidden="true"])')];
     let isVisible = false;
     let measureFrame = 0;
+    // Phones show one card at a time, but browsers still fetch every lazy card in the swipe row.
+    // Hold back the photos after the first one until the visitor swipes close to them.
+    const blankImage = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    let heldBack = [];
+    const showPhoto = image => {
+      const src = image.getAttribute('data-src');
+      if (!src) return;
+      image.src = src;
+      image.removeAttribute('data-src');
+    };
+    const showAllPhotos = () => {
+      heldBack.forEach(showPhoto);
+      heldBack = [];
+    };
+    if (mobileLayout.matches && 'IntersectionObserver' in window && shell) {
+      heldBack = originals.slice(1).map(card => card.querySelector('img')).filter(Boolean);
+      heldBack.forEach(image => {
+        image.setAttribute('data-src', image.getAttribute('src'));
+        image.src = blankImage;
+      });
+      const swipeObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          showPhoto(entry.target);
+          swipeObserver.unobserve(entry.target);
+        });
+      }, { root: shell, rootMargin: '0px 100%' });
+      heldBack.forEach(image => swipeObserver.observe(image));
+      mobileLayout.addEventListener?.('change', showAllPhotos);
+    }
     let lastDistance = 0;
     const syncRotation = () => {
       projectFlow.classList.toggle('is-motion-idle', !isVisible || document.hidden || motionPreference.matches);
@@ -97,7 +127,8 @@
       const imageObserver = new IntersectionObserver(entries => {
         if (!entries.some(entry => entry.isIntersecting)) return;
         imageObserver.disconnect();
-        if (navigator.connection?.saveData) return;
+        if (navigator.connection?.saveData || mobileLayout.matches) return;
+        showAllPhotos();
         originals.forEach(card => {
           const image = card.querySelector('img');
           if (!image) return;

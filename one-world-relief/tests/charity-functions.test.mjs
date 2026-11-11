@@ -865,7 +865,7 @@ test("Zakat page offers an English wizard with evidence, accessible controls and
   assert.match(zakatJs, /document\.documentElement\.dir = "ltr"/);
   assert.doesNotMatch(zakatHtml, /id="zakatLanguage"|data-zakat-i18n/);
   assert.doesNotMatch(zakatJs, /localStorage|currentLanguage|rtlLanguages/);
-  for (const asset of ["zakat-studio-clean-v2.css", "zakat-calculator-clean-v3.js", "one-world-relief-giving-v1.js"]) {
+  for (const asset of ["zakat-studio-clean-v3.css", "zakat-calculator-clean-v3.js", "one-world-relief-giving-v1.js"]) {
     assert.ok(zakatHtml.includes(`="${asset}"`), `${asset} should use the new public cache alias`);
   }
 
@@ -1165,7 +1165,7 @@ test("pages include the supplied One World Relief logo and install icons", async
   assert.match(webManifest, /"name": "One World Relief"/);
   assert.match(webManifest, /one-world-relief-icon-192\.png/);
   assert.match(webManifest, /one-world-relief-icon\.png/);
-  assert.match(serviceWorker, /owr-offline-v57/);
+  assert.match(serviceWorker, /owr-offline-v59/);
   assert.match(serviceWorker, /\/one-world-relief-blue-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v1\.css/);
   assert.match(serviceWorker, /\/one-world-relief-community-v2\.css/);
@@ -1477,7 +1477,7 @@ test("offline fallback shows branded connection page after first visit", async (
   assert.match(offlineHtml, /offline-dino-scene/);
   assert.match(offlineHtml, /Try Again/);
   assert.match(siteJs, /navigator\.serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(serviceWorker, /owr-offline-v57/);
+  assert.match(serviceWorker, /owr-offline-v59/);
   assert.match(serviceWorker, /caches\.match\("\/offline\.html"\)/);
   assert.match(serviceWorker, /url\.origin === self\.location\.origin/);
   assert.match(serviceWorker, /APP_SHELL_PATHS\.has\(url\.pathname\)/);
@@ -1548,9 +1548,9 @@ test("homepage checkout accepts a custom amount or annual orphan support with ac
   assert.ok(quickFormMatch, "homepage should contain the quick donation form");
   const quickForm = quickFormMatch[0];
 
-  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-fit-v1\.css" \/>/);
-  assert.match(serviceWorker, /"\/one-world-relief-fit-v1\.css"/);
-  assert.match(redirectsSource, /^\/one-world-relief-fit-v1\.css \/one-world-relief\.css 200$/m);
+  assert.match(homeHtml, /<link rel="stylesheet" href="one-world-relief-fit-v2\.css" \/>/);
+  assert.match(serviceWorker, /"\/one-world-relief-fit-v2\.css"/);
+  assert.match(redirectsSource, /^\/one-world-relief-fit-v2\.css \/one-world-relief\.css 200$/m);
   assert.match(quickForm, /aria-label="Make a donation"/);
   assert.match(quickForm, /<h1 id="homeImpactTitle">Make a donation<\/h1>/);
   assert.match(quickForm, /class="quick-donation-subtitle">Choose an amount\. Pick a cause next\.<\/p>/);
@@ -1659,8 +1659,8 @@ test("homepage keeps one donation form and rotating projects with controllable b
   assert.match(welcomeCss, /\.home-page \.faith-video-bg\s*\{[^}]*display: block;/);
   assert.match(welcomeCss, /\.home-page \.faith-video-bg\s*\{[^}]*position: absolute;/);
   assert.match(welcomeCss, /\.home-page \.faith-video-bg\s*\{[^}]*object-fit: cover;/);
-  assert.match(html, /home-welcome-giving-v2\.css/);
-  assert.match(html, /home-welcome-giving-v1\.js/);
+  assert.match(html, /home-welcome-giving-v3\.css/);
+  assert.match(html, /home-welcome-giving-v2\.js/);
 });
 
 test("home page offers project access and four next steps without repeating the donation form", async () => {
@@ -1781,7 +1781,7 @@ test("not-found page uses absolute paths and security headers are conservative",
     readFile("donate.html", "utf8"),
   ]);
   assert.match(notFound, /<meta name="robots" content="noindex" \/>/);
-  assert.match(notFound, /href="\/one-world-relief-fit-v1\.css"/);
+  assert.match(notFound, /href="\/one-world-relief-fit-v2\.css"/);
   assert.doesNotMatch(notFound, /(?:href|src)="(?!\/|https:|#)/, "404 links must be absolute because it is served at any path");
   assert.match(headers, /^\/\*$/m);
   assert.match(headers, /X-Content-Type-Options: nosniff/);
@@ -1826,8 +1826,8 @@ test("mobile layouts retain navigation and use contained, touch-friendly static 
     assert.match(html, /<details class="mobile-nav-menu">[\s\S]*?<summary>Menu<\/summary>[\s\S]*?<\/details>/, `${name} should provide a compact phone navigation menu`);
     assert.equal((html.match(/<details class="mobile-nav-menu">/g) || []).length, 1, `${name} should include one phone navigation menu`);
     const expectedStylesheet = name.startsWith("projects/case-")
-      ? /href="\.\.\/one-world-relief-fit-v1\.css"/
-      : /href="one-world-relief-fit-v1\.css"/;
+      ? /href="\.\.\/one-world-relief-fit-v2\.css"/
+      : /href="one-world-relief-fit-v2\.css"/;
     assert.match(html, expectedStylesheet, `${name} should use the mobile release stylesheet path`);
     if (name.startsWith("projects/case-")) {
       assert.doesNotMatch(html, /preload="metadata"/, `${name} should not preload project video data on phones`);
@@ -3490,4 +3490,97 @@ test("upcoming project progress bars only appear for confirmed budgets and the m
   assert.match(moneyJs, /status \|\| ""\)\.toLowerCase\(\)\.includes\("completed"\)/);
   assert.match(moneyHtml, /EIN 41-5079927/);
   assert.match(moneyHtml, /href="zakat\.html"[^>]*>Zakat<\/a>/);
+});
+
+test("case pages load the photo viewer and More cases strip, and every case shares with its own link preview", async () => {
+  const projectData = await readFile("project-data.js", "utf8");
+  const context = { window: {} };
+  runInNewContext(projectData, context);
+  const projects = context.window.ONE_WORLD_RELIEF_PROJECTS;
+  const extrasJs = await readFile("case-extras.js", "utf8");
+  assert.match(extrasJs, /viewer\.showModal\(\)/);
+  assert.match(extrasJs, /event\.key === "Escape"|viewer\.close\(\)/);
+  assert.match(extrasJs, /photo\.setAttribute\("role", "button"\)/);
+  assert.match(extrasJs, /escapeHtml\(project\.title\)/);
+
+  for (let number = 1; number <= 10; number += 1) {
+    const slug = `case-${String(number).padStart(3, "0")}`;
+    const html = await readFile(`projects/${slug}.html`, "utf8");
+    assert.match(html, /<link rel="stylesheet" href="\.\.\/case-extras\.css" \/>/, slug);
+    assert.match(html, /<script src="\.\.\/project-data\.js"><\/script>\s*<script src="\.\.\/case-extras\.js"><\/script>/, slug);
+    assert.match(html, new RegExp(`<link rel="canonical" href="https://one-world-relief\\.org/projects/${slug}" />`), slug);
+    assert.match(html, new RegExp(`<meta property="og:url" content="https://one-world-relief\\.org/projects/${slug}" />`), slug);
+    const project = projects.find((item) => item.mediaUrl === `projects/${slug}.html`);
+    if (project?.thumbnailUrl) {
+      assert.ok(html.includes(`<meta property="og:image" content="https://one-world-relief.org/${project.thumbnailUrl}" />`), slug);
+      await readFile(project.thumbnailUrl);
+    }
+  }
+});
+
+test("homepage trust line and search listing data stay accurate", async () => {
+  const html = await readFile("index.html", "utf8");
+  const trust = html.match(/<ul class="container welcome-trust"[\s\S]*?<\/ul>/)?.[0];
+  assert.ok(trust, "homepage should show the trust line");
+  assert.match(trust, /style="font-variant-ligatures: none">501\(c\)\(3\) nonprofit &middot; EIN 41-5079927</);
+  assert.match(trust, /href="where-the-money-goes\.html"/);
+
+  // "Proof for every completed case" must stay true: each completed case page has a photo or video.
+  const context = { window: {} };
+  runInNewContext(await readFile("project-data.js", "utf8"), context);
+  for (const project of context.window.ONE_WORLD_RELIEF_PROJECTS.filter((item) => /completed/i.test(item.status))) {
+    const page = await readFile(project.mediaUrl, "utf8");
+    assert.match(page.split("<main")[1], /<img\b|<video\b/, project.mediaUrl);
+  }
+
+  const data = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(data["@type"], "NGO");
+  assert.equal(data.taxID, "41-5079927");
+  assert.equal(data.nonprofitStatus, "Nonprofit501c3");
+  assert.match(html, /<link rel="canonical" href="https:\/\/one-world-relief\.org\/" \/>/);
+});
+
+test("About page and printable flyer show numbers that match project data, and every page has a skip link", async () => {
+  const context = { window: {} };
+  runInNewContext(await readFile("project-data.js", "utf8"), context);
+  const projects = context.window.ONE_WORLD_RELIEF_PROJECTS;
+  const completed = projects.filter((project) => /completed/i.test(project.status));
+  const total = completed.reduce((sum, project) => sum + Number(project.amountRaised.replace(/[^0-9.]/g, "")), 0);
+  const categories = new Set(projects.map((project) => project.category));
+  const money = `$${total.toLocaleString("en-US")}`;
+
+  const about = await readFile("about.html", "utf8");
+  assert.ok(about.includes(`id="aboutCompletedCount">${completed.length}<`), "About completed count");
+  assert.ok(about.includes(`id="aboutDeliveredTotal">${money}<`), "About delivered total");
+  assert.ok(about.includes(`id="aboutCategoryCount">${categories.size}<`), "About category count");
+  assert.doesNotMatch(about, /What you do, why you do it|OneWorld Relief/);
+  const lowerCategories = [...categories].map((category) => category.toLowerCase());
+  for (const match of about.matchAll(/href="projects\.html#filter=([^"]+)"/g)) {
+    assert.ok(lowerCategories.includes(decodeURIComponent(match[1])), `${match[1]} should be a real project filter`);
+  }
+
+  const flyer = await readFile("flyer.html", "utf8");
+  assert.ok(flyer.includes(`id="flyerCompletedCount">${completed.length}<`), "flyer completed count");
+  assert.ok(flyer.includes(`id="flyerDeliveredTotal">${money}<`), "flyer delivered total");
+  assert.match(flyer, /<meta name="robots" content="noindex" \/>/);
+  assert.match(flyer, /src="assets\/one-world-relief-donate-qr\.svg"/);
+  assert.match(flyer, /EIN 41-5079927/);
+  for (const [, amount] of flyer.matchAll(/<span>(\$[\d,]+) delivered<\/span>/g)) {
+    assert.ok(completed.some((project) => project.amountRaised === amount), `${amount} should be a real completed case amount`);
+  }
+  for (const [, src] of flyer.matchAll(/<img src="([^"]+)"/g)) await readFile(src);
+  assert.match(await readFile("share.html", "utf8"), /href="flyer\.html"/);
+
+  const pages = ["index.html", "about.html", "contact.html", "donate.html", "projects.html", "share.html", "supporters.html",
+    "zakat.html", "where-the-money-goes.html", "404.html", "offline.html",
+    ...Array.from({ length: 10 }, (_, index) => `projects/case-${String(index + 1).padStart(3, "0")}.html`)];
+  for (const page of pages) {
+    const html = await readFile(page, "utf8");
+    assert.match(html, /<body[^>]*>\s*<a class="skip-link" href="#main">Skip to content<\/a>/, page);
+    assert.match(html, /<main id="main"/, page);
+  }
+
+  const css = await readFile("one-world-relief.css", "utf8");
+  assert.match(css, /--ink-soft: #4f6b7e;/, "soft text colour must stay dark enough for WCAG AA on the light blue backgrounds");
+  assert.match(css, /\.skip-link:focus \{/);
 });
