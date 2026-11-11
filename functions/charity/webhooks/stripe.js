@@ -1,3 +1,12 @@
+const SIGNATURE_TOLERANCE_SECONDS = 300;
+
+// Donor-supplied text is written with valueInputOption=USER_ENTERED, so a name such as "=HYPERLINK(...)"
+// would otherwise run as a spreadsheet formula. A leading apostrophe makes Sheets store it as plain text.
+const sheetSafe = (value) => {
+  const textValue = String(value ?? "");
+  return /^[=+\-@\t\r]/.test(textValue) ? `'${textValue}` : textValue;
+};
+
 const text = (message, status = 200) => {
   return new Response(message, {
     status,
@@ -104,10 +113,10 @@ const appendDonationToGoogleSheet = async (env, session) => {
   const row = [
     metadata.donation_id || session.client_reference_id || "",
     new Date((session.created || Date.now() / 1000) * 1000).toISOString(),
-    metadata.donor_name || session.customer_details?.name || "",
-    metadata.donor_email || session.customer_details?.email || session.customer_email || "",
+    sheetSafe(metadata.donor_name || session.customer_details?.name || ""),
+    sheetSafe(metadata.donor_email || session.customer_details?.email || session.customer_email || ""),
     ((session.amount_total || 0) / 100).toFixed(2),
-    metadata.campaign || "General Fund",
+    sheetSafe(metadata.campaign || "General Fund"),
     session.id || "",
     session.payment_status || "",
     session.payment_intent || "",
@@ -140,6 +149,12 @@ const verifyStripeSignature = async (body, header, configuredSecrets) => {
   const timestamp = header.match(/(?:^|,)t=([^,]+)/)?.[1];
   const signatures = [...header.matchAll(/(?:^|,)v1=([^,]+)/g)].map((match) => match[1]);
   if (!timestamp || signatures.length === 0) {
+    return false;
+  }
+
+  // Reject old events so a captured request cannot be replayed later (Stripe's default tolerance is 5 minutes).
+  const ageSeconds = Math.abs(Math.floor(Date.now() / 1000) - Number(timestamp));
+  if (!Number.isFinite(ageSeconds) || ageSeconds > SIGNATURE_TOLERANCE_SECONDS) {
     return false;
   }
 

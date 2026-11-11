@@ -1,0 +1,8 @@
+# Security headers for Cloudflare Pages (applied to every static page and asset).
+# No Content-Security-Policy yet: add one only after testing Stripe redirects, Google Fonts and project images.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
