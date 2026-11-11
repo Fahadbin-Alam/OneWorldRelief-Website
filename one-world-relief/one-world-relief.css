@@ -3,7 +3,8 @@
 /* From One World Relief multi-page mobile-friendly site system, 4/23/26 */
 :root {
   --ink: #183447;
-  --ink-soft: #628094;
+  /* Darkened from #628094 so secondary text meets WCAG AA (4.5:1) on white and sky backgrounds. */
+  --ink-soft: #557386;
   --mint: #2f9f89;
   --gold: #d7a536;
   --paper: #ffffff;
@@ -12,7 +13,8 @@
   --sky-200: #d9efff;
   --sky-300: #bee1f6;
   --blue-500: #4d95c2;
-  --blue-600: #3379a8;
+  /* Darkened from #3379a8: 5.4:1 on white, 5.1:1 on sky-100, safe for small text. */
+  --blue-600: #2f6f99;
   --blue-700: #214f71;
   --serif: "Source Serif 4", Georgia, serif;
   --header-sans: "Plus Jakarta Sans", "Manrope", "Segoe UI", sans-serif;
@@ -653,7 +655,7 @@ ul {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--blue-500);
+  color: var(--blue-600);
 }
 
 .hero h1,
@@ -1642,7 +1644,7 @@ ul {
 }
 
 .qr-modal-panel .eyebrow {
-  color: var(--blue-500);
+  color: var(--blue-600);
   font-size: 0.82rem;
 }
 
@@ -1716,7 +1718,7 @@ ul {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--blue-500);
+  color: var(--blue-600);
 }
 
 .nav-card strong {
@@ -1785,7 +1787,7 @@ ul {
 .official-details span {
   display: block;
   margin-bottom: 0.45rem;
-  color: var(--blue-500);
+  color: var(--blue-600);
   font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -4231,7 +4233,7 @@ ul {
   font-size: 0.82rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: var(--blue-500);
+  color: var(--blue-600);
 }
 
 .project-media-banner strong,
@@ -11937,4 +11939,28 @@ html {
   .site-body .site-header .container.header-wrap .header-cta.button::after {
     display: none;
   }
+}
+
+
+/* Skip link: hidden until focused, so keyboard and screen-reader users can jump past the header. */
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--blue-700);
+  font-weight: 800;
+  text-decoration: none;
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+main:focus {
+  outline: none;
 }
