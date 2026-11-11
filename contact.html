@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="one-world-relief.css" />
 </head>
 <body class="site-body">
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -29,17 +30,17 @@
         <span class="brand-mark">OWR</span>
         <span class="brand-text">One World Relief</span>
       </a>
-      <nav class="main-nav" aria-label="Main navigation">
+      <nav class="main-nav" aria-label="Main">
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
-        <a href="contact.html">Contact</a>
+        <a href="contact.html" aria-current="page">Contact</a>
       </nav>
       <a class="button button-primary header-cta" href="donate.html">Donate</a>
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section class="page-hero reveal">
       <div class="container page-hero-content">
         <p class="eyebrow">Contact</p>
@@ -109,12 +110,12 @@
   <footer class="site-footer">
     <div class="container footer-bar">
       <p>One World Relief</p>
-      <div class="footer-links">
+      <nav class="footer-links" aria-label="Footer">
         <a href="index.html">Home</a>
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="donate.html">Donate</a>
-      </div>
+      </nav>
     </div>
   </footer>
 
