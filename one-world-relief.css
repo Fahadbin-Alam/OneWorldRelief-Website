@@ -859,12 +859,38 @@ ul {
 }
 
 @media (max-width: 980px) {
+  /* Keep navigation and the Donate button reachable on tablets and phones:
+     the nav drops to its own scrollable row under the brand. */
+  .header-wrap {
+    flex-wrap: wrap;
+    row-gap: 0;
+    padding-top: 0.55rem;
+  }
+
   .main-nav {
+    order: 3;
+    width: 100%;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding: 0.3rem 0 0.55rem;
+    scrollbar-width: none;
+  }
+
+  .main-nav::-webkit-scrollbar {
     display: none;
   }
 
+  .main-nav a {
+    flex: 0 0 auto;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    background: var(--sky-100);
+    font-size: 0.92rem;
+  }
+
   .header-cta {
-    display: none;
+    min-height: 40px;
+    padding: 0.5rem 1rem;
   }
 
   .quick-links,
@@ -902,6 +928,14 @@ ul {
 
   .header-wrap {
     min-height: 68px;
+  }
+
+  .site-header .header-cta {
+    width: auto;
+  }
+
+  .brand-text {
+    font-size: 0.96rem;
   }
 
   .hero-shell {
