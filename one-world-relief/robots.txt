@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /charity/
+
+Sitemap: https://one-world-relief.org/sitemap.xml
