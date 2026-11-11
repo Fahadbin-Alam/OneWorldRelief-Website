@@ -85,6 +85,19 @@
 .welcome-impact > a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; font-weight: 800; color: #175b7c; padding-block: 10px; }
 .welcome-impact-line { position: absolute; inset: auto 0 0; height: 3px; width: 100%; background: #57a9b8; transform-origin: left; }
 .welcome-impact.is-visible .welcome-impact-line { animation: impact-grow 1.4s ease-out both; }
+/* Trust line under the impact numbers: legal status, proof, and where the money goes. */
+.welcome-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 12px; margin-top: 16px; margin-bottom: 0; padding: 0 6px; list-style: none; }
+.welcome-trust li { display: flex; }
+.welcome-trust-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; border: 1px solid rgba(24, 52, 71, .1); border-radius: 999px; background: rgba(255, 255, 255, .78); color: #1f4258; font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+.welcome-trust svg { flex: none; width: 18px; height: 18px; fill: none; stroke: #1d6f8c; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.welcome-trust a.welcome-trust-pill { border-color: rgba(29, 111, 140, .45); color: #17506e; text-decoration: none; transition: border-color .18s ease, background .18s ease; }
+.welcome-trust a.welcome-trust-pill:hover { border-color: #1d6f8c; background: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.welcome-trust a.welcome-trust-pill:focus-visible { outline: 3px solid #23849b; outline-offset: 3px; }
+@media (max-width: 720px) {
+  .welcome-trust { flex-direction: column; align-items: stretch; gap: 6px; margin-top: 12px; }
+  .welcome-trust-pill { width: 100%; justify-content: center; box-sizing: border-box; min-height: 38px; padding: 7px 12px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .welcome-trust a.welcome-trust-pill { transition: none; } }
 .welcome-count-note { padding: 6px 6px 0; color: #496779; font-size: 13px; }
 .welcome-count-note summary { cursor: pointer; width: fit-content; min-height: 44px; margin: auto; padding: 11px 8px; }
 .welcome-count-note p { max-width: 650px; margin: 10px auto; }

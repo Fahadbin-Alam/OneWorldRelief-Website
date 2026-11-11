@@ -3395,3 +3395,9 @@ Pending earlier work: the cleaner Zakat calculator was integrated locally (zakat
 - Donate page photo now uses srcset with new 800/1200px WebP copies (85/150 KB) instead of always loading the 435 KB JPG.
 - Projects page gained a screen-reader-only h1.
 - HTML/asset-only change: no CSS/JS alias or service-worker bump needed. Two new tests; all 102 tests pass.
+## November 11, 2026 — Preview batch 3 (PR, NOT DEPLOYED)
+- Homepage on phones: only the first carousel photo loads up front; the rest load as the visitor swipes near them (`home-welcome.js`, alias `home-welcome-giving-v2.js`). Desktop is unchanged. Phone page weight in a local check dropped from about 1,162 KB to 839 KB uncompressed.
+- Homepage trust line under the impact numbers: "501(c)(3) nonprofit · EIN 41-5079927", "Photo or video proof for every completed case", and a link to Where the money goes (`home-welcome.css`, alias `home-welcome-giving-v3.css`). A test checks every completed case page still has a photo or video, so the proof claim stays true.
+- Case pages load `project-data.js` + new `case-extras.js` / `case-extras.css`: tap any photo to open a full-screen viewer (arrows, swipe, Esc, keyboard focus), and a "More cases" strip of the next three cases with photos at the end of each page. The intro paragraph under each case title is darker (was ~2.8:1 contrast) and aligned with the headline.
+- Every case page now has its own link preview (og/twitter tags using the case thumbnail from project-data.js; Case 007 has no photo yet so it uses the Case 004 photo). All public pages have a canonical URL in Cloudflare's clean form (`/about`, `/projects/case-001`), og:url now matches it, and the homepage has NGO structured data (EIN, 501(c)(3), donate URL).
+- Service worker cache v58. New tests cover the case-page wiring, link previews, trust line and the phone photo hold-back. All 112 tests pass.

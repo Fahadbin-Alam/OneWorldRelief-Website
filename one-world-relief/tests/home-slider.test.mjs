@@ -58,7 +58,7 @@ function createSlider({ mobile = false, reduced = false, width = 1440, saveData 
       super({ "aria-label": `Open project ${index + 1}`, href: `projects/case-${index + 1}.html` });
       this.index = index;
       this.style.setProperty("--card-lift", ["0px", "1.8rem", ".85rem"][index % 3]);
-      this.image = new Element({ alt: `Project ${index + 1}` });
+      this.image = new Element({ alt: `Project ${index + 1}`, src: `thumb-${index + 1}.webp` });
       this.image.loading = "lazy";
       this.image.decodeCalls = 0;
       this.image.decode = () => {
@@ -292,4 +292,19 @@ test("nearby thumbnails warm without measuring layout, while data-saving mode st
   const saving = createSlider({ saveData: true });
   saving.warmImages();
   assert.ok(saving.originals.every(card => card.image.loading === "lazy" && card.image.decodeCalls === 0));
+});
+
+test("phones hold back off-screen thumbnails until a swipe brings them near, then restore all on wider screens", () => {
+  const slider = createSlider({ mobile: true });
+  const [first, ...rest] = slider.originals.map(card => card.image);
+  assert.equal(first.getAttribute("data-src"), null);
+  assert.ok(rest.every(image => image.getAttribute("data-src")?.startsWith("thumb-") && image.src.startsWith("data:image/gif")));
+  const swipe = slider.intersectionObservers.find(observer => observer.options.root);
+  assert.ok(swipe, "a swipe observer watches the card row");
+  assert.equal(swipe.options.rootMargin, "0px 100%");
+  slider.setMedia("(max-width: 720px)", false);
+  assert.ok(rest.every((image, index) => image.getAttribute("data-src") === null && image.src === `thumb-${index + 2}.webp`));
+
+  const desktop = createSlider();
+  assert.ok(desktop.originals.every(card => card.image.getAttribute("data-src") === null));
 });
