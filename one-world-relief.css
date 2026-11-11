@@ -838,8 +838,12 @@ summary:focus-visible {
   margin-bottom: 0.35rem;
 }
 
-.project-card > div:not(.project-meta):not(.project-impact):not(.project-actions),
-.project-card p {
+.project-card > div > p {
+  margin-bottom: 0;
+}
+
+.project-card > div:not(.project-meta):not(.project-impact):not(.project-actions):not(.project-media),
+.project-card > p {
   padding-inline: 1.2rem;
   margin-bottom: 0;
 }
