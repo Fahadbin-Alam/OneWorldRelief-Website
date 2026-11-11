@@ -1075,3 +1075,8 @@ li a:not(.button) {
   text-decoration: underline;
   text-underline-offset: 0.18em;
 }
+
+.about-cta {
+  margin-top: 1.4rem;
+  text-align: center;
+}
