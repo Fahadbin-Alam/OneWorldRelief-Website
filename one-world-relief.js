@@ -20,6 +20,19 @@
       .replace(/'/g, "&#039;");
   };
 
+  const isSafeHttpUrl = (value) => {
+    if (!String(value || "").trim()) {
+      return false;
+    }
+    try {
+      const url = new URL(String(value || ""), window.location.href);
+      // A bare site homepage (e.g. "https://www.youtube.com/") is a placeholder, not real media.
+      return (url.protocol === "https:" || url.protocol === "http:") && url.pathname.length > 1;
+    } catch (_error) {
+      return false;
+    }
+  };
+
   const formatProjectCount = (count) => {
     return `${count} ${count === 1 ? "project" : "projects"}`;
   };
@@ -30,14 +43,18 @@
     }
 
     if (projectStats) {
-      const completed = window.ONE_WORLD_RELIEF_PROJECTS.filter((project) => {
-        return String(project.status || "").toLowerCase().includes("completed");
-      }).length;
-      const active = window.ONE_WORLD_RELIEF_PROJECTS.length - completed;
+      // Count projects by their own status label so "Planned" work is not reported as "active".
+      const statusCounts = new Map();
+      window.ONE_WORLD_RELIEF_PROJECTS.forEach((project) => {
+        const label = String(project.status || "Other").trim().toLowerCase();
+        statusCounts.set(label, (statusCounts.get(label) || 0) + 1);
+      });
+      const statusChips = Array.from(statusCounts, ([label, count]) => {
+        return `<span>${count} ${escapeHtml(label)}</span>`;
+      }).join("");
       projectStats.innerHTML = `
         <span>${formatProjectCount(window.ONE_WORLD_RELIEF_PROJECTS.length)}</span>
-        <span>${completed} completed</span>
-        <span>${active} active</span>
+        ${statusChips}
       `;
     }
 
@@ -53,15 +70,35 @@
       const update = escapeHtml(project.update);
       const mediaLabel = escapeHtml(project.mediaLabel || "View update");
       const thumbnailUrl = escapeHtml(project.thumbnailUrl);
-      const mediaUrl = escapeHtml(project.mediaUrl || "#");
+      const hasMedia = isSafeHttpUrl(project.mediaUrl);
+      const mediaUrl = hasMedia ? escapeHtml(project.mediaUrl) : "";
       const donationUrl = escapeHtml(project.donationUrl || "donate.html#donationForm");
+      const isIllustrative = Boolean(project.thumbnailIsIllustrative);
+      // Stock photos are decorative (alt=""); the visible caption says they are illustrative.
+      const imageAlt = isIllustrative ? "" : `Photo from ${title}`;
+      const image = thumbnailUrl
+        ? `<img src="${thumbnailUrl}" alt="${imageAlt}" width="800" height="500" loading="lazy" decoding="async" />`
+        : "";
+      const illustrativeNote = isIllustrative ? `<small class="photo-note">Illustrative stock photo</small>` : "";
+      const newTabHint = `<span class="visually-hidden"> for ${title} (opens in a new tab)</span>`;
+      const mediaBlock = hasMedia
+        ? `<a class="project-media" href="${mediaUrl}" target="_blank" rel="noopener noreferrer">
+            ${image}
+            <span>${mediaLabel}${newTabHint}</span>
+            ${illustrativeNote}
+          </a>`
+        : `<div class="project-media">
+            ${image}
+            <span>${mediaLabel}</span>
+            ${illustrativeNote}
+          </div>`;
+      const mediaAction = hasMedia
+        ? `<a class="button button-outline" href="${mediaUrl}" target="_blank" rel="noopener noreferrer">${mediaLabel}${newTabHint}</a>`
+        : "";
 
       return `
         <article class="project-card">
-          <a class="project-media" href="${mediaUrl}" target="_blank" rel="noreferrer" aria-label="${mediaLabel} for ${title}">
-            <img src="${thumbnailUrl}" alt="${title}" loading="lazy" />
-            <span>${mediaLabel}</span>
-          </a>
+          ${mediaBlock}
           <div class="project-meta">
             <span>${category}</span>
             <span>${status}</span>
@@ -75,10 +112,10 @@
             <strong>${amountRaised}</strong>
             <span>${impact}</span>
           </div>
-          <p class="project-update">${update}</p>
+          ${update ? `<p class="project-update">${update}</p>` : ""}
           <div class="project-actions">
-            <a class="button button-primary" href="${donationUrl}">Donate</a>
-            <a class="button button-outline" href="${mediaUrl}" target="_blank" rel="noreferrer">${mediaLabel}</a>
+            <a class="button button-primary" href="${donationUrl}">Donate<span class="visually-hidden"> to ${category}</span></a>
+            ${mediaAction}
           </div>
         </article>
       `;

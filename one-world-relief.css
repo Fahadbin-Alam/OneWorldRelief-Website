@@ -800,7 +800,19 @@ summary:focus-visible {
   transform: scale(1.03);
 }
 
-.project-media span {
+.project-media .photo-note {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(24, 52, 71, 0.72);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.project-media > span {
   position: absolute;
   left: 0.8rem;
   bottom: 0.8rem;
