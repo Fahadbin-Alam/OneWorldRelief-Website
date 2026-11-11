@@ -15,7 +15,8 @@
   <meta property="og:site_name" content="One World Relief" />
   <meta property="og:title" content="About One World Relief" />
   <meta property="og:description" content="One World Relief is a 501(c)(3) nonprofit delivering documented direct aid in Bangladesh." />
-  <meta property="og:url" content="https://one-world-relief.org/about.html" />
+  <link rel="canonical" href="https://one-world-relief.org/about" />
+  <meta property="og:url" content="https://one-world-relief.org/about" />
   <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
   <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
   <meta name="twitter:card" content="summary_large_image" />
@@ -32,6 +33,7 @@
   <link rel="stylesheet" href="smooth-motion.css" />
 </head>
 <body class="site-body">
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -60,11 +62,11 @@
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section class="page-hero reveal">
       <div class="container page-hero-content">
         <p class="eyebrow">About</p>
-        <h1>What you do, why you do it, and how it helps.</h1>
+        <h1>What we do, why we do it, and how it helps.</h1>
         <p class="lead">
           One World Relief supports people through clean water, orphan care, feeding, zakat-based support,
           and urgent humanitarian outreach.
@@ -72,7 +74,8 @@
       </div>
     </section>
 
-    <section class="container section reveal">
+    <section class="container section reveal" aria-labelledby="missionHeading">
+      <h2 class="sr-only" id="missionHeading">Our mission</h2>
       <div class="mission-grid">
         <article class="card">
           <h3>What We Do</h3>

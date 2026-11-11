@@ -15,7 +15,8 @@
   <meta property="og:site_name" content="One World Relief" />
   <meta property="og:title" content="Donate to One World Relief" />
   <meta property="og:description" content="Give securely through Stripe to orphan support, mosque, water, feeding, family recovery, emergency aid, or Zakat, and see the documented results." />
-  <meta property="og:url" content="https://one-world-relief.org/donate.html" />
+  <link rel="canonical" href="https://one-world-relief.org/donate" />
+  <meta property="og:url" content="https://one-world-relief.org/donate" />
   <meta property="og:image" content="https://one-world-relief.org/assets/projects/case-004/korbani-meals-004-main.jpg" />
   <meta property="og:image:alt" content="Orphan students at a madrasa share a meal provided through One World Relief Case 004." />
   <meta name="twitter:card" content="summary_large_image" />
@@ -33,6 +34,7 @@
   <link rel="stylesheet" href="interactive.css" />
 </head>
 <body class="site-body donate-page">
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div class="background-shape background-shape-top" aria-hidden="true"></div>
   <div class="background-shape background-shape-bottom" aria-hidden="true"></div>
 
@@ -61,7 +63,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section class="page-hero donate-flow-hero">
       <div class="container page-hero-content donate-hero-grid">
         <header class="donate-impact-intro">
@@ -210,6 +212,9 @@
                 limited to Zakat-eligible uses.
               </p>
               <p class="donation-program-stewardship" id="selectedProgramStewardship" hidden></p>
+              <!-- TODO(owner): Add a refund policy (e.g. how to request a refund for a mistaken gift and by when)
+                   and link a privacy policy. Donor name, email, amount, note and program are shared with Stripe,
+                   written to the donation Google Sheet, and used for the receipt email; the policy should say so. -->
             </details>
             <p class="donation-status" id="donationStatus" role="status" aria-live="polite"></p>
           </form>

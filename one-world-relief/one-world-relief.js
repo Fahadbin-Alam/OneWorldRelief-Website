@@ -1070,9 +1070,7 @@
       if (!response.ok) {
         const errMessage =
           payload.detail ||
-          (response.status === 405
-            ? "Cloudflare checkout is not deployed on this route yet. Please redeploy the OneWorldRelief-Website project."
-            : "Secure checkout could not be started. Please try again.");
+          "Secure checkout could not be started. Please try again.";
         throw new Error(errMessage);
       }
 
@@ -1087,11 +1085,7 @@
         false
       );
     } catch (error) {
-      const fallbackMessage =
-        window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
-          ? "Cloudflare checkout is not connected yet for this deploy."
-          : "Payment checkout failed. Make sure the backend is running and Stripe/PayPal keys are configured.";
-      setStatus(error.message || fallbackMessage, true);
+      setStatus(error.message || "Secure checkout could not be started. Please try again.", true);
     } finally {
       donateButton.disabled = false;
       donateButton.textContent = "Continue to secure checkout →";

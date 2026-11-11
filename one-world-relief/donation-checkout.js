@@ -724,6 +724,11 @@
     submitButton.disabled = true;
     submitButton.setAttribute("aria-busy", "true");
     submitButton.textContent = "Preparing checkout...";
+    // Server or network problems are not something a donor can fix, so they get one calm message
+    // instead of internal details such as "Stripe is not configured." or "Failed to fetch".
+    const unavailableMessage =
+      "Secure checkout is temporarily unavailable. No payment was taken. Please try again in a few minutes or email Oneworldrelief.fma@gmail.com.";
+    let isRedirecting = false;
 
     try {
       const checkoutData = {
@@ -757,7 +762,9 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.detail || "Secure checkout could not be started. Please try again.");
+        // 4xx responses carry donor-facing validation messages (amount rules, email, etc.).
+        const isDonorError = response.status >= 400 && response.status < 500 && response.status !== 405;
+        throw new Error(isDonorError && payload.detail ? payload.detail : unavailableMessage);
       }
       if (!payload.redirect_url) {
         throw new Error("Stripe did not return a secure checkout link. Please try again.");
@@ -768,10 +775,24 @@
       } catch (_error) {
         // Checkout is already ready to redirect.
       }
+      isRedirecting = true;
       window.location.href = payload.redirect_url;
     } catch (error) {
-      setStatus(error.message || "Secure checkout could not be started. Please try again.", true);
+      const message = error instanceof TypeError ? unavailableMessage : error.message || unavailableMessage;
+      setStatus(message, true);
     } finally {
+      // Keep the button locked while the browser navigates to Stripe so a second checkout cannot start.
+      if (!isRedirecting) {
+        submitButton.disabled = false;
+        submitButton.removeAttribute("aria-busy");
+        updateSubmitLabel();
+      }
+    }
+  });
+
+  // Returning from Stripe with the Back button can restore this page from cache with the button still locked.
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
       submitButton.disabled = false;
       submitButton.removeAttribute("aria-busy");
       updateSubmitLabel();

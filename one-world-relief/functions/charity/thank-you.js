@@ -147,7 +147,7 @@ export const onRequestGet = async () => {
 
           .success-note {
             margin: 0;
-            color: #58788c;
+            color: #4f6b7c;
             font-size: 0.78rem;
             line-height: 1.5;
           }
